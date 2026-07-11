@@ -128,17 +128,26 @@ section{padding:88px 0; position:relative}
 .divider{height:1px; background:linear-gradient(90deg,transparent,var(--line2),transparent); max-width:var(--maxw); margin:0 auto}
 
 /* ---------- SCREENSHOTS ---------- */
-.shot-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
-@media(max-width:820px){.shot-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:520px){.shot-grid{grid-template-columns:1fr}}
-.shot{margin:0; border:1px solid var(--line); border-radius:14px; overflow:hidden; background:var(--panel); cursor:pointer; transition:transform .25s, border-color .25s, box-shadow .25s}
-.shot:hover{transform:translateY(-4px); border-color:var(--line2); box-shadow:0 18px 40px rgba(0,0,0,.45)}
-.shot.wide{grid-column:span 2}
-@media(max-width:520px){.shot.wide{grid-column:span 1}}
-.shot img,.shot-ph{display:block; width:100%; aspect-ratio:16/10; object-fit:cover}
-.shot-ph{display:grid; place-items:center; background:linear-gradient(160deg,#231809,#130c06); border-bottom:1px solid var(--line)}
-.shot-ph span{font-family:var(--serif); font-size:15px; letter-spacing:.06em; color:var(--trim-dim)}
-.shot figcaption{padding:11px 15px; font-size:14px; color:var(--muted)}
+.shot-carousel{position:relative; max-width:960px; margin:0 auto}
+.sc-viewport{overflow:hidden; border:1px solid var(--line); border-radius:16px; background:#0a0705}
+.sc-track{display:flex; transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.sc-slide{position:relative; min-width:100%; margin:0}
+.sc-slide img{display:block; width:100%; aspect-ratio:16/10; object-fit:contain; background:#0a0705; cursor:zoom-in}
+.sc-slide figcaption{position:absolute; left:14px; bottom:14px; padding:5px 14px; border-radius:999px;
+  background:rgba(13,9,6,.74); border:1px solid var(--line2); color:var(--trim-bright);
+  font-family:var(--serif); font-size:14.5px; letter-spacing:.02em}
+.sc-nav{position:absolute; top:50%; transform:translateY(-50%); z-index:3; width:44px; height:44px;
+  display:grid; place-items:center; border-radius:50%; cursor:pointer; padding:0;
+  background:rgba(13,9,6,.72); border:1px solid var(--line2); color:var(--text); font-size:26px; line-height:1;
+  transition:background .2s, border-color .2s, color .2s}
+.sc-nav:hover{background:rgba(37,26,16,.92); border-color:var(--trim); color:var(--trim-bright)}
+.sc-prev{left:12px} .sc-next{right:12px}
+.sc-dots{display:flex; gap:9px; justify-content:center; margin-top:18px}
+.sc-dot{width:9px; height:9px; border-radius:50%; border:none; padding:0; cursor:pointer;
+  background:var(--line2); transition:background .2s, transform .2s}
+.sc-dot.on{background:var(--trim-bright); transform:scale(1.3)}
+@media(max-width:560px){.sc-nav{width:38px; height:38px; font-size:22px}}
+@media(prefers-reduced-motion:reduce){.sc-track{transition:none}}
 .shot-lb{position:fixed; inset:0; z-index:1000; background:rgba(6,4,2,.93); display:flex; align-items:center; justify-content:center; padding:24px}
 .shot-lb[hidden]{display:none}
 .shot-lb img{max-width:96vw; max-height:92vh; border:1px solid var(--line2); border-radius:10px; box-shadow:0 30px 90px rgba(0,0,0,.7)}
@@ -400,27 +409,34 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
         <h2>See it in <em>action</em></h2>
         <p>A peek inside the game.</p>
       </div>
-      <div class="shot-grid">
-        <figure class="shot wide reveal" data-shot>
-          <img src="shots/raids.png" alt="A raid in progress — The Sunken Barrow gauntlet" loading="lazy">
-          <figcaption>Raids</figcaption>
-        </figure>
-        <figure class="shot reveal" data-shot>
-          <img src="shots/combat.png" alt="The Combat Mastery tree" loading="lazy">
-          <figcaption>Combat</figcaption>
-        </figure>
-        <figure class="shot reveal" data-shot>
-          <img src="shots/skilling.png" alt="Fishing, one of twelve skills" loading="lazy">
-          <figcaption>Skilling</figcaption>
-        </figure>
-        <figure class="shot reveal" data-shot>
-          <img src="shots/trees.png" alt="A 98-point passive skill tree" loading="lazy">
-          <figcaption>Passive trees</figcaption>
-        </figure>
-        <figure class="shot reveal" data-shot>
-          <img src="shots/slayer.png" alt="Slayer bounties and rewards shop" loading="lazy">
-          <figcaption>Slayer</figcaption>
-        </figure>
+      <div class="shot-carousel reveal" data-carousel>
+        <div class="sc-viewport">
+          <div class="sc-track">
+            <figure class="sc-slide">
+              <img src="shots/raids.png" alt="A raid in progress — The Sunken Barrow gauntlet" loading="lazy">
+              <figcaption>Raids</figcaption>
+            </figure>
+            <figure class="sc-slide">
+              <img src="shots/combat.png" alt="The Combat Mastery tree" loading="lazy">
+              <figcaption>Combat</figcaption>
+            </figure>
+            <figure class="sc-slide">
+              <img src="shots/skilling.png" alt="Fishing, one of twelve skills" loading="lazy">
+              <figcaption>Skilling</figcaption>
+            </figure>
+            <figure class="sc-slide">
+              <img src="shots/trees.png" alt="A 98-point passive skill tree" loading="lazy">
+              <figcaption>Passive trees</figcaption>
+            </figure>
+            <figure class="sc-slide">
+              <img src="shots/slayer.png" alt="Slayer bounties and rewards shop" loading="lazy">
+              <figcaption>Slayer</figcaption>
+            </figure>
+          </div>
+        </div>
+        <button class="sc-nav sc-prev" type="button" aria-label="Previous screenshot">&#8249;</button>
+        <button class="sc-nav sc-next" type="button" aria-label="Next screenshot">&#8250;</button>
+        <div class="sc-dots"></div>
       </div>
     </div>
   </section>
@@ -554,11 +570,36 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
 
 <div id="shotLightbox" class="shot-lb" hidden><button class="shot-lb-x" aria-label="Close">&times;</button><img alt=""></div>
 <script>
+// ---- screenshot carousel ----
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  document.querySelectorAll('[data-carousel]').forEach(function(c){
+    var track=c.querySelector('.sc-track');
+    var slides=[].slice.call(c.querySelectorAll('.sc-slide'));
+    var dotsWrap=c.querySelector('.sc-dots');
+    var n=slides.length, i=0, timer=null;
+    slides.forEach(function(_,k){
+      var b=document.createElement('button');
+      b.className='sc-dot'; b.type='button'; b.setAttribute('aria-label','Screenshot '+(k+1));
+      b.addEventListener('click',function(){ go(k); restart(); });
+      dotsWrap.appendChild(b);
+    });
+    var dots=[].slice.call(dotsWrap.children);
+    function go(k){ i=(k+n)%n; track.style.transform='translateX(-'+(i*100)+'%)'; dots.forEach(function(d,j){ d.classList.toggle('on',j===i); }); }
+    function restart(){ if(reduce) return; if(timer) clearInterval(timer); timer=setInterval(function(){ go(i+1); },5000); }
+    c.querySelector('.sc-next').addEventListener('click',function(){ go(i+1); restart(); });
+    c.querySelector('.sc-prev').addEventListener('click',function(){ go(i-1); restart(); });
+    c.addEventListener('mouseenter',function(){ if(timer){ clearInterval(timer); timer=null; } });
+    c.addEventListener('mouseleave',restart);
+    go(0); restart();
+  });
+})();
+// ---- lightbox (click a screenshot to enlarge) ----
 (function(){
   var lb=document.getElementById('shotLightbox'); if(!lb) return;
   var im=lb.querySelector('img');
-  document.querySelectorAll('.shot[data-shot]').forEach(function(f){
-    f.addEventListener('click',function(){ var img=f.querySelector('img'); if(!img) return; im.src=img.currentSrc||img.src; im.alt=img.alt||''; lb.hidden=false; });
+  document.querySelectorAll('.sc-slide img').forEach(function(img){
+    img.addEventListener('click',function(){ im.src=img.currentSrc||img.src; im.alt=img.alt||''; lb.hidden=false; });
   });
   function close(){ lb.hidden=true; im.src=''; }
   lb.addEventListener('click',close);
