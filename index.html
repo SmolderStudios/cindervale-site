@@ -128,26 +128,35 @@ section{padding:88px 0; position:relative}
 .divider{height:1px; background:linear-gradient(90deg,transparent,var(--line2),transparent); max-width:var(--maxw); margin:0 auto}
 
 /* ---------- SCREENSHOTS ---------- */
-.shot-carousel{position:relative; max-width:960px; margin:0 auto}
-.sc-viewport{overflow:hidden; border:1px solid var(--line); border-radius:16px; background:#0a0705}
-.sc-track{display:flex; transition:transform .5s cubic-bezier(.4,0,.2,1)}
-.sc-slide{position:relative; min-width:100%; margin:0}
-.sc-slide img{display:block; width:100%; aspect-ratio:16/10; object-fit:contain; background:#0a0705; cursor:zoom-in}
-.sc-slide figcaption{position:absolute; left:14px; bottom:14px; padding:5px 14px; border-radius:999px;
-  background:rgba(13,9,6,.74); border:1px solid var(--line2); color:var(--trim-bright);
-  font-family:var(--serif); font-size:14.5px; letter-spacing:.02em}
-.sc-nav{position:absolute; top:50%; transform:translateY(-50%); z-index:3; width:44px; height:44px;
-  display:grid; place-items:center; border-radius:50%; cursor:pointer; padding:0;
-  background:rgba(13,9,6,.72); border:1px solid var(--line2); color:var(--text); font-size:26px; line-height:1;
-  transition:background .2s, border-color .2s, color .2s}
-.sc-nav:hover{background:rgba(37,26,16,.92); border-color:var(--trim); color:var(--trim-bright)}
-.sc-prev{left:12px} .sc-next{right:12px}
-.sc-dots{display:flex; gap:9px; justify-content:center; margin-top:18px}
-.sc-dot{width:9px; height:9px; border-radius:50%; border:none; padding:0; cursor:pointer;
-  background:var(--line2); transition:background .2s, transform .2s}
-.sc-dot.on{background:var(--trim-bright); transform:scale(1.3)}
-@media(max-width:560px){.sc-nav{width:38px; height:38px; font-size:22px}}
-@media(prefers-reduced-motion:reduce){.sc-track{transition:none}}
+.feature-slider{display:grid; grid-template-columns:0.82fr 1.18fr; gap:40px; align-items:center; max-width:1060px; margin:0 auto}
+@media(max-width:840px){.feature-slider{grid-template-columns:1fr; gap:26px}}
+.fs-text{min-width:0}
+.fs-index{font-family:var(--serif); color:var(--dim); font-size:15px; letter-spacing:.14em; margin-bottom:16px}
+.fs-index b{color:var(--trim-bright); font-weight:600; font-size:22px}
+.fs-title{font-family:var(--serif); font-size:clamp(26px,3.2vw,34px); color:var(--text); margin:0 0 12px}
+.fs-desc{color:var(--muted); font-size:17px; line-height:1.6; margin:0 0 28px}
+@media(min-width:841px){.fs-title{min-height:1.15em}.fs-desc{min-height:3.2em}}
+.fs-controls{display:flex; align-items:center; gap:16px}
+.fs-arrow{width:46px; height:46px; border-radius:50%; border:1px solid var(--line2); background:rgba(28,19,10,.55);
+  color:var(--text); font-size:24px; line-height:1; cursor:pointer; display:grid; place-items:center; padding:0;
+  transition:border-color .2s, color .2s, background .2s}
+.fs-arrow:hover{border-color:var(--trim); color:var(--trim-bright); background:rgba(37,26,16,.85)}
+.fs-dots{display:flex; gap:9px; margin-left:6px}
+.fs-dot{width:8px; height:8px; border-radius:50%; border:none; padding:0; cursor:pointer; background:var(--line2); transition:background .2s, transform .2s}
+.fs-dot.on{background:var(--trim-bright); transform:scale(1.35)}
+.fs-media{position:relative; min-width:0}
+.fs-stage{position:relative; aspect-ratio:16/10; border-radius:16px; overflow:hidden; border:1px solid var(--line2);
+  background:#0a0705; box-shadow:0 30px 70px rgba(0,0,0,.5)}
+.fs-img{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; padding:10px;
+  opacity:0; pointer-events:none; transition:opacity .55s ease; cursor:zoom-in}
+.fs-img.on{opacity:1; pointer-events:auto}
+.fs-fill{position:absolute; left:0; bottom:0; height:3px; width:100%; z-index:2; pointer-events:none;
+  transform:scaleX(0); transform-origin:left; background:linear-gradient(90deg, var(--ember), var(--trim-bright))}
+.fs-fill.run{animation:fsprog 5s linear forwards}
+.feature-slider:hover .fs-fill.run{animation-play-state:paused}
+@keyframes fsprog{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(max-width:840px){.fs-media{order:-1}}
+@media(prefers-reduced-motion:reduce){.fs-img{transition:none}.fs-fill{display:none}}
 .shot-lb{position:fixed; inset:0; z-index:1000; background:rgba(6,4,2,.93); display:flex; align-items:center; justify-content:center; padding:24px}
 .shot-lb[hidden]{display:none}
 .shot-lb img{max-width:96vw; max-height:92vh; border:1px solid var(--line2); border-radius:10px; box-shadow:0 30px 90px rgba(0,0,0,.7)}
@@ -409,34 +418,27 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
         <h2>See it in <em>action</em></h2>
         <p>A peek inside the game.</p>
       </div>
-      <div class="shot-carousel reveal" data-carousel>
-        <div class="sc-viewport">
-          <div class="sc-track">
-            <figure class="sc-slide">
-              <img src="shots/raids.png" alt="A raid in progress — The Sunken Barrow gauntlet">
-              <figcaption>Raids</figcaption>
-            </figure>
-            <figure class="sc-slide">
-              <img src="shots/combat.png" alt="The Combat Mastery tree">
-              <figcaption>Combat</figcaption>
-            </figure>
-            <figure class="sc-slide">
-              <img src="shots/skilling.png" alt="Fishing, one of twelve skills">
-              <figcaption>Skilling</figcaption>
-            </figure>
-            <figure class="sc-slide">
-              <img src="shots/trees.png" alt="A 98-point passive skill tree">
-              <figcaption>Passive trees</figcaption>
-            </figure>
-            <figure class="sc-slide">
-              <img src="shots/slayer.png" alt="Slayer bounties and rewards shop">
-              <figcaption>Slayer</figcaption>
-            </figure>
+      <div class="feature-slider reveal" data-fslider>
+        <div class="fs-text">
+          <div class="fs-index"><b class="fs-cur">01</b> / 05</div>
+          <h3 class="fs-title">Raids</h3>
+          <p class="fs-desc">No-retreat gauntlets — clear every stage, or walk away with nothing.</p>
+          <div class="fs-controls">
+            <button class="fs-arrow fs-prev" type="button" aria-label="Previous">&#8249;</button>
+            <button class="fs-arrow fs-next" type="button" aria-label="Next">&#8250;</button>
+            <div class="fs-dots"></div>
           </div>
         </div>
-        <button class="sc-nav sc-prev" type="button" aria-label="Previous screenshot">&#8249;</button>
-        <button class="sc-nav sc-next" type="button" aria-label="Next screenshot">&#8250;</button>
-        <div class="sc-dots"></div>
+        <div class="fs-media">
+          <div class="fs-stage">
+            <img class="fs-img on" src="shots/raids.png" alt="A raid in progress — The Sunken Barrow gauntlet" data-title="Raids" data-desc="No-retreat gauntlets — clear every stage, or walk away with nothing.">
+            <img class="fs-img" src="shots/combat.png" alt="The Combat Mastery tree" data-title="Combat" data-desc="A deep mastery tree that reshapes how you fight.">
+            <img class="fs-img" src="shots/skilling.png" alt="Fishing — one of twelve skills" data-title="Skilling" data-desc="Twelve skills to level, each with its own loop.">
+            <img class="fs-img" src="shots/trees.png" alt="A 98-point passive skill tree" data-title="Passive trees" data-desc="A 98-point passive tree behind every single skill.">
+            <img class="fs-img" src="shots/slayer.png" alt="Slayer bounties and rewards shop" data-title="Slayer" data-desc="Take bounties, bank points, cash them in for perks.">
+            <span class="fs-fill" aria-hidden="true"></span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -570,35 +572,42 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
 
 <div id="shotLightbox" class="shot-lb" hidden><button class="shot-lb-x" aria-label="Close">&times;</button><img alt=""></div>
 <script>
-// ---- screenshot carousel ----
+// ---- feature slider ----
 (function(){
   var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-  document.querySelectorAll('[data-carousel]').forEach(function(c){
-    var track=c.querySelector('.sc-track');
-    var slides=[].slice.call(c.querySelectorAll('.sc-slide'));
-    var dotsWrap=c.querySelector('.sc-dots');
-    var n=slides.length, i=0, timer=null;
-    slides.forEach(function(_,k){
+  document.querySelectorAll('[data-fslider]').forEach(function(c){
+    var imgs=[].slice.call(c.querySelectorAll('.fs-img'));
+    var n=imgs.length, i=0;
+    var elCur=c.querySelector('.fs-cur'), elTitle=c.querySelector('.fs-title'), elDesc=c.querySelector('.fs-desc');
+    var dotsWrap=c.querySelector('.fs-dots'), fill=c.querySelector('.fs-fill');
+    imgs.forEach(function(_,k){
       var b=document.createElement('button');
-      b.className='sc-dot'; b.type='button'; b.setAttribute('aria-label','Screenshot '+(k+1));
-      b.addEventListener('click',function(){ go(k); restart(); });
+      b.className='fs-dot'; b.type='button'; b.setAttribute('aria-label','Feature '+(k+1));
+      b.addEventListener('click',function(){ go(k); play(); });
       dotsWrap.appendChild(b);
     });
     var dots=[].slice.call(dotsWrap.children);
-    function go(k){ i=(k+n)%n; track.style.transform='translateX(-'+(i*100)+'%)'; dots.forEach(function(d,j){ d.classList.toggle('on',j===i); }); }
-    function restart(){ if(reduce) return; if(timer) clearInterval(timer); timer=setInterval(function(){ go(i+1); },5000); }
-    c.querySelector('.sc-next').addEventListener('click',function(){ go(i+1); restart(); });
-    c.querySelector('.sc-prev').addEventListener('click',function(){ go(i-1); restart(); });
-    c.addEventListener('mouseenter',function(){ if(timer){ clearInterval(timer); timer=null; } });
-    c.addEventListener('mouseleave',restart);
-    go(0); restart();
+    function go(k){
+      i=(k+n)%n;
+      imgs.forEach(function(im,j){ im.classList.toggle('on',j===i); });
+      dots.forEach(function(d,j){ d.classList.toggle('on',j===i); });
+      var a=imgs[i];
+      if(elCur) elCur.textContent=('0'+(i+1)).slice(-2);
+      if(elTitle) elTitle.textContent=a.getAttribute('data-title')||'';
+      if(elDesc) elDesc.textContent=a.getAttribute('data-desc')||'';
+    }
+    function play(){ if(reduce||!fill) return; fill.classList.remove('run'); void fill.offsetWidth; fill.classList.add('run'); }
+    if(fill) fill.addEventListener('animationend',function(){ go(i+1); play(); });
+    c.querySelector('.fs-next').addEventListener('click',function(){ go(i+1); play(); });
+    c.querySelector('.fs-prev').addEventListener('click',function(){ go(i-1); play(); });
+    go(0); play();
   });
 })();
 // ---- lightbox (click a screenshot to enlarge) ----
 (function(){
   var lb=document.getElementById('shotLightbox'); if(!lb) return;
   var im=lb.querySelector('img');
-  document.querySelectorAll('.sc-slide img').forEach(function(img){
+  document.querySelectorAll('.fs-img').forEach(function(img){
     img.addEventListener('click',function(){ im.src=img.currentSrc||img.src; im.alt=img.alt||''; lb.hidden=false; });
   });
   function close(){ lb.hidden=true; im.src=''; }
