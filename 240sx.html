@@ -77,6 +77,7 @@ textarea#ioBox{width:100%;background:#0a0c10;border:1px solid var(--edge);border
 /* interactive system map */
 #sysmap .edge{opacity:.5;transition:opacity .15s}
 #sysmap .edge text{opacity:0;transition:opacity .15s}
+#sysmap .edge.lbl-on text{opacity:1}
 #sysmap .node{cursor:pointer}
 #sysmap .node rect{transition:opacity .15s}
 #sysmap.sel .edge{opacity:.05}
@@ -160,10 +161,10 @@ function dFuse(x,y,lbl){
 function dGnd(x,y){
   return `<line x1="${x}" y1="${y}" x2="${x}" y2="${y+8}" stroke="#777" stroke-width="2.5"/><line x1="${x-9}" y1="${y+8}" x2="${x+9}" y2="${y+8}" stroke="#777" stroke-width="2.5"/><line x1="${x-6}" y1="${y+12}" x2="${x+6}" y2="${y+12}" stroke="#777" stroke-width="2"/><line x1="${x-3}" y1="${y+16}" x2="${x+3}" y2="${y+16}" stroke="#777" stroke-width="1.5"/>`;
 }
-function dRelay(x,y,name){
+function dRelay(x,y,name,sub){
   let s=`<rect x="${x}" y="${y}" width="96" height="76" rx="8" fill="#1b2130" stroke="#ff7a3c" stroke-width="1.5"/>`;
   s+=`<text x="${x+48}" y="${y+16}" text-anchor="middle" fill="#ffb35c" font-size="10" font-weight="700">${name}</text>`;
-  s+=`<text x="${x+48}" y="${y+27}" text-anchor="middle" fill="#9aa3b5" font-size="8">in relay box</text>`;
+  s+=`<text x="${x+48}" y="${y+27}" text-anchor="middle" fill="#ffb35c" font-size="8.5" font-weight="700">${sub||'in relay box'}</text>`;
   // pins: 30 left-mid, 87 right-mid, 86 top-inner, 85 bottom-inner
   s+=`<circle cx="${x}" cy="${y+48}" r="3.5" fill="#e8e6df"/><text x="${x+9}" y="${y+52}" fill="#e8e6df" font-size="9" font-weight="700">30</text>`;
   s+=`<circle cx="${x+96}" cy="${y+48}" r="3.5" fill="#e8e6df"/><text x="${x+87}" y="${y+52}" text-anchor="end" fill="#e8e6df" font-size="9" font-weight="700">87</text>`;
@@ -237,7 +238,7 @@ function relayDiagram(o){
   s+=dFuse(170,60,o.mainFuse);
   s+=W([[186,60],[260,60],[260,108],[300,108]],o.mainWire||'RED',(o.mainWireLbl||''),240,95);
   // relay
-  s+=dRelay(300,60,o.relay||'RELAY');
+  s+=dRelay(300,60,o.relay||'RELAY',o.relaySub);
   // coil feed: IGN rail → coil fuse → 86
   s+=dRail(230,o.coilSrc||'+12V IGN','YEL');
   s+=W([[90,230],[140,230]],'YEL');
@@ -474,20 +475,20 @@ const CIRCUITS=[
     ['rockers',.5,'gnd',.5,0,'BLK','switch grounds',0,[[270,518],[270,540],[160,540],[160,410],[130,410]]],
     ['ecu',.5,'boxa',.5,0,'TAN','pump + fan triggers',1,[[270,78],[270,140]]],
     ['ecu',.5,'gauges',.3,432,'TAN','tach + SGI speed',1],
-    ['boxa',.1,'lows',.5,352,'WHT','12ga · 20A'],
-    ['boxa',.3,'highs',.5,368,'BLU','12ga · 20A'],
-    ['boxa',.5,'popups',.5,384,'WHT','14ga · 15A'],
-    ['boxa',.7,'fans',.5,400,'LTB','10ga · 30A ×2'],
-    ['boxa',.9,'pump',.5,416,'PNK','12ga · 15A'],
-    ['boxb',.1,'starter',.75,0,'VIO','start sig · 30A',0,[[210,336],[168,336],[168,273],[130,273]]],
-    ['boxb',.2,'gauges',.7,352,'YEL','16ga · 5A bus'],
-    ['boxb',.3,'park',.5,366,'BRN','14ga · 15A'],
-    ['boxb',.42,'brake',.5,380,'RED','10A → pedal sw'],
-    ['boxb',.54,'turns',.5,394,'GRN','10A ×2 flashers'],
-    ['boxb',.66,'rev',.5,408,'LTB','10A + lockout 5A'],
-    ['boxb',.78,'wipers',.5,422,'BLU','14ga · 20A'],
-    ['boxb',.9,'horn',.5,436,'GRN','14ga · 15A'],
-    ['boxb',.97,'dome',.5,450,'ORN','5A + 15A'],
+    ['boxa',.1,'lows',.5,352,'WHT','A·R1 · 20A · 12ga'],
+    ['boxa',.3,'highs',.5,368,'BLU','A·R2 · 20A · 12ga'],
+    ['boxa',.5,'popups',.5,384,'WHT','A·R6 · 15A · 14ga'],
+    ['boxa',.7,'fans',.5,400,'LTB','A·R3+R4 · 30A · 10ga'],
+    ['boxa',.9,'pump',.5,416,'PNK','A·R5 · 15A · 12ga'],
+    ['boxb',.1,'starter',.75,0,'VIO','B·R1 · 30A · 12ga',0,[[210,336],[168,336],[168,273],[130,273]]],
+    ['boxb',.2,'gauges',.7,352,'YEL','B·fuse 5A · 16ga'],
+    ['boxb',.3,'park',.5,366,'BRN','B·R2 · 15A · 14ga'],
+    ['boxb',.42,'brake',.5,380,'RED','B·fuse 10A · 14ga'],
+    ['boxb',.54,'turns',.5,394,'GRN','B·fuse 10A ×2 · 16ga'],
+    ['boxb',.66,'rev',.5,408,'LTB','B·fuse 10A+5A · 16ga'],
+    ['boxb',.78,'wipers',.5,422,'BLU','B·R3 · 20A · 14ga'],
+    ['boxb',.9,'horn',.5,436,'GRN','B·R4 · 15A · 14ga'],
+    ['boxb',.97,'dome',.5,450,'ORN','B·fuse 5A+15A · 16ga'],
     ['park',.5,'gauges',.5,0,'GRY','dimmer',1,[[600,405],[640,405],[640,349],[600,349]]],
   ];
   let d='';
@@ -501,14 +502,15 @@ const CIRCUITS=[
     const P=pts.map(p=>p.join(',')).join(' ');
     const last=pts[pts.length-1], prev=pts[pts.length-2];
     const lx=Math.round((last[0]+prev[0])/2), ly=last[1]-7;
-    d+=`<g class="edge" data-c="${e[0]} ${e[2]}"><polyline points="${P}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linejoin="round"${e[7]?' stroke-dasharray="5 4"':''}/><text x="${lx}" y="${ly}" text-anchor="middle" fill="#e8e6df" font-size="9" font-weight="700" paint-order="stroke" stroke="#0a0c10" stroke-width="3">${e[6]}</text></g>`;
+    const always=(N[e[2]][0]>=470)||((e[0]==='post'||e[0]==='sol')&&(e[2]==='boxa'||e[2]==='boxb'));
+    d+=`<g class="edge${always?' lbl-on':''}" data-c="${e[0]} ${e[2]}"><polyline points="${P}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linejoin="round"${e[7]?' stroke-dasharray="5 4"':''}/><text x="${lx}" y="${ly}" text-anchor="middle" fill="#e8e6df" font-size="9" font-weight="700" paint-order="stroke" stroke="#0a0c10" stroke-width="3">${e[6]}</text></g>`;
   });
   Object.keys(N).forEach(k=>{
     const n=N[k];
     d+=`<g class="node" data-id="${k}" onclick="sysSel('${k}')"><rect x="${n[0]}" y="${n[1]}" width="${n[2]}" height="${n[3]}" rx="8" fill="#151922" stroke="${n[6]||'#3a4560'}" stroke-width="1.5"/><text x="${n[0]+n[2]/2}" y="${n[1]+(n[5]?n[3]/2-2:n[3]/2+4)}" text-anchor="middle" fill="#e8e6df" font-size="10" font-weight="700" pointer-events="none">${n[4]}</text>${n[5]?`<text x="${n[0]+n[2]/2}" y="${n[1]+n[3]/2+11}" text-anchor="middle" fill="#9aa3b5" font-size="8" pointer-events="none">${n[5]}</text>`:''}</g>`;
   });
   let s=`<div class="dwrap"><svg id="sysmap" viewBox="0 0 700 790" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Roboto,sans-serif">${d}</svg></div>`;
-  s+='<div class="note"><b>Tap any box</b> — Box A, the solenoid, gauges, whatever — and only its wires stay lit with their gauge + fuse labels showing. Tap the same box again to show everything. Grounds: every load also grounds to the chassis/ground bus — only the main ground runs are drawn to keep it readable.</div>';
+  s+='<div class="note"><b>Reading the labels:</b> A·R1 = Box A, relay slot R1 · then fuse size · then wire gauge. "B·fuse" = fuse-only circuit in Box B, no relay. <b>Tap any box</b> to light up only its wires (the quieter left-side labels appear when tapped); tap again to reset. Grounds: every load also grounds to the chassis/ground bus — only the main ground runs are drawn to keep it readable.</div>';
   return s;
  }},
 /* ---- wire run map ---- */
@@ -628,7 +630,7 @@ const CIRCUITS=[
  simple:'IGN rocker on = everything wakes up. START momentary rocker grounds the start relay coil; relay sends fused 12V to the starter S terminal.',
  body:()=>{
   let s=relayDiagram({
-    mainFuse:'30A',relay:'START RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    mainFuse:'30A · BOX B',relay:'START RELAY',relaySub:'BOX B · slot R1',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
     trig:'ground-switch',trigLbl:'START',trigSub:'MOMENTARY rocker',
     load:'STARTER SOLENOID',loadSub:'S terminal on starter',loadWire:'VIO',loadWireLbl:'VIOLET 12ga'});
   s+=wireRow([
@@ -646,7 +648,7 @@ const CIRCUITS=[
  simple:'POP rocker grounds a relay coil; relay feeds both retractor motors 12V. Motors self-park — bench-test which terminal is up vs down before wiring.',
  body:()=>{
   let s=relayDiagram({
-    mainFuse:'15A',relay:'POP RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    mainFuse:'15A · BOX A',relay:'POP RELAY',relaySub:'BOX A · slot R6',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
     trig:'ground-switch',trigLbl:'POP',trigSub:'rocker (latching)',
     load:'RETRACTOR MOTORS',loadSub:'L + R, self-parking',loadWire:'WHT',loadWireLbl:'WHITE 14ga'});
   s+=wireRow([
@@ -661,10 +663,10 @@ const CIRCUITS=[
  simple:'HEAD rocker grounds the low-beam relay → WHITE wire to both lows. HI/LO rocker in series adds the high-beam relay → BLUE wire to both highs.',
  body:()=>{
   let s=relayDiagram({
-    mainFuse:'20A',relay:'LOW BEAM RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    mainFuse:'20A · BOX A',relay:'LOW BEAM RELAY',relaySub:'BOX A · slot R1',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
     trig:'ground-switch',trigLbl:'HEAD',trigSub:'rocker',
     load:'LOW BEAMS L+R',loadSub:'each side fused 10A',loadWire:'WHT',loadWireLbl:'WHITE 12ga'});
-  s+='<p style="font-size:.8rem;color:var(--dim);margin:6px 4px">High beams = identical second relay, <b>BLUE</b> wire, triggered through the HI/LO rocker in series with the HEAD rocker ground (both on = highs). Run lows + highs together if you want highs to add rather than replace.</p>';
+  s+='<p style="font-size:.8rem;color:var(--dim);margin:6px 4px">High beams = identical second relay (<b>BOX A slot R2</b>, 20A fuse), <b>BLUE</b> wire, triggered through the HI/LO rocker in series with the HEAD rocker ground (both on = highs). Run lows + highs together if you want highs to add rather than replace.</p>';
   s+=wireRow([
    ['WHT','12','Low relay 87 → low beam terminals (9004: verify pinout at plug)'],
    ['BLU','12','High relay 87 → high beam terminals'],
@@ -679,7 +681,7 @@ const CIRCUITS=[
  simple:'LIGHTS rocker grounds the park relay → one BROWN wire feeds corners up front and tails + plate out back. Same output also feeds the GRAY gauge dimmer wire.',
  body:()=>{
   let s=relayDiagram({
-    mainFuse:'15A',relay:'PARK RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    mainFuse:'15A · BOX B',relay:'PARK RELAY',relaySub:'BOX B · slot R2',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
     trig:'ground-switch',trigLbl:'LIGHTS',trigSub:'rocker',
     load:'PARK + TAIL + PLATE',loadSub:'corners, tails, license',loadWire:'BRN',loadWireLbl:'BROWN 14ga'});
   s+=wireRow([
@@ -697,7 +699,7 @@ const CIRCUITS=[
   let d='';
   d+=dRail(60,'+12V BATT');
   d+=W([[90,60],[150,60]],'RED');
-  d+=dFuse(170,60,'10A');
+  d+=dFuse(170,60,'10A · BOX B');
   d+=W([[186,60],[250,60]],'RED');
   d+=dSwitch(286,60,'BRAKE PEDAL','stock switch on pedal');
   d+=W([[320,60],[420,60]],'GRN','GREEN 14ga',372,50);
@@ -720,7 +722,7 @@ const CIRCUITS=[
   // turn flasher
   d+=dRail(60,'+12V IGN','YEL');
   d+=W([[90,60],[140,60]],'YEL');
-  d+=dFuse(160,60,'10A');
+  d+=dFuse(160,60,'10A · BOX B');
   d+=W([[176,60],[230,60]],'YEL');
   d+=dBox(230,36,110,48,'FLASHER #1','CF-13KT · B in, L out');
   d+=W([[340,60],[390,60]],'GRN','L',365,50);
@@ -733,7 +735,7 @@ const CIRCUITS=[
   // hazard flasher
   d+=dRail(170,'+12V BATT','RED');
   d+=W([[90,170],[140,170]],'RED');
-  d+=dFuse(160,170,'10A');
+  d+=dFuse(160,170,'10A · BOX B');
   d+=W([[176,170],[230,170]],'RED');
   d+=dBox(230,146,110,48,'FLASHER #2','CF-13KT hazards');
   d+=W([[340,170],[390,170]],'ORN','L',365,160);
@@ -759,7 +761,7 @@ const CIRCUITS=[
  simple:'ECU (or FAN rocker override) grounds the fan relay coil → relay sends fused 30A to the fan on LT BLUE 10ga. One relay per fan if running duals.',
  body:()=>{
   let s=relayDiagram({
-    mainFuse:'30A',relay:'FAN RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    mainFuse:'30A · BOX A',relay:'FAN RELAY',relaySub:'BOX A · R3 + R4',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
     trig:'ecu-ground',trigLbl:'ECU FAN TRIGGER',trigSub:'swap harness fan wire',trigColor:'TAN',
     override:'FAN ROCKER',
     load:'FAN(S)',loadSub:'30A relay per fan if dual',loadWire:'LTB',loadWireLbl:'LT BLUE 10ga'});
@@ -776,7 +778,7 @@ const CIRCUITS=[
  simple:'Swap harness pump trigger works the relay coil; relay sends fused 12V on PINK 12ga back to the pump. Pump gets its own clean chassis ground at the tank.',
  body:()=>{
   let s=relayDiagram({
-    mainFuse:'15A',relay:'PUMP RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    mainFuse:'15A · BOX A',relay:'PUMP RELAY',relaySub:'BOX A · slot R5',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
     trig:'ecu-ground',trigLbl:'HARNESS PUMP TRIGGER',trigSub:'primes 2s at key-on',trigColor:'PNK',
     load:'ISR 255 PUMP',loadSub:'in tank',loadWire:'PNK',loadWireLbl:'PINK 12ga'});
   s+=wireRow([
@@ -794,7 +796,7 @@ const CIRCUITS=[
   let d='';
   d+=dRail(50,'+12V IGN','YEL');
   d+=W([[90,50],[130,50]],'YEL');
-  d+=dFuse(150,50,'5A');
+  d+=dFuse(150,50,'5A · BOX B');
   d+=W([[166,50],[220,50]],'YEL','gauge power bus',260,40);
   d+=dRail(110,'DIMMER (GRY)','GRY');
   d+=W([[90,110],[220,110]],'GRY');
@@ -828,7 +830,7 @@ const CIRCUITS=[
   let d='';
   d+=dRail(60,'+12V IGN','YEL');
   d+=W([[90,60],[140,60]],'YEL');
-  d+=dFuse(160,60,'10A');
+  d+=dFuse(160,60,'10A · BOX B');
   d+=W([[176,60],[240,60]],'YEL');
   d+=dBox(240,36,150,48,'TR6060 REVERSE SW','closes in reverse');
   d+=W([[390,60],[450,60]],'LTB','LT BLUE 16ga',420,50);
@@ -837,7 +839,7 @@ const CIRCUITS=[
   // lockout
   d+=dRail(170,'+12V IGN','YEL');
   d+=W([[90,170],[140,170]],'YEL');
-  d+=dFuse(160,170,'5A');
+  d+=dFuse(160,170,'5A · BOX B');
   d+=W([[176,170],[240,170]],'YEL');
   d+=dSwitch(276,170,'LOCKOUT','MOMENTARY rocker');
   d+=W([[310,170],[400,170]],'ORN','ORANGE 16ga',355,160);
@@ -856,7 +858,7 @@ const CIRCUITS=[
  simple:'WIPER rocker grounds the wiper relay → fused 12V to the motor LOW terminal. Park contact keeps it fed until arms reach rest. Bench-test the motor pins first.',
  body:()=>{
   let s=relayDiagram({
-    mainFuse:'20A',relay:'WIPER RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    mainFuse:'20A · BOX B',relay:'WIPER RELAY',relaySub:'BOX B · slot R3',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
     trig:'ground-switch',trigLbl:'WIPER',trigSub:'rocker (or 3-pos LO/HI)',
     load:'WIPER MOTOR',loadSub:'stock S13, LOW terminal',loadWire:'BLU',loadWireLbl:'BLUE 14ga'});
   s+=wireRow([
@@ -872,7 +874,7 @@ const CIRCUITS=[
  simple:'Momentary HORN button grounds the relay coil; relay feeds the horns fused 12V.',
  body:()=>{
   let s=relayDiagram({
-    mainFuse:'15A',relay:'HORN RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    mainFuse:'15A · BOX B',relay:'HORN RELAY',relaySub:'BOX B · slot R4',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
     trig:'ground-switch',trigLbl:'HORN',trigSub:'MOMENTARY (wheel or rocker)',
     load:'HORNS',loadSub:'hi + lo pair',loadWire:'GRN',loadWireLbl:'GREEN 14ga'});
   s+='<div class="note">If you keep the steering-wheel horn button it’s just the ground path for pin 85 through the clock spring — same circuit, different switch.</div>';
