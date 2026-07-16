@@ -1010,6 +1010,16 @@ function refHTML(){
   [['2/0','300A+','Battery run, engine ground'],['4','100A','Ground straps'],['8','60–80A','Box feeds, master solenoid'],['10','40A','Fans'],['12','25A','Pump, starter sig, headlights, 12V skt'],['14','15A','Lamps, horn, wipers'],['16','10A','Turns, small loads, relay coils'],['18','5A','Senders, triggers, dimmer']]
   .map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')+'</table></div></div>';
 
+  s+='<h3 class="sec">Gauge sizes & mounting</h3><div class="card open"><div class="cbody" style="display:block;padding-top:12px"><table class="wt"><tr><th>Gauge</th><th>Size / hole</th><th>Range</th><th>Sender / signal</th></tr>'+
+  [['Tachometer','3-3/4" (95mm)','0–10,000 rpm + shift light','harness tach wire · set 8-cyl'],
+   ['Speedometer','3-3/4" (95mm)','140 mph','SGI-100BT output'],
+   ['Oil pressure','2-1/16" (52mm)','0–100 psi','electric sender · 1/8-27 NPT in M16 adapter'],
+   ['Oil temp','2-1/16" (52mm)','up to 300°F','electric sender · 1/8-27 NPT in cooler block port'],
+   ['Water temp','2-1/16" (52mm)','up to 300°F','electric sender · 1/8-27 NPT in M12 adapter'],
+   ['Fuel level','2-1/16" (52mm)','adjustable ohm','stock S13 tank sender wire']]
+  .map(r=>`<tr><td><b>${r[0]}</b></td><td style="white-space:nowrap">${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')+'</table>'+
+  '<div class="note">Cutouts: the four 52mm gauges take a <b>2-1/16" (52.5mm)</b> hole, the tach + speedo take <b>3-3/4" (95mm)</b>. All six are GlowShift Tinted 7-Color, black dial, smoked lens — but measure body depth against your dash/pod before committing to a spot, the 95s sit deep. Layout tip: tach + speedo front and center in the cluster hole, the four 52s where you can actually see oil pressure while driving.</div></div></div>';
+
   s+='<h3 class="sec">Settings cheat sheet</h3><div class="card open"><div class="cbody" style="display:block;padding-top:12px"><table class="wt">'+
   [['GlowShift tach','8-cylinder mode; signal from swap harness tach wire'],
    ['GlowShift fuel','Meter the stock sender: note ohms at full + empty, pick matching range in gauge setup'],
