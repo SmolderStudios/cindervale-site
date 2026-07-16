@@ -76,14 +76,15 @@ h3.sec{font-size:.78rem;text-transform:uppercase;letter-spacing:1px;color:var(--
 textarea#ioBox{width:100%;background:#0a0c10;border:1px solid var(--edge);border-radius:10px;color:var(--txt);font-family:monospace;font-size:.75rem;padding:10px;min-height:70px;margin-top:8px}
 /* interactive system map */
 #sysmap .edge{opacity:.5;transition:opacity .15s}
-#sysmap .edge text{opacity:0;transition:opacity .15s}
-#sysmap .edge.lbl-on text{opacity:1}
+#sysmap .elbl{opacity:0;transition:opacity .15s}
+#sysmap .elbl.lbl-on{opacity:1}
 #sysmap .node{cursor:pointer}
 #sysmap .node rect{transition:opacity .15s}
 #sysmap.sel .edge{opacity:.05}
 #sysmap.sel .edge.hi{opacity:1}
-#sysmap.sel .edge.hi text{opacity:1}
 #sysmap.sel .edge.hi polyline{stroke-width:3.5}
+#sysmap.sel .elbl{opacity:0}
+#sysmap.sel .elbl.hi{opacity:1}
 #sysmap.sel .node{opacity:.22}
 #sysmap.sel .node.hi{opacity:1}
 .tag{display:inline-block;font-size:.66rem;padding:2px 7px;border-radius:99px;background:#ff7a3c22;color:var(--ember2);border:1px solid #ff7a3c44;margin-left:6px;vertical-align:1px}
@@ -491,7 +492,7 @@ const CIRCUITS=[
     ['boxb',.97,'dome',.5,450,'ORN','B·fuse 5A+15A · 16ga'],
     ['park',.5,'gauges',.5,0,'GRY','dimmer',1,[[600,405],[640,405],[640,349],[600,349]]],
   ];
-  let d='';
+  let d='', lbls='';
   E.forEach(e=>{
     const a=N[e[0]], b=N[e[2]], col=getCol(e[5]);
     let pts=e[8];
@@ -501,15 +502,21 @@ const CIRCUITS=[
     }
     const P=pts.map(p=>p.join(',')).join(' ');
     const last=pts[pts.length-1], prev=pts[pts.length-2];
-    const lx=Math.round((last[0]+prev[0])/2), ly=last[1]-7;
+    const lw=Math.round(e[6].length*5.6+10);
+    let lx=Math.round((last[0]+prev[0])/2), ly=last[1]-8;
+    if(last[1]===prev[1]){ // horizontal end segment: keep pill out of the target node
+      if(last[0]>prev[0]) lx=Math.min(lx,last[0]-4-lw/2);
+      else lx=Math.max(lx,last[0]+4+lw/2);
+    }
     const always=(N[e[2]][0]>=470)||((e[0]==='post'||e[0]==='sol')&&(e[2]==='boxa'||e[2]==='boxb'));
-    d+=`<g class="edge${always?' lbl-on':''}" data-c="${e[0]} ${e[2]}"><polyline points="${P}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linejoin="round"${e[7]?' stroke-dasharray="5 4"':''}/><text x="${lx}" y="${ly}" text-anchor="middle" fill="#e8e6df" font-size="9" font-weight="700" paint-order="stroke" stroke="#0a0c10" stroke-width="3">${e[6]}</text></g>`;
+    d+=`<g class="edge${always?' lbl-on':''}" data-c="${e[0]} ${e[2]}"><polyline points="${P}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linejoin="round"${e[7]?' stroke-dasharray="5 4"':''}/></g>`;
+    lbls+=`<g class="elbl${always?' lbl-on':''}" data-c="${e[0]} ${e[2]}" pointer-events="none"><rect x="${lx-lw/2}" y="${ly-10}" width="${lw}" height="14" rx="4" fill="#0a0c10" stroke="${col}" stroke-width="1" opacity=".92"/><text x="${lx}" y="${ly+1}" text-anchor="middle" fill="#e8e6df" font-size="9.5" font-weight="700">${e[6]}</text></g>`;
   });
   Object.keys(N).forEach(k=>{
     const n=N[k];
     d+=`<g class="node" data-id="${k}" onclick="sysSel('${k}')"><rect x="${n[0]}" y="${n[1]}" width="${n[2]}" height="${n[3]}" rx="8" fill="#151922" stroke="${n[6]||'#3a4560'}" stroke-width="1.5"/><text x="${n[0]+n[2]/2}" y="${n[1]+(n[5]?n[3]/2-2:n[3]/2+4)}" text-anchor="middle" fill="#e8e6df" font-size="10" font-weight="700" pointer-events="none">${n[4]}</text>${n[5]?`<text x="${n[0]+n[2]/2}" y="${n[1]+n[3]/2+11}" text-anchor="middle" fill="#9aa3b5" font-size="8" pointer-events="none">${n[5]}</text>`:''}</g>`;
   });
-  let s=`<div class="dwrap"><svg id="sysmap" viewBox="0 0 700 790" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Roboto,sans-serif">${d}</svg></div>`;
+  let s=`<div class="dwrap"><svg id="sysmap" viewBox="0 0 700 790" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Roboto,sans-serif">${d}${lbls}</svg></div>`;
   s+='<div class="note"><b>Reading the labels:</b> A·R1 = Box A, relay slot R1 · then fuse size · then wire gauge. "B·fuse" = fuse-only circuit in Box B, no relay. <b>Tap any box</b> to light up only its wires (the quieter left-side labels appear when tapped); tap again to reset. Grounds: every load also grounds to the chassis/ground bus — only the main ground runs are drawn to keep it readable.</div>';
   return s;
  }},
@@ -1009,7 +1016,7 @@ window.sysSel=function(id){
   svg.querySelectorAll('.hi').forEach(e=>e.classList.remove('hi'));
   if(svg.dataset.sel===id){ svg.dataset.sel=''; svg.classList.remove('sel'); return; }
   svg.dataset.sel=id; svg.classList.add('sel');
-  svg.querySelectorAll('.edge').forEach(e=>{
+  svg.querySelectorAll('.edge,.elbl').forEach(e=>{
     const c=e.dataset.c.split(' ');
     if(c[0]===id||c[1]===id){
       e.classList.add('hi');
