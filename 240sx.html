@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>240SX LS3 Build</title>
+<style>
+:root{
+  --bg:#0d0f14; --card:#151922; --card2:#1b2130; --edge:#2a3245;
+  --txt:#e8e6df; --dim:#9aa3b5; --ember:#ff7a3c; --ember2:#ffb35c;
+  --ok:#4cc97a; --warn:#e8c14b; --need:#e05d5d;
+  --w-red:#e04040; --w-yel:#e8c821; --w-orn:#f08a2c; --w-brn:#9a6b3f;
+  --w-wht:#e8e8e8; --w-blu:#3f8de0; --w-ltb:#7ec8f0; --w-grn:#3fbf6a;
+  --w-vio:#a86ee8; --w-gry:#9aa0aa; --w-blk:#666; --w-pnk:#ef7fb2; --w-tan:#cdb28a;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(74px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#12151d 0%,#12151dee 100%);backdrop-filter:blur(8px);border-bottom:1px solid var(--edge);padding:12px 16px 10px}
+header h1{font-size:1.05rem;letter-spacing:.5px}
+header h1 b{color:var(--ember)}
+.pbarWrap{margin-top:8px;background:#0a0c10;border:1px solid var(--edge);border-radius:99px;height:14px;overflow:hidden}
+.pbar{height:100%;background:linear-gradient(90deg,var(--ember),var(--ember2));border-radius:99px;width:0%;transition:width .35s}
+.psub{display:flex;justify-content:space-between;font-size:.72rem;color:var(--dim);margin-top:4px}
+main{padding:14px 12px 20px;max-width:860px;margin:0 auto}
+.tab{display:none}
+.tab.on{display:block}
+.card{background:var(--card);border:1px solid var(--edge);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.card>.chead{display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;user-select:none}
+.card>.chead h2{font-size:.95rem;flex:1;line-height:1.3}
+.card>.chead .mini{font-size:.72rem;color:var(--dim);font-weight:400;display:block;margin-top:2px}
+.badge{font-size:.7rem;padding:3px 9px;border-radius:99px;border:1px solid var(--edge);color:var(--dim);white-space:nowrap}
+.badge.done{color:var(--ok);border-color:var(--ok)}
+.chev{color:var(--dim);transition:transform .2s;font-size:.8rem}
+.card.open .chev{transform:rotate(90deg)}
+.cbody{display:none;padding:0 14px 14px;border-top:1px solid var(--edge)}
+.card.open .cbody{display:block}
+.step{display:flex;gap:12px;align-items:flex-start;padding:12px 4px;border-bottom:1px solid #ffffff0d}
+.step:last-child{border-bottom:none}
+.step .ck{flex:none;width:26px;height:26px;border-radius:8px;border:2px solid var(--edge);background:#0a0c10;display:flex;align-items:center;justify-content:center;font-size:15px;color:transparent;cursor:pointer;margin-top:1px}
+.step.done .ck{background:var(--ok);border-color:var(--ok);color:#0a0c10}
+.step .st{flex:1;font-size:.88rem;line-height:1.45}
+.step.done .st{color:var(--dim);text-decoration:line-through;text-decoration-color:#ffffff44}
+.step .st small{display:block;color:var(--dim);font-size:.76rem;margin-top:3px;line-height:1.4;text-decoration:none}
+.note{background:#1a1f2c;border-left:3px solid var(--ember);border-radius:0 8px 8px 0;padding:10px 12px;font-size:.8rem;color:#cfd4de;margin:10px 0;line-height:1.5}
+.note.warn{border-left-color:var(--warn)}
+.note b{color:var(--ember2)}
+/* parts */
+.pitem{display:flex;gap:10px;align-items:center;padding:11px 4px;border-bottom:1px solid #ffffff0d}
+.pitem:last-child{border-bottom:none}
+.pitem .pn{flex:1;font-size:.85rem;line-height:1.35}
+.pitem .pn small{display:block;color:var(--dim);font-size:.74rem;margin-top:2px}
+.pstat{flex:none;font-size:.7rem;font-weight:600;padding:5px 10px;border-radius:99px;cursor:pointer;border:1px solid;min-width:64px;text-align:center;user-select:none}
+.pstat.s0{color:var(--need);border-color:var(--need);background:#e05d5d14}
+.pstat.s1{color:var(--warn);border-color:var(--warn);background:#e8c14b14}
+.pstat.s2{color:var(--ok);border-color:var(--ok);background:#4cc97a14}
+/* wiring */
+.dwrap{overflow-x:auto;background:#0a0c10;border:1px solid var(--edge);border-radius:10px;margin:10px 0;-webkit-overflow-scrolling:touch}
+.dwrap svg{display:block;min-width:660px;width:100%;height:auto}
+table.wt{width:100%;border-collapse:collapse;font-size:.78rem;margin:8px 0}
+table.wt th{text-align:left;color:var(--dim);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--edge);font-size:.72rem;text-transform:uppercase;letter-spacing:.4px}
+table.wt td{padding:7px 8px;border-bottom:1px solid #ffffff0d;line-height:1.4;vertical-align:top}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:6px;border:1px solid #ffffff33}
+.btn{display:inline-block;background:var(--card2);border:1px solid var(--edge);color:var(--txt);border-radius:10px;padding:10px 16px;font-size:.85rem;cursor:pointer;font-weight:600}
+.btn.ember{background:linear-gradient(135deg,#c8501e,#ff7a3c);border-color:#ff7a3c}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+/* nav */
+nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:#10131b;border-top:1px solid var(--edge);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:none;color:var(--dim);font-size:.72rem;padding:10px 4px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-weight:600}
+nav button svg{width:24px;height:24px}
+nav button.on{color:var(--ember)}
+h3.sec{font-size:.78rem;text-transform:uppercase;letter-spacing:1px;color:var(--ember2);margin:20px 4px 10px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.legend span{font-size:.72rem;background:var(--card2);border:1px solid var(--edge);border-radius:8px;padding:5px 9px}
+textarea#ioBox{width:100%;background:#0a0c10;border:1px solid var(--edge);border-radius:10px;color:var(--txt);font-family:monospace;font-size:.75rem;padding:10px;min-height:70px;margin-top:8px}
+.tag{display:inline-block;font-size:.66rem;padding:2px 7px;border-radius:99px;background:#ff7a3c22;color:var(--ember2);border:1px solid #ff7a3c44;margin-left:6px;vertical-align:1px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏁 <b>240SX</b> LS3 + TR6060 Build</h1>
+  <div class="pbarWrap"><div class="pbar" id="pbar"></div></div>
+  <div class="psub"><span id="pTxt">0% complete</span><span id="pSteps"></span></div>
+</header>
+<main>
+<!-- ============ PLAN TAB ============ -->
+<div class="tab on" id="tab-plan"></div>
+<!-- ============ PARTS TAB ============ -->
+<div class="tab" id="tab-parts"></div>
+<!-- ============ WIRING TAB ============ -->
+<div class="tab" id="tab-wiring"></div>
+<!-- ============ REF TAB ============ -->
+<div class="tab" id="tab-ref"></div>
+</main>
+<nav>
+  <button data-t="plan" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Plan</button>
+  <button data-t="parts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h0a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51h0a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v0a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Parts</button>
+  <button data-t="wiring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Wiring</button>
+  <button data-t="ref"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Ref</button>
+</nav>
+<script>
+'use strict';
+/* ================= STATE ================= */
+const KEY='sx240_build_v1';
+let S={checks:{},parts:{},open:{}};
+try{ const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw)); }catch(e){}
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
+
+/* ================= WIRE COLOR CODE (this build's standard) ================= */
+const WC={
+  RED:['var(--w-red)','RED'], YEL:['var(--w-yel)','YELLOW'], ORN:['var(--w-orn)','ORANGE'],
+  BRN:['var(--w-brn)','BROWN'], WHT:['var(--w-wht)','WHITE'], BLU:['var(--w-blu)','BLUE'],
+  LTB:['var(--w-ltb)','LT BLUE'], GRN:['var(--w-grn)','GREEN'], VIO:['var(--w-vio)','VIOLET'],
+  GRY:['var(--w-gry)','GRAY'], BLK:['var(--w-blk)','BLACK'], PNK:['var(--w-pnk)','PINK'], TAN:['var(--w-tan)','TAN']
+};
+function swatch(c){ return `<span class="sw" style="background:${WC[c][0]}"></span>${WC[c][1]}`; }
+
+/* ================= SVG DIAGRAM HELPERS ================= */
+const NS_W=700;
+function dSvg(h,inner){ return `<div class="dwrap"><svg viewBox="0 0 ${NS_W} ${h}" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Roboto,sans-serif">${inner}</svg></div>`; }
+function dBox(x,y,w,h,t,sub,accent){
+  let s=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="#151922" stroke="${accent||'#3a4560'}" stroke-width="1.5"/>`;
+  s+=`<text x="${x+w/2}" y="${y+(sub?h/2-4:h/2+4)}" text-anchor="middle" fill="#e8e6df" font-size="12" font-weight="600">${t}</text>`;
+  if(sub) s+=`<text x="${x+w/2}" y="${y+h/2+13}" text-anchor="middle" fill="#9aa3b5" font-size="9.5">${sub}</text>`;
+  return s;
+}
+function dWire(pts,color,lbl,lx,ly){
+  const p=pts.map(pt=>pt.join(',')).join(' ');
+  let s=`<polyline points="${p}" fill="none" stroke="${WC[color]?WC[color][0].replace('var(--w-','').length?getCol(color):color:color}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  if(lbl){
+    const mx=lx!==undefined?lx:(pts[0][0]+pts[pts.length-1][0])/2, my=ly!==undefined?ly:pts[0][1]-7;
+    s+=`<text x="${mx}" y="${my}" text-anchor="middle" fill="#cfd4de" font-size="9.5" font-weight="600">${lbl}</text>`;
+  }
+  return s;
+}
+const COLHEX={RED:'#e04040',YEL:'#e8c821',ORN:'#f08a2c',BRN:'#9a6b3f',WHT:'#e8e8e8',BLU:'#3f8de0',LTB:'#7ec8f0',GRN:'#3fbf6a',VIO:'#a86ee8',GRY:'#9aa0aa',BLK:'#777',PNK:'#ef7fb2',TAN:'#cdb28a'};
+function getCol(c){ return COLHEX[c]||c; }
+function W(pts,c,lbl,lx,ly){
+  const p=pts.map(pt=>pt.join(',')).join(' ');
+  let s=`<polyline points="${p}" fill="none" stroke="${getCol(c)}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  if(lbl){ const mx=lx!==undefined?lx:(pts[0][0]+pts[pts.length-1][0])/2, my=ly!==undefined?ly:pts[0][1]-7;
+    s+=`<text x="${mx}" y="${my}" text-anchor="middle" fill="#cfd4de" font-size="9.5" font-weight="600">${lbl}</text>`; }
+  return s;
+}
+function dFuse(x,y,lbl){
+  return `<rect x="${x-16}" y="${y-9}" width="32" height="18" rx="4" fill="#0a0c10" stroke="#e8c14b" stroke-width="1.5"/><line x1="${x-9}" y1="${y}" x2="${x+9}" y2="${y}" stroke="#e8c14b" stroke-width="2"/><text x="${x}" y="${y+22}" text-anchor="middle" fill="#e8c14b" font-size="9" font-weight="700">${lbl}</text>`;
+}
+function dGnd(x,y){
+  return `<line x1="${x}" y1="${y}" x2="${x}" y2="${y+8}" stroke="#777" stroke-width="2.5"/><line x1="${x-9}" y1="${y+8}" x2="${x+9}" y2="${y+8}" stroke="#777" stroke-width="2.5"/><line x1="${x-6}" y1="${y+12}" x2="${x+6}" y2="${y+12}" stroke="#777" stroke-width="2"/><line x1="${x-3}" y1="${y+16}" x2="${x+3}" y2="${y+16}" stroke="#777" stroke-width="1.5"/>`;
+}
+function dRelay(x,y,name){
+  let s=`<rect x="${x}" y="${y}" width="96" height="76" rx="8" fill="#1b2130" stroke="#ff7a3c" stroke-width="1.5"/>`;
+  s+=`<text x="${x+48}" y="${y+16}" text-anchor="middle" fill="#ffb35c" font-size="10" font-weight="700">${name}</text>`;
+  s+=`<text x="${x+48}" y="${y+27}" text-anchor="middle" fill="#9aa3b5" font-size="8">in relay box</text>`;
+  // pins: 30 left-mid, 87 right-mid, 86 top-inner, 85 bottom-inner
+  s+=`<circle cx="${x}" cy="${y+48}" r="3.5" fill="#e8e6df"/><text x="${x+9}" y="${y+52}" fill="#e8e6df" font-size="9" font-weight="700">30</text>`;
+  s+=`<circle cx="${x+96}" cy="${y+48}" r="3.5" fill="#e8e6df"/><text x="${x+87}" y="${y+52}" text-anchor="end" fill="#e8e6df" font-size="9" font-weight="700">87</text>`;
+  s+=`<circle cx="${x+30}" cy="${y+76}" r="3.5" fill="#e8e6df"/><text x="${x+30}" y="${y+70}" text-anchor="middle" fill="#e8e6df" font-size="9" font-weight="700">86</text>`;
+  s+=`<circle cx="${x+66}" cy="${y+76}" r="3.5" fill="#e8e6df"/><text x="${x+66}" y="${y+70}" text-anchor="middle" fill="#e8e6df" font-size="9" font-weight="700">85</text>`;
+  // internals
+  s+=`<line x1="${x+8}" y1="${y+48}" x2="${x+40}" y2="${y+40}" stroke="#9aa3b5" stroke-width="1.5"/><line x1="${x+44}" y1="${y+48}" x2="${x+88}" y2="${y+48}" stroke="#9aa3b5" stroke-width="1.5" stroke-dasharray="3 2"/>`;
+  s+=`<rect x="${x+34}" y="${y+58}" width="28" height="10" fill="none" stroke="#9aa3b5" stroke-width="1.2"/>`;
+  return s;
+}
+function dSwitch(x,y,lbl,sub){
+  let s=`<rect x="${x-34}" y="${y-16}" width="68" height="32" rx="7" fill="#0a0c10" stroke="#7ec8f0" stroke-width="1.5"/>`;
+  s+=`<line x1="${x-20}" y1="${y+6}" x2="${x+14}" y2="${y-8}" stroke="#7ec8f0" stroke-width="2"/><circle cx="${x-20}" cy="${y+6}" r="2.5" fill="#7ec8f0"/><circle cx="${x+16}" cy="${y+6}" r="2.5" fill="#7ec8f0"/>`;
+  s+=`<text x="${x}" y="${y+30}" text-anchor="middle" fill="#7ec8f0" font-size="9" font-weight="700">${lbl}</text>`;
+  if(sub) s+=`<text x="${x}" y="${y+41}" text-anchor="middle" fill="#9aa3b5" font-size="8">${sub}</text>`;
+  return s;
+}
+function dRail(y,lbl,col){
+  return `<line x1="20" y1="${y}" x2="90" y2="${y}" stroke="${getCol(col||'RED')}" stroke-width="3"/><text x="22" y="${y-8}" fill="${getCol(col||'RED')}" font-size="10" font-weight="700">${lbl}</text>`;
+}
+
+/* Standard relay circuit diagram — the shape used by most circuits.
+   o = {title, mainFuse, mainWire, coilFuse, coilSrc, trig, trigLbl, load, loadSub, loadWire, extra} */
+function relayDiagram(o){
+  let s='';
+  // +12V feed rail top-left → fuse → pin 30
+  s+=dRail(60,o.src||'+12V BATT');
+  s+=W([[90,60],[150,60]],o.mainWire||'RED');
+  s+=dFuse(170,60,o.mainFuse);
+  s+=W([[186,60],[260,60],[260,108],[300,108]],o.mainWire||'RED',(o.mainWireLbl||''),240,95);
+  // relay
+  s+=dRelay(300,60,o.relay||'RELAY');
+  // coil feed: IGN rail → coil fuse → 86
+  s+=dRail(230,o.coilSrc||'+12V IGN','YEL');
+  s+=W([[90,230],[140,230]],'YEL');
+  s+=dFuse(160,230,o.coilFuse||'5A');
+  s+=W([[176,230],[330,230],[330,136]],'YEL','to 86',255,222);
+  // trigger on 85
+  if(o.trig==='ground-switch'){
+    s+=W([[366,136],[366,196]],'BLK');
+    s+=dSwitch(366,216,o.trigLbl||'ROCKER',o.trigSub||'');
+    s+=W([[366,232],[366,268]],'BLK');
+    s+=dGnd(366,268);
+  } else if(o.trig==='ecu-ground'){
+    s+=W([[366,136],[366,180]],o.trigColor||'TAN');
+    s+=dBox(316,180,100,34,o.trigLbl||'ECU TRIGGER',o.trigSub||'grounds when on','#3fbf6a');
+    if(o.override){
+      s+=W([[416,197],[470,197]],'BLK','override');
+      s+=dSwitch(504,197,o.override,'parallel to gnd');
+      s+=W([[538,197],[560,197],[560,240]],'BLK');
+      s+=dGnd(560,240);
+    }
+  }
+  // 87 → load → gnd
+  s+=W([[396,108],[470,108]],o.loadWire,o.loadWireLbl||'',433,98);
+  s+=dBox(470,84,150,48,o.load,o.loadSub);
+  s+=W([[545,132],[545,168]],'BLK');
+  s+=dGnd(545,168);
+  return dSvg(300,s);
+}
+
+/* ================= DATA: BUILD PLAN ================= */
+const PLAN=[
+{id:'p0',title:'Phase 0 — Teardown & Prep',steps:[
+ ['p0a','Strip old engine harness + interior harness. Label anything you keep (fuel sender plug, wiper motor plug, brake switch).','Photograph every connector before unplugging.'],
+ ['p0b','Pull KA / old drivetrain, clean + paint engine bay while it’s empty.'],
+ ['p0c','Sound deadening (Siless mat) in floor pans, firewall, trunk while interior is out.'],
+ ['p0d','Plan battery relocation spot in trunk; mock kill switch + main fuse locations.'],
+ ['p0e','Decide dash layout for the 6 GlowShift gauges + rocker switch panel location.'],
+]},
+{id:'p1',title:'Phase 1 — Drivetrain In',steps:[
+ ['p1a','Install Sikky mounts + drop LS3/TR6060 in as a unit.'],
+ ['p1b','Sikky trans crossmember + mount. Check driveline angle.'],
+ ['p1c','Install Sikky TR6060 shifter relocation kit; cut tunnel opening to fit.'],
+ ['p1d','Oil pan, filter relocation kit + EGM-106 cooler adapter, run cooler lines to oil cooler.'],
+ ['p1e','Headers in, check steering shaft + mount clearance.'],
+ ['p1f','Clutch master (MCK106) on pedal, line to TR6060 slave, bench-bleed then bleed at trans.'],
+ ['p1g','MEASURE for driveshaft (center of u-joint to center of u-joint, ride height, full droop) and order it.','Can’t be done before engine+trans are bolted at final position.'],
+]},
+{id:'p2',title:'Phase 2 — Fuel System',steps:[
+ ['p2a','ISR 255 pump into tank with stock hanger; new sock + sealing ring.'],
+ ['p2b','Run PTFE feed line front to back (outside frame rail or through cabin sealed — pick one, protect with sleeving + clamps every 12-18").'],
+ ['p2c','Mount filter/regulator. DECISION: Sikky FFK-S13 kit vs Evil Energy AN kits — LS3 is returnless, needs 58 psi regulated (Corvette-style filter/regulator or FPR + return).'],
+ ['p2d','Fuel rail adapters on, connect feed at rail, leak-check at pressure before first start (jump pump relay, inspect every fitting).'],
+]},
+{id:'p3',title:'Phase 3 — Cooling',steps:[
+ ['p3a','Mount ISR radiator (verify S14 core fits your 91-93 mounts, fab brackets if needed).'],
+ ['p3b','Buy + mount electric fans (dual 12" slim or single 16"; you selected no shroud).'],
+ ['p3c','Custom radiator hoses — LS3 water pump inlet/outlet vs radiator necks; universal hose kit or cut-to-fit.'],
+ ['p3d','Steam vent line to radiator neck or upper hose fitting (engine already has vent upgrade — just plumb it).'],
+ ['p3e','Overflow/expansion tank mounted + plumbed to radiator neck.'],
+]},
+{id:'p4',title:'Phase 4 — Power Backbone (wiring starts here)',steps:[
+ ['p4a','Mount battery in trunk (box + hold-down), kill switch within reach, MEGA/ANL main fuse within 18" of battery +.'],
+ ['p4b','Run 2/0 cable trunk → engine bay along rocker, grommet every body pass-through.'],
+ ['p4c','Grounds: battery − to chassis (trunk), engine block → frame strap, head → firewall strap, chassis ground bus behind dash. Use the harness 2-piece grounding kit.'],
+ ['p4d','Mount Relay Box A (engine bay, 6-relay/11-fuse) + Relay Box B (interior, 4-relay/12-fuse). Feed each from main post through its own fuse.'],
+ ['p4e','80A solenoid = master IGN relay: IGN rocker energizes it, it feeds the switched (YELLOW) bus for both boxes.'],
+ ['p4f','Label every circuit at both ends as you go (you bought the label tags — use them).'],
+]},
+{id:'p5',title:'Phase 5 — Engine Harness + ECU',steps:[
+ ['p5a','Lay in LS3 swap harness, ECU mounting spot (kick panel or glovebox — dry, away from heat).'],
+ ['p5b','Connect harness battery + ign feeds to backbone per harness instructions.'],
+ ['p5c','DBW pedal mounted + plugged.'],
+ ['p5d','MAF in intake tube, O2 sensors in header bungs.'],
+ ['p5e','Harness fuel pump trigger wire → Box A fuel pump relay pin 85/86 (see wiring tab).'],
+ ['p5f','Harness fan trigger(s) → fan relays (see wiring tab).'],
+ ['p5g','Tuner flashes ECU: VATS off, fan temps set (185 on / 175 off typical), speedo output if used.'],
+]},
+{id:'p6',title:'Phase 6 — Lighting Circuits',steps:[
+ ['p6a','Pop-up motor circuit + POP rocker (bench-verify motor terminals first — self-parking 3-wire).'],
+ ['p6b','Low beam relay + high beam relay, HEADLIGHT rocker + HI/LO rocker.'],
+ ['p6c','Running lights: parking, tails, license plate, clear corners on LIGHTS rocker.'],
+ ['p6d','Brake lights off pedal switch (constant-hot fused).'],
+ ['p6e','Turn signals: CF-13KT flasher #1 + ON-OFF-ON rocker.'],
+ ['p6f','Hazards: CF-13KT flasher #2 + rocker + 2 blocking diodes.'],
+ ['p6g','Reverse lights from TR6060 reverse switch.'],
+]},
+{id:'p7',title:'Phase 7 — Gauges & Dash',steps:[
+ ['p7a','Gauge power bus: IGN 12V + GND + dimmer (GRAY illumination wire from LIGHTS circuit) daisy-chained to all 6 gauges.'],
+ ['p7b','Tach: signal wire from swap harness tach output, set GlowShift to 8-cyl.'],
+ ['p7c','Speedo: SGI-100BT output wire → speedo signal in. Calibrate per SGI dip switches after first drive (GPS check).'],
+ ['p7d','Water temp sender in ICT M12→1/8NPT adapter (head or water pump port).'],
+ ['p7e','Oil pressure sender in M16→1/8NPT adapter (above oil filter pad / relocation block).'],
+ ['p7f','Oil temp sender in spare port on EGM-106 / relocation block or pan bung.'],
+ ['p7g','Fuel level: stock S13 sender wire → GlowShift fuel gauge, set ohm range to match sender (verify empty/full resistance with meter first).'],
+]},
+{id:'p8',title:'Phase 8 — Accessories',steps:[
+ ['p8a','Wipers: keep stock S13 wiper motor, wire LOW/HIGH rocker + park feed (see wiring tab).'],
+ ['p8b','Horn relay + horn button/rocker.'],
+ ['p8c','Reverse lockout solenoid: 12V via momentary rocker (or speed-based module) — TR6060 needs it energized to allow reverse at standstill... it BLOCKS reverse above ~5 mph when wired to VSS logic; simplest: momentary rocker you hold when grabbing reverse.'],
+ ['p8d','Fan override rocker (parallel ground path on fan relay 85).'],
+ ['p8e','12V accessory socket / phone power off Box B.'],
+ ['p8f','Dome light (constant hot, door switches ground).'],
+]},
+{id:'p9',title:'Phase 9 — First Start & Shakedown',steps:[
+ ['p9a','Pre-start: oil primed, coolant filled + burped (steam vent open), trans fluid, fuel pressure leak-check done.'],
+ ['p9b','Check every fuse value against the fuse map (Ref tab) before first key-on.'],
+ ['p9c','Key-on, no crank: pump primes 2 sec, gauges alive, no smoke, ECU talks to tuner laptop.'],
+ ['p9d','First start. Watch oil pressure gauge immediately (30+ psi cold idle).'],
+ ['p9e','Warm-up: verify fans kick on at set temp, no leaks (oil, coolant, fuel, clutch fluid).'],
+ ['p9f','Install driveshaft when it arrives, torque + safety-wire per spec.'],
+ ['p9g','Low-speed test drive: clutch engagement, shifter feel, brakes (booster-delete pedal effort check), speedo calibration.'],
+ ['p9h','Exhaust from collectors back. Alignment. Send it.'],
+]},
+];
+
+/* ================= DATA: PARTS ================= */
+/* status: 0=need, 1=ordered, 2=have */
+const PARTS=[
+{grp:'Drivetrain / Swap Kit',items:[
+ ['k1','Sikky S13 LS swap kit — mounts, crossmember, TR6060 trans mount',1],
+ ['k2','Sikky oil pan OP001S + gasket',1],
+ ['k3','Sikky oil filter relocation kit RK001',1],
+ ['k4','Sikky 1-7/8" stainless headers',1],
+ ['k5','Sikky clutch master kit MCK106 (TR6060)',1],
+ ['k6','Sikky power steering line kit PS100A',1],
+ ['k7','Sikky TR6060 shifter relocation kit',0,'You said you’ll grab this — not in any order yet'],
+ ['k8','LS3 engine (2010 Camaro, manual) + accessories + ECU + pedal + MAF + intake',2],
+ ['k9','TR6060 + clutch/flywheel/slave',2],
+ ['k10','Driveshaft (custom, measure after install)',0,'Order in Phase 1 after measuring'],
+]},
+{grp:'Engine Harness & Electronics',items:[
+ ['h1','LS3 Gen IV 58x DBW swap harness (TR6060, no AC, gauge adapters)',1],
+ ['h2','SGI-100BT speed interface (pre-wired in harness, speed only)',1],
+ ['h3','2-piece block grounding kit',1],
+ ['h4','Tune: VATS delete + fan temps (your tuner)',2,'Tuner lined up'],
+]},
+{grp:'Fuel',items:[
+ ['f1','ISR 255 lph in-tank pump',1],
+ ['f2','Sikky fuel filter + long line kit FFK-S13',1],
+ ['f3','Evil Energy 10AN PTFE line kit 16ft',1],
+ ['f4','Evil Energy 6AN PTFE line kit 16ft',1],
+ ['f5','Fuel rail ORB adapters (6AN pair)',1],
+ ['f6','10AN 60° hose end',1],
+ ['f7','Fuel pressure regulator / Corvette filter-reg',0,'DECIDE: Sikky kit may include — verify before plumbing'],
+]},
+{grp:'Cooling & Oil',items:[
+ ['c1','ISR radiator (KA24DE S14 spec, no shroud)',1],
+ ['c2','Upper radiator mounting grommet',1],
+ ['c3','Electric fan(s) + mounting',0,'Getting later'],
+ ['c4','Radiator hoses (custom/universal for LS)',0,'Getting later'],
+ ['c5','Evil Energy overflow/expansion tank',1],
+ ['c6','EGM-106 low-profile oil cooler adapter + 8AN ORB→10AN fittings',1],
+ ['c7','Oil cooler core',2],
+]},
+{grp:'Gauges & Senders',items:[
+ ['g1','GlowShift tach 3-3/4" 10k',1],
+ ['g2','GlowShift speedo 3-3/4" 140mph',1],
+ ['g3','GlowShift oil pressure 100psi (replacement)',1],
+ ['g4','GlowShift oil temp 300°F',1],
+ ['g5','GlowShift water temp 300°F',2,'You said you have this (Amazon shows refunded — double-check the box)'],
+ ['g6','GlowShift fuel level (replacement)',1],
+ ['g7','ICT coolant temp adapter M12 1.5 → 1/8 NPT',1],
+ ['g8','Oil pressure adapter M16 1.5 → 1/8 NPT',1],
+]},
+{grp:'Chassis Electrical',items:[
+ ['e1','Relay Box A — 6 relay / 11 fuse (engine bay)',1],
+ ['e2','Relay Box B — 4 relay / 12 fuse (interior)',1],
+ ['e3','HUAREW 80A solenoid (master IGN relay)',1],
+ ['e4','Battery kill switches (2pc)',1],
+ ['e5','CF-13KT LED flashers (2pc — turn + hazard)',1],
+ ['e6','Splice connector kit 24-12 AWG',1],
+ ['e7','Braided sleeving 1/8" + 1/4", harness tape, cable labels, loom clips',1],
+ ['e8','Rocker panel switches (IGN, START, POP, HEAD, HI/LO, LIGHTS, TURN on-off-on, HAZARD, FAN, WIPER, LOCKOUT, HORN)',0,'Verify you have enough of the right types — START + LOCKOUT + HORN need MOMENTARY'],
+ ['e9','MEGA/ANL main fuse + holder (150-200A)',0],
+ ['e10','2/0 welding cable ~20ft + lugs (battery run)',0],
+ ['e11','Bulk primary wire: 10-12ga (loads) + 14-16ga (signals/coils), multiple colors',0,'Biggest gap — none ordered. ~25ft per color you use'],
+ ['e12','Blocking diodes ×2 (3A+, e.g. 1N5401) for hazard circuit',0],
+ ['e13','Battery box / hold-down + trunk pass-through grommets',0],
+ ['e14','Ground bus bar (behind dash) + engine ground straps',0],
+ ['e15','Ring terminals, heat shrink assortment',0],
+]},
+{grp:'Brakes / Body / Misc',items:[
+ ['m1','Chase Bays brake line relocation + booster delete',1],
+ ['m2','P2M clear corners',1],
+ ['m3','Siless sound deadening 80mil 18sqft',1],
+ ['m4','AC flush kit (AC deleted — return it?)',1],
+ ['m5','Exhaust from collectors back',0,'Later'],
+]},
+];
+
+/* ================= DATA: WIRING CIRCUITS ================= */
+function wireRow(rows){
+  let s='<table class="wt"><tr><th>Wire</th><th>Ga</th><th>From → To</th></tr>';
+  rows.forEach(r=>{ s+=`<tr><td>${swatch(r[0])}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`; });
+  return s+'</table>';
+}
+
+const CIRCUITS=[
+/* ---- power distribution ---- */
+{id:'w-pwr',title:'1. Power Backbone & Battery Relocation',badge:'start here',
+ body:()=>{
+  let s='';
+  let d='';
+  d+=dBox(20,30,100,50,'BATTERY','trunk, in box');
+  d+=W([[120,55],[160,55]],'RED');
+  d+=dSwitch(196,55,'KILL SWITCH','opens everything');
+  d+=W([[230,55],[268,55]],'RED');
+  d+=dFuse(288,55,'175A');
+  d+=W([[304,55],[380,55]],'RED','2/0 cable',345,45);
+  d+=dBox(380,30,130,50,'FRONT POST','junction stud, eng bay');
+  d+=W([[445,80],[445,120],[200,120],[200,150]],'RED','2/0');
+  d+=dBox(140,150,120,44,'STARTER','+ alternator charge');
+  d+=W([[445,120],[445,150]],'RED');
+  d+=dFuse(445,166,'80A');
+  d+=W([[445,182],[445,210]],'RED','8ga',462,200);
+  d+=dBox(385,210,120,44,'RELAY BOX A','engine bay 6R/11F');
+  d+=W([[510,55],[560,55]],'RED');
+  d+=dFuse(580,55,'60A');
+  d+=W([[596,55],[640,55],[640,210],[620,210]],'RED','8ga thru firewall',640,140);
+  d+=dBox(530,210,90,44,'RELAY BOX B','interior 4R/12F');
+  d+=W([[70,80],[70,110]],'BLK');
+  d+=dGnd(70,110);
+  s+=dSvg(280,d);
+  // ign master solenoid diagram
+  let d2='';
+  d2+=dBox(20,40,110,50,'FRONT POST','+12V constant');
+  d2+=W([[130,65],[180,65]],'RED');
+  d2+=dFuse(200,65,'80A');
+  d2+=W([[216,65],[280,65]],'RED');
+  d2+=dBox(280,40,140,54,'80A SOLENOID','master IGN relay');
+  d2+=W([[420,67],[500,67]],'YEL','IGN BUS out',460,57);
+  d2+=dBox(500,44,170,46,'SWITCHED +12V','feeds YEL circuits both boxes');
+  d2+=W([[330,94],[330,150]],'YEL','small post',300,130);
+  d2+=dSwitch(330,172,'IGN ROCKER','dash panel');
+  d2+=W([[364,172],[420,172]],'RED','fused 5A',392,162);
+  d2+=dFuse(440,172,'5A');
+  d2+=W([[456,172],[490,172],[490,120]],'RED');
+  d2+=`<text x="490" y="110" text-anchor="middle" fill="#9aa3b5" font-size="9">from BATT</text>`;
+  d2+=W([[370,94],[370,120]],'BLK'); d2+=dGnd(370,120);
+  s+=dSvg(230,d2);
+  s+=wireRow([
+   ['RED','2/0','Battery + → kill switch → 175A fuse → front junction post'],
+   ['RED','2/0','Front post → starter stud (alternator charge lands here too)'],
+   ['RED','8','Front post → 80A fuse → Relay Box A main in'],
+   ['RED','8','Front post → 60A fuse → Relay Box B main in (through firewall, grommet!)'],
+   ['YEL','8','80A solenoid out → switched bus lug at each relay box'],
+   ['BLK','2/0','Battery − → chassis stud in trunk (paint ground off!)'],
+   ['BLK','4','Engine block → frame rail strap; head → firewall strap'],
+  ]);
+  s+='<div class="note"><b>Rules:</b> Main fuse within 18" of the battery. Every body pass-through gets a grommet. Kill switch cuts EVERYTHING including alternator output (it’s on the battery side of the post — with the switch off nothing is hot except the cable to the switch). The 80A HUAREW solenoid is your master ignition relay: little IGN rocker energizes it, it feeds the yellow switched bus. Big loads never run through a rocker.</div>';
+  return s;
+ }},
+/* ---- ignition & start ---- */
+{id:'w-ign',title:'2. Ignition & Starting',badge:'',
+ body:()=>{
+  let s=relayDiagram({
+    mainFuse:'30A',relay:'START RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    trig:'ground-switch',trigLbl:'START',trigSub:'MOMENTARY rocker',
+    load:'STARTER SOLENOID',loadSub:'S terminal on starter',loadWire:'VIO',loadWireLbl:'VIOLET 12ga'});
+  s+=wireRow([
+   ['YEL','12','IGN bus → swap harness ignition feed (per harness sheet)'],
+   ['RED','12','BATT bus → swap harness constant/memory feed'],
+   ['VIO','12','Start relay 87 → starter solenoid S terminal'],
+   ['BLK','16','START rocker → ground'],
+  ]);
+  s+='<div class="note">Key-off = IGN rocker off = 80A solenoid drops = harness, ECU, pumps, gauges all dead. START rocker must be <b>momentary</b>. If you want clutch-safety, put the stock clutch pedal switch in series with the START rocker ground.</div>';
+  s+='<div class="note warn">The swap harness has its own labeled battery + ignition feed wires — land them exactly per its instruction sheet; the diagram above only covers the chassis side.</div>';
+  return s;
+ }},
+/* ---- popups ---- */
+{id:'w-pop',title:'3. Pop-Up Headlight Motors',badge:'bench-verify',
+ body:()=>{
+  let s=relayDiagram({
+    mainFuse:'15A',relay:'POP RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    trig:'ground-switch',trigLbl:'POP',trigSub:'rocker (latching)',
+    load:'RETRACTOR MOTORS',loadSub:'L + R, self-parking',loadWire:'WHT',loadWireLbl:'WHITE 14ga'});
+  s+=wireRow([
+   ['WHT','14','Relay 87 → both retractor motor feed terminals'],
+   ['BLK','14','Motor grounds → chassis'],
+  ]);
+  s+='<div class="note warn"><b>Bench-verify first.</b> S13 retractor motors are self-parking 3-wire units — they run until they hit the up (or down) park position depending on which control terminal is fed. Before wiring the panel: put 12V + ground on the motor on the bench and identify which terminal raises and which parks down. Wire the POP rocker to swap the control feed accordingly (use a DPDT rocker if you keep full up/down control, or simplify: manual knob-crank down, powered up only).</div>';
+  return s;
+ }},
+/* ---- headlights ---- */
+{id:'w-head',title:'4. Headlights (Low / High)',badge:'',
+ body:()=>{
+  let s=relayDiagram({
+    mainFuse:'20A',relay:'LOW BEAM RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    trig:'ground-switch',trigLbl:'HEAD',trigSub:'rocker',
+    load:'LOW BEAMS L+R',loadSub:'each side fused 10A',loadWire:'WHT',loadWireLbl:'WHITE 12ga'});
+  s+='<p style="font-size:.8rem;color:var(--dim);margin:6px 4px">High beams = identical second relay, <b>BLUE</b> wire, triggered through the HI/LO rocker in series with the HEAD rocker ground (both on = highs). Run lows + highs together if you want highs to add rather than replace.</p>';
+  s+=wireRow([
+   ['WHT','12','Low relay 87 → low beam terminals (9004: verify pinout at plug)'],
+   ['BLU','12','High relay 87 → high beam terminals'],
+   ['BLK','12','Headlight grounds → chassis, short as possible'],
+   ['GRY','16','Tap off HEAD rocker output → gauge illumination + running lights trigger (optional combine)'],
+  ]);
+  s+='<div class="note">Stock 9004 bulbs share a plug for hi/lo — one feed wire each plus common ground. Relays live in Box A so full headlight current never enters the cabin; the rockers only switch relay coil grounds (thin 16ga wire).</div>';
+  return s;
+ }},
+/* ---- running lights ---- */
+{id:'w-run',title:'5. Running Lights (Park / Tail / Plate)',badge:'',
+ body:()=>{
+  let s=relayDiagram({
+    mainFuse:'15A',relay:'PARK RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    trig:'ground-switch',trigLbl:'LIGHTS',trigSub:'rocker',
+    load:'PARK + TAIL + PLATE',loadSub:'corners, tails, license',loadWire:'BRN',loadWireLbl:'BROWN 14ga'});
+  s+=wireRow([
+   ['BRN','14','Relay 87 → front corners, rear tail bulbs, plate light (splice at rear)'],
+   ['GRY','18','Same relay 87 → gauge dimmer/illumination wire on all GlowShifts'],
+   ['BLK','16','All lamp grounds → chassis'],
+  ]);
+  s+='<div class="note">One BROWN trunk line to the back, splice to both tails + plate there (you have the 26pc splice kit). Gauges dim automatically when running lights come on via the GRAY wire.</div>';
+  return s;
+ }},
+/* ---- brake ---- */
+{id:'w-brake',title:'6. Brake Lights',badge:'no relay',
+ body:()=>{
+  let d='';
+  d+=dRail(60,'+12V BATT');
+  d+=W([[90,60],[150,60]],'RED');
+  d+=dFuse(170,60,'10A');
+  d+=W([[186,60],[250,60]],'RED');
+  d+=dSwitch(286,60,'BRAKE PEDAL','stock switch on pedal');
+  d+=W([[320,60],[420,60]],'GRN','GREEN 14ga',372,50);
+  d+=dBox(420,36,160,48,'BRAKE LAMPS L+R','+ 3rd light if fitted');
+  d+=W([[500,84],[500,120]],'BLK');
+  d+=dGnd(500,120);
+  let s=dSvg(170,d);
+  s+=wireRow([
+   ['RED','14','BATT fuse (Box B) → brake pedal switch'],
+   ['GRN','14','Pedal switch → rear, splice to both brake filaments'],
+  ]);
+  s+='<div class="note">Battery-hot (not IGN) so brakes work with ignition off. Keep the stock pedal switch — it’s already there and it’s just a simple normally-open switch. Brake lamps draw little; no relay needed.</div>';
+  return s;
+ }},
+/* ---- turns ---- */
+{id:'w-turn',title:'7. Turn Signals & Hazards',badge:'2× CF-13KT',
+ body:()=>{
+  let d='';
+  // turn flasher
+  d+=dRail(60,'+12V IGN','YEL');
+  d+=W([[90,60],[140,60]],'YEL');
+  d+=dFuse(160,60,'10A');
+  d+=W([[176,60],[230,60]],'YEL');
+  d+=dBox(230,36,110,48,'FLASHER #1','CF-13KT · B in, L out');
+  d+=W([[340,60],[390,60]],'GRN','L',365,50);
+  d+=dSwitch(426,60,'TURN','ON-OFF-ON rocker');
+  d+=W([[460,52],[520,52],[520,30],[560,30]],'GRN','LEFT',540,22);
+  d+=dBox(560,12,120,36,'L FRONT + REAR','+ indicator');
+  d+=W([[460,68],[520,68],[520,92],[560,92]],'VIO','RIGHT',540,84);
+  d+=dBox(560,74,120,36,'R FRONT + REAR','+ indicator');
+  d+=`<text x="285" y="100" text-anchor="middle" fill="#9aa3b5" font-size="9">E pin → ground</text>`;
+  // hazard flasher
+  d+=dRail(170,'+12V BATT','RED');
+  d+=W([[90,170],[140,170]],'RED');
+  d+=dFuse(160,170,'10A');
+  d+=W([[176,170],[230,170]],'RED');
+  d+=dBox(230,146,110,48,'FLASHER #2','CF-13KT hazards');
+  d+=W([[340,170],[390,170]],'ORN','L',365,160);
+  d+=dSwitch(426,170,'HAZARD','rocker');
+  d+=W([[460,170],[500,170],[500,140],[530,140]],'ORN');
+  d+=dBox(530,124,60,32,'⯈| diode');
+  d+=W([[590,140],[620,140],[620,48],[680,48]],'GRN','to LEFT',650,40);
+  d+=W([[500,170],[500,200],[530,200]],'ORN');
+  d+=dBox(530,184,60,32,'⯈| diode');
+  d+=W([[590,200],[640,200],[640,110],[680,110]],'VIO','to RIGHT',655,100);
+  let s=dSvg(250,d);
+  s+=wireRow([
+   ['GRN','16','Left circuit: front corner + rear turn + dash indicator'],
+   ['VIO','16','Right circuit: front corner + rear turn + dash indicator'],
+   ['ORN','16','Hazard flasher L-out → two diodes → left + right circuits'],
+   ['BLK','18','Both flasher E pins → ground'],
+  ]);
+  s+='<div class="note">CF-13KT pins: <b>B</b> = 12V in, <b>L</b> = flashing out, <b>E</b> = ground. Flasher #1 (IGN-fed) does turns; flasher #2 (BATT-fed, works engine-off) does hazards. The two <b>blocking diodes</b> (3A+, stripe toward the turn circuits) stop the hazard feed from back-feeding one side into the other through the turn rocker. Buy the diodes — not in any order yet.</div>';
+  return s;
+ }},
+/* ---- fans ---- */
+{id:'w-fan',title:'8. Radiator Fans',badge:'',
+ body:()=>{
+  let s=relayDiagram({
+    mainFuse:'30A',relay:'FAN RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    trig:'ecu-ground',trigLbl:'ECU FAN TRIGGER',trigSub:'swap harness fan wire',trigColor:'TAN',
+    override:'FAN ROCKER',
+    load:'FAN(S)',loadSub:'30A relay per fan if dual',loadWire:'LTB',loadWireLbl:'LT BLUE 10ga'});
+  s+=wireRow([
+   ['LTB','10','Relay 87 → fan + (one relay per fan for duals)'],
+   ['TAN','18','Swap harness fan trigger → relay 85 (ECU grounds it at temp)'],
+   ['BLK','16','FAN rocker → ground (manual override, parallel with ECU trigger)'],
+  ]);
+  s+='<div class="note warn">Confirm your harness includes the fan trigger output (ordered without AC wiring — fan wires are usually separate, but check the sheet). If it doesn’t, the rocker alone works, or add a thermo switch in the radiator. Fan on/off temps get set in the tune (185°F on / 175°F off is a good start).</div>';
+  return s;
+ }},
+/* ---- fuel pump ---- */
+{id:'w-pump',title:'9. Fuel Pump',badge:'',
+ body:()=>{
+  let s=relayDiagram({
+    mainFuse:'15A',relay:'PUMP RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    trig:'ecu-ground',trigLbl:'HARNESS PUMP TRIGGER',trigSub:'primes 2s at key-on',trigColor:'PNK',
+    load:'ISR 255 PUMP',loadSub:'in tank',loadWire:'PNK',loadWireLbl:'PINK 12ga'});
+  s+=wireRow([
+   ['PNK','12','Relay 87 → tank hanger + terminal (12ga all the way — a 255 pump at 58psi pulls real current)'],
+   ['BLK','12','Pump − → dedicated chassis ground at tank, sanded clean'],
+   ['PNK','18','Harness fuel pump trigger wire → relay 85 or 86 per harness sheet'],
+  ]);
+  s+='<div class="note">Most LS swap harnesses give you either a ground trigger (→ pin 85) or a 12V pump output (→ use it as the coil feed on 86 with 85 to ground). Check which yours is before wiring. Never run the pump straight off the harness wire — always through your relay. Upgrade the hanger terminals if they’re crusty; weak pump ground = lean at high rpm.</div>';
+  return s;
+ }},
+/* ---- gauges ---- */
+{id:'w-gauge',title:'10. Gauge Cluster (all 6 GlowShifts)',badge:'',
+ body:()=>{
+  let d='';
+  d+=dRail(50,'+12V IGN','YEL');
+  d+=W([[90,50],[130,50]],'YEL');
+  d+=dFuse(150,50,'5A');
+  d+=W([[166,50],[220,50]],'YEL','gauge power bus',260,40);
+  d+=dRail(110,'DIMMER (GRY)','GRY');
+  d+=W([[90,110],[220,110]],'GRY');
+  d+=dRail(170,'GROUND','BLK');
+  d+=W([[90,170],[220,170]],'BLK');
+  const gx=[220,300,380,460,540,620], names=['TACH','SPEEDO','OIL PSI','OIL °F','H2O °F','FUEL'];
+  gx.forEach((x,i)=>{
+    d+=dBox(x,66,72,34,names[i],'');
+    d+=W([[x+20,66],[x+20,50],[x,50]],'YEL'); if(i<5) d+=W([[x,50],[x+80,50]],'YEL');
+    d+=W([[x+36,100],[x+36,110]],'GRY'); if(i<5) d+=W([[x+36,110],[x+116,110]],'GRY'); else d+=W([[220,110],[x+36,110]],'GRY');
+    d+=W([[x+52,100],[x+52,170]],'BLK'); if(i<5) d+=W([[x+52,170],[x+132,170]],'BLK');
+  });
+  // signal row
+  d+=`<text x="20" y="215" fill="#cdb28a" font-size="10" font-weight="700">SIGNALS (TAN 18ga):</text>`;
+  d+=`<text x="20" y="233" fill="#cfd4de" font-size="9.5">TACH ← harness tach wire · SPEEDO ← SGI-100BT out · OIL PSI ← sender @ M16 adapter · OIL °F ← sender @ cooler block · H2O °F ← sender @ M12 adapter · FUEL ← stock S13 sender wire</text>`;
+  let s=dSvg(255,d);
+  s+=wireRow([
+   ['YEL','16','Box B fused 5A → daisy-chain 12V to all 6 gauges'],
+   ['GRY','18','Running-light relay output → all gauge dimmer wires'],
+   ['BLK','16','Ground bus behind dash → all gauge grounds'],
+   ['TAN','18','Each sender → its gauge (one wire each; senders ground through their body)'],
+  ]);
+  s+='<div class="note"><b>Senders ground through the adapter/block they screw into</b> — thread sealant on 2-3 threads only, never the first thread, or you kill the ground and the gauge reads garbage. Wrap sender wires away from plug wires/coils. Settings: tach → 8-cyl mode; fuel → measure stock sender with a meter (full vs empty ohms) and pick the matching GlowShift range; speedo → calibrate SGI-100BT dip switches against GPS.</div>';
+  s+='<div class="note warn">Electric water temp + oil temp senders each want their own port — water temp in the ICT M12 adapter, oil temp in the spare port on the EGM-106 / relocation block. Don’t tee mechanical + electrical on one port.</div>';
+  return s;
+ }},
+/* ---- reverse ---- */
+{id:'w-rev',title:'11. Reverse Lights + Lockout',badge:'TR6060',
+ body:()=>{
+  let d='';
+  d+=dRail(60,'+12V IGN','YEL');
+  d+=W([[90,60],[140,60]],'YEL');
+  d+=dFuse(160,60,'10A');
+  d+=W([[176,60],[240,60]],'YEL');
+  d+=dBox(240,36,150,48,'TR6060 REVERSE SW','closes in reverse');
+  d+=W([[390,60],[450,60]],'LTB','LT BLUE 16ga',420,50);
+  d+=dBox(450,36,130,48,'REVERSE LAMPS','both tails');
+  d+=W([[515,84],[515,116]],'BLK'); d+=dGnd(515,116);
+  // lockout
+  d+=dRail(170,'+12V IGN','YEL');
+  d+=W([[90,170],[140,170]],'YEL');
+  d+=dFuse(160,170,'5A');
+  d+=W([[176,170],[240,170]],'YEL');
+  d+=dSwitch(276,170,'LOCKOUT','MOMENTARY rocker');
+  d+=W([[310,170],[400,170]],'ORN','ORANGE 16ga',355,160);
+  d+=dBox(400,146,180,48,'LOCKOUT SOLENOID','on TR6060 shifter housing');
+  d+=W([[490,194],[490,226]],'BLK'); d+=dGnd(490,226);
+  let s=dSvg(255,d);
+  s+=wireRow([
+   ['LTB','16','Reverse switch → rear, splice to both reverse filaments'],
+   ['ORN','16','LOCKOUT momentary rocker → solenoid +'],
+  ]);
+  s+='<div class="note">The TR6060 reverse lockout solenoid physically blocks the reverse gate; energizing it lifts the block. Factory cars energize it below ~3 mph automatically. Simplest manual setup: hold the momentary rocker while you pull into reverse. Find both switches on the trans: reverse light switch and lockout solenoid are separate 2-pin connectors — verify which is which with a meter (switch = continuity in reverse; solenoid = ~20-40Ω coil).</div>';
+  return s;
+ }},
+/* ---- wipers ---- */
+{id:'w-wipe',title:'12. Wipers & Washer',badge:'stock motor',
+ body:()=>{
+  let s=relayDiagram({
+    mainFuse:'20A',relay:'WIPER RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    trig:'ground-switch',trigLbl:'WIPER',trigSub:'rocker (or 3-pos LO/HI)',
+    load:'WIPER MOTOR',loadSub:'stock S13, LOW terminal',loadWire:'BLU',loadWireLbl:'BLUE 14ga'});
+  s+=wireRow([
+   ['BLU','14','Relay 87 → motor LOW speed terminal (HIGH gets its own feed via 3-pos rocker if you want it)'],
+   ['GRY','16','Motor PARK terminal → keeps motor fed until park cam opens (see note)'],
+   ['PNK','16','Washer momentary rocker → washer pump +'],
+  ]);
+  s+='<div class="note warn"><b>Park circuit:</b> the stock motor has a park contact that self-feeds until the arms reach rest. Simplest reliable hookup: feed the park terminal from the same fused IGN source through the motor’s park contact so switching the rocker off lets the wipers finish their sweep. Bench-test the motor connector first (LOW / HIGH / PARK / GND pins) with jumpers before committing — takes 5 minutes and saves guessing at 40-year-old pinout diagrams.</div>';
+  return s;
+ }},
+/* ---- horn ---- */
+{id:'w-horn',title:'13. Horn',badge:'',
+ body:()=>{
+  let s=relayDiagram({
+    mainFuse:'15A',relay:'HORN RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
+    trig:'ground-switch',trigLbl:'HORN',trigSub:'MOMENTARY (wheel or rocker)',
+    load:'HORNS',loadSub:'hi + lo pair',loadWire:'GRN',loadWireLbl:'GREEN 14ga'});
+  s+='<div class="note">If you keep the steering-wheel horn button it’s just the ground path for pin 85 through the clock spring — same circuit, different switch.</div>';
+  return s;
+ }},
+/* ---- interior ---- */
+{id:'w-int',title:'14. Interior: Dome, 12V, Stereo',badge:'',
+ body:()=>{
+  let s=wireRow([
+   ['ORN','16','BATT fuse 5A (Box B) → dome light + (door switches ground it — stock switches work)'],
+   ['ORN','12','BATT fuse 15A → 12V accessory socket'],
+   ['YEL','16','IGN fuse 10A → stereo switched + · ORN constant for memory'],
+   ['BLK','16','All → dash ground bus'],
+  ]);
+  s+='<div class="note">All small stuff straight off Box B fuses, no relays needed. Dome on constant so it works with ignition off.</div>';
+  return s;
+ }},
+];
+
+/* ================= DATA: REFERENCE ================= */
+function refHTML(){
+  let s='';
+  s+='<h3 class="sec">Wire color code (this build)</h3><div class="card open"><div class="cbody" style="display:block;padding-top:12px">';
+  s+=wireRow([
+   ['RED','—','Constant battery power (fused)'],
+   ['YEL','—','Ignition-switched power (from 80A master solenoid)'],
+   ['ORN','—','Constant accessory (dome, memory, hazard, 12V socket)'],
+   ['WHT','—','Low beams + pop-up motors'],
+   ['BLU','—','High beams / wiper motor'],
+   ['BRN','—','Running lights (park/tail/plate)'],
+   ['GRN','—','Left turn / brake / horn'],
+   ['VIO','—','Right turn / starter signal'],
+   ['LTB','—','Reverse lights / fans'],
+   ['PNK','—','Fuel pump / washer'],
+   ['TAN','—','Gauge sender signals'],
+   ['GRY','—','Illumination (dimmer) / park feeds'],
+   ['BLK','—','Ground. Always. No exceptions.'],
+  ]);
+  s+='<div class="note">Print this or keep the page open while wiring. Label both ends of every run anyway (you bought 300 labels).</div></div></div>';
+
+  s+='<h3 class="sec">Relay Box A — engine bay (6 relay / 11 fuse)</h3><div class="card open"><div class="cbody" style="display:block;padding-top:12px"><table class="wt"><tr><th>Slot</th><th>Circuit</th><th>Fuse</th></tr>'+
+  [['R1','Low beams','20A'],['R2','High beams','20A'],['R3','Fan 1','30A'],['R4','Fan 2 (or spare)','30A'],['R5','Fuel pump','15A'],['R6','Horn / pop-ups','15A'],['F—','Coil feeds, brake sw, reverse, washer','5–10A each']]
+  .map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')+'</table></div></div>';
+
+  s+='<h3 class="sec">Relay Box B — interior (4 relay / 12 fuse)</h3><div class="card open"><div class="cbody" style="display:block;padding-top:12px"><table class="wt"><tr><th>Slot</th><th>Circuit</th><th>Fuse</th></tr>'+
+  [['R1','Start relay','30A'],['R2','Park/running lights','15A'],['R3','Wipers','20A'],['R4','Spare (stereo amp?)','—'],['F—','Gauges 5A, turn 10A, hazard 10A, dome 5A, 12V skt 15A, lockout 5A, stereo 10A','']]
+  .map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')+'</table></div></div>';
+
+  s+='<h3 class="sec">Relay pins — memorize once</h3><div class="card open"><div class="cbody" style="display:block;padding-top:12px"><table class="wt">'+
+  [['30','Power IN (fused from a bus)'],['87','Power OUT (to the load)'],['86','Coil + (fused IGN, thin wire)'],['85','Coil − (your switch/trigger grounds this)']]
+  .map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td></tr>`).join('')+'</table><div class="note">Every rocker in this build just grounds pin 85 of some relay. Thin 16ga wire at the panel, heavy current stays in the boxes. One pattern, fourteen circuits.</div></div></div>';
+
+  s+='<h3 class="sec">Wire gauge quick chart</h3><div class="card open"><div class="cbody" style="display:block;padding-top:12px"><table class="wt"><tr><th>Ga</th><th>Good for</th><th>Used on</th></tr>'+
+  [['2/0','300A+','Battery run, engine ground'],['4','100A','Ground straps'],['8','60–80A','Box feeds, master solenoid'],['10','40A','Fans'],['12','25A','Pump, starter sig, headlights, 12V skt'],['14','15A','Lamps, horn, wipers'],['16','10A','Turns, small loads, relay coils'],['18','5A','Senders, triggers, dimmer']]
+  .map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')+'</table></div></div>';
+
+  s+='<h3 class="sec">Settings cheat sheet</h3><div class="card open"><div class="cbody" style="display:block;padding-top:12px"><table class="wt">'+
+  [['GlowShift tach','8-cylinder mode; signal from swap harness tach wire'],
+   ['GlowShift fuel','Meter the stock sender: note ohms at full + empty, pick matching range in gauge setup'],
+   ['SGI-100BT','Pre-wired by harness shop for speed only; calibrate ratio dips vs GPS at a steady 40 mph'],
+   ['Fan temps','In the tune: 185°F on / 175°F off starting point'],
+   ['Fuel pressure','LS3 target ≈ 58 psi at the rail'],
+   ['Oil pressure','Warm idle ~25-35 psi, ~20 psi per 1000 rpm rule of thumb'],
+   ['Torque: driveshaft','Safety-check bolts at 50 mi after install']]
+  .map(r=>`<tr><td style="white-space:nowrap"><b>${r[0]}</b></td><td>${r[1]}</td></tr>`).join('')+'</table></div></div>';
+
+  s+='<h3 class="sec">Backup / restore progress</h3><div class="card open"><div class="cbody" style="display:block;padding-top:12px">'+
+  '<div class="btnrow"><button class="btn ember" onclick="exportState()">Export</button><button class="btn" onclick="importState()">Import</button><button class="btn" style="color:var(--need)" onclick="resetState()">Reset all</button></div>'+
+  '<textarea id="ioBox" placeholder="Export dumps your progress here as text — copy it somewhere safe. Paste it back and hit Import on another device."></textarea>'+
+  '<div class="note">Progress lives in this browser’s storage only. Export before clearing browser data or switching phones.</div></div></div>';
+  return s;
+}
+
+/* ================= RENDER ================= */
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function renderPlan(){
+  const el=document.getElementById('tab-plan');
+  let h='<div class="note" style="margin-top:2px"><b>S13 240SX · LS3 (2010 Camaro) · TR6060.</b> Tap a phase, check off steps as you go. Everything saves automatically on this device.</div>';
+  PLAN.forEach(ph=>{
+    const total=ph.steps.length, done=ph.steps.filter(st=>S.checks[st[0]]).length;
+    const open=S.open[ph.id]?' open':'';
+    h+=`<div class="card${open}" id="card-${ph.id}"><div class="chead" onclick="togglePh('${ph.id}')"><h2>${ph.title}</h2><span class="badge${done===total?' done':''}">${done}/${total}</span><span class="chev">▶</span></div><div class="cbody">`;
+    ph.steps.forEach(st=>{
+      const d=S.checks[st[0]]?' done':'';
+      h+=`<div class="step${d}" id="step-${st[0]}"><div class="ck" onclick="toggleStep('${st[0]}')">✓</div><div class="st">${st[1]}${st[2]?`<small>${st[2]}</small>`:''}</div></div>`;
+    });
+    h+='</div></div>';
+  });
+  el.innerHTML=h;
+}
+function renderParts(){
+  const el=document.getElementById('tab-parts');
+  let have=0,total=0;
+  PARTS.forEach(g=>g.items.forEach(it=>{ total++; if(pStat(it)===2)have++; }));
+  let h=`<div class="note" style="margin-top:2px">Tap a status chip to cycle <b style="color:var(--need)">NEED</b> → <b style="color:var(--warn)">ORDERED</b> → <b style="color:var(--ok)">HAVE</b>. ${have}/${total} in hand.</div>`;
+  PARTS.forEach((g,gi)=>{
+    h+=`<h3 class="sec">${g.grp}</h3><div class="card open"><div class="cbody" style="display:block;padding-top:4px">`;
+    g.items.forEach(it=>{
+      const st=pStat(it), lbl=['NEED','ORDERED','HAVE'][st];
+      h+=`<div class="pitem"><div class="pn">${it[1]}${it[3]?`<small>${it[3]}</small>`:''}</div><div class="pstat s${st}" onclick="cycleP('${it[0]}')">${lbl}</div></div>`;
+    });
+    h+='</div></div>';
+  });
+  el.innerHTML=h;
+}
+function pStat(it){ return S.parts[it[0]]!==undefined?S.parts[it[0]]:it[2]; }
+function renderWiring(){
+  const el=document.getElementById('tab-wiring');
+  let h='<div class="note" style="margin-top:2px"><b>Full custom rewire</b> — no factory harness colors here; these diagrams define YOUR color code (see Ref tab). Every rocker switches a relay coil ground: thin wires at the panel, heavy current in the relay boxes. Diagrams scroll sideways on phone.</div>';
+  h+='<div class="legend"><span>'+swatch('RED')+' batt</span><span>'+swatch('YEL')+' ign</span><span>'+swatch('BLK')+' gnd</span><span>⚡ relay</span><span style="color:#e8c14b">▭ fuse</span><span style="color:#7ec8f0">⧄ switch</span></div>';
+  CIRCUITS.forEach(c=>{
+    const open=S.open[c.id]?' open':'';
+    h+=`<div class="card${open}" id="card-${c.id}"><div class="chead" onclick="togglePh('${c.id}')"><h2>${c.title}${c.badge?`<span class="tag">${c.badge}</span>`:''}</h2><span class="chev">▶</span></div><div class="cbody" id="cb-${c.id}"></div></div>`;
+  });
+  el.innerHTML=h;
+  CIRCUITS.forEach(c=>{ document.getElementById('cb-'+c.id).innerHTML=c.body(); });
+}
+function renderRef(){ document.getElementById('tab-ref').innerHTML=refHTML(); }
+function renderProgress(){
+  let total=0,done=0;
+  PLAN.forEach(ph=>ph.steps.forEach(st=>{ total++; if(S.checks[st[0]])done++; }));
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('pbar').style.width=pct+'%';
+  document.getElementById('pTxt').textContent=pct+'% complete';
+  document.getElementById('pSteps').textContent=done+' / '+total+' steps';
+}
+
+/* ================= INTERACTION ================= */
+window.togglePh=function(id){
+  S.open[id]=!S.open[id]; save();
+  const c=document.getElementById('card-'+id); if(c) c.classList.toggle('open',!!S.open[id]);
+};
+window.toggleStep=function(id){
+  S.checks[id]=S.checks[id]?0:1; save();
+  const el=document.getElementById('step-'+id); if(el) el.classList.toggle('done',!!S.checks[id]);
+  // refresh badge counts
+  renderPlanBadges(); renderProgress();
+};
+function renderPlanBadges(){
+  PLAN.forEach(ph=>{
+    const c=document.getElementById('card-'+ph.id); if(!c) return;
+    const done=ph.steps.filter(st=>S.checks[st[0]]).length;
+    const b=c.querySelector('.badge'); b.textContent=done+'/'+ph.steps.length;
+    b.classList.toggle('done',done===ph.steps.length);
+  });
+}
+window.cycleP=function(id){
+  let cur=S.parts[id];
+  if(cur===undefined){ // find default
+    outer: for(const g of PARTS) for(const it of g.items) if(it[0]===id){ cur=it[2]; break outer; }
+  }
+  S.parts[id]=(cur+1)%3; save(); renderParts();
+};
+window.exportState=function(){ document.getElementById('ioBox').value=JSON.stringify(S); };
+window.importState=function(){
+  try{ const v=JSON.parse(document.getElementById('ioBox').value); if(v&&typeof v==='object'){ S=Object.assign({checks:{},parts:{},open:{}},v); save(); renderAll(); alert('Imported.'); } }
+  catch(e){ alert('Bad data — paste a full export string.'); }
+};
+window.resetState=function(){ if(confirm('Wipe ALL progress on this device?')){ S={checks:{},parts:{},open:{}}; save(); renderAll(); } };
+
+document.querySelectorAll('nav button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.getElementById('tab-'+b.dataset.t).classList.add('on');
+    window.scrollTo(0,0);
+  });
+});
+
+function renderAll(){ renderPlan(); renderParts(); renderWiring(); renderRef(); renderProgress(); }
+renderAll();
+</script>
+</body>
+</html>
