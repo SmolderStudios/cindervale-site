@@ -214,89 +214,78 @@ function relayDiagram(o){
   return dSvg(300,s);
 }
 
-/* ================= DATA: BUILD PLAN ================= */
+/* ================= DATA: BUILD PLAN (bare roller shell — wiring FIRST) ================= */
 const PLAN=[
-{id:'p0',title:'Phase 0 — Teardown & Prep',steps:[
- ['p0a','Strip old engine harness + interior harness. Label anything you keep (fuel sender plug, wiper motor plug, brake switch).','Photograph every connector before unplugging.'],
- ['p0b','Pull KA / old drivetrain, clean + paint engine bay while it’s empty.'],
- ['p0c','Sound deadening (Siless mat) in floor pans, firewall, trunk while interior is out.'],
- ['p0d','Plan battery relocation spot in trunk; mock kill switch + main fuse locations.'],
- ['p0e','Decide dash layout for the 6 GlowShift gauges + rocker switch panel location.'],
+{id:'p0',title:'Phase 0 — Layout (mark everything before pulling wire)',steps:[
+ ['p0a','Mark mounting spots with tape/paint pen: battery + kill switch + main fuse in trunk, Relay Box A in engine bay, Relay Box B + ground bus behind dash, ECU spot, gauge positions, rocker switch panel.'],
+ ['p0b','Pick the firewall pass-through points (main harness, 8ga Box B feed, dash→Box A coil wires) and drill/grommet them now.'],
+ ['p0c','Sound deadening (Siless) in floors/firewall/trunk while the shell is bare — way easier before any wire is in.'],
+ ['p0d','Walk each wire route once with a tape measure, write down lengths (see Wire Run Map in Wiring tab). Buy bulk wire from that list.'],
 ]},
-{id:'p1',title:'Phase 1 — Drivetrain In',steps:[
- ['p1a','Install Sikky mounts + drop LS3/TR6060 in as a unit.'],
- ['p1b','Sikky trans crossmember + mount. Check driveline angle.'],
- ['p1c','Install Sikky TR6060 shifter relocation kit; cut tunnel opening to fit.'],
- ['p1d','Oil pan, filter relocation kit + EGM-106 cooler adapter, run cooler lines to oil cooler.'],
- ['p1e','Headers in, check steering shaft + mount clearance.'],
- ['p1f','Clutch master (MCK106) on pedal, line to TR6060 slave, bench-bleed then bleed at trans.'],
- ['p1g','MEASURE for driveshaft (center of u-joint to center of u-joint, ride height, full droop) and order it.','Can’t be done before engine+trans are bolted at final position.'],
+{id:'p1',title:'Phase 1 — Power Backbone',steps:[
+ ['p1a','Battery box + hold-down in trunk, kill switch within reach, MEGA/ANL main fuse within 18" of battery +.'],
+ ['p1b','Run 2/0 cable trunk → engine bay front post along the rocker, grommet every pass-through.'],
+ ['p1c','Grounds: battery − → chassis stud (paint sanded off), ground bus behind dash → chassis. Engine straps come later with the motor.'],
+ ['p1d','Mount both relay boxes. 8ga feeds: front post → 80A fuse → Box A; front post → 60A fuse → Box B (through firewall).'],
+ ['p1e','80A solenoid mounted next to front post = master IGN relay feeding the YELLOW switched bus at both boxes.'],
 ]},
-{id:'p2',title:'Phase 2 — Fuel System',steps:[
- ['p2a','ISR 255 pump into tank with stock hanger; new sock + sealing ring.'],
- ['p2b','Run PTFE feed line front to back (outside frame rail or through cabin sealed — pick one, protect with sleeving + clamps every 12-18").'],
- ['p2c','Mount filter/regulator. DECISION: Sikky FFK-S13 kit vs Evil Energy AN kits — LS3 is returnless, needs 58 psi regulated (Corvette-style filter/regulator or FPR + return).'],
- ['p2d','Fuel rail adapters on, connect feed at rail, leak-check at pressure before first start (jump pump relay, inspect every fitting).'],
+{id:'p2',title:'Phase 2 — Pull All Wire Runs (shell is empty — do it all now)',steps:[
+ ['p2a','REAR bundle (dash → trunk, driver rocker): tails, plate, brake, left turn, right turn, reverse, fuel pump 12ga, fuel sender. Sleeve it, label both ends, leave 2ft slack each end.'],
+ ['p2b','FRONT bundle (Box A → nose): low beams, high beams, pop-up motors, corners/park, front turns, horn, fan 10ga ×2.'],
+ ['p2c','DASH bundle (rocker panel → Box A through firewall): one 16ga coil-ground wire per engine-bay rocker (HEAD, HI/LO, POP, FAN, HORN, WASHER).'],
+ ['p2d','DASH local runs: gauge power/ground/dimmer bus, turn+hazard flasher wires, start relay, lockout, wiper, 12V socket, dome.'],
+ ['p2e','Leave pigtails hanging where components land later (headlight buckets, tails, pump hanger, senders). Do NOT terminate yet — just label.'],
+ ['p2f','Run the fuel feed line front→back now too while access is wide open (protect + clamp every 12-18").'],
 ]},
-{id:'p3',title:'Phase 3 — Cooling',steps:[
- ['p3a','Mount ISR radiator (verify S14 core fits your 91-93 mounts, fab brackets if needed).'],
- ['p3b','Buy + mount electric fans (dual 12" slim or single 16"; you selected no shroud).'],
- ['p3c','Custom radiator hoses — LS3 water pump inlet/outlet vs radiator necks; universal hose kit or cut-to-fit.'],
- ['p3d','Steam vent line to radiator neck or upper hose fitting (engine already has vent upgrade — just plumb it).'],
- ['p3e','Overflow/expansion tank mounted + plumbed to radiator neck.'],
+{id:'p3',title:'Phase 3 — Dash: Switches + Gauges',steps:[
+ ['p3a','Mount rocker panel; wire each rocker: one side to its relay coil-ground wire, other side to ground bus. START, LOCKOUT, HORN, WASHER must be MOMENTARY.'],
+ ['p3b','IGN rocker → 5A fuse → 80A solenoid small post (this is the master key).'],
+ ['p3c','Mount all 6 GlowShifts; daisy-chain 12V (fused 5A off Box B), ground, and GRAY dimmer to every gauge.'],
+ ['p3d','Land gauge signal wires: fuel sender (from rear bundle), tach + speedo pigtails (connect to harness later), oil psi / oil temp / water temp pigtails (to senders later).'],
+ ['p3e','Both CF-13KT flashers + turn rocker + hazard rocker + 2 blocking diodes wired at the dash.'],
 ]},
-{id:'p4',title:'Phase 4 — Power Backbone (wiring starts here)',steps:[
- ['p4a','Mount battery in trunk (box + hold-down), kill switch within reach, MEGA/ANL main fuse within 18" of battery +.'],
- ['p4b','Run 2/0 cable trunk → engine bay along rocker, grommet every body pass-through.'],
- ['p4c','Grounds: battery − to chassis (trunk), engine block → frame strap, head → firewall strap, chassis ground bus behind dash. Use the harness 2-piece grounding kit.'],
- ['p4d','Mount Relay Box A (engine bay, 6-relay/11-fuse) + Relay Box B (interior, 4-relay/12-fuse). Feed each from main post through its own fuse.'],
- ['p4e','80A solenoid = master IGN relay: IGN rocker energizes it, it feeds the switched (YELLOW) bus for both boxes.'],
- ['p4f','Label every circuit at both ends as you go (you bought the label tags — use them).'],
+{id:'p4',title:'Phase 4 — Lights: Terminate + Test on Battery',steps:[
+ ['p4a','Bench-test pop-up motors + wiper motor connectors with jumpers, note terminals, then wire them.'],
+ ['p4b','Terminate front: headlight plugs, corners, front turns, horn.'],
+ ['p4c','Terminate rear: tails, brake, turns, reverse, plate.'],
+ ['p4d','Set every fuse per the fuse map (Ref tab), battery on, and test EVERY circuit now — lights, turns, hazards, wipers, gauges light up. No engine needed. Fix it while everything is reachable.'],
 ]},
-{id:'p5',title:'Phase 5 — Engine Harness + ECU',steps:[
- ['p5a','Lay in LS3 swap harness, ECU mounting spot (kick panel or glovebox — dry, away from heat).'],
- ['p5b','Connect harness battery + ign feeds to backbone per harness instructions.'],
- ['p5c','DBW pedal mounted + plugged.'],
- ['p5d','MAF in intake tube, O2 sensors in header bungs.'],
- ['p5e','Harness fuel pump trigger wire → Box A fuel pump relay pin 85/86 (see wiring tab).'],
- ['p5f','Harness fan trigger(s) → fan relays (see wiring tab).'],
- ['p5g','Tuner flashes ECU: VATS off, fan temps set (185 on / 175 off typical), speedo output if used.'],
+{id:'p5',title:'Phase 5 — Drivetrain In',steps:[
+ ['p5a','Sikky mounts in, LS3/TR6060 dropped as a unit, trans crossmember + mount.'],
+ ['p5b','Sikky TR6060 shifter relocation; cut tunnel to fit.'],
+ ['p5c','Oil filter relocation + EGM-106 cooler adapter, lines to cooler.'],
+ ['p5d','Headers in, check steering shaft clearance.'],
+ ['p5e','Clutch master (MCK106) on pedal, line to slave, bleed.'],
+ ['p5f','Engine grounds: block → frame strap, head → firewall strap (harness 2-piece kit).'],
+ ['p5g','MEASURE driveshaft at ride height and order it.'],
 ]},
-{id:'p6',title:'Phase 6 — Lighting Circuits',steps:[
- ['p6a','Pop-up motor circuit + POP rocker (bench-verify motor terminals first — self-parking 3-wire).'],
- ['p6b','Low beam relay + high beam relay, HEADLIGHT rocker + HI/LO rocker.'],
- ['p6c','Running lights: parking, tails, license plate, clear corners on LIGHTS rocker.'],
- ['p6d','Brake lights off pedal switch (constant-hot fused).'],
- ['p6e','Turn signals: CF-13KT flasher #1 + ON-OFF-ON rocker.'],
- ['p6f','Hazards: CF-13KT flasher #2 + rocker + 2 blocking diodes.'],
- ['p6g','Reverse lights from TR6060 reverse switch.'],
+{id:'p6',title:'Phase 6 — Engine Harness + ECU',steps:[
+ ['p6a','Lay in swap harness, ECU on its spot, harness through the grommet you prepped in Phase 0.'],
+ ['p6b','Harness battery + IGN feeds to backbone per the harness sheet.'],
+ ['p6c','DBW pedal mounted + plugged. MAF in tube, O2s in bungs.'],
+ ['p6d','Harness fuel pump trigger → Box A pump relay; fan trigger → fan relay (see Wiring tab).'],
+ ['p6e','Connect tach pigtail → harness tach wire; speedo pigtail → SGI-100BT output.'],
+ ['p6f','Senders in: water temp (ICT M12 adapter), oil psi (M16 adapter), oil temp (spare port on cooler block). Connect gauge pigtails.'],
+ ['p6g','Tuner flashes ECU: VATS off, fan temps (185 on / 175 off start).'],
 ]},
-{id:'p7',title:'Phase 7 — Gauges & Dash',steps:[
- ['p7a','Gauge power bus: IGN 12V + GND + dimmer (GRAY illumination wire from LIGHTS circuit) daisy-chained to all 6 gauges.'],
- ['p7b','Tach: signal wire from swap harness tach output, set GlowShift to 8-cyl.'],
- ['p7c','Speedo: SGI-100BT output wire → speedo signal in. Calibrate per SGI dip switches after first drive (GPS check).'],
- ['p7d','Water temp sender in ICT M12→1/8NPT adapter (head or water pump port).'],
- ['p7e','Oil pressure sender in M16→1/8NPT adapter (above oil filter pad / relocation block).'],
- ['p7f','Oil temp sender in spare port on EGM-106 / relocation block or pan bung.'],
- ['p7g','Fuel level: stock S13 sender wire → GlowShift fuel gauge, set ohm range to match sender (verify empty/full resistance with meter first).'],
+{id:'p7',title:'Phase 7 — Fuel System',steps:[
+ ['p7a','ISR 255 pump into tank, connect the pump 12ga + sender wires from the rear bundle.'],
+ ['p7b','Mount filter/regulator. DECISION: Sikky FFK-S13 vs Evil Energy AN — LS3 is returnless, needs 58 psi regulated (Corvette-style filter/reg or FPR + return).'],
+ ['p7c','Rail adapters on, connect feed, jump the pump relay and leak-check every fitting at pressure.'],
 ]},
-{id:'p8',title:'Phase 8 — Accessories',steps:[
- ['p8a','Wipers: keep stock S13 wiper motor, wire LOW/HIGH rocker + park feed (see wiring tab).'],
- ['p8b','Horn relay + horn button/rocker.'],
- ['p8c','Reverse lockout solenoid: 12V via momentary rocker (or speed-based module) — TR6060 needs it energized to allow reverse at standstill... it BLOCKS reverse above ~5 mph when wired to VSS logic; simplest: momentary rocker you hold when grabbing reverse.'],
- ['p8d','Fan override rocker (parallel ground path on fan relay 85).'],
- ['p8e','12V accessory socket / phone power off Box B.'],
- ['p8f','Dome light (constant hot, door switches ground).'],
+{id:'p8',title:'Phase 8 — Cooling',steps:[
+ ['p8a','Mount ISR radiator (S14 core on 91-93 mounts — fab brackets if needed).'],
+ ['p8b','Fans on, connect the 10ga fan wires from the front bundle.'],
+ ['p8c','Custom/universal radiator hoses, steam vent plumbed to radiator neck, overflow tank plumbed.'],
 ]},
 {id:'p9',title:'Phase 9 — First Start & Shakedown',steps:[
- ['p9a','Pre-start: oil primed, coolant filled + burped (steam vent open), trans fluid, fuel pressure leak-check done.'],
- ['p9b','Check every fuse value against the fuse map (Ref tab) before first key-on.'],
- ['p9c','Key-on, no crank: pump primes 2 sec, gauges alive, no smoke, ECU talks to tuner laptop.'],
- ['p9d','First start. Watch oil pressure gauge immediately (30+ psi cold idle).'],
- ['p9e','Warm-up: verify fans kick on at set temp, no leaks (oil, coolant, fuel, clutch fluid).'],
- ['p9f','Install driveshaft when it arrives, torque + safety-wire per spec.'],
- ['p9g','Low-speed test drive: clutch engagement, shifter feel, brakes (booster-delete pedal effort check), speedo calibration.'],
- ['p9h','Exhaust from collectors back. Alignment. Send it.'],
+ ['p9a','Pre-start: oil primed, coolant burped, trans fluid, fuel leak-check done, fuses verified.'],
+ ['p9b','Key-on no crank: pump primes 2s, gauges alive, ECU talks to laptop.'],
+ ['p9c','First start — watch oil pressure immediately (30+ psi cold idle).'],
+ ['p9d','Warm-up: fans kick on at temp, zero leaks (oil / coolant / fuel / clutch).'],
+ ['p9e','Driveshaft in when it arrives, torqued.'],
+ ['p9f','Low-speed shakedown: clutch, shifter, brakes (booster-delete pedal effort), speedo calibration vs GPS.'],
+ ['p9g','Exhaust from collectors back. Alignment. Send it.'],
 ]},
 ];
 
@@ -383,8 +372,25 @@ function wireRow(rows){
 }
 
 const CIRCUITS=[
+/* ---- wire run map ---- */
+{id:'w-map',title:'0. Wire Run Map — pull these bundles now',badge:'roller shell',
+ simple:'Shell is empty: pull every bundle below, sleeve + label both ends, leave 2ft slack, terminate nothing yet.',
+ body:()=>{
+  let s='<table class="wt"><tr><th>Bundle / route</th><th>Wires in it</th><th>~Len</th></tr>'+
+  [['<b>Battery run</b><br>trunk → front post, driver rocker','2/0 RED (battery), and battery − → chassis at trunk','16 ft'],
+   ['<b>Rear bundle</b><br>dash → trunk/tails, driver rocker','BRN 14 (tail+plate) · GRN 14 (brake) · GRN 16 (L turn) · VIO 16 (R turn) · LTB 16 (reverse) · PNK 12 (fuel pump) · TAN 18 (fuel sender)','12 ft'],
+   ['<b>Box B feed</b><br>front post → through firewall → Box B','RED 8ga (60A fused) + YEL 8ga (switched bus from 80A solenoid)','6 ft'],
+   ['<b>Front bundle</b><br>Box A → nose','WHT 12 ×2 (low L/R) · BLU 12 ×2 (high L/R) · WHT 14 (pop-ups) · BRN 14 (corners/park) · GRN/VIO 16 (front turns) · GRN 14 (horn) · LTB 10 ×2 (fans)','8 ft'],
+   ['<b>Dash → Box A</b><br>through firewall grommet','16ga coil grounds, one per bay rocker: HEAD · HI/LO · POP · FAN · HORN · WASHER — plus TAN 18 (tach from harness) + TAN 18 (SGI speed out) coming back','7 ft'],
+   ['<b>Dash local</b><br>behind dash','Gauge bus (YEL+BLK+GRY daisy-chain) · flasher wires · start relay VIO · lockout ORN · wiper BLU · dome/12V ORN','—']]
+  .map(r=>`<tr><td>${r[0]}</td><td style="line-height:1.6">${r[1]}</td><td>${r[2]}</td></tr>`).join('')+'</table>';
+  s+='<div class="note"><b>Shopping math:</b> roughly 25ft each of the main colors in 14/16ga, 15ft of 12ga (WHT, PNK), 20ft of 10ga (LTB), 15ft of 8ga (RED+YEL), 16ft of 2/0. Buy 25% extra — you will re-pull something. ECU corner is home base: the engine harness, tach/speed wires, and Box B all meet there.</div>';
+  s+='<div class="note warn">Pull wire THROUGH grommets, never over bare metal edges. Where a bundle crosses the firewall, one big grommet beats five small holes.</div>';
+  return s;
+ }},
 /* ---- power distribution ---- */
 {id:'w-pwr',title:'1. Power Backbone & Battery Relocation',badge:'start here',
+ simple:'Battery+ → kill switch → 175A fuse → 2/0 to front post. Post feeds starter direct, Box A via 80A fuse, Box B via 60A fuse. IGN rocker clicks the 80A solenoid on → yellow switched bus feeds both boxes.',
  body:()=>{
   let s='';
   let d='';
@@ -439,6 +445,7 @@ const CIRCUITS=[
  }},
 /* ---- ignition & start ---- */
 {id:'w-ign',title:'2. Ignition & Starting',badge:'',
+ simple:'IGN rocker on = everything wakes up. START momentary rocker grounds the start relay coil; relay sends fused 12V to the starter S terminal.',
  body:()=>{
   let s=relayDiagram({
     mainFuse:'30A',relay:'START RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
@@ -456,6 +463,7 @@ const CIRCUITS=[
  }},
 /* ---- popups ---- */
 {id:'w-pop',title:'3. Pop-Up Headlight Motors',badge:'bench-verify',
+ simple:'POP rocker grounds a relay coil; relay feeds both retractor motors 12V. Motors self-park — bench-test which terminal is up vs down before wiring.',
  body:()=>{
   let s=relayDiagram({
     mainFuse:'15A',relay:'POP RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
@@ -470,6 +478,7 @@ const CIRCUITS=[
  }},
 /* ---- headlights ---- */
 {id:'w-head',title:'4. Headlights (Low / High)',badge:'',
+ simple:'HEAD rocker grounds the low-beam relay → WHITE wire to both lows. HI/LO rocker in series adds the high-beam relay → BLUE wire to both highs.',
  body:()=>{
   let s=relayDiagram({
     mainFuse:'20A',relay:'LOW BEAM RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
@@ -487,6 +496,7 @@ const CIRCUITS=[
  }},
 /* ---- running lights ---- */
 {id:'w-run',title:'5. Running Lights (Park / Tail / Plate)',badge:'',
+ simple:'LIGHTS rocker grounds the park relay → one BROWN wire feeds corners up front and tails + plate out back. Same output also feeds the GRAY gauge dimmer wire.',
  body:()=>{
   let s=relayDiagram({
     mainFuse:'15A',relay:'PARK RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
@@ -502,6 +512,7 @@ const CIRCUITS=[
  }},
 /* ---- brake ---- */
 {id:'w-brake',title:'6. Brake Lights',badge:'no relay',
+ simple:'Fused battery 12V → stock brake pedal switch → GREEN wire to both brake bulbs. That’s the whole circuit.',
  body:()=>{
   let d='';
   d+=dRail(60,'+12V BATT');
@@ -523,6 +534,7 @@ const CIRCUITS=[
  }},
 /* ---- turns ---- */
 {id:'w-turn',title:'7. Turn Signals & Hazards',badge:'2× CF-13KT',
+ simple:'IGN 12V → flasher #1 B pin; L pin → ON-OFF-ON rocker → left (GREEN) or right (VIOLET) side. Hazards: BATT 12V → flasher #2 → hazard rocker → both sides through 2 diodes.',
  body:()=>{
   let d='';
   // turn flasher
@@ -564,6 +576,7 @@ const CIRCUITS=[
  }},
 /* ---- fans ---- */
 {id:'w-fan',title:'8. Radiator Fans',badge:'',
+ simple:'ECU (or FAN rocker override) grounds the fan relay coil → relay sends fused 30A to the fan on LT BLUE 10ga. One relay per fan if running duals.',
  body:()=>{
   let s=relayDiagram({
     mainFuse:'30A',relay:'FAN RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
@@ -580,6 +593,7 @@ const CIRCUITS=[
  }},
 /* ---- fuel pump ---- */
 {id:'w-pump',title:'9. Fuel Pump',badge:'',
+ simple:'Swap harness pump trigger works the relay coil; relay sends fused 12V on PINK 12ga back to the pump. Pump gets its own clean chassis ground at the tank.',
  body:()=>{
   let s=relayDiagram({
     mainFuse:'15A',relay:'PUMP RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
@@ -595,6 +609,7 @@ const CIRCUITS=[
  }},
 /* ---- gauges ---- */
 {id:'w-gauge',title:'10. Gauge Cluster (all 6 GlowShifts)',badge:'',
+ simple:'Every gauge shares 3 daisy-chained wires: fused IGN 12V, ground, GRAY dimmer. Then one signal wire each: tach←harness, speedo←SGI box, fuel←stock sender, temps/pressure←their senders.',
  body:()=>{
   let d='';
   d+=dRail(50,'+12V IGN','YEL');
@@ -628,6 +643,7 @@ const CIRCUITS=[
  }},
 /* ---- reverse ---- */
 {id:'w-rev',title:'11. Reverse Lights + Lockout',badge:'TR6060',
+ simple:'Fused IGN 12V → TR6060 reverse switch → LT BLUE to reverse bulbs. Lockout: hold the momentary rocker to send 12V to the solenoid when grabbing reverse.',
  body:()=>{
   let d='';
   d+=dRail(60,'+12V IGN','YEL');
@@ -657,6 +673,7 @@ const CIRCUITS=[
  }},
 /* ---- wipers ---- */
 {id:'w-wipe',title:'12. Wipers & Washer',badge:'stock motor',
+ simple:'WIPER rocker grounds the wiper relay → fused 12V to the motor LOW terminal. Park contact keeps it fed until arms reach rest. Bench-test the motor pins first.',
  body:()=>{
   let s=relayDiagram({
     mainFuse:'20A',relay:'WIPER RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
@@ -672,6 +689,7 @@ const CIRCUITS=[
  }},
 /* ---- horn ---- */
 {id:'w-horn',title:'13. Horn',badge:'',
+ simple:'Momentary HORN button grounds the relay coil; relay feeds the horns fused 12V.',
  body:()=>{
   let s=relayDiagram({
     mainFuse:'15A',relay:'HORN RELAY',coilFuse:'5A',coilSrc:'+12V IGN (YEL bus)',
@@ -682,6 +700,7 @@ const CIRCUITS=[
  }},
 /* ---- interior ---- */
 {id:'w-int',title:'14. Interior: Dome, 12V, Stereo',badge:'',
+ simple:'Small loads straight off Box B fuses — no relays. Dome + 12V socket on constant, stereo switched + constant memory.',
  body:()=>{
   let s=wireRow([
    ['ORN','16','BATT fuse 5A (Box B) → dome light + (door switches ground it — stock switches work)'],
@@ -752,7 +771,7 @@ function refHTML(){
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
 function renderPlan(){
   const el=document.getElementById('tab-plan');
-  let h='<div class="note" style="margin-top:2px"><b>S13 240SX · LS3 (2010 Camaro) · TR6060.</b> Tap a phase, check off steps as you go. Everything saves automatically on this device.</div>';
+  let h='<div class="note" style="margin-top:2px"><b>S13 240SX · LS3 (2010 Camaro) · TR6060 · bare roller shell.</b> Wiring-first order: backbone + every wire run goes in while the shell is empty, lights get tested on battery power alone, drivetrain drops in after. Check off steps as you go — saves automatically.</div>';
   PLAN.forEach(ph=>{
     const total=ph.steps.length, done=ph.steps.filter(st=>S.checks[st[0]]).length;
     const open=S.open[ph.id]?' open':'';
@@ -790,7 +809,7 @@ function renderWiring(){
     h+=`<div class="card${open}" id="card-${c.id}"><div class="chead" onclick="togglePh('${c.id}')"><h2>${c.title}${c.badge?`<span class="tag">${c.badge}</span>`:''}</h2><span class="chev">▶</span></div><div class="cbody" id="cb-${c.id}"></div></div>`;
   });
   el.innerHTML=h;
-  CIRCUITS.forEach(c=>{ document.getElementById('cb-'+c.id).innerHTML=c.body(); });
+  CIRCUITS.forEach(c=>{ document.getElementById('cb-'+c.id).innerHTML=(c.simple?`<div class="note" style="border-left-color:var(--ok);margin-top:12px"><b>Hook-up:</b> ${c.simple}</div>`:'')+c.body(); });
 }
 function renderRef(){ document.getElementById('tab-ref').innerHTML=refHTML(); }
 function renderProgress(){
