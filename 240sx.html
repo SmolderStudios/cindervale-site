@@ -210,7 +210,9 @@ function boxOverview(o){
     s+=`<rect x="384" y="${y+8}" width="38" height="18" rx="4" fill="#0a0c10" stroke="#e8c14b"/><text x="403" y="${y+21}" text-anchor="middle" fill="#e8c14b" font-size="8.5" font-weight="700">${r[1]}</text>`;
     s+=`<line x1="66" y1="${cy}" x2="202" y2="${cy}" stroke="#9aa3b5" stroke-width="1.5" stroke-dasharray="4 3"/>`;
     s+=`<text x="134" y="${cy-6}" text-anchor="middle" fill="#9aa3b5" font-size="8.5">${r[4]}</text>`;
+    s+=`<text x="198" y="${cy+11}" text-anchor="end" fill="#e8c821" font-size="7.5" font-weight="700">85</text>`;
     s+=W([[440,cy],[492,cy]],r[2]);
+    s+=`<text x="443" y="${cy+11}" fill="#e8c821" font-size="7.5" font-weight="700">87</text>`;
     s+=`<text x="497" y="${cy+3}" fill="#cfd4de" font-size="9.5">${r[3]}</text>`;
     y+=RH;
   });
@@ -237,7 +239,7 @@ function relayDiagram(o){
   s+=dRail(60,o.src||'+12V BATT');
   s+=W([[90,60],[150,60]],o.mainWire||'RED');
   s+=dFuse(170,60,o.mainFuse);
-  s+=W([[186,60],[260,60],[260,108],[300,108]],o.mainWire||'RED',(o.mainWireLbl||''),240,95);
+  s+=W([[186,60],[260,60],[260,108],[300,108]],o.mainWire||'RED',(o.mainWireLbl||'to pin 30'),240,95);
   // relay
   s+=dRelay(300,60,o.relay||'RELAY',o.relaySub);
   // coil feed: IGN rail → coil fuse → 86
@@ -465,10 +467,10 @@ const CIRCUITS=[
     ['post',.5,'starter',.5,0,'RED','2/0',0,[[75,214],[75,240]]],
     ['post',.5,'sol',.5,0,'RED','8ga big post',0,[[20,192],[8,192],[8,332],[20,332]]],
     ['batt',.5,'gnd',.5,0,'BLK','2/0 batt −',0,[[46,74],[46,88],[6,88],[6,402],[20,402]]],
-    ['post',.25,'boxa',.25,150,'RED','8ga · 80A fuse'],
-    ['post',.75,'boxb',.25,158,'RED','8ga · 60A fuse'],
-    ['sol',.25,'boxa',.75,182,'YEL','8ga IGN bus'],
-    ['sol',.75,'boxb',.75,190,'YEL','8ga IGN bus'],
+    ['post',.25,'boxa',.25,150,'RED','8ga·80A → 30s'],
+    ['post',.75,'boxb',.25,158,'RED','8ga·60A → 30s'],
+    ['sol',.25,'boxa',.75,182,'YEL','IGN bus → pin 86s'],
+    ['sol',.75,'boxb',.75,190,'YEL','IGN bus → pin 86s'],
     ['post',.1,'hfb',.35,146,'RED','harness B+ feed'],
     ['sol',.1,'hfb',.75,174,'YEL','harness IGN feed'],
     ['hfb',.5,'ecu',.5,0,'RED','internal fused',0,[[270,64],[270,84]]],
@@ -476,23 +478,23 @@ const CIRCUITS=[
     ['hfb',.9,'pump',.5,416,'PNK','HARNESS pump relay · 12ga'],
     ['rockers',.2,'hfb',.9,0,'GRY','fan override',1,[[210,480],[196,480],[196,60],[210,60]]],
     ['rockers',.3,'sol',.9,166,'YEL','IGN rocker · 5A',0,[[210,484],[166,484],[166,350],[130,350]]],
-    ['rockers',.5,'boxa',.5,0,'GRY','coil grounds ×4',1,[[210,494],[200,494],[200,168],[210,168]]],
-    ['rockers',.7,'boxb',.5,0,'GRY','coil grounds ×3',1,[[206,504],[206,358],[210,358]]],
+    ['rockers',.5,'boxa',.5,0,'GRY','coil grounds ×4 → pin 85',1,[[210,494],[200,494],[200,168],[210,168]]],
+    ['rockers',.7,'boxb',.5,0,'GRY','coil grounds ×3 → pin 85',1,[[206,504],[206,358],[210,358]]],
     ['rockers',.5,'gnd',.5,0,'BLK','switch grounds',0,[[270,518],[270,540],[160,540],[160,410],[130,410]]],
     ['ecu',.5,'gauges',.3,432,'TAN','tach + SGI speed',1],
-    ['boxa',.1,'lows',.5,352,'WHT','A·R1 · 20A · 12ga'],
-    ['boxa',.3,'highs',.5,368,'BLU','A·R2 · 20A · 12ga'],
-    ['boxa',.5,'popups',.5,384,'WHT','A·R3 · 15A · 14ga'],
-    ['boxa',.7,'horn',.5,444,'GRN','A·R4 · 15A · 14ga'],
-    ['boxb',.1,'starter',.75,0,'VIO','B·R1 · 30A · 12ga',0,[[210,336],[168,336],[168,273],[130,273]]],
+    ['boxa',.1,'lows',.5,352,'WHT','A·R1 pin87 · 20A · 12ga'],
+    ['boxa',.3,'highs',.5,368,'BLU','A·R2 pin87 · 20A · 12ga'],
+    ['boxa',.5,'popups',.5,384,'WHT','A·R3 pin87 · 15A · 14ga'],
+    ['boxa',.7,'horn',.5,444,'GRN','A·R4 pin87 · 15A · 14ga'],
+    ['boxb',.1,'starter',.75,0,'VIO','B·R1 pin87 · 30A · 12ga',0,[[210,336],[168,336],[168,273],[130,273]]],
     ['boxb',.2,'gauges',.7,352,'YEL','B·fuse 5A · 16ga'],
-    ['boxb',.3,'park',.5,366,'BRN','B·R2 · 15A · 14ga'],
+    ['boxb',.3,'park',.5,366,'BRN','B·R2 pin87 · 15A · 14ga'],
     ['boxb',.42,'brake',.5,380,'RED','B·fuse 10A · 14ga'],
     ['boxb',.54,'turns',.5,394,'GRN','B·fuse 10A ×2 · 16ga'],
     ['boxb',.66,'rev',.5,408,'LTB','B·fuse 10A+5A · 16ga'],
-    ['boxb',.78,'wipers',.5,422,'BLU','B·R3 · 20A · 14ga'],
+    ['boxb',.78,'wipers',.5,422,'BLU','B·R3 pin87 · 20A · 14ga'],
     ['boxb',.9,'dome',.5,450,'ORN','B·fuse 5A+15A · 16ga'],
-    ['park',.5,'gauges',.5,0,'GRY','dimmer',1,[[600,405],[640,405],[640,349],[600,349]]],
+    ['park',.5,'gauges',.5,0,'GRY','dimmer',1,[[600,349],[640,349],[640,405],[600,405]]],
   ];
   let d='', lbls='';
   E.forEach(e=>{
@@ -528,7 +530,7 @@ const CIRCUITS=[
     d+=`<g class="node" data-id="${k}" onclick="sysSel('${k}')"><rect x="${n[0]}" y="${n[1]}" width="${n[2]}" height="${n[3]}" rx="8" fill="#151922" stroke="${n[6]||'#3a4560'}" stroke-width="1.5"/><text x="${n[0]+n[2]/2}" y="${n[1]+(n[5]?n[3]/2-2:n[3]/2+4)}" text-anchor="middle" fill="#e8e6df" font-size="10" font-weight="700" pointer-events="none">${n[4]}</text>${n[5]?`<text x="${n[0]+n[2]/2}" y="${n[1]+n[3]/2+11}" text-anchor="middle" fill="#9aa3b5" font-size="8" pointer-events="none">${n[5]}</text>`:''}${g}</g>`;
   });
   let s=`<div class="dwrap"><svg id="sysmap" viewBox="0 0 700 790" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Roboto,sans-serif">${d}${lbls}</svg></div>`;
-  s+='<div class="note"><b>Reading the labels:</b> A·R1 = Box A, relay slot R1 · then fuse size · then wire gauge. "B·fuse" = fuse-only circuit in Box B, no relay. <b>Tap any box</b> to light up only its wires (the quieter left-side labels appear when tapped); tap again to reset.</div>';
+  s+='<div class="note"><b>Reading the labels:</b> A·R1 pin87 = Box A, relay slot R1, leaves on pin 87 · then fuse size · then wire gauge. "B·fuse" = fuse-only circuit in Box B, no relay. Feeds land on pin 30 (power) and pin 86 (coil +); rocker wires ground pin 85. <b>Tap any box</b> to light up only its wires (the quieter left-side labels appear when tapped); tap again to reset.</div>';
   s+='<div class="note"><b>Grounds — the ⏚ symbol on each load:</b> everything with the ground symbol gets its OWN short black wire to the nearest bare-metal chassis/body point — bolt or screw, paint sanded off, star washer. Lights ground near their buckets, fans at the core support, pump at the tank, wipers at the cowl, starter through the engine block + the block→frame strap. The <b>GND BUS</b> tag (gauges, turn flashers, dome) means those ground at the bus bar behind the dash instead — one clean point for all in-cabin electronics. Bad grounds cause 90% of weird electrical gremlins: dim lights, gauges that dance, turn signals that change speed. Sand, bolt, done.</div>';
   return s;
  }},
@@ -568,7 +570,7 @@ const CIRCUITS=[
   s+='<div class="note" style="border-left-color:var(--ok)"><b>This block does the engine-side work for you</b> — mount it, feed it B+, done. Because it has the FUEL PUMP + FAN 1/FAN 2 relays, those loads do NOT go through your Box A. That frees Box A up:</div>';
   s+=boxOverview({
     name:'BOX A — ENGINE BAY', sub:'6 relay / 11 fuse',
-    feeds:[['RED','8ga BATT (80A)'],['YEL','8ga IGN bus']],
+    feeds:[['RED','BATT 8ga → pin 30s'],['YEL','IGN 8ga → pin 86s']],
     relays:[
       ['R1 LOW BEAM','20A','WHT','low beams L+R','HEAD rocker'],
       ['R2 HIGH BEAM','20A','BLU','high beams L+R','HI/LO rocker'],
@@ -582,7 +584,7 @@ const CIRCUITS=[
     ]});
   s+=boxOverview({
     name:'BOX B — BEHIND DASH', sub:'4 relay / 12 fuse',
-    feeds:[['RED','8ga BATT (60A)'],['YEL','8ga IGN bus']],
+    feeds:[['RED','BATT 8ga → pin 30s'],['YEL','IGN 8ga → pin 86s']],
     relays:[
       ['R1 START','30A','VIO','starter S terminal','START momentary'],
       ['R2 PARK LIGHTS','15A','BRN','corners + tails + plate','LIGHTS rocker'],
