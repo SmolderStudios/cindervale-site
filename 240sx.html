@@ -414,8 +414,77 @@ function wireRow(rows){
 }
 
 const CIRCUITS=[
+/* ---- full car layout ---- */
+{id:'w-layout',title:'0. Full Car Layout',badge:'the map',
+ simple:'Top-down view of the whole car — nose on the left, trunk on the right, driver rocker along the bottom. Every box, component, and bundle route in one picture.',
+ body:()=>{
+  const mini=(x,y,w,h,t,sub,ac)=>{
+    let m=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#151922" stroke="${ac||'#3a4560'}" stroke-width="1.5"/>`;
+    m+=`<text x="${x+w/2}" y="${y+(sub?h/2-2:h/2+3.5)}" text-anchor="middle" fill="#e8e6df" font-size="9.5" font-weight="700">${t}</text>`;
+    if(sub) m+=`<text x="${x+w/2}" y="${y+h/2+10}" text-anchor="middle" fill="#9aa3b5" font-size="8">${sub}</text>`;
+    return m;
+  };
+  let d='';
+  // car outline + wheels
+  d+=`<rect x="50" y="70" width="600" height="270" rx="46" fill="none" stroke="#3a4560" stroke-width="2"/>`;
+  [[100,52],[100,342],[530,52],[530,342]].forEach(w=>{ d+=`<rect x="${w[0]}" y="${w[1]}" width="70" height="16" rx="8" fill="#1b2130" stroke="#2a3245"/>`; });
+  // zone dividers + labels
+  d+=`<line x1="245" y1="70" x2="245" y2="340" stroke="#2a3245" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+  d+=`<line x1="355" y1="70" x2="355" y2="340" stroke="#2a3245" stroke-width="1" stroke-dasharray="3 5"/>`;
+  d+=`<line x1="552" y1="70" x2="552" y2="340" stroke="#2a3245" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+  d+=`<text x="147" y="63" text-anchor="middle" fill="#9aa3b5" font-size="9" font-weight="700">ENGINE BAY</text>`;
+  d+=`<text x="300" y="63" text-anchor="middle" fill="#9aa3b5" font-size="9" font-weight="700">DASH</text>`;
+  d+=`<text x="453" y="63" text-anchor="middle" fill="#9aa3b5" font-size="9" font-weight="700">CABIN</text>`;
+  d+=`<text x="622" y="63" text-anchor="middle" fill="#9aa3b5" font-size="9" font-weight="700">TRUNK</text>`;
+  // ===== routes first (under boxes) =====
+  // 2/0 battery: kill → down → along bottom rocker → up to front post
+  d+=W([[576,214],[576,318],[196,318],[196,184]],'RED','2/0 BATTERY CABLE — driver rocker',390,312);
+  // rear bundle: dash → bottom → tank branch → tails
+  d+=W([[300,282],[300,306],[598,306],[598,297]],'BRN','REAR BUNDLE',368,300);
+  d+=W([[470,306],[470,298]],'BRN');
+  d+=W([[598,306],[598,130],[608,130]],'BRN');
+  // front bundle: Box A → vertical spine at nose
+  d+=W([[150,238],[112,238],[112,100],[132,100]],'WHT','FRONT BUNDLE',76,132);
+  d+=W([[112,238],[112,310],[132,310]],'WHT');
+  d+=W([[112,190],[124,190]],'WHT');
+  d+=W([[112,140],[138,140]],'WHT');
+  // ign bus: solenoid → Box A + through firewall → Box B
+  d+=W([[196,184],[196,218]],'YEL','8ga',182,205);
+  d+=W([[234,168],[240,168],[240,258],[250,258]],'YEL','IGN BUS thru firewall',290,172);
+  // coil wires dashed: rockers → Box A
+  d+=`<polyline points="303,214 240,214 240,236 234,236" fill="none" stroke="#9aa3b5" stroke-width="1.8" stroke-dasharray="4 3"/>`;
+  d+=`<text x="272" y="206" text-anchor="middle" fill="#9aa3b5" font-size="8">coil wires</text>`;
+  // swap harness dashed: ECU → engine
+  d+=`<polyline points="250,134 216,134 216,286 200,286" fill="none" stroke="#f08a2c" stroke-width="1.8" stroke-dasharray="5 3"/>`;
+  d+=`<text x="216" y="126" text-anchor="middle" fill="#f08a2c" font-size="8">swap harness</text>`;
+  // fuel line: tank → passenger (top) side → engine bay
+  d+=`<polyline points="470,250 470,86 190,86 190,120" fill="none" stroke="#e8e8e8" stroke-width="1.8" stroke-dasharray="7 4"/>`;
+  d+=`<text x="410" y="80" text-anchor="middle" fill="#e8e8e8" font-size="8">FUEL FEED — passenger side</text>`;
+  // ===== components =====
+  d+=mini(132,86,66,28,'HEADLIGHT','pop-up');
+  d+=mini(132,296,66,28,'HEADLIGHT','pop-up');
+  d+=mini(58,168,64,44,'RAD +','FANS');
+  d+=mini(138,128,44,24,'HORN');
+  d+=mini(154,152,80,36,'FRONT POST','+ 80A solenoid','#ff7a3c');
+  d+=mini(150,218,84,40,'BOX A','6R / 11F','#ff7a3c');
+  d+=mini(150,272,84,30,'LS3','+ harness');
+  d+=mini(250,76,58,24,'WIPER','cowl');
+  d+=mini(250,120,52,28,'ECU','kick pnl','#3fbf6a');
+  d+=mini(250,248,52,32,'BOX B','4R / 12F','#ff7a3c');
+  d+=mini(250,288,52,24,'GND BUS');
+  d+=mini(306,120,44,28,'GAUGES');
+  d+=mini(306,200,44,28,'ROCKERS');
+  d+=mini(425,250,92,44,'FUEL TANK','pump + sender');
+  d+=mini(560,120,80,32,'BATTERY','in box');
+  d+=mini(560,164,80,50,'KILL SW','+ 175A fuse');
+  d+=mini(608,84,36,22,'TAIL');
+  d+=mini(608,300,36,22,'TAIL');
+  let s=dSvg(378,d);
+  s+='<div class="note"><b>Reading it:</b> solid RED along the bottom is the 2/0 battery run down the driver rocker; the BROWN line next to it is the rear bundle (tails, brake, turns, reverse, pump, sender). WHITE spine at the nose is the front bundle out of Box A. YELLOW is the switched IGN bus from the 80A solenoid to both boxes. Dashed gray = thin rocker coil wires through the firewall; dashed orange = the swap harness to the ECU; dashed white along the TOP (passenger) rocker = the fuel feed line — keep fuel and wiring on opposite sides of the car.</div>';
+  return s;
+ }},
 /* ---- wire run map ---- */
-{id:'w-map',title:'0. Wire Run Map — pull these bundles now',badge:'roller shell',
+{id:'w-map',title:'0.25 Wire Run Map — pull these bundles now',badge:'roller shell',
  simple:'Shell is empty: pull every bundle below, sleeve + label both ends, leave 2ft slack, terminate nothing yet.',
  body:()=>{
   let s='<table class="wt"><tr><th>Bundle / route</th><th>Wires in it</th><th>~Len</th></tr>'+
