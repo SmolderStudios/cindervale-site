@@ -429,7 +429,7 @@ function wireRow(rows){
 const CIRCUITS=[
 /* ---- full system diagram (interactive) ---- */
 {id:'w-layout',title:'0. Full System Diagram',badge:'tap to trace',
- simple:'The whole electrical system in one schematic. TAP ANY BOX to light up only its wires (labels appear too) — tap it again to reset.',
+ simple:'The whole electrical system in one schematic — including the harness’s own fuse block (green). TAP ANY BOX to light up only its wires — tap again to reset.',
  body:()=>{
   // nodes: id:[x,y,w,h,title,sub,accent]
   const N={
@@ -439,7 +439,8 @@ const CIRCUITS=[
     starter:[20,240,110,44,'STARTER','+ alternator'],
     sol:[20,310,110,44,'80A SOLENOID','master IGN','#ffb35c'],
     gnd:[20,380,110,44,'GND BUS','chassis'],
-    ecu:[210,30,120,48,'ECU + SWAP','HARNESS','#3fbf6a'],
+    hfb:[210,20,120,44,'HARNESS BLOCK','fuses+relays w/ harness','#3fbf6a'],
+    ecu:[210,84,120,44,'ECU + SWAP','HARNESS','#3fbf6a'],
     boxa:[210,140,120,56,'BOX A','6R/11F · bay','#ff7a3c'],
     boxb:[210,330,120,56,'BOX B','4R/12F · dash','#ff7a3c'],
     rockers:[210,470,120,48,'ROCKER PANEL','all switches','#7ec8f0'],
@@ -468,13 +469,15 @@ const CIRCUITS=[
     ['post',.75,'boxb',.25,158,'RED','8ga · 60A fuse'],
     ['sol',.25,'boxa',.75,182,'YEL','8ga IGN bus'],
     ['sol',.75,'boxb',.75,190,'YEL','8ga IGN bus'],
-    ['post',.1,'ecu',.35,146,'RED','harness batt feed'],
-    ['sol',.1,'ecu',.75,174,'YEL','harness IGN feed'],
+    ['post',.1,'hfb',.35,146,'RED','harness B+ feed'],
+    ['sol',.1,'hfb',.75,174,'YEL','harness IGN feed'],
+    ['hfb',.5,'ecu',.5,0,'RED','internal fused',0,[[270,64],[270,84]]],
+    ['hfb',.25,'pump',.1,464,'PNK','pump feed IF in harness',1],
     ['rockers',.3,'sol',.9,166,'YEL','IGN rocker · 5A',0,[[210,484],[166,484],[166,350],[130,350]]],
     ['rockers',.5,'boxa',.5,0,'GRY','coil grounds ×6',1,[[210,494],[200,494],[200,168],[210,168]]],
     ['rockers',.7,'boxb',.5,0,'GRY','coil grounds ×4',1,[[206,504],[206,358],[210,358]]],
     ['rockers',.5,'gnd',.5,0,'BLK','switch grounds',0,[[270,518],[270,540],[160,540],[160,410],[130,410]]],
-    ['ecu',.5,'boxa',.5,0,'TAN','pump + fan triggers',1,[[270,78],[270,140]]],
+    ['ecu',.5,'boxa',.5,0,'TAN','pump + fan triggers',1,[[270,128],[270,140]]],
     ['ecu',.5,'gauges',.3,432,'TAN','tach + SGI speed',1],
     ['boxa',.1,'lows',.5,352,'WHT','A·R1 · 20A · 12ga'],
     ['boxa',.3,'highs',.5,368,'BLU','A·R2 · 20A · 12ga'],
@@ -575,6 +578,7 @@ const CIRCUITS=[
       ['STEREO 10A','YEL','head unit switched (+ORN memory)'],
     ]});
   s+='<div class="note"><b>How to read it:</b> both boxes get two fat feeds — RED constant from the front post and YELLOW switched from the 80A master solenoid. Relay slots power the big stuff; the fuse-only rows are light loads that go straight through a fuse with no relay. Every dashed trigger from a rocker is just a thin wire grounding that relay’s 85 pin. Wire the boxes bench-style before mounting if it’s easier — then it’s two feeds, triggers in, outputs out.</div>';
+  s+='<div class="note warn"><b>Box #3 — the swap harness’s own fuse/relay block.</b> Your LS3 harness ships with a pre-wired underhood block: ECU power, injector + coil fuses, O2 heaters, and usually a <b>fuel pump relay</b>. It only needs mounting, a fused B+ feed, and the IGN feed — everything engine-side is already done. Check its sheet: if it has the pump relay with a pump power output wire, use that and <b>Box A R5 becomes a spare</b>. Same for fan relays if included. Get me the harness instruction sheet and I’ll put its exact fuse map here.</div>';
   return s;
  }},
 /* ---- power distribution ---- */
@@ -793,7 +797,7 @@ const CIRCUITS=[
    ['BLK','12','Pump − → dedicated chassis ground at tank, sanded clean'],
    ['PNK','18','Harness fuel pump trigger wire → relay 85 or 86 per harness sheet'],
   ]);
-  s+='<div class="note">Most LS swap harnesses give you either a ground trigger (→ pin 85) or a 12V pump output (→ use it as the coil feed on 86 with 85 to ground). Check which yours is before wiring. Never run the pump straight off the harness wire — always through your relay. Upgrade the hanger terminals if they’re crusty; weak pump ground = lean at high rpm.</div>';
+  s+='<div class="note">Three possibilities depending on your harness — check its sheet: <b>(1)</b> the harness’s own fuse block has the pump relay + a pump POWER wire → run that wire straight back to the pump and Box A R5 is a spare. <b>(2)</b> the harness gives a ground trigger → wire it to pin 85 here. <b>(3)</b> it gives a 12V trigger → use it as the coil feed on 86 with 85 to ground. Either way the pump wire back to the tank is 12ga. Upgrade the hanger terminals if they’re crusty; weak pump ground = lean at high rpm.</div>';
   return s;
  }},
 /* ---- gauges ---- */
