@@ -974,19 +974,19 @@ function refHTML(){
   let s='';
   s+='<h3 class="sec">Wire color code (this build)</h3><div class="card open"><div class="cbody" style="display:block;padding-top:12px">';
   s+=wireRow([
-   ['RED','—','Constant battery power (fused)'],
-   ['YEL','—','Ignition-switched power (from 80A master solenoid)'],
-   ['ORN','—','Constant accessory (dome, memory, hazard, 12V socket)'],
-   ['WHT','—','Low beams + pop-up motors'],
-   ['BLU','—','High beams / wiper motor'],
-   ['BRN','—','Running lights (park/tail/plate)'],
-   ['GRN','—','Left turn / brake / horn'],
-   ['VIO','—','Right turn / starter signal'],
-   ['LTB','—','Reverse lights / fans'],
-   ['PNK','—','Fuel pump / washer'],
-   ['TAN','—','Gauge sender signals'],
-   ['GRY','—','Illumination (dimmer) / park feeds'],
-   ['BLK','—','Ground. Always. No exceptions.'],
+   ['RED','2/0 · 8 · 12','Constant battery power (fused) — 2/0 battery run, 8ga box feeds, 12ga branches'],
+   ['YEL','8 · 16','Ignition-switched power — 8ga bus from 80A solenoid, 16ga branches'],
+   ['ORN','12–16','Constant accessory (dome 16, memory 16, hazard 16, 12V socket 12)'],
+   ['WHT','12 · 14','Low beams (12) + pop-up motors (14)'],
+   ['BLU','12 · 14','High beams (12) / wiper motor (14)'],
+   ['BRN','14','Running lights (park/tail/plate)'],
+   ['GRN','14 · 16','Brake + horn (14) / left turn (16)'],
+   ['VIO','12 · 16','Starter signal (12) / right turn (16)'],
+   ['LTB','10 · 16','Fans (10) / reverse lights (16)'],
+   ['PNK','12 · 16','Fuel pump (12) / washer (16)'],
+   ['TAN','18','Gauge sender signals'],
+   ['GRY','16–18','Illumination dimmer (18) / relay coil wires (16)'],
+   ['BLK','match','Ground. Always. Same gauge as the wire it grounds.'],
   ]);
   s+='<div class="note">Print this or keep the page open while wiring. Label both ends of every run anyway (you bought 300 labels).</div></div></div>';
 
