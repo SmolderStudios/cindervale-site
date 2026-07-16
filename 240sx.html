@@ -174,6 +174,48 @@ function dRail(y,lbl,col){
   return `<line x1="20" y1="${y}" x2="90" y2="${y}" stroke="${getCol(col||'RED')}" stroke-width="3"/><text x="22" y="${y-8}" fill="${getCol(col||'RED')}" font-size="10" font-weight="700">${lbl}</text>`;
 }
 
+/* Whole-box overview: every relay slot with trigger (left, dashed) and output (right, colored).
+   o={name,sub,feeds:[[color,label]],relays:[[name,fuse,outColor,outLabel,trigger]],fuses:[[label,outColor,outLabel]]} */
+function boxOverview(o){
+  const RH=52, FH=34;
+  const inner=o.relays.length*RH + (o.fuses.length? 20+o.fuses.length*FH : 0);
+  const H=104+inner+26;
+  let s='';
+  o.feeds.forEach((f,i)=>{
+    const fx=240+i*130;
+    s+=`<text x="${fx}" y="20" text-anchor="middle" fill="${getCol(f[0])}" font-size="9.5" font-weight="700">${f[1]}</text>`;
+    s+=W([[fx,26],[fx,58]],f[0]);
+  });
+  s+=`<rect x="190" y="58" width="250" height="${inner+44}" rx="12" fill="#12151d" stroke="#ff7a3c" stroke-width="2"/>`;
+  s+=`<text x="315" y="78" text-anchor="middle" fill="#ffb35c" font-size="12" font-weight="700">${o.name}</text>`;
+  s+=`<text x="315" y="91" text-anchor="middle" fill="#9aa3b5" font-size="9">${o.sub}</text>`;
+  let y=100;
+  o.relays.forEach(r=>{
+    const cy=y+18;
+    s+=`<rect x="202" y="${y}" width="226" height="34" rx="7" fill="#1b2130" stroke="#3a4560"/>`;
+    s+=`<text x="212" y="${cy+3}" fill="#e8e6df" font-size="10" font-weight="700">⚡ ${r[0]}</text>`;
+    s+=`<rect x="384" y="${y+8}" width="38" height="18" rx="4" fill="#0a0c10" stroke="#e8c14b"/><text x="403" y="${y+21}" text-anchor="middle" fill="#e8c14b" font-size="8.5" font-weight="700">${r[1]}</text>`;
+    s+=`<line x1="66" y1="${cy}" x2="202" y2="${cy}" stroke="#9aa3b5" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+    s+=`<text x="134" y="${cy-6}" text-anchor="middle" fill="#9aa3b5" font-size="8.5">${r[4]}</text>`;
+    s+=W([[440,cy],[492,cy]],r[2]);
+    s+=`<text x="497" y="${cy+3}" fill="#cfd4de" font-size="9.5">${r[3]}</text>`;
+    y+=RH;
+  });
+  if(o.fuses.length){
+    s+=`<text x="212" y="${y+10}" fill="#e8c14b" font-size="8.5" font-weight="700">FUSE-ONLY (no relay):</text>`;
+    y+=20;
+    o.fuses.forEach(f=>{
+      const cy=y+12;
+      s+=`<rect x="202" y="${y}" width="226" height="24" rx="6" fill="#10141c" stroke="#2a3245"/>`;
+      s+=`<text x="212" y="${cy+3}" fill="#cfd4de" font-size="9">▭ ${f[0]}</text>`;
+      s+=W([[440,cy],[492,cy]],f[1]);
+      s+=`<text x="497" y="${cy+3}" fill="#cfd4de" font-size="9">${f[2]}</text>`;
+      y+=FH;
+    });
+  }
+  return dSvg(H,s);
+}
+
 /* Standard relay circuit diagram — the shape used by most circuits.
    o = {title, mainFuse, mainWire, coilFuse, coilSrc, trig, trigLbl, load, loadSub, loadWire, extra} */
 function relayDiagram(o){
@@ -386,6 +428,47 @@ const CIRCUITS=[
   .map(r=>`<tr><td>${r[0]}</td><td style="line-height:1.6">${r[1]}</td><td>${r[2]}</td></tr>`).join('')+'</table>';
   s+='<div class="note"><b>Shopping math:</b> roughly 25ft each of the main colors in 14/16ga, 15ft of 12ga (WHT, PNK), 20ft of 10ga (LTB), 15ft of 8ga (RED+YEL), 16ft of 2/0. Buy 25% extra — you will re-pull something. ECU corner is home base: the engine harness, tach/speed wires, and Box B all meet there.</div>';
   s+='<div class="note warn">Pull wire THROUGH grommets, never over bare metal edges. Where a bundle crosses the firewall, one big grommet beats five small holes.</div>';
+  return s;
+ }},
+/* ---- relay box master layout ---- */
+{id:'w-boxes',title:'0.5 Relay Boxes — Whole Layout',badge:'big picture',
+ simple:'Both boxes at a glance. Dashed line in = what triggers each relay (thin 16ga). Colored line out = what it powers. Each row here matches a numbered circuit card below.',
+ body:()=>{
+  let s=boxOverview({
+    name:'BOX A — ENGINE BAY', sub:'6 relay / 11 fuse',
+    feeds:[['RED','8ga BATT (80A)'],['YEL','8ga IGN bus']],
+    relays:[
+      ['R1 LOW BEAM','20A','WHT','low beams L+R','HEAD rocker'],
+      ['R2 HIGH BEAM','20A','BLU','high beams L+R','HI/LO rocker'],
+      ['R3 FAN 1','30A','LTB','fan 1','ECU wire + FAN rocker'],
+      ['R4 FAN 2','30A','LTB','fan 2','ECU wire + FAN rocker'],
+      ['R5 FUEL PUMP','15A','PNK','pump at tank (rear)','harness pump wire'],
+      ['R6 POP-UPS','15A','WHT','retractor motors','POP rocker'],
+    ],
+    fuses:[
+      ['WASHER 10A','PNK','washer pump (via momentary rocker)'],
+    ]});
+  s+=boxOverview({
+    name:'BOX B — BEHIND DASH', sub:'4 relay / 12 fuse',
+    feeds:[['RED','8ga BATT (60A)'],['YEL','8ga IGN bus']],
+    relays:[
+      ['R1 START','30A','VIO','starter S terminal','START momentary'],
+      ['R2 PARK LIGHTS','15A','BRN','corners + tails + plate','LIGHTS rocker'],
+      ['R3 WIPERS','20A','BLU','wiper motor LOW','WIPER rocker'],
+      ['R4 HORN','15A','GRN','horns (front)','HORN momentary'],
+    ],
+    fuses:[
+      ['GAUGES 5A','YEL','gauge 12V bus (all 6)'],
+      ['TURN 10A','YEL','flasher #1 B pin'],
+      ['HAZARD 10A','ORN','flasher #2 B pin (BATT side)'],
+      ['BRAKE 10A','RED','brake pedal switch (BATT side)'],
+      ['REVERSE 10A','YEL','TR6060 reverse switch'],
+      ['LOCKOUT 5A','YEL','lockout rocker → solenoid'],
+      ['DOME 5A','ORN','dome light (BATT side)'],
+      ['12V SKT 15A','ORN','accessory socket (BATT side)'],
+      ['STEREO 10A','YEL','head unit switched (+ORN memory)'],
+    ]});
+  s+='<div class="note"><b>How to read it:</b> both boxes get two fat feeds — RED constant from the front post and YELLOW switched from the 80A master solenoid. Relay slots power the big stuff; the fuse-only rows are light loads that go straight through a fuse with no relay. Every dashed trigger from a rocker is just a thin wire grounding that relay’s 85 pin. Wire the boxes bench-style before mounting if it’s easier — then it’s two feeds, triggers in, outputs out.</div>';
   return s;
  }},
 /* ---- power distribution ---- */
@@ -735,11 +818,11 @@ function refHTML(){
   s+='<div class="note">Print this or keep the page open while wiring. Label both ends of every run anyway (you bought 300 labels).</div></div></div>';
 
   s+='<h3 class="sec">Relay Box A — engine bay (6 relay / 11 fuse)</h3><div class="card open"><div class="cbody" style="display:block;padding-top:12px"><table class="wt"><tr><th>Slot</th><th>Circuit</th><th>Fuse</th></tr>'+
-  [['R1','Low beams','20A'],['R2','High beams','20A'],['R3','Fan 1','30A'],['R4','Fan 2 (or spare)','30A'],['R5','Fuel pump','15A'],['R6','Horn / pop-ups','15A'],['F—','Coil feeds, brake sw, reverse, washer','5–10A each']]
+  [['R1','Low beams','20A'],['R2','High beams','20A'],['R3','Fan 1','30A'],['R4','Fan 2 (or spare)','30A'],['R5','Fuel pump','15A'],['R6','Pop-up motors','15A'],['F—','Relay coil feeds 5A each, washer 10A','']]
   .map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')+'</table></div></div>';
 
   s+='<h3 class="sec">Relay Box B — interior (4 relay / 12 fuse)</h3><div class="card open"><div class="cbody" style="display:block;padding-top:12px"><table class="wt"><tr><th>Slot</th><th>Circuit</th><th>Fuse</th></tr>'+
-  [['R1','Start relay','30A'],['R2','Park/running lights','15A'],['R3','Wipers','20A'],['R4','Spare (stereo amp?)','—'],['F—','Gauges 5A, turn 10A, hazard 10A, dome 5A, 12V skt 15A, lockout 5A, stereo 10A','']]
+  [['R1','Start relay','30A'],['R2','Park/running lights','15A'],['R3','Wipers','20A'],['R4','Horn','15A'],['F—','Gauges 5A, turn 10A, hazard 10A, brake 10A, reverse 10A, dome 5A, 12V skt 15A, lockout 5A, stereo 10A','']]
   .map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')+'</table></div></div>';
 
   s+='<h3 class="sec">Relay pins — memorize once</h3><div class="card open"><div class="cbody" style="display:block;padding-top:12px"><table class="wt">'+
