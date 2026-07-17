@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0d0e1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Smokey Bones &amp; the House of Nine Lives</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='36' r='22' fill='%238a8fa8'/%3E%3Cpath d='M14 26 L10 8 L26 16 Z' fill='%238a8fa8'/%3E%3Cpath d='M50 26 L54 8 L38 16 Z' fill='%238a8fa8'/%3E%3Ccircle cx='24' cy='34' r='3' fill='%23ffd166'/%3E%3Ccircle cx='40' cy='34' r='3' fill='%23ffd166'/%3E%3C/svg%3E">
+<style>
+/* ============ [CSS] Smokey Bones ============ */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0d0e1a; --bg2:#141629; --panel:#1a1c33; --panel2:#232647;
+  --ink:#e8e6f0; --ink-dim:#9a97b8; --gold:#ffd166; --gold-dim:#b3924a;
+  --ember:#ff9e5e; --ghost:#9fd8ff; --good:#7ee0a3; --bad:#ff7a7a;
+  --line:#33365e;
+}
+html,body{height:100%;overscroll-behavior:none}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  touch-action:manipulation; user-select:none; -webkit-user-select:none;
+  overflow:hidden;
+}
+#app{height:100dvh;display:flex;flex-direction:column;max-width:560px;margin:0 auto;position:relative}
+
+/* HUD */
+#hud{display:flex;align-items:center;gap:8px;padding:10px 12px 6px;flex:0 0 auto}
+#hudTitle{flex:1;min-width:0}
+#hudTitle .rn{font-size:15px;font-weight:700;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hudTitle .ch{font-size:10.5px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:1.2px}
+.hbtn{background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:10px;
+  min-width:40px;height:40px;font-size:17px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0 8px}
+.hbtn:active{background:var(--panel2)}
+#flameRow{display:flex;gap:3px;justify-content:center;padding:2px 12px 6px;flex:0 0 auto}
+.flame{width:22px;height:22px;opacity:.22;filter:grayscale(1);transition:all .6s}
+.flame.lit{opacity:1;filter:none;animation:flick 2.2s ease-in-out infinite}
+@keyframes flick{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+
+/* Scene */
+#sceneWrap{flex:1;min-height:0;position:relative;padding:0 8px}
+#scene{width:100%;height:100%;display:block;border-radius:14px;background:var(--bg2)}
+.hot{fill:transparent;cursor:pointer}
+.hot:active{fill:rgba(255,209,102,.10)}
+#roomNav{position:absolute;left:14px;bottom:10px;display:flex;gap:6px;z-index:5}
+.navb{width:38px;height:38px;border-radius:10px;background:rgba(20,22,41,.88);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;color:var(--ink-dim)}
+.navb.cur{border-color:var(--gold);color:var(--gold)}
+
+/* Inventory */
+#invBar{flex:0 0 auto;padding:8px 10px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;overflow-x:auto;min-height:70px;align-items:center}
+#invBar:empty::after{content:"Your pockets are empty. Tap things. Look under things.";color:var(--ink-dim);font-size:12px;font-style:italic;padding-left:6px}
+.invItem{flex:0 0 auto;width:54px;height:54px;border-radius:12px;background:var(--panel);border:1.5px solid var(--line);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.invItem svg{width:38px;height:38px}
+.invItem.sel{border-color:var(--gold);box-shadow:0 0 12px rgba(255,209,102,.35);background:var(--panel2)}
+
+/* Overlays & modals */
+.ov{position:fixed;inset:0;background:rgba(8,9,18,.82);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.ov.show{display:flex}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;max-width:420px;width:100%;
+  max-height:86dvh;overflow-y:auto;padding:18px;position:relative;box-shadow:0 18px 60px rgba(0,0,0,.6)}
+.card h3{font-size:16px;margin-bottom:8px;color:var(--gold)}
+.card .body{font-size:14px;line-height:1.55;color:var(--ink)}
+.xbtn{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:9px;background:var(--panel2);
+  border:1px solid var(--line);color:var(--ink-dim);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--panel2);border:1px solid var(--line);
+  color:var(--ink);border-radius:12px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px}
+.btn.gold{background:linear-gradient(160deg,#4a3a14,#2e2410);border-color:var(--gold-dim);color:var(--gold)}
+.btn:active{transform:scale(.97)}
+.btn.wide{width:100%}
+.mut{color:var(--ink-dim);font-size:12.5px;font-style:italic}
+
+/* Story overlay */
+#storyOv{background:rgba(8,9,18,.96);flex-direction:column;z-index:80}
+#storyArt{width:min(76vw,300px);height:min(56vw,220px);margin-bottom:18px}
+#storyArt svg{width:100%;height:100%}
+#storyTxt{font-family:Georgia,'Times New Roman',serif;font-size:16.5px;line-height:1.7;color:var(--ink);
+  max-width:420px;text-align:center;min-height:120px;padding:0 10px;white-space:pre-wrap}
+#storyTap{margin-top:22px;color:var(--ink-dim);font-size:12px;letter-spacing:2px;text-transform:uppercase;animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:.9}}
+
+/* Toast */
+#toast{position:fixed;left:50%;top:14px;transform:translateX(-50%) translateY(-80px);background:var(--panel2);
+  border:1px solid var(--gold-dim);color:var(--ink);border-radius:12px;padding:10px 18px;font-size:13.5px;z-index:90;
+  transition:transform .35s cubic-bezier(.2,.9,.3,1.3);max-width:88vw;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast b{color:var(--gold)}
+
+/* Puzzle widgets */
+.padGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.padGrid button{height:52px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-size:20px;font-weight:700;cursor:pointer}
+.padGrid button:active{background:#2d3160}
+.codeDisp{font-family:'Courier New',monospace;font-size:30px;letter-spacing:12px;text-align:center;background:#0a0b16;
+  border:1px solid var(--line);border-radius:12px;padding:12px 4px 12px 14px;margin-top:12px;color:var(--gold);min-height:58px}
+.wheelRow{display:flex;gap:8px;justify-content:center;margin-top:14px}
+.wheel{display:flex;flex-direction:column;align-items:center;gap:6px}
+.wheel .wv{width:50px;height:58px;border-radius:12px;background:#0a0b16;border:1px solid var(--line);color:var(--gold);
+  font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif}
+.wheel button{width:50px;height:34px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-size:15px;cursor:pointer}
+.dialRow{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.stove{display:flex;flex-direction:column;align-items:center;gap:5px}
+.stove .lbl{font-size:10px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.5px}
+.slideGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:14px auto 0;width:min(76vw,270px)}
+.slideGrid .tile{aspect-ratio:1;border-radius:10px;background:var(--panel2);border:1px solid var(--line);cursor:pointer;overflow:hidden;padding:0}
+.slideGrid .tile.blank{background:transparent;border-style:dashed;opacity:.35;cursor:default}
+.slideGrid .tile svg{width:100%;height:100%;display:block}
+.wireBox{display:flex;justify-content:space-between;margin-top:14px;position:relative;min-height:250px}
+.wcol{display:flex;flex-direction:column;gap:14px;z-index:2}
+.wnode{width:74px;height:40px;border-radius:10px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);
+  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.wnode.sel{border-color:var(--gold);box-shadow:0 0 10px rgba(255,209,102,.4)}
+#wireSvg{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+.chimeRow{display:flex;gap:10px;justify-content:center;margin-top:14px}
+.chime{width:52px;height:120px;border-radius:26px;border:2px solid var(--line);cursor:pointer;position:relative}
+.chime:active{transform:translateY(3px)}
+.seqDots{display:flex;gap:8px;justify-content:center;margin-top:14px;min-height:18px}
+.seqDots span{width:14px;height:14px;border-radius:50%;background:var(--panel2);border:1px solid var(--line)}
+.orderSlots{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+.oslot{width:72px;height:58px;border-radius:12px;border:1.5px dashed var(--line);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;font-size:10px;color:var(--ink-dim);cursor:pointer;text-align:center;padding:2px}
+.oslot.filled{border-style:solid;border-color:var(--gold-dim);color:var(--gold);background:rgba(255,209,102,.07)}
+.flamePick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+.fpick{padding:8px 10px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);font-size:11.5px;cursor:pointer}
+.fpick.sel{border-color:var(--gold);color:var(--gold)}
+.fpick.used{opacity:.28;pointer-events:none}
+.hintTier{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:8px}
+.hintTier .ht{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--ghost);margin-bottom:4px}
+.hintTier .revealBtn{background:none;border:none;color:var(--gold);font-size:13px;cursor:pointer;padding:0;font-weight:600}
+.jpage{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px;background:rgba(10,11,22,.5)}
+.jpage h4{font-size:13px;color:var(--gold);margin-bottom:4px;font-family:Georgia,serif}
+.jpage p{font-size:13px;line-height:1.6;color:var(--ink);font-family:Georgia,serif}
+.shake{animation:shk .4s}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.glowGold{filter:drop-shadow(0 0 6px rgba(255,209,102,.8))}
+#devPanel{position:fixed;right:6px;top:60px;z-index:99;background:rgba(20,22,41,.95);border:1px solid var(--bad);
+  border-radius:10px;padding:8px;display:none;flex-direction:column;gap:5px;max-height:70vh;overflow-y:auto}
+#devPanel button{font-size:11px;padding:5px 8px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:7px;cursor:pointer}
+.starTap{cursor:pointer}
+.mirrorCell{cursor:pointer}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <div id="hudTitle"><div class="rn" id="roomName">…</div><div class="ch" id="chapName">…</div></div>
+    <div class="hbtn" id="btnJournal" title="Journal">📖</div>
+    <div class="hbtn" id="btnHint" title="Ask Smokey">🐾</div>
+    <div class="hbtn" id="btnMenu" title="Menu">☰</div>
+  </div>
+  <div id="flameRow"></div>
+  <div id="sceneWrap">
+    <svg id="scene" viewBox="0 0 390 560" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="roomNav"></div>
+  </div>
+  <div id="invBar"></div>
+</div>
+
+<div class="ov" id="storyOv">
+  <div id="storyArt"></div>
+  <div id="storyTxt"></div>
+  <div id="storyTap">tap to continue</div>
+</div>
+
+<div class="ov" id="modalOv"><div class="card" id="modalCard"></div></div>
+<div class="ov" id="journalOv"><div class="card" id="journalCard"></div></div>
+<div class="ov" id="hintOv"><div class="card" id="hintCard"></div></div>
+<div class="ov" id="menuOv"><div class="card" id="menuCard"></div></div>
+<div id="toast"></div>
+<div id="devPanel"></div>
+
+<script>
+"use strict";
+/* ================= [JS-01] CORE STATE ================= */
+const SKEY = "smokeybones_save_v1";
+const VERSION = "1.0.0";
+
+function defaultState(){
+  return {
+    v:1, room:"living", flames:{}, items:{}, used:{}, solved:{}, flags:{},
+    journal:{}, hintsRevealed:{}, started:0, ended:false, intro:false,
+  };
+}
+let S = defaultState();
+function save(){ try{ localStorage.setItem(SKEY, JSON.stringify(S)); }catch(e){} }
+function load(){
+  try{
+    const raw = localStorage.getItem(SKEY);
+    if(!raw) return false;
+    const d = JSON.parse(raw);
+    S = Object.assign(defaultState(), d);
+    S.flames=S.flames||{}; S.items=S.items||{}; S.used=S.used||{}; S.solved=S.solved||{};
+    S.flags=S.flags||{}; S.journal=S.journal||{}; S.hintsRevealed=S.hintsRevealed||{};
+    return true;
+  }catch(e){ return false; }
+}
+function resetAll(){ localStorage.removeItem(SKEY); location.reload(); }
+
+let selectedItem = null;
+
+/* ================= [JS-02] AUDIO ================= */
+let AC = null;
+function ac(){ if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return AC; }
+function tone(freq, dur, type, vol, when){
+  const c = ac(); if(!c) return;
+  if(c.state==="suspended") c.resume();
+  const o=c.createOscillator(), g=c.createGain();
+  o.type=type||"sine"; o.frequency.value=freq;
+  g.gain.value=0; o.connect(g); g.connect(c.destination);
+  const t=c.currentTime+(when||0);
+  g.gain.linearRampToValueAtTime(vol||0.14, t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+(dur||0.4));
+  o.start(t); o.stop(t+(dur||0.4)+0.05);
+}
+const sfx = {
+  tap(){ tone(320,0.08,"triangle",0.05); },
+  unlock(){ tone(420,0.12,"square",0.06); tone(640,0.25,"triangle",0.09,0.09); },
+  item(){ tone(660,0.18,"sine",0.1); tone(880,0.3,"sine",0.08,0.12); },
+  wrong(){ tone(160,0.28,"sawtooth",0.07); },
+  flame(){ [523,659,784,1047].forEach((f,i)=>tone(f,0.5,"sine",0.09,i*0.13)); },
+  bell(){ tone(1720,1.6,"sine",0.12); tone(2580,1.1,"sine",0.05,0.02); },
+  chime(f){ tone(f,1.1,"sine",0.12); tone(f*2.01,0.7,"sine",0.04); },
+};
+
+/* ================= [JS-03] TOAST / MODAL / STORY ================= */
+let toastT=null;
+function toast(html){
+  const t=document.getElementById("toast");
+  t.innerHTML=html; t.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"), 2600);
+}
+function openModal(html){
+  const c=document.getElementById("modalCard");
+  c.innerHTML = '<div class="xbtn" onclick="closeModal()">✕</div>'+html;
+  document.getElementById("modalOv").classList.add("show");
+}
+function closeModal(){ document.getElementById("modalOv").classList.remove("show"); }
+
+let storyQueue=[], storyCb=null, typing=false, typeTimer=null, curStoryText="";
+function showStory(beats, cb){
+  storyQueue = beats.slice(); storyCb = cb||null;
+  document.getElementById("storyOv").classList.add("show");
+  nextBeat();
+}
+function nextBeat(){
+  if(typing){ // finish instantly
+    clearInterval(typeTimer); typing=false;
+    document.getElementById("storyTxt").textContent = curStoryText;
+    return;
+  }
+  if(!storyQueue.length){
+    document.getElementById("storyOv").classList.remove("show");
+    const cb=storyCb; storyCb=null; if(cb) cb();
+    return;
+  }
+  const b = storyQueue.shift();
+  document.getElementById("storyArt").innerHTML = b.art || "";
+  const el = document.getElementById("storyTxt");
+  curStoryText = b.text; el.textContent="";
+  let i=0; typing=true;
+  clearInterval(typeTimer);
+  typeTimer = setInterval(()=>{
+    i+=2; el.textContent = curStoryText.slice(0,i);
+    if(i>=curStoryText.length){ clearInterval(typeTimer); typing=false; }
+  }, 24);
+}
+document.getElementById("storyOv").addEventListener("click", nextBeat);
+
+/* ================= [JS-04] ITEMS ================= */
+const ITEMS = {
+  bell:{ name:"Smokey's Collar Bell", desc:"A tiny brass bell on a smoke-gray collar. It still smells faintly of her. It rings even when nothing moves it.",
+    svg:'<svg viewBox="0 0 64 64"><defs><radialGradient id="ibell" cx="40%" cy="30%"><stop offset="0%" stop-color="#ffe9a8"/><stop offset="100%" stop-color="#b3924a"/></radialGradient></defs><path d="M10 30 Q32 14 54 30" fill="none" stroke="#6b7089" stroke-width="7" stroke-linecap="round"/><circle cx="32" cy="40" r="13" fill="url(#ibell)"/><circle cx="32" cy="46" r="3" fill="#5c4718"/><rect x="29" y="26" width="6" height="6" rx="2" fill="#8a7133"/></svg>'},
+  brasskey:{ name:"Brass Key", desc:"Small, warm to the touch. Fell out of the clock like it had been waiting.",
+    svg:'<svg viewBox="0 0 64 64"><circle cx="20" cy="24" r="10" fill="none" stroke="#d4a94e" stroke-width="5"/><path d="M27 31 L48 52 M42 46 l6 -6 M36 40 l5 -5" stroke="#d4a94e" stroke-width="5" stroke-linecap="round"/></svg>'},
+  matchbox:{ name:"Matchbox", desc:"“STRIKE GENTLY.” Half full. She used to bat these off the mantel one by one.",
+    svg:'<svg viewBox="0 0 64 64"><rect x="10" y="24" width="44" height="24" rx="4" fill="#7a4a2b"/><rect x="10" y="24" width="44" height="9" rx="4" fill="#a8683c"/><rect x="36" y="12" width="4" height="18" rx="2" fill="#d8c9a0" transform="rotate(28 38 21)"/><circle cx="43" cy="13" r="4.5" fill="#ff9e5e"/></svg>'},
+  hallkey:{ name:"Hallway Key", desc:"Opens the door to the kitchen. Someone tied a scrap of ribbon to it — her favorite ribbon.",
+    svg:'<svg viewBox="0 0 64 64"><circle cx="20" cy="22" r="9" fill="none" stroke="#9fb0c9" stroke-width="5"/><path d="M26 29 L46 50 M40 44 l6 -6" stroke="#9fb0c9" stroke-width="5" stroke-linecap="round"/><path d="M14 14 q6 -8 10 0" fill="none" stroke="#ff7a7a" stroke-width="3"/></svg>'},
+  chartL:{ name:"Star Chart (left half)", desc:"Torn parchment. Stars, and half a cat-shaped constellation labeled “FELIS MINOR — the Little Smoke.”",
+    svg:'<svg viewBox="0 0 64 64"><path d="M12 10 h30 l-6 44 h-24 z" fill="#e8dbb5"/><circle cx="22" cy="22" r="2" fill="#3b3a68"/><circle cx="30" cy="30" r="2" fill="#3b3a68"/><circle cx="20" cy="40" r="2" fill="#3b3a68"/><path d="M22 22 L30 30 L20 40" stroke="#3b3a68" stroke-width="1" fill="none"/></svg>'},
+  chartR:{ name:"Star Chart (right half)", desc:"The other half of the torn chart. The tail end of the Little Smoke.",
+    svg:'<svg viewBox="0 0 64 64"><path d="M22 10 h30 v44 h-24 z" fill="#e8dbb5"/><circle cx="36" cy="24" r="2" fill="#3b3a68"/><circle cx="44" cy="36" r="2" fill="#3b3a68"/><path d="M36 24 L44 36" stroke="#3b3a68" stroke-width="1" fill="none"/></svg>'},
+  chart:{ name:"Star Chart — Felis Minor", desc:"Taped back together. Five stars form a little cat. Tiny numbers mark the order: 1 at her eye, 5 at the tip of her tail. “Begin at her eye. End at her tail.”", inspect:"chartArt",
+    svg:'<svg viewBox="0 0 64 64"><rect x="10" y="8" width="44" height="48" rx="3" fill="#e8dbb5"/><circle cx="22" cy="20" r="2.5" fill="#3b3a68"/><circle cx="32" cy="26" r="2" fill="#3b3a68"/><circle cx="26" cy="38" r="2" fill="#3b3a68"/><circle cx="38" cy="40" r="2" fill="#3b3a68"/><circle cx="46" cy="30" r="2" fill="#3b3a68"/><path d="M22 20 L32 26 L26 38 L38 40 L46 30" stroke="#3b3a68" stroke-width="1.2" fill="none"/></svg>'},
+  treats:{ name:"Tuna Treats", desc:"Her brand. The bag crinkles and somewhere, you swear, a bell jingles in reply.",
+    svg:'<svg viewBox="0 0 64 64"><path d="M16 14 h32 l-4 38 h-24 z" fill="#4a7ab5"/><path d="M16 14 h32 l-1 8 h-30 z" fill="#6b9bd6"/><ellipse cx="32" cy="38" rx="10" ry="6" fill="#e8dbb5"/><path d="M24 38 q8 -8 16 0 q-8 8 -16 0" fill="#c9b585"/></svg>'},
+  silverkey:{ name:"Small Silver Key", desc:"Delicate, ornate. Too fancy for a kitchen. This opens something that holds paper.",
+    svg:'<svg viewBox="0 0 64 64"><circle cx="20" cy="22" r="8" fill="none" stroke="#c9d4e8" stroke-width="4"/><circle cx="20" cy="22" r="3" fill="none" stroke="#c9d4e8" stroke-width="2"/><path d="M25 28 L46 50 M40 44 l5 -5 M34 38 l4 -4" stroke="#c9d4e8" stroke-width="4" stroke-linecap="round"/></svg>'},
+  garagekey:{ name:"Garage Key", desc:"On a rubber fob shaped like a tire. The garage. Of course the garage.",
+    svg:'<svg viewBox="0 0 64 64"><circle cx="20" cy="20" r="10" fill="#2a2d45" stroke="#555b80" stroke-width="4"/><circle cx="20" cy="20" r="3" fill="#555b80"/><path d="M27 27 L48 49 M42 43 l6 -6" stroke="#8a92ad" stroke-width="5" stroke-linecap="round"/></svg>'},
+  catnip:{ name:"Catnip Pouch", desc:"A little cloth pouch. She could hear this bag open from three rooms away, dead asleep.",
+    svg:'<svg viewBox="0 0 64 64"><path d="M18 24 q14 -12 28 0 l-4 26 q-10 6 -20 0 z" fill="#4a7a4f"/><path d="M18 24 q14 8 28 0" stroke="#2e5433" stroke-width="3" fill="none"/><path d="M30 12 q2 8 2 12 M34 12 q-2 8 -2 12" stroke="#7ee0a3" stroke-width="3" stroke-linecap="round"/></svg>'},
+  rag:{ name:"Shop Rag", desc:"Red shop rag, mostly clean. Good for wiping grime off things you need to read.",
+    svg:'<svg viewBox="0 0 64 64"><path d="M12 20 q10 -8 20 0 q10 8 20 0 l-4 24 q-16 12 -32 0 z" fill="#a83c3c"/><path d="M16 28 q16 10 32 0" stroke="#7a2828" stroke-width="3" fill="none"/></svg>'},
+  trowel:{ name:"Hand Trowel", desc:"Garden trowel with a worn wooden handle. For digging where cats bury their secrets.",
+    svg:'<svg viewBox="0 0 64 64"><rect x="28" y="8" width="8" height="20" rx="3" fill="#8a6a3c"/><path d="M22 30 h20 l-10 26 z" fill="#9fb0c9"/></svg>'},
+  wirecard:{ name:"Wiring Diagram", desc:"A grease-stained index card:\n\nIGN ← the loud one’s feed\nECU ← BLUE\nFUEL ← the quiet one’s feed\nFAN ← GREEN\nGND ← BLACK\n\nScrawled at the bottom: “PO swapped the RED and YELLOW feeds. Red is quiet now. Ask the cat, she watched him do it.”",
+    svg:'<svg viewBox="0 0 64 64"><rect x="10" y="14" width="44" height="36" rx="3" fill="#e8dbb5"/><path d="M16 24 h14 M16 32 h20 M16 40 h12" stroke="#3b3a68" stroke-width="2"/><circle cx="46" cy="24" r="3" fill="#a83c3c"/><circle cx="46" cy="34" r="3" fill="#4a7ab5"/><circle cx="46" cy="44" r="3" fill="#c9a83c"/></svg>'},
+  studykey:{ name:"Study Key", desc:"An old-fashioned key, cool and heavy. The study — her window, her sunbeam, her birds.",
+    svg:'<svg viewBox="0 0 64 64"><circle cx="20" cy="20" r="9" fill="none" stroke="#b08fd4" stroke-width="4"/><path d="M20 16 v8 M16 20 h8" stroke="#b08fd4" stroke-width="2"/><path d="M26 27 L47 49 M41 43 l6 -6" stroke="#b08fd4" stroke-width="4" stroke-linecap="round"/></svg>'},
+  gatekey:{ name:"Yard Gate Key", desc:"Rusted but sound. Pressed between journal pages like a flower.",
+    svg:'<svg viewBox="0 0 64 64"><circle cx="20" cy="22" r="9" fill="none" stroke="#b5764a" stroke-width="5"/><path d="M27 29 L48 51 M42 45 l6 -6" stroke="#b5764a" stroke-width="5" stroke-linecap="round"/></svg>'},
+  mooncharm:{ name:"Moon Charm", desc:"A worn silver crescent on a snapped cord. It was on her collar the night she came back. It fits a slot somewhere.",
+    svg:'<svg viewBox="0 0 64 64"><path d="M40 10 a24 24 0 1 0 0 44 a19 19 0 1 1 0 -44" fill="#d6e4f5"/><circle cx="46" cy="14" r="3" fill="none" stroke="#8a92ad" stroke-width="2"/></svg>'},
+  polaroid:{ name:"Polaroid — Gotcha Day", desc:"A photo taped to the sun visor: a gray kitten asleep in a toolbox drawer. Handwriting below: “She walked into the shop and never left. 07/15.”",
+    svg:'<svg viewBox="0 0 64 64"><rect x="10" y="8" width="44" height="48" rx="2" fill="#f0ead8"/><rect x="14" y="12" width="36" height="32" fill="#3b4468"/><ellipse cx="32" cy="32" rx="12" ry="8" fill="#8a8fa8"/><path d="M22 28 l-3 -6 l6 2 M42 28 l3 -6 l-6 2" fill="#8a8fa8"/></svg>'},
+};
+function hasItem(id){ return !!S.items[id] && !S.used[id]; }
+function giveItem(id, silent){
+  if(S.items[id]) return;
+  S.items[id]=1; save(); renderInv();
+  if(!silent){ sfx.item(); toast("Found: <b>"+ITEMS[id].name+"</b>"); }
+  // auto-combine star chart
+  if(hasItem("chartL") && hasItem("chartR")){
+    S.used.chartL=1; S.used.chartR=1; S.items.chart=1; save(); renderInv();
+    setTimeout(()=>{ sfx.item(); toast("The two halves match. <b>Star Chart restored</b> — tap it in your pockets to study it."); }, 900);
+  }
+}
+function useItem(id){ S.used[id]=1; save(); renderInv(); if(selectedItem===id) selectedItem=null; }
+
+/* ================= [JS-05] FLAMES + JOURNAL ================= */
+const FLAMES = [
+  {id:"F1", life:"The Napper",           year:8, blurb:"Year Eight"},
+  {id:"F2", life:"The Breakfast Thief",  year:1, blurb:"Year One"},
+  {id:"F3", life:"The Counter Surfer",   year:2, blurb:"Year Two"},
+  {id:"F4", life:"The Shop Supervisor",  year:3, blurb:"Year Three"},
+  {id:"F5", life:"The Parts Inspector",  year:4, blurb:"Year Four"},
+  {id:"F6", life:"The Sunbeam Scholar",  year:6, blurb:"Year Six"},
+  {id:"F7", life:"The Bird Watcher",     year:5, blurb:"Year Five"},
+  {id:"F8", life:"The Midnight Huntress",year:7, blurb:"Year Seven"},
+  {id:"F9", life:"Forever",              year:9, blurb:"The Ninth"},
+];
+const JOURNAL = {
+  j_napper:{ t:"Year Eight — The Napper", p:"She slowed down the way honey slows in winter — beautifully, and on her own terms. She claimed the exact center of every soft thing in the house and defended it with a single opened eye. The 4 a.m. yowling stopped. She let me sleep in, finally, and I found I missed it. Some mornings she’d shuffle over anyway, purr like an old engine at idle, and fall back asleep on my chest before I could even pet her."},
+  j_thief:{ t:"Year One — The Breakfast Thief", p:"First week home, this six-pound kitten stole a full strip of bacon off my plate and ate it under the couch while making direct eye contact. I couldn’t even be mad. From that day on breakfast was a negotiation and I never once won. Three scoops of kibble, one tin of silver tuna, four treats — never five, she’d leave the fifth as an insult — and 4 a.m. yowling, free of charge."},
+  j_surfer:{ t:"Year Two — The Counter Surfer", p:"There was no counter she could not reach and no proof she’d ever been there — except the paw print in the butter. One paw print. Every time. I started leaving the butter uncovered as a signature card. The vet said she needed to lose a pound. Smokey heard this, went home, and ate the vet’s note."},
+  j_supervisor:{ t:"Year Three — The Shop Supervisor", p:"The year the shop got serious, she appointed herself foreman. She sat on whatever part I needed next — always the exact part, always ten seconds before I reached for it. Customers started asking if the gray cat had inspected their car, because it ran better when she had. She slept in a 13mm socket drawer. That socket never got put back right again and I never fixed it."},
+  j_inspector:{ t:"Year Four — The Parts Inspector", p:"Every box that came through the door required her personal sign-off: full body loaf, minimum ten minutes, no exceptions. New struts? Inspected. Timing chain? Inspected. The one time I unpacked a box without letting her sit in it first, she didn’t speak to me for a day and a half. Quality control is a lifestyle."},
+  j_watcher:{ t:"Year Five — The Bird Watcher", p:"The study window became her office. She kept meticulous records, chirping at every bird like she was reading them their rights. Cardinals infuriated her — all four of them, she knew them individually. Eleven sparrows lived in the hedge and three of them figured out her schedule and taunted her at nap time. And there was one enormous pigeon she respected. Just the one. Professional courtesy."},
+  j_scholar:{ t:"Year Six — The Sunbeam Scholar", p:"She studied light the way monks study scripture. She knew where the sun would land on the study floor before it did, and moved from patch to patch all day like she was following a tide chart only she could read. When the light hit her cat bed on the high shelf just right, she’d look so profoundly satisfied that I’d stop working just to watch her be warm."},
+  j_huntress:{ t:"Year Seven — The Midnight Huntress", p:"Her wild year. She’d slip out at dusk and come home before dawn with tremendous stories she refused to tell. Buried things by the old oak — I saw her once, at high noon the day after, standing over the spot where her shadow pooled, checking on it. The night she stayed out longest, I didn’t sleep. She strolled home under a waning crescent like nothing happened, and I pretended I hadn’t been standing at the gate for hours. We both knew."},
+  j_forever:{ t:"The Ninth — Forever", p:"Nine lives is a story people tell. Here is the truth: she had one life, and she spent the whole thing with me, and she was great at it. The greatest. This last one — the ninth — was never hers alone. It’s the one we keep."},
+};
+function giveJournal(id){
+  if(S.journal[id]) return;
+  S.journal[id]=1; save();
+  toast("Journal page found: <b>"+JOURNAL[id].t+"</b> 📖");
+}
+function flameCount(){ return Object.keys(S.flames).length; }
+function giveFlame(fid){
+  if(S.flames[fid]) return;
+  S.flames[fid]=1; save(); renderFlames(); sfx.flame();
+  const f = FLAMES.find(x=>x.id===fid);
+  toast("🔥 A life relights: <b>"+f.life+"</b> ("+flameCount()+" of 9)");
+}
+const flameSVG = '<svg viewBox="0 0 24 24"><defs><radialGradient id="fg" cx="50%" cy="70%"><stop offset="0%" stop-color="#ffe9a8"/><stop offset="55%" stop-color="#ff9e5e"/><stop offset="100%" stop-color="#e05c2a"/></radialGradient></defs><path d="M12 2 C13 7 18 8 18 14 a6 6 0 0 1 -12 0 C6 10 10 8 12 2z" fill="url(#fg)"/><path d="M12 10 c1 2.5 3 3 3 5.5 a3 3 0 0 1 -6 0 c0 -2.5 2 -3 3 -5.5z" fill="#fff3d1"/></svg>';
+function renderFlames(){
+  const row=document.getElementById("flameRow");
+  row.innerHTML = FLAMES.map(f=>'<div class="flame'+(S.flames[f.id]?" lit":"")+'" title="'+f.life+'">'+flameSVG+'</div>').join("");
+}
+
+/* ================= [JS-06] INVENTORY ================= */
+function renderInv(){
+  const bar=document.getElementById("invBar");
+  const owned = Object.keys(S.items).filter(id=>!S.used[id] && ITEMS[id]);
+  bar.innerHTML = owned.map(id=>
+    '<div class="invItem'+(selectedItem===id?" sel":"")+'" data-item="'+id+'">'+ITEMS[id].svg+'</div>'
+  ).join("");
+  bar.querySelectorAll(".invItem").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const id=el.dataset.item;
+      if(selectedItem===id){ inspectItem(id); }
+      else { selectedItem=id; sfx.tap(); toast("Holding: <b>"+ITEMS[id].name+"</b> — tap it again to inspect, or tap something in the room to use it."); }
+      renderInv();
+    });
+  });
+}
+function inspectItem(id){
+  const it=ITEMS[id];
+  let extra="";
+  if(id==="chart") extra = chartArtBig();
+  openModal('<h3>'+it.name+'</h3><div style="text-align:center;margin:8px 0"><span style="display:inline-block;width:76px;height:76px">'+it.svg+'</span></div>'+extra+'<div class="body" style="white-space:pre-wrap">'+it.desc+'</div>');
+}
+function chartArtBig(){
+  return '<svg viewBox="0 0 300 200" style="width:100%;background:#e8dbb5;border-radius:10px;margin:6px 0">'
+   +'<path d="M150 8 v184" stroke="#c9b585" stroke-width="2" stroke-dasharray="4 4"/>'
+   +'<text x="150" y="24" text-anchor="middle" font-family="Georgia" font-size="13" fill="#3b3a68" font-style="italic">FELIS MINOR — the Little Smoke</text>'
+   +'<circle cx="70" cy="70" r="5" fill="#3b3a68"/><text x="70" y="56" text-anchor="middle" font-size="12" fill="#a8442a" font-weight="bold">1</text><text x="70" y="92" text-anchor="middle" font-size="9" fill="#3b3a68" font-style="italic">her eye</text>'
+   +'<circle cx="120" cy="100" r="4" fill="#3b3a68"/><text x="120" y="88" text-anchor="middle" font-size="12" fill="#a8442a" font-weight="bold">2</text>'
+   +'<circle cx="95" cy="150" r="4" fill="#3b3a68"/><text x="95" y="170" text-anchor="middle" font-size="12" fill="#a8442a" font-weight="bold">3</text>'
+   +'<circle cx="185" cy="155" r="4" fill="#3b3a68"/><text x="185" y="175" text-anchor="middle" font-size="12" fill="#a8442a" font-weight="bold">4</text>'
+   +'<circle cx="240" cy="105" r="4" fill="#3b3a68"/><text x="240" y="92" text-anchor="middle" font-size="12" fill="#a8442a" font-weight="bold">5</text><text x="240" y="128" text-anchor="middle" font-size="9" fill="#3b3a68" font-style="italic">tip of her tail</text>'
+   +'<path d="M70 70 L120 100 L95 150 L185 155 L240 105" stroke="#3b3a68" stroke-width="1.5" fill="none"/>'
+   +'<text x="150" y="192" text-anchor="middle" font-family="Georgia" font-size="11" fill="#3b3a68" font-style="italic">Begin at her eye. End at her tail.</text></svg>';
+}
+
+/* ================= [JS-07] ART HELPERS (scene SVG) ================= */
+function ghostCat(x,y,scale,opacity){
+  return '<g transform="translate('+x+','+y+') scale('+(scale||1)+')" opacity="'+(opacity==null?0.9:opacity)+'">'
+   +'<ellipse cx="0" cy="26" rx="26" ry="7" fill="#9fd8ff" opacity="0.12"/>'
+   +'<path d="M-20 20 Q-24 -2 -10 -10 L-14 -24 L-2 -14 Q4 -16 10 -13 L20 -24 L18 -8 Q28 2 22 16 Q16 26 -8 25 Q-18 25 -20 20z" fill="#8a8fa8" opacity="0.85"/>'
+   +'<path d="M20 14 q14 -2 12 -14 q-1 -6 -7 -6" fill="none" stroke="#8a8fa8" stroke-width="5" stroke-linecap="round" opacity="0.85"/>'
+   +'<circle cx="-4" cy="-4" r="2.4" fill="#ffd166"/><circle cx="8" cy="-5" r="2.4" fill="#ffd166"/>'
+   +'<path d="M0 2 l3 3 l3 -3" fill="none" stroke="#c9d4e8" stroke-width="1.5"/>'
+   +'<animateTransform attributeName="transform" type="translate" additive="sum" values="0 0; 0 -4; 0 0" dur="3.5s" repeatCount="indefinite"/></g>';
+}
+function moonSVG(x,y,r){
+  return '<circle cx="'+x+'" cy="'+y+'" r="'+(r+8)+'" fill="#d6e4f5" opacity="0.10"/><circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="#e8eefc"/><circle cx="'+(x-r*0.35)+'" cy="'+(y-r*0.2)+'" r="'+(r*0.18)+'" fill="#c9d4e8"/><circle cx="'+(x+r*0.3)+'" cy="'+(y+r*0.3)+'" r="'+(r*0.12)+'" fill="#c9d4e8"/>';
+}
+function pawPrint(x,y,s,color,rot){
+  return '<g transform="translate('+x+','+y+') rotate('+(rot||0)+') scale('+(s||1)+')" fill="'+(color||"#ffd166")+'"><ellipse cx="0" cy="3" rx="4" ry="3.4"/><circle cx="-4.4" cy="-2.4" r="1.7"/><circle cx="-1.5" cy="-4" r="1.7"/><circle cx="1.5" cy="-4" r="1.7"/><circle cx="4.4" cy="-2.4" r="1.7"/></g>';
+}
+function hot(x,y,w,h,id){ return '<rect class="hot" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="8" data-hot="'+id+'"/>'; }
+function sceneDefs(){
+  return '<defs>'
+   +'<linearGradient id="wallG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1b1e3a"/><stop offset="100%" stop-color="#12142a"/></linearGradient>'
+   +'<linearGradient id="floorG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#241a30"/><stop offset="100%" stop-color="#160f20"/></linearGradient>'
+   +'<linearGradient id="woodG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5a3b28"/><stop offset="100%" stop-color="#3a2418"/></linearGradient>'
+   +'<linearGradient id="woodD" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#42301f"/><stop offset="100%" stop-color="#2a1c12"/></linearGradient>'
+   +'<linearGradient id="metalG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a4f6e"/><stop offset="100%" stop-color="#2c2f4a"/></linearGradient>'
+   +'<radialGradient id="lampG" cx="50%" cy="40%"><stop offset="0%" stop-color="#ffd166" stop-opacity="0.35"/><stop offset="100%" stop-color="#ffd166" stop-opacity="0"/></radialGradient>'
+   +'<radialGradient id="moonBeam" cx="50%" cy="0%"><stop offset="0%" stop-color="#9fd8ff" stop-opacity="0.22"/><stop offset="100%" stop-color="#9fd8ff" stop-opacity="0"/></radialGradient>'
+   +'<radialGradient id="fireG" cx="50%" cy="80%"><stop offset="0%" stop-color="#ffe9a8"/><stop offset="50%" stop-color="#ff9e5e"/><stop offset="100%" stop-color="#b33d18"/></radialGradient>'
+   +'<linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0a0c22"/><stop offset="100%" stop-color="#1c2145"/></linearGradient>'
+   +'</defs>';
+}
+
+/* ================= [JS-08] ROOM ENGINE ================= */
+const ROOM_ORDER = ["living","kitchen","garage","study","yard","gate"];
+const ROOM_META = {
+  living:{ name:"The Living Room", ch:"Chapter I · 11:58 PM", icon:"🛋", open:()=>true },
+  kitchen:{ name:"The Kitchen", ch:"Chapter II · The Breakfast Shift", icon:"🍳", open:()=>S.flags.kitchenOpen },
+  garage:{ name:"The Garage", ch:"Chapter III · The Shop", icon:"🔧", open:()=>S.flags.garageOpen },
+  study:{ name:"The Study", ch:"Chapter IV · The Window Office", icon:"🔭", open:()=>S.flags.studyOpen },
+  yard:{ name:"The Backyard", ch:"Chapter V · The Wild Hours", icon:"🌳", open:()=>S.flags.yardOpen },
+  gate:{ name:"The Ninth Door", ch:"Chapter VI · Where She Waits", icon:"🚪", open:()=>S.flags.gateOpen },
+};
+function goRoom(r){
+  S.room=r; selectedItem=null; save(); renderAll();
+}
+function renderAll(){
+  const meta=ROOM_META[S.room];
+  document.getElementById("roomName").textContent = meta.name;
+  document.getElementById("chapName").textContent = meta.ch;
+  document.getElementById("scene").innerHTML = sceneDefs() + SCENES[S.room]();
+  document.getElementById("roomNav").innerHTML = ROOM_ORDER.filter(r=>ROOM_META[r].open()).map(r=>
+    '<div class="navb'+(r===S.room?" cur":"")+'" data-nav="'+r+'">'+ROOM_META[r].icon+'</div>').join("");
+  document.querySelectorAll("#roomNav .navb").forEach(el=>el.addEventListener("click",()=>{ if(el.dataset.nav!==S.room){ sfx.tap(); goRoom(el.dataset.nav);} }));
+  document.querySelectorAll("#scene .hot").forEach(el=>el.addEventListener("click",()=>tapHot(el.dataset.hot)));
+  renderFlames(); renderInv();
+}
+function tapHot(id){
+  const fn=HOTS[id];
+  if(fn){ fn(selectedItem); }
+}
+
+/* ================= [JS-09] SCENES ================= */
+const SCENES = {
+
+/* ---- LIVING ROOM ---- */
+living(){
+  let s='<rect width="390" height="380" fill="url(#wallG)"/><rect y="380" width="390" height="180" fill="url(#floorG)"/>';
+  // window + moon
+  s+='<rect x="20" y="40" width="110" height="150" rx="6" fill="url(#skyG)" stroke="#3a3e66" stroke-width="5"/>';
+  s+=moonSVG(70,95,22);
+  s+='<line x1="75" y1="42" x2="75" y2="188" stroke="#3a3e66" stroke-width="4"/><line x1="22" y1="115" x2="128" y2="115" stroke="#3a3e66" stroke-width="4"/>';
+  s+='<path d="M20 190 L130 190 L180 560 L-40 560 Z" fill="url(#moonBeam)"/>';
+  // grandfather clock
+  s+='<g><rect x="300" y="110" width="70" height="290" rx="8" fill="url(#woodG)" stroke="#2a1c12" stroke-width="3"/>';
+  s+='<circle cx="335" cy="165" r="26" fill="#e8dbb5" stroke="#8a6a3c" stroke-width="4"/>';
+  const solvedClk=S.solved.clock;
+  s+='<line x1="335" y1="165" x2="'+(solvedClk?326:335)+'" y2="'+(solvedClk?152:147)+'" stroke="#3b3a68" stroke-width="3" stroke-linecap="round"/>';
+  s+='<line x1="335" y1="165" x2="'+(solvedClk?343:349)+'" y2="'+(solvedClk?149:165)+'" stroke="#3b3a68" stroke-width="2" stroke-linecap="round"/>';
+  s+='<rect x="315" y="210" width="40" height="130" rx="5" fill="#1a1020"/><circle cx="335" cy="250" r="12" fill="#d4a94e"><animateTransform attributeName="transform" type="rotate" values="-14 335 210;14 335 210;-14 335 210" dur="2.4s" repeatCount="indefinite"/></circle>';
+  if(S.solved.clock && !S.flags.clockLooted) s+='<rect x="310" y="352" width="50" height="34" rx="4" fill="#2a1c12" class="glowGold"/>';
+  s+='</g>';
+  // bookshelf
+  s+='<g><rect x="150" y="130" width="130" height="200" rx="6" fill="url(#woodD)" stroke="#2a1c12" stroke-width="3"/>';
+  const spineC=["#7a4a2b","#4a5a7a","#5a7a4a","#7a4a5a","#6a5a3a","#4a6a6a","#7a6a3a","#5a4a7a","#6a4a4a","#4a7a5a"];
+  // shelf 1 (plain), shelf 2 has tilted books
+  for(let i=0;i<9;i++){ s+='<rect x="'+(158+i*13)+'" y="145" width="10" height="40" rx="2" fill="'+spineC[i%10]+'"/>'; }
+  const tilt=[0,1,0,1,0,0,1,1,0,1]; // which of shelf-2 books are tilted (E,S,U,M,O at tilted slots)
+  const letters=["T","E","H","S","R","A","U","M","C","O"];
+  for(let i=0;i<10;i++){
+    const x=156+i*12.2, tl=tilt[i];
+    s+='<g transform="translate('+x+',225) rotate('+(tl?-16:0)+' 5 0)"><rect x="0" y="-42" width="10" height="42" rx="2" fill="'+spineC[(i+3)%10]+'"/><text x="5" y="-14" text-anchor="middle" font-size="8" fill="#e8dbb5" font-weight="bold">'+letters[i]+'</text></g>';
+  }
+  for(let i=0;i<8;i++){ s+='<rect x="'+(160+i*14)+'" y="280" width="11" height="42" rx="2" fill="'+spineC[(i+5)%10]+'"/>'; }
+  s+='<line x1="152" y1="188" x2="278" y2="188" stroke="#2a1c12" stroke-width="4"/><line x1="152" y1="230" x2="278" y2="230" stroke="#2a1c12" stroke-width="4"/><line x1="152" y1="326" x2="278" y2="326" stroke="#2a1c12" stroke-width="4"/></g>';
+  // framed photo
+  s+='<g><rect x="152" y="52" width="70" height="56" rx="4" fill="#0a0b16" stroke="#d4a94e" stroke-width="4"/><circle cx="187" cy="76" r="14" fill="#8a8fa8"/><path d="M177 70 l-4 -8 l8 3 M197 70 l4 -8 l-8 3" fill="#8a8fa8"/><circle cx="205" cy="62" r="6" fill="#ffd166" opacity="0.8"/></g>';
+  // fireplace
+  s+='<g><rect x="20" y="300" width="120" height="110" rx="6" fill="#3a3145" stroke="#241a30" stroke-width="4"/><rect x="38" y="330" width="84" height="80" rx="5" fill="#0a0812"/>';
+  if(S.flags.fireLit){
+    s+='<path d="M60 405 C62 385 74 382 72 368 C84 378 92 372 90 358 C102 372 104 388 100 398 A22 16 0 0 1 60 405z" fill="url(#fireG)"><animateTransform attributeName="transform" type="scale" values="1 1;1.06 1.1;1 1" dur="0.9s" repeatCount="indefinite" additive="sum"/></path>';
+  } else {
+    s+='<path d="M55 400 q10 -10 24 -4 q14 -8 26 4" stroke="#2c2f4a" stroke-width="6" fill="none"/>';
+  }
+  s+='<rect x="14" y="292" width="132" height="12" rx="4" fill="url(#woodG)"/></g>';
+  // couch
+  s+='<g><path d="M140 430 h180 a16 16 0 0 1 16 16 v70 h-212 v-70 a16 16 0 0 1 16 -16z" fill="#5c3d5e"/><rect x="132" y="470" width="196" height="30" rx="10" fill="#6e4a70"/><rect x="140" y="440" width="86" height="34" rx="10" fill="#7a5580"/><rect x="234" y="440" width="86" height="34" rx="10" fill="#7a5580"/><rect x="118" y="440" width="22" height="66" rx="9" fill="#4e3350"/><rect x="320" y="440" width="22" height="66" rx="9" fill="#4e3350"/></g>';
+  // side table + lamp
+  s+='<g><rect x="30" y="452" width="66" height="54" rx="5" fill="url(#woodG)"/><rect x="40" y="462" width="46" height="16" rx="3" fill="#2a1c12"/><circle cx="52" cy="470" r="3" fill="'+(hasItem("brasskey")||S.flags.sideTableOpen?"#d4a94e":"#8a6a3c")+'"/>';
+  s+='<ellipse cx="63" cy="430" rx="26" ry="20" fill="url(#lampG)"/><path d="M50 415 h26 l6 20 h-38 z" fill="#c9a83c" opacity="0.9"/><rect x="60" y="435" width="6" height="18" fill="#8a6a3c"/></g>';
+  // hall door (right)
+  s+='<g><rect x="336" y="420" width="50" height="130" rx="4" fill="'+(S.flags.kitchenOpen?"#1a1020":"url(#woodD)")+'" stroke="#2a1c12" stroke-width="4"/><circle cx="346" cy="490" r="5" fill="#d4a94e"/>';
+  if(!S.flags.kitchenOpen) s+='<rect x="340" y="480" width="14" height="20" rx="3" fill="#8a92ad"/><circle cx="347" cy="488" r="2.5" fill="#0a0b16"/>';
+  s+='</g>';
+  // ghost smokey by the fireplace once lit, else near couch
+  s+= S.flags.fireLit ? ghostCat(180,395,0.75) : ghostCat(80,540,0.6,0.5);
+  // hotspots
+  s+=hot(146,44,84,72,"lv_photo");
+  s+=hot(296,106,80,290,"lv_clock");
+  s+=hot(146,126,140,210,"lv_shelf");
+  s+=hot(14,288,132,126,"lv_fire");
+  s+=hot(116,426,230,84,"lv_couch");
+  s+=hot(24,412,78,98,"lv_table");
+  s+=hot(332,416,58,138,"lv_door");
+  return s;
+},
+
+/* ---- KITCHEN ---- */
+kitchen(){
+  let s='<rect width="390" height="360" fill="url(#wallG)"/><rect y="360" width="390" height="200" fill="url(#floorG)"/>';
+  // checker floor hint
+  for(let i=0;i<8;i++) for(let j=0;j<3;j++){ if((i+j)%2===0) s+='<rect x="'+(i*50-5)+'" y="'+(370+j*45)+'" width="50" height="45" fill="#1c1428" opacity="0.6"/>'; }
+  // window
+  s+='<rect x="150" y="36" width="96" height="86" rx="6" fill="url(#skyG)" stroke="#3a3e66" stroke-width="5"/>'+moonSVG(196,70,15);
+  // wall clock stuck at 4:00
+  s+='<g><circle cx="60" cy="70" r="26" fill="#e8dbb5" stroke="#8a6a3c" stroke-width="4"/><line x1="60" y1="70" x2="60" y2="52" stroke="#3b3a68" stroke-width="2"/><line x1="60" y1="70" x2="74" y2="78" stroke="#3b3a68" stroke-width="3" stroke-linecap="round"/><text x="60" y="106" text-anchor="middle" font-size="8" fill="#9a97b8" font-style="italic">stuck. always 4.</text></g>';
+  // chalkboard tally
+  s+='<g><rect x="284" y="40" width="88" height="80" rx="5" fill="#1a2820" stroke="#5a3b28" stroke-width="4"/><text x="328" y="60" text-anchor="middle" font-size="9" fill="#c9d4e8">TREATS STOLEN</text><text x="328" y="76" text-anchor="middle" font-size="9" fill="#c9d4e8">THIS WEEK:</text><g stroke="#e8dbb5" stroke-width="2"><line x1="304" y1="86" x2="304" y2="102"/><line x1="311" y1="86" x2="311" y2="102"/><line x1="318" y1="86" x2="318" y2="102"/><line x1="325" y1="86" x2="325" y2="102"/><line x1="298" y1="94" x2="330" y2="94"/><line x1="340" y1="86" x2="340" y2="102"/><line x1="347" y1="86" x2="347" y2="102"/></g></g>';
+  // fridge
+  s+='<g><rect x="18" y="150" width="86" height="220" rx="8" fill="url(#metalG)" stroke="#1c1e33" stroke-width="3"/><line x1="20" y1="230" x2="102" y2="230" stroke="#1c1e33" stroke-width="4"/><rect x="90" y="180" width="7" height="34" rx="3" fill="#6a7095"/><rect x="90" y="250" width="7" height="50" rx="3" fill="#6a7095"/>';
+  // magnets
+  const mg=[["#ff7a7a",34,168],["#7ee0a3",56,192],["#ffd166",44,208],["#9fd8ff",70,172],["#b08fd4",66,205]];
+  mg.forEach(m=>{ s+='<circle cx="'+m[1]+'" cy="'+m[2]+'" r="5" fill="'+m[0]+'"/>'; });
+  s+='<rect x="40" y="244" width="44" height="36" rx="2" fill="#f0ead8" transform="rotate(-4 62 262)"/><ellipse cx="62" cy="260" rx="12" ry="8" fill="#8a8fa8" transform="rotate(-4 62 262)"/></g>';
+  // counter + stove
+  s+='<g><rect x="110" y="270" width="272" height="16" rx="4" fill="url(#woodG)"/><rect x="118" y="286" width="256" height="90" rx="4" fill="url(#woodD)"/>';
+  // stove
+  s+='<rect x="240" y="150" width="120" height="120" rx="8" fill="url(#metalG)" stroke="#1c1e33" stroke-width="3"/>';
+  s+='<rect x="252" y="162" width="96" height="40" rx="4" fill="#0a0b16"/><text x="300" y="188" text-anchor="middle" font-size="16" fill="'+(S.solved.stove?"#7ee0a3":"#ff7a7a")+'" font-family="Courier New" font-weight="bold">'+(S.solved.stove?"OPEN":"12:00")+'</text>';
+  for(let i=0;i<4;i++){ s+='<circle cx="'+(266+i*23)+'" cy="230" r="9" fill="#2c2f4a" stroke="#555b80" stroke-width="3"/><line x1="'+(266+i*23)+'" y1="230" x2="'+(266+i*23)+'" y2="222" stroke="#8a92ad" stroke-width="2"/>'; }
+  if(S.solved.stove && !S.flags.stoveLooted) s+='<rect x="252" y="248" width="96" height="16" rx="3" fill="#3a3145" class="glowGold"/>';
+  s+='</g>';
+  // treat jar on counter
+  s+='<g><path d="M150 232 h44 v34 a8 8 0 0 1 -8 8 h-28 a8 8 0 0 1 -8 -8 z" fill="#7aa8c9" opacity="0.85"/><rect x="146" y="222" width="52" height="12" rx="4" fill="#c9a83c"/><text x="172" y="258" text-anchor="middle" font-size="8" fill="#0a0b16" font-weight="bold">'+(S.solved.jar?"": "🔒")+'TREATS</text></g>';
+  // cookbook stand
+  s+='<g transform="translate(208,240)"><path d="M0 24 L22 14 L44 24 L44 30 L22 20 L0 30 z" fill="url(#woodG)"/><path d="M2 22 L22 13 L42 22 L42 -6 L22 -14 L2 -6 z" fill="#f0ead8"/><line x1="22" y1="-14" x2="22" y2="20" stroke="#c9b585" stroke-width="2"/><path d="M6 -2 h12 M6 4 h12 M6 10 h12 M26 -2 h12 M26 4 h12" stroke="#8a8fa8" stroke-width="1.5"/></g>';
+  // food bowls
+  s+='<g><ellipse cx="150" cy="420" rx="26" ry="12" fill="#4a7ab5"/><ellipse cx="150" cy="415" rx="26" ry="10" fill="#5c8cc9"/><text x="150" y="419" text-anchor="middle" font-size="8" fill="#e8e6f0" font-weight="bold">SMOKEY</text><ellipse cx="208" cy="424" rx="20" ry="10" fill="#b56a4a"/><ellipse cx="208" cy="420" rx="20" ry="8" fill="#c97e5c"/></g>';
+  // pantry door
+  s+='<g><rect x="300" y="380" width="76" height="170" rx="5" fill="url(#woodD)" stroke="#2a1c12" stroke-width="4"/>';
+  if(!S.solved.pantry){ s+='<rect x="316" y="440" width="44" height="44" rx="5" fill="#1c1e33" stroke="#555b80" stroke-width="3"/><g fill="#3a3e66"><rect x="320" y="444" width="11" height="11" rx="2"/><rect x="333" y="444" width="11" height="11" rx="2"/><rect x="346" y="444" width="11" height="11" rx="2"/><rect x="320" y="457" width="11" height="11" rx="2"/><rect x="333" y="457" width="11" height="11" rx="2"/><rect x="346" y="457" width="11" height="11" rx="2"/><rect x="320" y="470" width="11" height="11" rx="2"/><rect x="333" y="470" width="11" height="11" rx="2"/></g><text x="338" y="510" text-anchor="middle" font-size="8" fill="#9a97b8" font-style="italic">a puzzle lock</text>'; }
+  else s+='<rect x="306" y="386" width="64" height="158" rx="4" fill="#120b1c"/>';
+  s+='<text x="338" y="374" text-anchor="middle" font-size="9" fill="#9a97b8">PANTRY</text></g>';
+  // back door to garage (bottom-left)
+  s+='<g><rect x="16" y="420" width="66" height="130" rx="4" fill="'+(S.flags.garageOpen?"#1a1020":"url(#woodD)")+'" stroke="#2a1c12" stroke-width="4"/><circle cx="72" cy="486" r="5" fill="#d4a94e"/>';
+  if(!S.flags.garageOpen) s+='<rect x="60" y="476" width="14" height="20" rx="3" fill="#8a92ad"/><circle cx="67" cy="484" r="2.5" fill="#0a0b16"/>';
+  s+='<text x="49" y="414" text-anchor="middle" font-size="8" fill="#9a97b8">GARAGE</text></g>';
+  s+= ghostCat(240,505,0.62,0.75);
+  // hotspots
+  s+=hot(12,404,74,150,"kt_backdoor");
+  s+=hot(14,146,94,228,"kt_fridge");
+  s+=hot(236,146,128,90,"kt_stoveTop");
+  s+=hot(236,220,128,52,"kt_stoveDials");
+  s+=hot(142,216,60,62,"kt_jar");
+  s+=hot(204,222,54,52,"kt_book");
+  s+=hot(118,400,110,40,"kt_bowls");
+  s+=hot(296,376,84,178,"kt_pantry");
+  s+=hot(280,36,96,88,"kt_board");
+  s+=hot(30,40,62,74,"kt_clock");
+  return s;
+},
+
+/* ---- GARAGE ---- */
+garage(){
+  const power=S.flags.powerOn;
+  let s='<rect width="390" height="360" fill="'+(power?"#20233f":"#14162a")+'"/><rect y="360" width="390" height="200" fill="'+(power?"#2b2438":"#1a1626")+'"/>';
+  // roll-up door ribs
+  for(let i=0;i<5;i++) s+='<rect x="20" y="'+(40+i*34)+'" width="150" height="28" rx="4" fill="'+(power?"#33365e":"#252842")+'"/>';
+  s+='<text x="95" y="230" text-anchor="middle" font-size="9" fill="#9a97b8">roll-up door (stuck, obviously)</text>';
+  // hanging lamp
+  s+='<line x1="270" y1="0" x2="270" y2="46" stroke="#555b80" stroke-width="3"/><path d="M250 46 h40 l-6 14 h-28 z" fill="#4a4f6e"/>';
+  if(power) s+='<ellipse cx="270" cy="120" rx="90" ry="80" fill="url(#lampG)"/><circle cx="270" cy="56" r="5" fill="#ffe9a8"/>';
+  else s+='<circle cx="270" cy="56" r="5" fill="#2c2f4a"/>';
+  // the S13
+  s+='<g transform="translate(30,300)">';
+  s+='<path d="M10 60 q4 -26 40 -30 l22 -20 q40 -10 78 0 l20 20 q36 4 40 32 l-2 18 h-198 z" fill="'+(power?"#7a3540":"#4e2630")+'" stroke="#241a30" stroke-width="3"/>';
+  s+='<path d="M76 12 l16 -14 q34 -8 66 0 l14 14 q-48 8 -96 0z" fill="'+(power?"#2c3350":"#1c2135")+'"/>';
+  s+='<circle cx="52" cy="80" r="20" fill="#14162a" stroke="#555b80" stroke-width="4"/><circle cx="52" cy="80" r="7" fill="#3a3e66"/>';
+  s+='<circle cx="168" cy="80" r="20" fill="#14162a" stroke="#555b80" stroke-width="4"/><circle cx="168" cy="80" r="7" fill="#3a3e66"/>';
+  s+='<rect x="86" y="52" width="52" height="14" rx="3" fill="#e8dbb5"/><text x="112" y="63" text-anchor="middle" font-size="10" font-family="Courier New" font-weight="bold" fill="#241a30">'+(S.flags.wipedPlate?"SMK-BNZ":"▓▓▓-▓▓▓")+'</text>';
+  s+='<text x="110" y="110" text-anchor="middle" font-size="9" fill="#9a97b8">the project car. one day.</text></g>';
+  // workbench
+  s+='<g><rect x="250" y="250" width="132" height="14" rx="3" fill="url(#woodG)"/><rect x="256" y="264" width="10" height="90" fill="#3a2418"/><rect x="366" y="264" width="10" height="90" fill="#3a2418"/>';
+  // sockets on bench
+  [10,13,17,19].forEach((sz,i)=>{ s+='<rect x="'+(262+i*26)+'" y="'+(236+ (i===1?-6:0))+'" width="16" height="14" rx="3" fill="#8a92ad"/><text x="'+(270+i*26)+'" y="'+(232+(i===1?-6:0))+'" text-anchor="middle" font-size="7" fill="#c9d4e8">'+sz+'</text>'; });
+  // wire harness
+  s+='<path d="M258 250 q20 -30 50 -22 q30 8 40 -10" stroke="#a83c3c" stroke-width="3" fill="none"/><path d="M262 250 q24 -22 54 -16" stroke="#4a7ab5" stroke-width="3" fill="none"/><path d="M266 250 q20 -14 44 -12" stroke="#c9a83c" stroke-width="3" fill="none"/></g>';
+  // rolling toolbox
+  s+='<g><rect x="250" y="380" width="100" height="130" rx="6" fill="'+(power?"#8a3a3a":"#5c2c2c")+'" stroke="#241a30" stroke-width="3"/>';
+  for(let i=0;i<4;i++) s+='<rect x="258" y="'+(390+i*28)+'" width="84" height="20" rx="3" fill="'+(power?"#a34848":"#6e3535")+'"/><rect x="290" y="'+(396+i*28)+'" width="20" height="6" rx="3" fill="#c9d4e8"/>';
+  if(!S.solved.toolbox) s+='<rect x="284" y="366" width="32" height="20" rx="4" fill="#1c1e33" stroke="#555b80" stroke-width="2"/><text x="300" y="380" text-anchor="middle" font-size="9" fill="#ffd166">••••</text>';
+  s+='<circle cx="266" cy="516" r="8" fill="#14162a"/><circle cx="334" cy="516" r="8" fill="#14162a"/></g>';
+  // fuse box
+  s+='<g><rect x="196" y="60" width="54" height="76" rx="5" fill="'+(power?"#3a4a3a":"#4a3a3a")+'" stroke="#241a30" stroke-width="3"/><circle cx="223" cy="80" r="7" fill="'+(power?"#7ee0a3":"#ff7a7a")+'"/><text x="223" y="118" text-anchor="middle" font-size="8" fill="#c9d4e8">FUSES</text></g>';
+  // key cabinet
+  s+='<g><rect x="330" y="70" width="52" height="66" rx="5" fill="url(#metalG)" stroke="#1c1e33" stroke-width="3"/><text x="356" y="60" text-anchor="middle" font-size="8" fill="#9a97b8">KEYS</text>';
+  if(!S.solved.keycab) s+='<rect x="344" y="94" width="24" height="18" rx="3" fill="#1c1e33"/><text x="356" y="107" text-anchor="middle" font-size="8" fill="#ffd166">####</text>';
+  else s+='<rect x="336" y="76" width="40" height="54" rx="3" fill="#0f1120"/>';
+  s+='</g>';
+  // floor tiles + paw prints (visible after power)
+  s+='<g>';
+  const tiles=[[40,470],[110,505],[175,468],[120,432]]; // tiles 1..4 positions
+  tiles.forEach((t,i)=>{ s+='<rect x="'+(t[0]-24)+'" y="'+(t[1]-18)+'" width="48" height="36" rx="4" fill="#241f33" stroke="#33365e" stroke-width="2"/><text x="'+t[0]+'" y="'+(t[1]+4)+'" text-anchor="middle" font-size="12" fill="#555b80" font-weight="bold">'+(i+1)+'</text>'; });
+  if(power && S.solved.wires){
+    // oily paw path: 2 -> 4 -> 1 -> 3
+    s+=pawPrint(96,505,0.9,"#c9a83c",-30)+pawPrint(112,480,0.9,"#c9a83c",-20)
+      +pawPrint(118,448,0.85,"#b3924a",-5)+pawPrint(100,440,0.8,"#b3924a",40)
+      +pawPrint(64,452,0.8,"#a8863c",60)+pawPrint(46,468,0.75,"#a8863c",80)
+      +pawPrint(90,472,0.7,"#96762f",100)+pawPrint(140,470,0.65,"#8a6a28",90)
+      +pawPrint(168,466,0.6,"#7a5c20",95);
+  }
+  s+='</g>';
+  // inner door to the study
+  s+='<g><rect x="196" y="150" width="52" height="96" rx="4" fill="'+(S.flags.studyOpen?"#1a1020":"url(#woodD)")+'" stroke="#241a30" stroke-width="3"/><circle cx="240" cy="200" r="4" fill="#b08fd4"/>';
+  if(!S.flags.studyOpen) s+='<rect x="232" y="192" width="12" height="16" rx="3" fill="#8a92ad"/>';
+  s+='<text x="222" y="144" text-anchor="middle" font-size="8" fill="#9a97b8">STUDY</text></g>';
+  s+= ghostCat(300,330,0.6,0.75);
+  // hotspots
+  s+=hot(192,146,60,104,"gr_study");
+  s+=hot(26,290,220,120,"gr_car");
+  s+=hot(246,226,140,42,"gr_bench");
+  s+=hot(246,362,110,158,"gr_toolbox");
+  s+=hot(192,56,62,86,"gr_fuse");
+  s+=hot(326,64,60,78,"gr_keycab");
+  s+=hot(10,414,220,130,"gr_floor");
+  s+=hot(16,36,158,200,"gr_rollup");
+  return s;
+},
+
+/* ---- STUDY ---- */
+study(){
+  let s='<rect width="390" height="380" fill="url(#wallG)"/><rect y="380" width="390" height="180" fill="url(#floorG)"/>';
+  // big window with night sky
+  s+='<rect x="30" y="30" width="200" height="180" rx="8" fill="url(#skyG)" stroke="#3a3e66" stroke-width="6"/>';
+  s+=moonSVG(190,60,16);
+  // stars in window (decor)
+  [[60,60],[90,90],[70,130],[120,70],[140,120],[105,155],[170,140],[55,170]].forEach(p=>{ s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="1.6" fill="#e8eefc"/>'; });
+  s+='<line x1="130" y1="32" x2="130" y2="208" stroke="#3a3e66" stroke-width="4"/>';
+  // telescope
+  s+='<g transform="translate(60,300)"><line x1="0" y1="60" x2="-24" y2="100" stroke="#555b80" stroke-width="5"/><line x1="0" y1="60" x2="24" y2="100" stroke="#555b80" stroke-width="5"/><line x1="0" y1="60" x2="0" y2="104" stroke="#555b80" stroke-width="5"/><rect x="-10" y="-4" width="70" height="20" rx="9" fill="url(#metalG)" transform="rotate(-32 0 0)" stroke="#1c1e33" stroke-width="2"/><circle cx="52" cy="-30" r="7" fill="#9fd8ff" opacity="0.7"/></g>';
+  // high shelf with cat bed
+  s+='<g><rect x="250" y="86" width="120" height="10" rx="3" fill="url(#woodG)"/><ellipse cx="308" cy="80" rx="34" ry="12" fill="#5c3d5e"/><ellipse cx="308" cy="76" rx="26" ry="8" fill="#3d2840"/>';
+  if(S.solved.mirrors){ s+='<ellipse cx="308" cy="70" rx="20" ry="10" fill="#8a8fa8"/><path d="M292 66 l-4 -8 l8 3 M324 66 l4 -8 l-8 3" fill="#8a8fa8"/><ellipse cx="308" cy="86" rx="40" ry="14" fill="#9fd8ff" opacity="0.25"/>'; }
+  s+='<text x="308" y="112" text-anchor="middle" font-size="8" fill="#9a97b8">the high perch. best real estate in the house.</text></g>';
+  // desk
+  s+='<g><rect x="240" y="300" width="140" height="14" rx="3" fill="url(#woodG)"/><rect x="248" y="314" width="124" height="70" rx="4" fill="url(#woodD)"/>';
+  // lockbox on desk
+  s+='<rect x="256" y="272" width="52" height="28" rx="4" fill="url(#metalG)" stroke="#1c1e33" stroke-width="2"/>'+(S.solved.lockbox?'':'<circle cx="282" cy="286" r="5" fill="#0a0b16" stroke="#c9d4e8" stroke-width="2"/>');
+  // bird journal
+  s+='<g transform="translate(322,276)"><rect x="0" y="0" width="42" height="26" rx="3" fill="#6a5a3a"/><rect x="0" y="10" width="42" height="5" fill="'+(S.solved.birdjournal?"#6a5a3a":"#a83c3c")+'"/><text x="21" y="-4" text-anchor="middle" font-size="7" fill="#9a97b8">BIRD LOG</text></g></g>';
+  // mirrors on stands (3)
+  const mirGlyph=(mi,x,y)=>{
+    const o=S.flags["mir"+mi]?1:0; // 0='/' 1='\'
+    return '<g transform="translate('+x+','+y+')"><rect x="-4" y="18" width="8" height="26" fill="#555b80"/><rect x="-16" y="40" width="32" height="6" rx="3" fill="#3a3e66"/>'
+     +'<g transform="rotate('+(o?45:-45)+')"><rect x="-18" y="-4" width="36" height="8" rx="3" fill="#c9d4e8" stroke="#8a92ad" stroke-width="1.5"/></g></g>';
+  };
+  s+=mirGlyph(1,150,250); s+=mirGlyph(2,150,420); s+=mirGlyph(3,290,420);
+  s+='<text x="150" y="475" text-anchor="middle" font-size="8" fill="#9a97b8">her mirror garden — she loved chasing the light</text>';
+  // moonbeam from window (rough, decorative when solved)
+  if(S.solved.mirrors){
+    s+='<path d="M115 200 L150 245 L150 415 L285 420 L305 100" stroke="#9fd8ff" stroke-width="6" opacity="0.35" fill="none" stroke-linecap="round"/>';
+  } else if(S.solved.stars){
+    s+='<path d="M115 200 L148 242" stroke="#9fd8ff" stroke-width="5" opacity="0.3" stroke-linecap="round"/>';
+  }
+  // narrow back stairs down to the yard
+  s+='<g><rect x="206" y="470" width="58" height="88" rx="4" fill="'+(S.flags.yardOpen?"#0f1a12":"url(#woodD)")+'" stroke="#241a30" stroke-width="3"/><circle cx="214" cy="516" r="4" fill="#b5764a"/>';
+  if(!S.flags.yardOpen) s+='<rect x="208" y="508" width="12" height="16" rx="3" fill="#8a92ad"/>';
+  s+='<text x="235" y="464" text-anchor="middle" font-size="8" fill="#9a97b8">TO THE YARD</text></g>';
+  s+= ghostCat(90,520,0.62,0.7);
+  s+=hot(202,460,66,100,"st_yarddoor");
+  s+=hot(26,26,208,190,"st_window");
+  s+=hot(252,268,60,36,"st_lockbox");
+  s+=hot(318,268,50,38,"st_birdjournal");
+  s+=hot(126,226,48,70,"st_mir1");
+  s+=hot(126,396,48,70,"st_mir2");
+  s+=hot(266,396,48,70,"st_mir3");
+  s+=hot(246,66,128,52,"st_perch");
+  s+=hot(30,270,90,140,"st_scope");
+  return s;
+},
+
+/* ---- YARD ---- */
+yard(){
+  let s='<rect width="390" height="410" fill="url(#skyG)"/><rect y="410" width="390" height="150" fill="#16281a"/>';
+  s+=moonSVG(320,60,26);
+  [[30,40],[70,90],[120,50],[180,100],[240,40],[150,150],[60,160],[260,130],[100,200],[210,180]].forEach(p=>{ s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="1.5" fill="#e8eefc" opacity="0.8"/>'; });
+  // old oak
+  s+='<g><path d="M80 410 q-6 -60 -14 -90 q-30 -8 -40 -40 q30 10 38 2 q-20 -40 -6 -76 q16 30 34 34 q4 -36 28 -50 q6 30 -2 54 q26 -8 44 12 q-26 6 -40 24 q22 2 32 22 q-24 2 -40 10 q-4 40 -10 98z" fill="#2c2135"/>';
+  s+='<ellipse cx="96" cy="150" rx="76" ry="60" fill="#24402c"/><ellipse cx="50" cy="190" rx="46" ry="38" fill="#1d3524"/><ellipse cx="140" cy="190" rx="50" ry="40" fill="#1d3524"/>';
+  // roots N/E/S/W dig spots relative to trunk base (75,410)
+  s+='<text x="82" y="398" text-anchor="middle" font-size="8" fill="#9a97b8">the old oak</text>';
+  if(S.flags.dug) s+='<ellipse cx="82" cy="428" rx="16" ry="8" fill="#0f0a14"/>';
+  s+='</g>';
+  // gnome
+  s+='<g transform="translate(210,430)"><path d="M0 0 l14 -30 l14 30z" fill="#a83c3c"/><circle cx="14" cy="4" r="9" fill="#e8cfa8"/><path d="M6 8 q8 10 16 0 l0 22 q-8 6 -16 0z" fill="#4a5a7a"/><ellipse cx="14" cy="36" rx="14" ry="4" fill="#0f1a12"/></g>';
+  // wind chimes hanging from branch
+  s+='<g transform="translate(230,150)"><line x1="0" y1="-40" x2="0" y2="0" stroke="#555b80" stroke-width="2"/><circle cx="0" cy="0" r="8" fill="#5a3b28"/>';
+  const cc=["#ffd166","#7ee0a3","#9fd8ff","#b08fd4"];
+  cc.forEach((c,i)=>{ s+='<line x1="'+(-14+i*9)+'" y1="6" x2="'+(-14+i*9)+'" y2="'+(26+i*6)+'" stroke="#555b80" stroke-width="1.5"/><rect x="'+(-17+i*9)+'" y="'+(26+i*6)+'" width="6" height="26" rx="3" fill="'+c+'"/>'; });
+  s+='</g>';
+  // fireflies
+  s+='<g id="ffly">';
+  const ff=[[280,260,"#7ee0a3",0],[310,300,"#ffd166",1.1],[260,330,"#9fd8ff",2.2],[330,250,"#b08fd4",3.3],[300,350,"#7ee0a3",4.4]];
+  ff.forEach(f=>{ s+='<circle cx="'+f[0]+'" cy="'+f[1]+'" r="3" fill="'+f[2]+'"><animate attributeName="opacity" values="0.15;1;0.15" dur="3.2s" begin="'+f[3]+'s" repeatCount="indefinite"/></circle>'; });
+  s+='<text x="298" y="380" text-anchor="middle" font-size="8" fill="#9a97b8">fireflies. they seem… organized.</text></g>';
+  // back gate
+  s+='<g><rect x="300" y="400" width="80" height="140" rx="5" fill="url(#woodD)" stroke="#241a30" stroke-width="4"/><line x1="320" y1="402" x2="320" y2="538" stroke="#241a30" stroke-width="3"/><line x1="340" y1="402" x2="340" y2="538" stroke="#241a30" stroke-width="3"/><line x1="360" y1="402" x2="360" y2="538" stroke="#241a30" stroke-width="3"/>';
+  s+='<circle cx="340" cy="470" r="16" fill="url(#metalG)" stroke="#555b80" stroke-width="3"/>';
+  if(S.flags.charmSet) s+='<path d="M346 462 a10 10 0 1 0 0 16 a8 8 0 1 1 0 -16" fill="#d6e4f5"/>';
+  else s+='<circle cx="340" cy="470" r="6" fill="#0a0b16"/>';
+  s+='<text x="340" y="552" text-anchor="middle" font-size="8" fill="#9a97b8">the back gate</text></g>';
+  // garden bed
+  s+='<g><rect x="20" y="480" width="150" height="50" rx="8" fill="#241a14"/><path d="M40 484 q4 -14 10 0 M70 484 q4 -14 10 0 M100 484 q4 -14 10 0 M130 484 q4 -14 10 0" stroke="#4a7a4f" stroke-width="3" fill="none"/></g>';
+  s+= ghostCat(180,520,0.62,0.8);
+  s+=hot(240,220,110,170,"yd_flies");
+  s+=hot(206,116,60,110,"yd_chimes");
+  s+=hot(200,394,50,52,"yd_gnome");
+  s+=hot(10,300,160,150,"yd_oak");
+  s+=hot(296,396,88,150,"yd_gate");
+  s+=hot(16,474,158,60,"yd_garden");
+  return s;
+},
+
+/* ---- THE NINTH DOOR ---- */
+gate(){
+  let s='<rect width="390" height="560" fill="url(#skyG)"/>';
+  for(let i=0;i<40;i++){ const x=(i*97)%390, y=(i*53)%420; s+='<circle cx="'+x+'" cy="'+y+'" r="'+(i%3===0?1.8:1)+'" fill="#e8eefc" opacity="'+(0.3+((i*7)%60)/100)+'"/>'; }
+  s+=moonSVG(60,60,30);
+  s+='<ellipse cx="195" cy="520" rx="200" ry="60" fill="#1a1430"/>';
+  // the door
+  s+='<g><rect x="130" y="160" width="130" height="240" rx="10" fill="url(#woodD)" stroke="#8a6a3c" stroke-width="5"/>';
+  s+='<rect x="145" y="180" width="100" height="90" rx="6" fill="none" stroke="#8a6a3c" stroke-width="2"/><rect x="145" y="285" width="100" height="95" rx="6" fill="none" stroke="#8a6a3c" stroke-width="2"/>';
+  if(S.flags.finaleOpen){ s+='<rect x="136" y="166" width="118" height="228" rx="8" fill="#ffe9a8" opacity="0.92"/><path d="M160 394 l35 -80 l35 80" fill="#ffd166" opacity="0.5"/>'; }
+  s+='<circle cx="248" cy="290" r="6" fill="#d4a94e"/>';
+  // bell hook above door
+  s+='<path d="M195 150 q0 -14 10 -14" stroke="#8a6a3c" stroke-width="4" fill="none"/>';
+  if(S.flags.bellHung) s+='<circle cx="205" cy="146" r="8" fill="#ffd166" class="glowGold"/>';
+  s+='</g>';
+  // eight sconces in an arc
+  const arc=[[60,340],[80,260],[115,195],[165,140],[225,140],[275,195],[310,260],[330,340]];
+  arc.forEach((p,i)=>{
+    const placed = S.flags["slot"+i];
+    s+='<g transform="translate('+p[0]+','+p[1]+')"><circle r="16" fill="#1a1c33" stroke="'+(placed?"#ffd166":"#33365e")+'" stroke-width="2.5"/>';
+    if(placed){ s+='<g transform="translate(-9,-11) scale(0.75)">'+'<path d="M12 2 C13 7 18 8 18 14 a6 6 0 0 1 -12 0 C6 10 10 8 12 2z" fill="#ff9e5e"/>'+'</g>'; }
+    else s+='<text y="4" text-anchor="middle" font-size="10" fill="#555b80">'+(i+1)+'</text>';
+    s+='</g>';
+  });
+  // candles path
+  for(let i=0;i<7;i++){ s+='<g transform="translate('+(120+i*25)+',480)"><rect x="-3" y="0" width="6" height="14" fill="#e8dbb5"/><circle cy="-4" r="3" fill="#ff9e5e"><animate attributeName="opacity" values="0.6;1;0.6" dur="'+(1+i*0.2)+'s" repeatCount="indefinite"/></circle></g>'; }
+  s+= S.flags.finaleOpen ? "" : ghostCat(195,440,0.85,0.95);
+  s+='<text x="195" y="545" text-anchor="middle" font-size="10" fill="#9a97b8" font-style="italic">Eight sconces. One door. She sits, tail curled, and waits.</text>';
+  s+=hot(120,130,150,280,"gt_door");
+  arc.forEach((p,i)=>{ s+=hot(p[0]-22,p[1]-22,44,44,"gt_slot"+i); });
+  return s;
+},
+};
+
+/* ================= [JS-10] HOTSPOT HANDLERS: LIVING ================= */
+const HOTS = {
+
+lv_photo(){
+  sfx.tap();
+  openModal('<h3>Framed Photo</h3>'
+   +'<svg viewBox="0 0 300 200" style="width:100%;border-radius:10px;background:#2a2138">'
+   +'<rect x="20" y="16" width="260" height="140" rx="4" fill="#3b4468"/><circle cx="240" cy="50" r="22" fill="#ffd166" opacity="0.9"/>'
+   +'<path d="M20 156 h260" stroke="#241a30" stroke-width="8"/>'
+   +'<ellipse cx="120" cy="120" rx="46" ry="26" fill="#8a8fa8"/><path d="M84 108 l-8 -18 l16 6 M156 108 l8 -18 l-16 6" fill="#8a8fa8"/><circle cx="104" cy="112" r="3" fill="#ffd166"/><circle cx="130" cy="112" r="3" fill="#ffd166"/>'
+   +'<text x="150" y="185" text-anchor="middle" font-family="Georgia" font-size="13" fill="#e8dbb5" font-style="italic">“Five-fifteen. Every. Single. Morning.”</text></svg>'
+   +'<div class="body" style="margin-top:8px">Smokey at sunrise, mid-yowl, standing on your chest. The engraving on the frame is worn smooth from being touched.</div>');
+},
+
+lv_clock(){
+  if(S.solved.clock && !S.flags.clockLooted){
+    S.flags.clockLooted=1; save();
+    giveItem("brasskey");
+    setTimeout(()=>openModal('<h3>The Clock Drawer</h3><div class="body">A brass key on a nest of gray fur — she slept in this drawer exactly once, jammed it forever, and the clock never kept time again. Worth it.</div><div class="mut" style="margin-top:6px">A brass key wants a brass keyhole. Something small. Something nearby.</div>'),700);
+    renderAll(); return;
+  }
+  if(S.solved.clock){ toast("The clock ticks contentedly at 5:15. Breakfast time, forever."); return; }
+  sfx.tap(); uiClock();
+},
+
+lv_shelf(){
+  sfx.tap();
+  openModal('<h3>The Bookshelf</h3>'
+   +'<div class="body">Ten books on the middle shelf. Five of them lean at that particular angle — the angle of books that have been <i>pushed</i>, lovingly, by a small gray paw, over and over, for years.</div>'
+   +'<svg viewBox="0 0 320 90" style="width:100%;margin-top:10px;background:#2a1c12;border-radius:10px">'
+   +[0,1,0,1,0,0,1,1,0,1].map((t,i)=>{
+      const letters=["T","E","H","S","R","A","U","M","C","O"];
+      return '<g transform="translate('+(18+i*29)+',78) rotate('+(t?-16:0)+' 10 0)"><rect x="0" y="-58" width="20" height="58" rx="3" fill="'+(t?"#7a5580":"#4a5a7a")+'"/><text x="10" y="-24" text-anchor="middle" font-size="14" fill="#e8dbb5" font-weight="bold">'+letters[i]+'</text></g>';
+    }).join("")
+   +'</svg>'
+   +'<div class="mut" style="margin-top:8px">The leaning books read, left to right: E · S · U · M · O</div>'
+   +(S.solved.cabinet?'':'<div class="body" style="margin-top:8px">Below the shelf, a small wooden cabinet with five brass letter-wheels. A plaque reads: <b>“Her favorite thing to chase.”</b></div><button class="btn gold wide" onclick="uiCabinet()">Try the letter lock</button>')
+   +(S.solved.cabinet?'<div class="body" style="margin-top:8px">The little cabinet stands open and empty now.</div>':''));
+},
+
+lv_fire(){
+  if(S.flags.fireLit){ toast("The fire crackles. The first flame dances in it — warm as she was."); return; }
+  if(selectedItem==="matchbox"){
+    S.flags.fireLit=1; save();
+    closeModal(); renderAll();
+    sfx.unlock();
+    setTimeout(()=>{
+      showStory([
+        {art:artFire(), text:"The match catches. The logs take the flame like they'd been waiting all night for it.\n\nIn the firelight, letters appear in the soot above the mantel, written by something with no hands:"},
+        {art:artFire(), text:"“THE HOUSE REMEMBERS NINE.\n\nShe left one flame in every room she loved. Relight them all, and the Ninth Door will open.\n\nShe'll wait for you there. She was always good at waiting. (This is a lie. She was terrible at waiting.)”"},
+      ], ()=>{ giveFlame("F1"); });
+    }, 400);
+    return;
+  }
+  sfx.tap();
+  toast("Cold ashes and stacked logs. If only you had something to light it with…");
+},
+
+lv_couch(){
+  sfx.tap(); uiCouch();
+},
+
+lv_table(){
+  if(S.flags.sideTableOpen){ toast("The drawer is open. Nothing left but a pen that doesn't work and three hair ties. Some things are universal."); return; }
+  if(selectedItem==="brasskey"){
+    S.flags.sideTableOpen=1; useItem("brasskey"); save(); sfx.unlock();
+    toast("The brass key turns. <b>The drawer slides open.</b>");
+    giveItem("hallkey");
+    giveJournal("j_napper");
+    setTimeout(()=>openModal('<h3>Inside the Drawer</h3><div class="body">A key with her ribbon tied to it — the hallway key. And a page torn from a journal, in your own handwriting.</div><div class="jpage"><h4>'+JOURNAL.j_napper.t+'</h4><p>'+JOURNAL.j_napper.p+'</p></div><div class="mut" style="margin-top:8px">Saved to your Journal 📖</div>'),700);
+    renderAll(); return;
+  }
+  sfx.tap();
+  toast("The side table drawer is locked with a small brass keyhole.");
+},
+
+lv_door(){
+  if(S.flags.kitchenOpen){ goRoom("kitchen"); return; }
+  if(selectedItem==="hallkey"){
+    S.flags.kitchenOpen=1; useItem("hallkey"); save(); sfx.unlock();
+    showStory([
+      {art:artDoor(), text:"The hallway key turns with a click that echoes far longer than a hallway should allow.\n\nFrom the kitchen: the unmistakable sound of a treat jar being nudged, experimentally, toward the edge of a counter."},
+    ], ()=>{ goRoom("kitchen"); });
+    return;
+  }
+  sfx.tap(); sfx.wrong();
+  toast("Locked. Through the keyhole: the kitchen, moonlit, and — did something just move?");
+},
+
+/* ================= [JS-11] HANDLERS: KITCHEN ================= */
+kt_fridge(){
+  sfx.tap();
+  openModal('<h3>The Fridge</h3>'
+   +'<div class="body">Humming its one eternal note. Five colorful magnets pin up shopping lists you never threw away.</div>'
+   +'<div class="body" style="margin-top:8px">A photo is pinned at nose-height — hers, not yours: Smokey sitting on the pantry floor beside a mostly-finished <b>fish-skeleton floor mosaic</b>, looking enormously proud of herself.</div>'
+   +'<svg viewBox="0 0 200 140" style="width:70%;display:block;margin:10px auto;background:#f0ead8;border-radius:8px">'
+   +'<g transform="translate(56,18) scale(0.9)"><path d="M10 50 q30 -34 60 0 q-30 34 -60 0z" fill="#c9b585" stroke="#8a6a3c" stroke-width="2"/><circle cx="26" cy="46" r="3" fill="#3b3a68"/><path d="M70 50 l20 -14 v28 z" fill="#c9b585" stroke="#8a6a3c" stroke-width="2"/><path d="M25 50 h40 M35 38 v24 M50 40 v20" stroke="#8a6a3c" stroke-width="2"/></g>'
+   +'<ellipse cx="100" cy="112" rx="30" ry="14" fill="#8a8fa8"/><circle cx="92" cy="108" r="2.5" fill="#ffd166"/><circle cx="106" cy="108" r="2.5" fill="#ffd166"/>'
+   +'<text x="100" y="136" text-anchor="middle" font-size="8" fill="#3b3a68" font-style="italic">the pantry tiles, before the landlord made me fix them</text></svg>'
+   +'<div class="mut">So THAT’s what the pantry lock’s tiles are supposed to look like. A fish skeleton, facing left.</div>');
+  S.flags.sawFish=1; save();
+},
+
+kt_stoveTop(){
+  if(S.solved.stove){
+    if(!S.flags.stoveLooted){
+      S.flags.stoveLooted=1; save(); sfx.unlock();
+      giveItem("silverkey"); giveJournal("j_surfer"); giveFlame("F3");
+      setTimeout(()=>openModal('<h3>The Warming Drawer</h3><div class="body">It slides open on a puff of phantom bacon-scent. Inside: a <b>small silver key</b>, far too elegant for a kitchen, and a journal page.</div><div class="jpage"><h4>'+JOURNAL.j_surfer.t+'</h4><p>'+JOURNAL.j_surfer.p+'</p></div>'),800);
+      renderAll(); return;
+    }
+    toast("The warming drawer sits open. It still smells faintly, impossibly, of bacon.");
+    return;
+  }
+  sfx.tap();
+  openModal('<h3>The Oven</h3>'
+   +'<div class="body">The display blinks a furious <b style="color:var(--bad)">12:00</b> — it has blinked 12:00 since the great power outage of Year Two.</div>'
+   +'<div class="body" style="margin-top:8px">Inside the oven, pinned under the rack, a scorched note in your handwriting. Most of it survived:</div>'
+   +'<div class="jpage"><h4>the burnt note</h4><p>“New oven lock code, so SOMEBODY stops opening the warming drawer with her face:</p>'
+   +'<p style="margin-top:6px">1st dial — how many she stole this week (it’s on the board)<br>2nd dial — how many lives they say she has<br>3rd dial — how many bowls she owns (she owns both)<br>4th dial — the hour she screams (the wall clock gave up at exactly that hour)”</p></div>'
+   +'<button class="btn gold wide" onclick="uiStove()">Turn the dials</button>');
+},
+
+kt_stoveDials(){ if(S.solved.stove){ HOTS.kt_stoveTop(); } else { sfx.tap(); uiStove(); } },
+
+kt_jar(){
+  if(S.solved.jar){ toast("The treat jar is open. You left it that way. It felt right."); return; }
+  sfx.tap(); uiJar();
+},
+
+kt_book(){
+  sfx.tap();
+  openModal('<h3>The Cookbook Stand</h3>'
+   +'<div class="body">Open to the only recipe that ever mattered. The card is soft with age:</div>'
+   +'<div class="jpage"><h4>SMOKEY’S SUNDAY MORNING</h4><p><b>3</b> scoops of kibble, the good kind<br><b>1</b> tin of silver tuna, drained, she likes it drained<br><b>4</b> treats — <i>never five, she leaves the fifth as an insult</i><br><b>4</b> a.m. yowling — free of charge, no substitutions</p></div>'
+   +'<div class="mut" style="margin-top:8px">The treat jar on the counter has a four-digit lock. Hm.</div>');
+},
+
+kt_bowls(){
+  sfx.tap();
+  toast("Two bowls: SMOKEY, and the one labeled nothing — also hers. She owned both. Everyone knew this.");
+},
+
+kt_board(){ sfx.tap(); toast("The chalkboard tally: seven treats stolen this week. A personal best. You never found out how she reached the chalk to update it."); },
+kt_clock(){ sfx.tap(); toast("The wall clock died at 4 o'clock years ago. She considered this a personal victory."); },
+
+kt_pantry(){
+  if(S.solved.pantry){
+    if(!S.flags.pantryLooted){
+      S.flags.pantryLooted=1; save(); sfx.unlock();
+      giveItem("garagekey"); giveItem("catnip");
+      setTimeout(()=>showStory([
+        {art:artPantry(), text:"The tiles settle into the fish skeleton and the pantry door swings wide.\n\nInside, among cans arranged by a logic you never questioned: the garage key on its tire fob, and her catnip pouch.\n\nFrom beyond the far wall — muffled, familiar — the sound of a socket wrench being knocked off a workbench. One. Piece. At a time."},
+      ], ()=>{ renderAll(); }),500);
+      renderAll(); return;
+    }
+    toast("The pantry stands open. The garage waits."); return;
+  }
+  sfx.tap(); uiSlide();
+},
+
+/* ---- GARAGE HANDLERS ---- */
+gr_car(sel){
+  if(!S.flags.wipedPlate){
+    if(sel==="rag"){
+      S.flags.wipedPlate=1; save(); sfx.unlock();
+      toast("You wipe years of grime off the plate: <b>SMK-BNZ</b>. Right. You never did put a normal plate on it.");
+      renderAll(); return;
+    }
+    sfx.tap();
+    openModal('<h3>The Project Car</h3><div class="body">The S13. Still waiting on that engine, that transmission, that mythical free weekend. The plate is unreadable under a decade of shop dust — you’d need a rag.</div><div class="body" style="margin-top:8px">The driver’s door creaks open like it remembers you.</div><button class="btn gold wide" onclick="carInterior()">Look inside</button>');
+    return;
+  }
+  sfx.tap();
+  openModal('<h3>The Project Car</h3><div class="body">Plate: <b>SMK-BNZ</b>. Personalized. Worth every penny of the fee.</div><button class="btn gold wide" onclick="carInterior()">Look inside</button>');
+},
+
+gr_bench(){
+  sfx.tap();
+  openModal('<h3>The Workbench</h3>'
+   +'<div class="body">Four sockets sit out, exactly where they were left: <b>10 · 13 · 17 · 19</b>. The 13 sits slightly apart, on a folded shop towel, like a small throne.</div>'
+   +'<div class="body" style="margin-top:8px">A wiring harness sprawls across the bench mid-surgery — five leads, five terminals, a job you clearly abandoned when someone sat on it.</div>'
+   +(hasItem("rag")?'':'<div class="body" style="margin-top:8px">A clean-ish <b>red shop rag</b> hangs off the vise.</div><button class="btn wide" onclick="giveItem(\'rag\');closeModal()">Take the rag</button>')
+   +'<button class="btn gold wide" onclick="uiWires()">Work on the harness</button>');
+},
+
+gr_toolbox(){
+  if(S.solved.toolbox){
+    if(!S.flags.toolboxLooted){
+      S.flags.toolboxLooted=1; save(); sfx.unlock();
+      giveItem("trowel"); giveItem("wirecard"); giveJournal("j_supervisor"); giveFlame("F4");
+      setTimeout(()=>openModal('<h3>The Top Drawer</h3><div class="body">It rolls open on bearings you greased yourself. Inside: a garden trowel that has no business in a toolbox (she liked to relocate things), a grease-stained <b>wiring diagram</b>, and a journal page tucked under the socket organizer — the 13mm slot is empty, and lined with a folded towel. Her drawer. It’s still her drawer.</div><div class="jpage"><h4>'+JOURNAL.j_supervisor.t+'</h4><p>'+JOURNAL.j_supervisor.p+'</p></div>'),700);
+      renderAll(); return;
+    }
+    toast("Her drawer stays open now. It gets the afternoon light."); return;
+  }
+  sfx.tap();
+  uiKeypad("The Rolling Toolbox","A four-digit lock you added after the Great Ratchet Heist of Year Three. The hint you wrote on the label maker, so you'd never forget:<div class='jpage'><p style='text-align:center'>“THE DAY SHE CAME HOME”</p></div>",4,"0715",()=>{
+    S.solved.toolbox=1; save(); sfx.unlock(); closeModal(); renderAll();
+    toast("Click. <b>The toolbox unlocks.</b> Tap it again to open her drawer.");
+  });
+},
+
+gr_fuse(){
+  if(S.flags.powerOn){ toast("The fuse box hums, content. All green."); return; }
+  sfx.tap();
+  if(!S.solved.wires){
+    openModal('<h3>The Fuse Box</h3><div class="body">Main breaker: ON. Panel light: <b style="color:var(--bad)">red</b>. The fault light points at the bench — that half-finished harness is shorting the whole garage circuit.</div><div class="mut" style="margin-top:6px">Fix the harness at the workbench and the lights should come up.</div>');
+  } else {
+    S.flags.powerOn=1; save(); sfx.unlock();
+    showStory([{art:artGarage(), text:"You flip the breaker. The shop lights stutter awake one by one, the way they always did — and there, pressed in years-old oil across the floor tiles, a trail of little paw prints crosses the garage floor.\n\nShe walked through her own oil spill exactly once, and the evidence outlived everything."}], ()=>renderAll());
+  }
+},
+
+gr_keycab(){
+  if(S.solved.keycab){
+    if(!S.flags.keycabLooted){
+      S.flags.keycabLooted=1; save(); sfx.unlock();
+      giveItem("studykey"); giveJournal("j_inspector"); giveFlame("F5");
+      setTimeout(()=>openModal('<h3>The Key Cabinet</h3><div class="body">Inside, on the hook labeled STUDY: an old-fashioned key. And a journal page, folded around a strip of packing tape with gray fur still on it.</div><div class="jpage"><h4>'+JOURNAL.j_inspector.t+'</h4><p>'+JOURNAL.j_inspector.p+'</p></div>'),700);
+      renderAll(); return;
+    }
+    toast("The key cabinet hangs open. The STUDY hook is empty now."); return;
+  }
+  sfx.tap();
+  if(!(S.flags.powerOn && S.solved.wires)){
+    uiKeypad("The Key Cabinet","Four digits. You changed this combo constantly and always to the same kind of thing: <i>something she did</i>. Too dark in here to find any clue — the shop lights are dead.",4,"2413",keycabWin);
+  } else {
+    uiKeypad("The Key Cabinet","Four digits. The oily paw prints on the floor cross the numbered tiles in a very particular order. She was always the answer.",4,"2413",keycabWin);
+  }
+},
+
+gr_floor(){
+  sfx.tap();
+  if(S.flags.powerOn && S.solved.wires){
+    openModal('<h3>The Floor Tiles</h3><div class="body">Four numbered anti-fatigue tiles, and one immortal oil-print trail marching across them.</div>'
+     +'<svg viewBox="0 0 300 200" style="width:100%;background:#1a1626;border-radius:10px;margin-top:8px">'
+     +'<rect x="30" y="120" width="70" height="54" rx="6" fill="#241f33" stroke="#33365e" stroke-width="2"/><text x="65" y="152" text-anchor="middle" font-size="18" fill="#555b80" font-weight="bold">1</text>'
+     +'<rect x="120" y="140" width="70" height="54" rx="6" fill="#241f33" stroke="#33365e" stroke-width="2"/><text x="155" y="172" text-anchor="middle" font-size="18" fill="#555b80" font-weight="bold">2</text>'
+     +'<rect x="210" y="110" width="70" height="54" rx="6" fill="#241f33" stroke="#33365e" stroke-width="2"/><text x="245" y="142" text-anchor="middle" font-size="18" fill="#555b80" font-weight="bold">3</text>'
+     +'<rect x="120" y="40" width="70" height="54" rx="6" fill="#241f33" stroke="#33365e" stroke-width="2"/><text x="155" y="72" text-anchor="middle" font-size="18" fill="#555b80" font-weight="bold">4</text>'
+     +pawPrint(155,168,1.3,"#e0b84a",-15)+pawPrint(150,120,1.25,"#d4a94e",-20)+pawPrint(152,66,1.2,"#c9a04a",-30)
+     +pawPrint(110,74,1.15,"#b3924a",-70)+pawPrint(78,110,1.1,"#a8863c",-130)+pawPrint(66,146,1.05,"#96762f",-170)
+     +pawPrint(110,158,0.95,"#8a6a28",-100)+pawPrint(170,150,0.9,"#7a5c20",-95)+pawPrint(230,138,0.85,"#6e5420",-95)
+     +'<text x="150" y="24" text-anchor="middle" font-size="10" fill="#9a97b8" font-style="italic">the prints get fainter as she goes — follow them dark to light… or light to dark?</text>'
+     +'</svg>'
+     +'<div class="mut" style="margin-top:8px">The darkest print is the first step. She stepped in the oil at tile 2.</div>');
+  } else {
+    toast("Numbered floor tiles, barely visible in the dark. Something is smudged across them, but you can't make it out without light.");
+  }
+},
+
+gr_rollup(){ sfx.tap(); toast("The roll-up door hasn't rolled up since Year Five. You've made peace with it. Mostly."); },
+
+/* ---- STUDY HANDLERS ---- */
+st_window(){
+  sfx.tap();
+  if(!hasItem("chart")){
+    openModal('<h3>The Big Window</h3><div class="body">Her office. The night sky beyond is <i>wrong</i> in a beautiful way — too many stars, too close, like the sky came down to look for her too.</div><div class="mut" style="margin-top:6px">Twelve of the stars pulse gently, waiting. It feels like they want to be touched in some order. You’d need a map of what she saw up there.</div>');
+    return;
+  }
+  uiStars();
+},
+
+st_lockbox(sel){
+  if(S.solved.lockbox){
+    toast("The lockbox sits open. Paper, freed."); return;
+  }
+  if(sel==="silverkey"){
+    S.solved.lockbox=1; useItem("silverkey"); save(); sfx.unlock();
+    giveItem("chartR");
+    setTimeout(()=>openModal('<h3>The Desk Lockbox</h3><div class="body">The silver key fits like it was made here — because it was; you kept the key in the kitchen so you’d never lose it, and then forgot that, twice.</div><div class="body" style="margin-top:6px">Inside: the <b>right half of the torn star chart</b>, and one pressed dandelion she brought you, once, on purpose. You are almost sure it was on purpose.</div>'),600);
+    renderAll(); return;
+  }
+  sfx.tap();
+  toast("A small steel lockbox with a delicate silver keyhole. Fancy. Kitchen-key fancy.");
+},
+
+st_birdjournal(){
+  if(S.solved.birdjournal){ toast("The bird log lies open to its final entry: “pigeon status: still enormous.”"); return; }
+  sfx.tap();
+  openModal('<h3>The Bird Log</h3>'
+   +'<div class="body">Her official records (you took dictation). Strapped shut with a three-digit band lock. On the cover, your rule for the combination:</div>'
+   +'<div class="jpage"><p style="text-align:center">“Cardinals first.\nThen the pigeon.\nThen the sparrows that <b>stayed</b>.”</p></div>'
+   +'<div class="body" style="margin-top:8px">Visible on the back cover, the season’s tallies:</div>'
+   +'<div class="jpage"><p>Cardinals: <b>||||</b> (all four known personally, all four despised)\nSparrows: <b>|||| |||| |</b> — <i>three of these figured out her nap schedule and got away with everything</i>\nThat one enormous pigeon: <b>|</b> (respected)</p></div>'
+   +'<button class="btn gold wide" onclick="uiBirdLock()">Try the band lock</button>');
+},
+
+st_mir1(){ mirTap(1); }, st_mir2(){ mirTap(2); }, st_mir3(){ mirTap(3); },
+
+st_perch(){
+  sfx.tap();
+  if(S.solved.mirrors) toast("She’s up there right now, translucent and smug, soaking in moonlight like rent is due.");
+  else if(S.solved.stars) toast("The high perch is dark. The moonbeam comes in strong now, but it dies at the first mirror. Her mirror garden could carry it up there…");
+  else toast("Her cat bed, on the highest shelf, in the dark. It was only ever worth lying in when the light hit it.");
+},
+
+st_scope(){
+  sfx.tap();
+  toast("The telescope is aimed exactly where she used to stare for hours. You always wondered what she saw. Tonight you might find out.");
+},
+
+/* ---- YARD HANDLERS ---- */
+yd_flies(){
+  sfx.tap();
+  uiFlies();
+},
+yd_chimes(){
+  if(S.solved.chimes){ toast("The chimes sway, satisfied. The gnome has not stopped smiling. He knows things."); return; }
+  sfx.tap(); uiChimes();
+},
+yd_gnome(){
+  sfx.tap();
+  if(!S.solved.chimes){ toast("The garden gnome stares into the middle distance. He has the face of someone who will only talk if you play his song."); return; }
+  openModal('<h3>The Gnome Speaks</h3><div class="body">(He doesn’t, technically. But after the chimes rang true, you noticed the plaque at his feet, which was definitely not there before.)</div>'
+   +'<div class="jpage"><p style="text-align:center;font-family:Georgia">“What she buried, she buried deep,\nbeneath the oak, for her to keep.\nDig where her <b>noon shadow</b> pointed —\nand only the trowel-anointed.”</p></div>'
+   +'<div class="mut" style="margin-top:8px">Her noon shadow. Shadows at high noon all point the same way…</div>');
+  S.flags.gnomeRiddle=1; save();
+},
+yd_oak(sel){
+  if(S.flags.dug){ toast("The little hole under the north root. You filled it back in, mostly. She'd have approved of the mess."); return; }
+  if(!S.flags.gnomeRiddle){ sfx.tap(); toast("The old oak. The ground between its roots is soft in places. You feel like you're missing an instruction."); return; }
+  if(sel!=="trowel"){ sfx.tap(); toast("You could dig here — with the trowel selected. The gnome was oddly specific about the trowel."); return; }
+  sfx.tap(); uiDig();
+},
+yd_gate(sel){
+  if(S.flags.yardGateOpen){ goRoom("gate"); return; }
+  if(!S.flags.charmSet){
+    if(sel==="mooncharm"){
+      S.flags.charmSet=1; useItem("mooncharm"); save(); sfx.unlock();
+      toast("The moon charm clicks into the dial's center. <b>The eight phases around it begin to glow.</b>");
+      renderAll(); return;
+    }
+    sfx.tap();
+    toast("A round dial on the gate, ringed with eight moon phases. In its center: a crescent-shaped slot, worn smooth, waiting for something.");
+    return;
+  }
+  sfx.tap(); uiMoonDial();
+},
+yd_garden(){ sfx.tap(); toast("Her catnip patch, gone feral in the best way. It hums with bees in daylight. Probably. You've only ever seen it at night, in dreams, like now."); },
+
+/* ---- NINTH DOOR HANDLERS ---- */
+gt_door(sel){
+  if(S.flags.finaleOpen){ endGame(); return; }
+  if(S.flags.orderSolved){
+    if(sel==="bell"){
+      S.flags.bellHung=1; useItem("bell"); save(); sfx.bell();
+      renderAll();
+      setTimeout(()=>{ S.flags.finaleOpen=1; save(); renderAll(); setTimeout(endGame, 900); }, 1400);
+      return;
+    }
+    sfx.tap();
+    openModal('<h3>The Ninth Door</h3><div class="body">The eight flames burn in order. The door is warm now, like a hood in the sun.</div><div class="body" style="margin-top:8px">Above the door, a small iron hook curls out of the wood. Bell-sized. Bell-shaped. Bell-<i>hungry</i>.</div><div class="mut" style="margin-top:8px">The ninth life was never hers alone. Bring what you both shared.</div>');
+    return;
+  }
+  sfx.tap();
+  openModal('<h3>The Ninth Door</h3>'
+   +'<div class="body">Carved into the wood, in letters that catch the moonlight:</div>'
+   +'<div class="jpage"><p style="text-align:center;font-family:Georgia">“Eight lives she lived, and each one burned.\nSet them in the order earned —\nnot the order found, but <b>lived</b>.\nHer story knows. You wrote it down.”</p></div>'
+   +'<div class="body" style="margin-top:8px">Tap a sconce to place a flame. Your journal 📖 remembers the years.</div>'
+   +(flameCount()>=8?'':'<div class="mut" style="margin-top:8px;color:var(--bad)">Some flames are still unlit somewhere in the house. The door will wait.</div>'));
+},
+
+/* ---- DOORS BETWEEN ROOMS ---- */
+kt_backdoor(sel){
+  if(S.flags.garageOpen){ goRoom("garage"); return; }
+  if(sel==="garagekey"){
+    S.flags.garageOpen=1; useItem("garagekey"); save(); sfx.unlock();
+    showStory([{art:artGarage(), text:"The tire-fob key turns and the garage exhales its forever-smell: oil, cold concrete, and ambition.\n\nHer food bowl is still out there by the bench. You never moved it. You were never going to."}], ()=>goRoom("garage"));
+    return;
+  }
+  sfx.tap(); sfx.wrong();
+  toast("The garage door. Locked. The key hangs SOMEWHERE — you have a system. The system is 'somewhere.'");
+},
+gr_study(sel){
+  if(S.flags.studyOpen){ goRoom("study"); return; }
+  if(sel==="studykey"){
+    S.flags.studyOpen=1; useItem("studykey"); save(); sfx.unlock();
+    showStory([{art:artStudyDoor(), text:"The old key turns like a page.\n\nThe study opens before you: the big window, the desk, the telescope — and a sky outside absolutely crowded with stars, far more than this town has ever owned.\n\nHer window. Her office. Her sky, apparently."}], ()=>goRoom("study"));
+    return;
+  }
+  sfx.tap(); sfx.wrong();
+  toast("The inner door to the study. Locked with something old-fashioned. The key cabinet would know.");
+},
+st_yarddoor(sel){
+  if(S.flags.yardOpen){ goRoom("yard"); return; }
+  if(sel==="gatekey"){
+    S.flags.yardOpen=1; useItem("gatekey"); save(); sfx.unlock();
+    showStory([{art:artYard(), text:"The rusted key grinds, then gives.\n\nThe backyard at night. Fireflies drift over her catnip patch in patterns that are almost — no, definitely — deliberate. The old oak creaks hello.\n\nThis was her wild kingdom, and you were a tolerated guest. Watch your step. Respect the customs."}], ()=>goRoom("yard"));
+    return;
+  }
+  sfx.tap(); sfx.wrong();
+  toast("The narrow back stairs, door locked. Stamped on the lockplate: GATE.");
+},
+};
+
+/* slot handlers for the ninth door */
+for(let i=0;i<8;i++){ HOTS["gt_slot"+i] = ()=>slotTap(i); }
+
+/* ================= [JS-12] PUZZLE UIs ================= */
+/* -- generic keypad -- */
+let padBuf="";
+function uiKeypad(title, bodyHTML, len, code, onWin){
+  padBuf="";
+  openModal('<h3>'+title+'</h3><div class="body">'+bodyHTML+'</div>'
+   +'<div class="codeDisp" id="padDisp">'+"–".repeat(len)+'</div>'
+   +'<div class="padGrid">'+[1,2,3,4,5,6,7,8,9,"C",0,"⏎"].map(k=>'<button data-k="'+k+'">'+k+'</button>').join("")+'</div>');
+  document.querySelectorAll(".padGrid button").forEach(b=>b.addEventListener("click",()=>{
+    const k=b.dataset.k; sfx.tap();
+    if(k==="C"){ padBuf=""; }
+    else if(k==="⏎"){
+      if(padBuf===code){ onWin(); return; }
+      sfx.wrong(); padBuf="";
+      const d=document.getElementById("padDisp"); d.classList.remove("shake"); void d.offsetWidth; d.classList.add("shake");
+    }
+    else if(padBuf.length<len){ padBuf+=k; }
+    document.getElementById("padDisp").textContent = (padBuf + "–".repeat(len-padBuf.length));
+  }));
+}
+
+/* -- living: clock -- */
+let clkH=12, clkM=0;
+function uiClock(){
+  openModal('<h3>The Grandfather Clock</h3>'
+   +'<div class="body">Stopped at midnight, which is suspicious, because this clock has never once been right. The hands move freely. Beneath the face, a brass plate: <i>“Set me to the hour she kept, and I will give up what I kept.”</i></div>'
+   +'<div class="wheelRow">'
+   +'<div class="wheel"><button id="chUp">▲</button><div class="wv" id="chV">12</div><button id="chDn">▼</button><div class="mut">hour</div></div>'
+   +'<div class="wv" style="border:none;background:none;font-size:30px">:</div>'
+   +'<div class="wheel"><button id="cmUp">▲</button><div class="wv" id="cmV">00</div><button id="cmDn">▼</button><div class="mut">min</div></div>'
+   +'</div><button class="btn gold wide" id="clkSet">Set the hands</button>');
+  const upd=()=>{ document.getElementById("chV").textContent=clkH; document.getElementById("cmV").textContent=String(clkM).padStart(2,"0"); };
+  document.getElementById("chUp").onclick=()=>{ clkH=clkH%12+1; sfx.tap(); upd(); };
+  document.getElementById("chDn").onclick=()=>{ clkH=(clkH+10)%12+1; sfx.tap(); upd(); };
+  document.getElementById("cmUp").onclick=()=>{ clkM=(clkM+5)%60; sfx.tap(); upd(); };
+  document.getElementById("cmDn").onclick=()=>{ clkM=(clkM+55)%60; sfx.tap(); upd(); };
+  document.getElementById("clkSet").onclick=()=>{
+    if(clkH===5 && clkM===15){
+      S.solved.clock=1; save(); sfx.unlock(); closeModal(); renderAll();
+      toast("The clock chimes once — soft, like a bell on a collar. <b>A drawer in its base pops open.</b> Tap the clock to look.");
+    } else { sfx.wrong(); toast("The hands settle, then droop back to midnight, unimpressed."); }
+  };
+  upd();
+}
+
+/* -- living: cabinet word lock -- */
+const CAB_LETTERS = ["A","C","E","H","K","M","O","S","T","U"];
+let cabW=[0,0,0,0,0];
+function uiCabinet(){
+  cabW=[0,0,0,0,0];
+  openModal('<h3>The Letter Lock</h3>'
+   +'<div class="body">Five brass wheels. The plaque: <b>“Her favorite thing to chase.”</b></div>'
+   +'<div class="wheelRow" id="cabRow"></div>'
+   +'<button class="btn gold wide" id="cabTry">Pull the handle</button>');
+  const row=document.getElementById("cabRow");
+  const draw=()=>{ row.innerHTML=cabW.map((v,i)=>'<div class="wheel"><button data-w="'+i+'" data-d="1">▲</button><div class="wv">'+CAB_LETTERS[v]+'</div><button data-w="'+i+'" data-d="-1">▼</button></div>').join("");
+    row.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ const i=+b.dataset.w; cabW[i]=(cabW[i]+ +b.dataset.d+10)%10; sfx.tap(); draw(); })); };
+  document.getElementById("cabTry").onclick=()=>{
+    const word=cabW.map(v=>CAB_LETTERS[v]).join("");
+    if(word==="MOUSE"){
+      S.solved.cabinet=1; save(); sfx.unlock(); closeModal();
+      giveItem("matchbox"); setTimeout(()=>giveItem("chartL"),1000);
+      setTimeout(()=>openModal('<h3>Inside the Cabinet</h3><div class="body">A matchbox — and half of a torn star chart, soft with age.</div><div class="mut" style="margin-top:6px">Wait. Where is the OTHER half of the chart? Also: the clock drawer had… what, exactly? You should check everything again. She hid things in pairs. She thought it was funny.</div>'),1400);
+      renderAll();
+    } else { sfx.wrong(); toast("The handle doesn't budge. The wheels spin smugly."); }
+  };
+  draw();
+}
+// NOTE: chartL actually comes from the cabinet; the clock drawer gives brasskey + a lore note.
+
+/* -- living: couch -- */
+function uiCouch(){
+  const c1=S.flags.cush1, c2=S.flags.cush2, c3=S.flags.cush3;
+  openModal('<h3>The Couch</h3>'
+   +'<div class="body">Ground zero. Her throne, your bed, the scene of a thousand shared naps. Three cushions, each hiding a small archaeology.</div>'
+   +'<div style="display:flex;gap:8px;margin-top:12px">'
+   +'<button class="btn" style="flex:1" id="cu1">'+(c1?"left ✓":"left cushion")+'</button>'
+   +'<button class="btn" style="flex:1" id="cu2">'+(c2?"middle ✓":"middle cushion")+'</button>'
+   +'<button class="btn" style="flex:1" id="cu3">'+(c3?"right ✓":"right cushion")+'</button></div>'
+   +'<div class="body" id="couchOut" style="margin-top:10px;min-height:40px"></div>');
+  const out=document.getElementById("couchOut");
+  document.getElementById("cu1").onclick=()=>{ S.flags.cush1=1; save(); sfx.tap();
+    out.innerHTML="Under the left cushion: $1.37 in change, a fossilized treat, and enough gray fur to build a second, smaller cat."; };
+  document.getElementById("cu2").onclick=()=>{ S.flags.cush2=1; save(); sfx.tap();
+    if(!hasItem("bell") && !S.items.bell){ giveItem("bell"); out.innerHTML="Under the middle cushion — <b>her collar</b>. Bell and all. It rings once as you lift it, though your hand is perfectly still."; }
+    else out.innerHTML="The middle cushion's secret has already been claimed."; };
+  document.getElementById("cu3").onclick=()=>{ S.flags.cush3=1; save(); sfx.tap();
+    out.innerHTML="A crumpled note in your own handwriting: <i>“She knocked the books down AGAIN. Same five books. Always the same five. What is her PROBLEM (I love her).”</i>"; };
+}
+
+/* -- kitchen: jar & stove -- */
+function uiJar(){
+  uiKeypad("The Treat Jar","Heavy ceramic, four-digit lock — installed after she learned to open the old one with her face. The combination was her Sunday recipe, in order. You'd never forget it. (The cookbook remembers too.)",4,"3144",()=>{
+    S.solved.jar=1; save(); sfx.unlock(); closeModal();
+    giveItem("treats"); giveJournal("j_thief"); giveFlame("F2");
+    setTimeout(()=>openModal('<h3>The Treat Jar</h3><div class="body">The lid lifts. The smell hits you like a memory to the back of the knees. Inside, on top of the treats: a journal page, folded into quarters, exactly where you left it — you used to hide them from yourself so finding them would feel like this.</div><div class="jpage"><h4>'+JOURNAL.j_thief.t+'</h4><p>'+JOURNAL.j_thief.p+'</p></div>'),600);
+    renderAll();
+  });
+}
+let stoveD=[0,0,0,0];
+function uiStove(){
+  stoveD=[0,0,0,0];
+  openModal('<h3>The Oven Dials</h3>'
+   +'<div class="body">Four dials, 0–9. The burnt note said: treats stolen this week · lives they say she has · bowls she owns · the hour she screams.</div>'
+   +'<div class="dialRow" id="stRow"></div>'
+   +'<button class="btn gold wide" id="stTry">Press START</button>');
+  const lbls=["1st","2nd","3rd","4th"];
+  const row=document.getElementById("stRow");
+  const draw=()=>{ row.innerHTML=stoveD.map((v,i)=>'<div class="stove"><button class="hbtn" data-i="'+i+'" style="width:52px">'+v+'</button><div class="lbl">'+lbls[i]+'</div></div>').join("");
+    row.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ const i=+b.dataset.i; stoveD[i]=(stoveD[i]+1)%10; sfx.tap(); draw(); })); };
+  document.getElementById("stTry").onclick=()=>{
+    if(stoveD.join("")==="7924"){
+      S.solved.stove=1; save(); sfx.unlock(); closeModal(); renderAll();
+      toast("BEEP. The display stops blinking for the first time in years: <b>OPEN</b>. The warming drawer unlatches — tap the stove.");
+    } else { sfx.wrong(); toast("BEEP-BEEP-BEEP. The oven judges you. The display blinks harder."); }
+  };
+  draw();
+}
+
+/* -- kitchen: pantry slide puzzle -- */
+const FISH_ART='<g><rect width="240" height="240" fill="#f0e6c8"/><g stroke="#6b4e2e" stroke-width="7" fill="none" stroke-linecap="round"><path d="M30 120 q45 -62 105 -62 q40 0 62 30 M30 120 q45 62 105 62 q40 0 62 -30"/><path d="M197 88 l30 -26 l-6 58 l6 58 l-30 -26"/><path d="M45 120 h150 M75 78 v84 M105 66 v108 M135 62 v116 M165 70 v100"/></g><circle cx="62" cy="100" r="9" fill="#3b3a68"/><path d="M40 58 q10 18 6 30 M206 120 h18" stroke="#6b4e2e" stroke-width="7" fill="none" stroke-linecap="round"/></g>';
+function fishTile(idx){
+  const r=Math.floor(idx/3), c=idx%3;
+  return '<svg viewBox="'+(c*80)+' '+(r*80)+' 80 80">'+FISH_ART
+   +'<text x="'+(c*80+8)+'" y="'+(r*80+16)+'" font-size="11" fill="#a89468">'+(idx+1)+'</text></svg>';
+}
+let slBoard=null;
+function uiSlide(){
+  if(!slBoard){
+    slBoard=[0,1,2,3,4,5,6,7,8]; // value 8 = blank; positions index
+    // shuffle with random valid moves
+    for(let n=0;n<160;n++){
+      const bi=slBoard.indexOf(8), r=Math.floor(bi/3), c=bi%3;
+      const opts=[];
+      if(r>0)opts.push(bi-3); if(r<2)opts.push(bi+3); if(c>0)opts.push(bi-1); if(c<2)opts.push(bi+1);
+      const pick=opts[Math.floor(Math.random()*opts.length)];
+      slBoard[bi]=slBoard[pick]; slBoard[pick]=8;
+    }
+  }
+  openModal('<h3>The Pantry Lock</h3>'
+   +'<div class="body">Nine sliding tiles set into the door — a scrambled mosaic. You tiled this floor patch yourself after she pried the originals up hunting a bug, and you scratched tiny numbers in the corners like a coward.</div>'
+   +(S.flags.sawFish?'<div class="mut" style="margin-top:6px">Per her photo on the fridge: it should form the fish skeleton, facing left.</div>':'<div class="mut" style="margin-top:6px">What is it supposed to look like? There must be a picture of the finished thing somewhere…</div>')
+   +'<div class="slideGrid" id="slGrid"></div>');
+  drawSlide();
+}
+function drawSlide(){
+  const g=document.getElementById("slGrid"); if(!g) return;
+  g.innerHTML = slBoard.map((v,i)=> v===8
+    ? '<button class="tile blank"></button>'
+    : '<button class="tile" data-p="'+i+'">'+fishTile(v)+'</button>').join("");
+  g.querySelectorAll(".tile[data-p]").forEach(b=>b.addEventListener("click",()=>{
+    const i=+b.dataset.p, bi=slBoard.indexOf(8);
+    const r=Math.floor(i/3),c=i%3, br=Math.floor(bi/3),bc=bi%3;
+    if(Math.abs(r-br)+Math.abs(c-bc)===1){
+      slBoard[bi]=slBoard[i]; slBoard[i]=8; sfx.tap(); drawSlide();
+      if(slBoard.every((v,idx)=>v===idx)){
+        S.solved.pantry=1; save(); sfx.unlock();
+        setTimeout(()=>{ closeModal(); renderAll(); toast("The mosaic completes and the fish practically swims. <b>The pantry unlocks.</b> Tap it to open."); },350);
+      }
+    }
+  }));
+}
+
+/* -- garage: car interior -- */
+function carInterior(){
+  const got=S.flags.gotPolaroid;
+  openModal('<h3>Inside the S13</h3>'
+   +'<div class="body">Seats older than some of your customers. The whole cabin smells like plans. In the passenger seat: the permanent dent of a small, frequent supervisor.</div>'
+   +'<div class="body" style="margin-top:8px">Something is taped to the sun visor.</div>'
+   +(got?'<div class="mut" style="margin-top:8px">You already took the polaroid. The visor keeps the tape, for the memory of holding it.</div>'
+        :'<button class="btn gold wide" id="visorBtn">Flip the visor</button>'));
+  const b=document.getElementById("visorBtn");
+  if(b) b.onclick=()=>{ S.flags.gotPolaroid=1; save(); giveItem("polaroid"); closeModal();
+    setTimeout(()=>openModal('<h3>The Polaroid</h3><div style="text-align:center;margin:8px 0"><span style="display:inline-block;width:120px;height:120px">'+ITEMS.polaroid.svg+'</span></div><div class="body">A gray kitten asleep in a toolbox drawer, no bigger than the ratchet beside her.</div><div class="jpage"><p style="text-align:center">“She walked into the shop and never left. <b>07/15</b>.”</p></div><div class="mut" style="margin-top:6px">The day she came home.</div>'),500); };
+}
+
+/* -- garage: wiring -- */
+const WIRE_COLORS=[["RED","#ff7a7a"],["BLUE","#6b9bd6"],["YEL","#ffd166"],["GRN","#7ee0a3"],["BLK","#8a92ad"]];
+const WIRE_TERMS=["IGN","ECU","FUEL","FAN","GND"];
+const WIRE_ANSWER={ YEL:"IGN", BLUE:"ECU", RED:"FUEL", GRN:"FAN", BLK:"GND" };
+let wSel=null, wMap={};
+function uiWires(){
+  wSel=null; wMap={};
+  openModal('<h3>The Harness</h3>'
+   +'<div class="body">Five leads, five terminals. Tap a wire, then a terminal. Get all five right and the short clears.'
+   +(hasItem("wirecard")?' Your diagram card is in your pockets — tap it twice to read it.':' You know you wrote yourself a diagram for this. It’s in the toolbox, probably. Everything is in the toolbox.')+'</div>'
+   +'<div class="wireBox"><svg id="wireSvg"></svg>'
+   +'<div class="wcol" id="wcL"></div><div class="wcol" id="wcR"></div></div>'
+   +'<button class="btn gold wide" id="wTest">TEST CIRCUIT</button>');
+  drawWires();
+  document.getElementById("wTest").onclick=()=>{
+    if(Object.keys(wMap).length<5){ sfx.wrong(); toast("Half a harness is worse than none. Connect all five."); return; }
+    const ok = Object.keys(WIRE_ANSWER).every(c=>wMap[c]===WIRE_ANSWER[c]);
+    if(ok){ S.solved.wires=1; save(); sfx.unlock(); closeModal(); renderAll();
+      toast("No sparks. No smoke. The short is <b>cleared</b> — now hit the fuse box."); }
+    else { sfx.wrong(); wMap={}; wSel=null; drawWires(); toast("POP. A spark, a smell, a lesson. The connections reset."); }
+  };
+}
+function drawWires(){
+  const L=document.getElementById("wcL"), R=document.getElementById("wcR");
+  L.innerHTML=WIRE_COLORS.map(w=>'<div class="wnode'+(wSel===w[0]?" sel":"")+'" data-c="'+w[0]+'" style="border-color:'+w[1]+';color:'+w[1]+'">'+w[0]+'</div>').join("");
+  R.innerHTML=WIRE_TERMS.map(t=>'<div class="wnode" data-t="'+t+'">'+t+'</div>').join("");
+  L.querySelectorAll(".wnode").forEach(el=>el.addEventListener("click",()=>{ wSel=el.dataset.c; sfx.tap(); drawWires(); }));
+  R.querySelectorAll(".wnode").forEach(el=>el.addEventListener("click",()=>{
+    if(!wSel) { toast("Pick a wire first."); return; }
+    Object.keys(wMap).forEach(k=>{ if(wMap[k]===el.dataset.t) delete wMap[k]; });
+    wMap[wSel]=el.dataset.t; wSel=null; sfx.tap(); drawWires();
+  }));
+  // draw connection lines
+  const svg=document.getElementById("wireSvg"); if(!svg) return;
+  requestAnimationFrame(()=>{
+    const box=svg.getBoundingClientRect(); let lines="";
+    Object.keys(wMap).forEach(c=>{
+      const le=L.querySelector('[data-c="'+c+'"]'), re=R.querySelector('[data-t="'+wMap[c]+'"]');
+      if(!le||!re) return;
+      const lb=le.getBoundingClientRect(), rb=re.getBoundingClientRect();
+      const col=WIRE_COLORS.find(w=>w[0]===c)[1];
+      lines+='<path d="M'+(lb.right-box.left)+' '+(lb.top+lb.height/2-box.top)+' C '+(box.width/2)+' '+(lb.top+lb.height/2-box.top)+', '+(box.width/2)+' '+(rb.top+rb.height/2-box.top)+', '+(rb.left-box.left)+' '+(rb.top+rb.height/2-box.top)+'" stroke="'+col+'" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
+    });
+    svg.innerHTML=lines;
+  });
+}
+function keycabWin(){
+  S.solved.keycab=1; save(); sfx.unlock(); closeModal(); renderAll();
+  toast("The little door swings open. <b>Tap the key cabinet</b> to see what she guarded.");
+}
+
+/* -- study: stars -- */
+const STAR_LAYOUT=[ // [x,y,isTarget(order# or 0)]
+  [60,60,1],[110,90,2],[85,140,3],[175,145,4],[230,95,5],
+  [150,40,0],[250,150,0],[40,110,0],[200,50,0],[130,180,0],[265,60,0],[35,175,0]
+];
+let starProg=0;
+function uiStars(){
+  starProg=0;
+  openModal('<h3>The Night Sky</h3>'
+   +'<div class="body">Twelve stars pulse beyond the glass. With the chart taped whole, you can finally see her up there: <b>Felis Minor, the Little Smoke.</b></div>'
+   +'<div class="mut">Begin at her eye. End at her tail. A wrong star scatters the light.</div>'
+   +'<svg id="starSky" viewBox="0 0 300 210" style="width:100%;background:#0a0c22;border-radius:12px;margin-top:10px"></svg>');
+  drawStars();
+}
+function drawStars(){
+  const svg=document.getElementById("starSky"); if(!svg) return;
+  let s="";
+  // connect lines for progress
+  for(let i=1;i<starProg;i++){
+    const a=STAR_LAYOUT.find(t=>t[2]===i), b=STAR_LAYOUT.find(t=>t[2]===i+1);
+    s+='<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" stroke="#9fd8ff" stroke-width="2" opacity="0.8"/>';
+  }
+  STAR_LAYOUT.forEach((t,i)=>{
+    const lit = t[2]>0 && t[2]<=starProg;
+    s+='<circle class="starTap" data-s="'+i+'" cx="'+t[0]+'" cy="'+t[1]+'" r="10" fill="transparent"/>';
+    s+='<circle cx="'+t[0]+'" cy="'+t[1]+'" r="'+(lit?5:3)+'" fill="'+(lit?"#9fd8ff":"#e8eefc")+'" opacity="'+(lit?1:0.75)+'" pointer-events="none">'
+      +(lit?'':'<animate attributeName="opacity" values="0.4;0.9;0.4" dur="'+(2+i*0.3)+'s" repeatCount="indefinite"/>')+'</circle>';
+  });
+  svg.innerHTML=s;
+  svg.querySelectorAll(".starTap").forEach(el=>el.addEventListener("click",()=>{
+    const t=STAR_LAYOUT[+el.dataset.s];
+    if(t[2]===starProg+1){
+      starProg++; sfx.chime(400+starProg*90); drawStars();
+      if(starProg===5){
+        S.solved.stars=1; save();
+        setTimeout(()=>{ closeModal();
+          showStory([{art:artStars(), text:"The fifth star flares — and the whole constellation stretches, yawns, and settles back down to nap across the sky.\n\nThe moonbeam through the window swings like a lantern on a hook, pouring down into the room… where it dies at the first standing mirror of her little mirror garden.\n\nShe used to chase that light all over this study. Maybe it's time the light finished the route."}], ()=>renderAll());
+        },700);
+      }
+    } else if(t[2]!==0 && t[2]<=starProg){ /* already lit, ignore */ }
+    else { starProg=0; sfx.wrong(); drawStars(); toast("The stars scatter and re-form, patient as she was. (She was not patient.)"); }
+  }));
+}
+
+/* -- study: mirrors -- */
+function mirTap(i){
+  if(!S.solved.stars){ sfx.tap(); toast("A standing mirror from her chasing-light days. Without a beam to catch, turning it feels like theater."); return; }
+  S.flags["mir"+i]=S.flags["mir"+i]?0:1; sfx.tap(); save(); renderAll();
+  const conf=[S.flags.mir1?1:0, S.flags.mir2?1:0, S.flags.mir3?1:0].join("");
+  if(conf==="110" && !S.solved.mirrors){
+    S.solved.mirrors=1; save(); sfx.flame();
+    giveJournal("j_scholar"); giveFlame("F6");
+    setTimeout(()=>{ renderAll();
+      openModal('<h3>The Light Arrives</h3><div class="body">Mirror to mirror to mirror, the moonbeam climbs the room and lands square on the high perch — and she is THERE, mid-loaf, instantly, the way she always materialized in warm light.</div><div class="body" style="margin-top:6px">Under the bed cushion, illuminated at last: a journal page.</div><div class="jpage"><h4>'+JOURNAL.j_scholar.t+'</h4><p>'+JOURNAL.j_scholar.p+'</p></div>');
+    },500);
+  }
+}
+
+/* -- study: bird lock -- */
+function uiBirdLock(){
+  uiKeypad("The Bird Log","Three digits. Cardinals first. Then the pigeon. Then the sparrows that stayed.",3,"418",()=>{
+    S.solved.birdjournal=1; save(); sfx.unlock(); closeModal();
+    giveItem("gatekey"); giveJournal("j_watcher"); giveFlame("F7");
+    setTimeout(()=>openModal('<h3>The Bird Log</h3><div class="body">The band snaps open. Pressed between the pages like a flower: a <b>rusted key</b> stamped GATE. And the season’s field notes, in your handwriting, dictated by a cat.</div><div class="jpage"><h4>'+JOURNAL.j_watcher.t+'</h4><p>'+JOURNAL.j_watcher.p+'</p></div>'),600);
+    renderAll();
+  });
+}
+
+/* ================= [JS-13] YARD PUZZLES ================= */
+const FLY_SEQ=["G","V","A","G","B"];
+const CHIME_DEFS=[["A","#ffd166",523],["G","#7ee0a3",659],["B","#9fd8ff",784],["V","#b08fd4",880]];
+function uiFlies(){
+  openModal('<h3>The Fireflies</h3>'
+   +'<div class="body">They rise from her catnip patch and hover in a loose ring. Then — one at a time, deliberately, like a band counting in — they flash.</div>'
+   +'<div style="display:flex;gap:14px;justify-content:center;margin:18px 0" id="flyRow">'
+   +FLY_SEQ.map((c,i)=>'<div id="fly'+i+'" style="width:30px;height:30px;border-radius:50%;background:#1a1c33;border:1px solid #33365e;transition:all .2s"></div>').join("")
+   +'</div>'
+   +'<button class="btn gold wide" id="flyPlay">Watch them again</button>'
+   +'<div class="mut" style="margin-top:8px">Five flashes, always the same five. The wind chimes by the oak are strung with ribbons of the same colors. That cannot be a coincidence. Nothing here is a coincidence.</div>');
+  const play=()=>{
+    FLY_SEQ.forEach((c,i)=>{
+      const col=CHIME_DEFS.find(d=>d[0]===c)[1];
+      setTimeout(()=>{ const e=document.getElementById("fly"+i); if(!e) return;
+        e.style.background=col; e.style.boxShadow="0 0 16px "+col;
+        setTimeout(()=>{ if(e){ e.style.background="#1a1c33"; e.style.boxShadow="none"; } }, 620);
+      }, 500+i*850);
+    });
+  };
+  document.getElementById("flyPlay").onclick=()=>{ sfx.tap(); play(); };
+  play();
+}
+let chimeIn=[];
+function uiChimes(){
+  chimeIn=[];
+  openModal('<h3>The Wind Chimes</h3>'
+   +'<div class="body">Four tubes, four colored ribbons. They hang perfectly still in a breeze that moves everything else — waiting for a song.</div>'
+   +'<div class="chimeRow">'+CHIME_DEFS.map((d,i)=>'<div class="chime" data-c="'+d[0]+'" style="background:linear-gradient(180deg,'+d[1]+'66,'+d[1]+'22);border-color:'+d[1]+'"></div>').join("")+'</div>'
+   +'<div class="seqDots" id="chDots">'+FLY_SEQ.map(()=>"<span></span>").join("")+'</div>'
+   +'<div class="mut" style="text-align:center;margin-top:6px">play five notes</div>');
+  document.querySelectorAll(".chime").forEach(el=>el.addEventListener("click",()=>{
+    const c=el.dataset.c, def=CHIME_DEFS.find(d=>d[0]===c);
+    sfx.chime(def[2]); chimeIn.push(c);
+    const dots=document.querySelectorAll("#chDots span");
+    chimeIn.forEach((v,i)=>{ if(dots[i]) dots[i].style.background=CHIME_DEFS.find(d=>d[0]===v)[1]; });
+    if(chimeIn.length===FLY_SEQ.length){
+      if(chimeIn.join("")===FLY_SEQ.join("")){
+        S.solved.chimes=1; save(); sfx.unlock();
+        setTimeout(()=>{ closeModal(); renderAll();
+          showStory([{art:artYard(), text:"The last chime rings and all four tubes keep singing on their own, the fireflies pulsing along like a tiny lightshow.\n\nAcross the yard, with a small ceramic creak…\n\n…the garden gnome turns his head."}], ()=>{ toast("The gnome would like a word. (The gnome has never wanted a word.)"); });
+        },600);
+      } else {
+        sfx.wrong(); chimeIn=[];
+        setTimeout(()=>{ document.querySelectorAll("#chDots span").forEach(d=>d.style.background="var(--panel2)"); },400);
+        toast("The chimes fall silent, politely embarrassed for you.");
+      }
+    }
+  }));
+}
+function uiDig(){
+  openModal('<h3>Under the Old Oak</h3>'
+   +'<div class="body">Four soft patches of earth between the roots. The gnome said: <i>where her noon shadow pointed.</i></div>'
+   +'<svg viewBox="0 0 300 240" style="width:100%;background:#101a12;border-radius:12px;margin-top:8px">'
+   +'<circle cx="150" cy="120" r="34" fill="#2c2135"/><text x="150" y="126" text-anchor="middle" font-size="10" fill="#9a97b8">trunk</text>'
+   +'<ellipse cx="150" cy="46" rx="34" ry="18" fill="#241a14" stroke="#3a5a40" stroke-width="3" class="starTap" data-dig="N"/>'
+   +'<path d="M126 38 q10 -8 20 -2 q-12 2 -20 2z" fill="#4a7a4f" pointer-events="none"/>'
+   +'<ellipse cx="248" cy="120" rx="30" ry="17" fill="#241a14" class="starTap" data-dig="E"/>'
+   +'<ellipse cx="150" cy="196" rx="34" ry="18" fill="#241a14" class="starTap" data-dig="S"/>'
+   +'<ellipse cx="52" cy="120" rx="30" ry="17" fill="#241a14" class="starTap" data-dig="W"/>'
+   +'<g font-size="9" fill="#555b80"><text x="150" y="18" text-anchor="middle">moss grows thick on this side — the side that never sees the sun</text></g>'
+   +'</svg>'
+   +'<div class="mut" style="margin-top:8px">At high noon, every shadow in this hemisphere leans the same direction.</div>');
+  document.querySelectorAll("[data-dig]").forEach(el=>el.addEventListener("click",()=>{
+    if(el.dataset.dig==="N"){
+      S.flags.dug=1; save(); sfx.unlock(); closeModal();
+      giveItem("mooncharm"); giveJournal("j_huntress");
+      setTimeout(()=>openModal('<h3>The Tin Box</h3><div class="body">Six inches down, exactly where the moss grows: a rusted mint tin, sealed with sap and dignity. Inside —</div><div class="body" style="margin-top:6px">A silver <b>moon charm</b> on a snapped cord. One (1) extremely dead bug, clearly a treasured possession. And a journal page, folded small, buried like contraband.</div><div class="jpage"><h4>'+JOURNAL.j_huntress.t+'</h4><p>'+JOURNAL.j_huntress.p+'</p></div>'),600);
+      renderAll();
+    } else {
+      sfx.wrong(); toast("You dig. Worms. Startled, judgmental worms. You put the dirt back.");
+    }
+  }));
+}
+const MOON_NAMES=["new","waxing crescent","first quarter","waxing gibbous","full","waning gibbous","last quarter","waning crescent"];
+function moonGlyph(i,r){
+  // light disc + dark overlay (clipped to the face) per phase
+  let s='<clipPath id="mclip"><circle r="'+r+'" /></clipPath>';
+  s+='<circle r="'+r+'" fill="#e8eefc" stroke="#33365e" stroke-width="1.5"/>';
+  s+='<g clip-path="url(#mclip)">';
+  if(i===0) s+='<circle r="'+(r+2)+'" fill="#10122a"/>';
+  else if(i===1) s+='<circle cx="'+(-0.5*r)+'" r="'+r+'" fill="#10122a"/>';           // waxing crescent (lit right sliver)
+  else if(i===2) s+='<rect x="'+(-r-2)+'" y="'+(-r-2)+'" width="'+(r+2)+'" height="'+(2*r+4)+'" fill="#10122a"/>'; // first quarter
+  else if(i===3) s+='<circle cx="'+(-1.45*r)+'" r="'+r+'" fill="#10122a"/>';          // waxing gibbous (dark left sliver)
+  else if(i===5) s+='<circle cx="'+(1.45*r)+'" r="'+r+'" fill="#10122a"/>';           // waning gibbous (dark right sliver)
+  else if(i===6) s+='<rect x="0" y="'+(-r-2)+'" width="'+(r+2)+'" height="'+(2*r+4)+'" fill="#10122a"/>'; // last quarter
+  else if(i===7) s+='<circle cx="'+(0.5*r)+'" r="'+r+'" fill="#10122a"/>';            // waning crescent (lit LEFT sliver)
+  s+='</g>';
+  return s;
+}
+function uiMoonDial(){
+  if(S.flags.moonIdx==null){ S.flags.moonIdx=4; }
+  openModal('<h3>The Gate Dial</h3>'
+   +'<div class="body">With the charm seated, the dial turns freely through eight phases of the moon. A worn inscription circles the rim:</div>'
+   +'<div class="jpage"><p style="text-align:center;font-family:Georgia">“Set the sky to the night she came home,\nand the gate will let you both leave.”</p></div>'
+   +'<div style="text-align:center;margin:14px 0"><svg viewBox="-60 -60 120 120" style="width:130px" id="moonFace">'+moonGlyph(S.flags.moonIdx,44)+'</svg>'
+   +'<div class="mut" id="moonLbl">'+MOON_NAMES[S.flags.moonIdx]+'</div></div>'
+   +'<div style="display:flex;gap:8px"><button class="btn" style="flex:1" id="moonTurn">Turn the dial ↻</button>'
+   +'<button class="btn gold" style="flex:1" id="moonPull">Pull the latch</button></div>');
+  document.getElementById("moonTurn").onclick=()=>{
+    S.flags.moonIdx=(S.flags.moonIdx+1)%8; save(); sfx.tap();
+    document.getElementById("moonFace").innerHTML=moonGlyph(S.flags.moonIdx,44);
+    document.getElementById("moonLbl").textContent=MOON_NAMES[S.flags.moonIdx];
+  };
+  document.getElementById("moonPull").onclick=()=>{
+    if(S.flags.moonIdx===7){
+      S.flags.yardGateOpen=1; S.flags.gateOpen=1; save(); sfx.unlock(); closeModal();
+      giveFlame("F8");
+      showStory([
+        {art:artNinth(), text:"The gate swings open onto a path that has never been behind your fence: a ribbon of dark grass under an ocean of stars, lined with nine small candles, already lit.\n\nAt the end of the path stands a door. Just a door — no wall, no house — standing upright in the field like it grew there."},
+        {art:artNinth(), text:"And in front of the door, sitting in perfect loaf formation, tail wrapped over her front paws, ears forward:\n\nHer.\n\nNot the ghost-flicker from the house. HER — gray as smoke, solid as an anvil, purring at a volume you can feel through the ground.\n\nShe waited. She hates waiting. She waited anyway."},
+      ], ()=>goRoom("gate"));
+    } else { sfx.wrong(); toast("The latch holds. The moon on the dial looks wrong for the story you remember."); }
+  };
+}
+
+/* ================= [JS-14] THE NINTH DOOR ================= */
+const ORDER_ANSWER=["F2","F3","F4","F5","F7","F6","F8","F1"];
+function slotTap(i){
+  if(S.flags.orderSolved || S.flags.finaleOpen) return;
+  if(flameCount()<8){ sfx.tap(); toast("The sconce is cold. Some of her flames are still unlit, back in the house."); return; }
+  if(S.flags["slot"+i]){
+    const fid=S.flags["slotLife"+i];
+    delete S.flags["slot"+i]; delete S.flags["slotLife"+i]; save(); sfx.tap(); renderAll(); return;
+  }
+  const placed=[]; for(let k=0;k<8;k++){ if(S.flags["slotLife"+k]) placed.push(S.flags["slotLife"+k]); }
+  const avail=FLAMES.filter(f=>f.id!=="F9" && !placed.includes(f.id));
+  openModal('<h3>Sconce '+(i+1)+'</h3><div class="body">Which of her lives burns '+(i===0?"first":"here")+'? The door asked for the order <b>lived</b>, not the order found. Your journal 📖 holds the years.</div>'
+   +'<div class="flamePick">'+avail.map(f=>'<div class="fpick" data-f="'+f.id+'">'+f.life+'</div>').join("")+'</div>');
+  document.querySelectorAll(".fpick").forEach(el=>el.addEventListener("click",()=>{
+    S.flags["slot"+i]=1; S.flags["slotLife"+i]=el.dataset.f; save(); sfx.tap(); closeModal(); renderAll();
+    checkOrder();
+  }));
+}
+function checkOrder(){
+  for(let k=0;k<8;k++){ if(!S.flags["slot"+k]) return; }
+  const got=[]; for(let k=0;k<8;k++) got.push(S.flags["slotLife"+k]);
+  if(got.join(",")===ORDER_ANSWER.join(",")){
+    S.flags.orderSolved=1; save(); sfx.flame();
+    showStory([{art:artNinth(), text:"The eighth flame settles into its sconce and all eight flare at once — kitten to queen, thief to napper, a whole great life burning in order around the door.\n\nShe stands. Stretches the full ridiculous stretch, front paws way out, and looks up above the door.\n\nA small iron hook curls out of the wood. Bell-sized."}], ()=>renderAll());
+  } else {
+    sfx.wrong();
+    for(let k=0;k<8;k++){ delete S.flags["slot"+k]; delete S.flags["slotLife"+k]; }
+    save(); renderAll();
+    toast("The flames gutter and leap off the sconces, offended. That is not how it happened, and she was THERE.");
+  }
+}
+function endGame(){
+  if(S.ended){ showEndScreen(); return; }
+  S.ended=true; giveFlame("F9"); save();
+  showStory([
+    {art:artBell(), text:"The collar bell settles onto the hook and rings — once, on its own, the exact ring that meant she was up to something.\n\nThe Ninth Door opens on warm morning light. Not another room. Not somewhere strange.\n\nYour living room. Sunrise pouring through the window. The couch."},
+    {art:artChest(), text:"You wake on the couch and she is on your chest, full weight, the greatest weight there ever was, purring like an idle engine, and for one entire golden minute everything is exactly the way it always should be.\n\nShe touches her nose to yours. Cold. Deliberate. A signature."},
+    {art:artChest(), text:"“Nine lives is a story people tell,” the house says, in her voice, in your voice, in no voice at all.\n\n“Here is the truth: she had one life, and she spent the whole thing with you, and she was great at it. The greatest.\n\nThe ninth life was never hers alone. It's the one you keep.”"},
+    {art:artMorning(), text:"The sun comes all the way up.\n\nThe warmth on your chest stays long after the weight does.\n\nSomewhere — the kitchen, the garage, the yard, wherever great cats go — a small brass bell rings once, contented, and is quiet."},
+  ], ()=>{ giveJournal("j_forever"); showEndScreen(); });
+}
+function showEndScreen(){
+  const hints=Object.keys(S.hintsRevealed).length;
+  openModal('<div style="text-align:center;padding:8px 0">'
+   +'<div style="width:120px;height:120px;margin:0 auto"><svg viewBox="0 0 100 100">'+ "" +'<circle cx="50" cy="55" r="30" fill="#8a8fa8"/><path d="M28 40 L22 16 L42 28 Z" fill="#8a8fa8"/><path d="M72 40 L78 16 L58 28 Z" fill="#8a8fa8"/><path d="M38 52 q4 -5 8 0 M54 52 q4 -5 8 0" stroke="#2a2138" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M44 62 q6 6 12 0" stroke="#2a2138" stroke-width="2" fill="none"/><circle cx="50" cy="88" r="6" fill="#ffd166"/></svg></div>'
+   +'<h3 style="font-family:Georgia;font-size:20px;margin-top:10px">The House of Nine Lives</h3>'
+   +'<div class="body" style="margin-top:6px">all nine flames lit · '+(hints===0?"no hints — she'd be impressed and pretend not to be":hints+" hint"+(hints>1?"s":"")+" from a very patient ghost")+'</div>'
+   +'<div style="margin:16px 0;padding:14px;border:1px solid var(--gold-dim);border-radius:12px;font-family:Georgia;font-style:italic;color:var(--gold)">For Smokey Bones.<br>The greatest girl there ever was.</div>'
+   +'<button class="btn wide" onclick="closeModal()">Stay a while — wander the house</button>'
+   +'<button class="btn wide" onclick="if(confirm(\'Start the whole night over?\'))resetAll()">Begin the night again</button>'
+   +'</div>');
+}
+
+/* ================= [JS-15] STORY ART ================= */
+function artCouch(){ return '<svg viewBox="0 0 300 220">'+'<rect width="300" height="220" fill="#12142a" rx="14"/><rect x="40" y="120" width="220" height="60" rx="14" fill="#5c3d5e"/><rect x="52" y="96" width="94" height="40" rx="10" fill="#7a5580"/><rect x="154" y="96" width="94" height="40" rx="10" fill="#7a5580"/><rect x="24" y="100" width="24" height="80" rx="10" fill="#4e3350"/><rect x="252" y="100" width="24" height="80" rx="10" fill="#4e3350"/>'+moonSVG(250,40,16)+'<text x="150" y="205" text-anchor="middle" font-size="10" fill="#9a97b8" font-style="italic">11:58 PM</text></svg>'; }
+function artFire(){ return '<svg viewBox="0 0 300 220"><rect width="300" height="220" fill="#12142a" rx="14"/><rect x="90" y="60" width="120" height="120" rx="8" fill="#3a3145"/><rect x="108" y="86" width="84" height="94" rx="6" fill="#0a0812"/><path d="M130 172 C132 148 148 144 146 126 C160 140 170 132 168 114 C182 132 186 152 180 164 A28 20 0 0 1 130 172z" fill="url(#fireG)"/><text x="150" y="205" text-anchor="middle" font-size="10" fill="#ff9e5e" font-style="italic">the first flame</text></svg>'; }
+function artDoor(){ return '<svg viewBox="0 0 300 220"><rect width="300" height="220" fill="#12142a" rx="14"/><rect x="110" y="40" width="80" height="150" rx="6" fill="#3a2418" stroke="#5a3b28" stroke-width="4"/><circle cx="178" cy="120" r="6" fill="#d4a94e"/><path d="M110 40 l80 0" stroke="#ffd166" stroke-width="2" opacity="0.6"/></svg>'; }
+function artPantry(){ return '<svg viewBox="0 0 300 220"><rect width="300" height="220" fill="#12142a" rx="14"/><g transform="translate(80,50) scale(0.6)">'+FISH_ART+'</g><text x="150" y="205" text-anchor="middle" font-size="10" fill="#9a97b8" font-style="italic">her mosaic, restored</text></svg>'; }
+function artGarage(){ return '<svg viewBox="0 0 300 220"><rect width="300" height="220" fill="#181a30" rx="14"/><path d="M60 160 q4 -22 34 -26 l18 -16 q34 -8 64 0 l16 16 q30 4 34 28 l-2 14 h-164 z" fill="#7a3540"/><circle cx="100" cy="176" r="16" fill="#0d0e1a" stroke="#555b80" stroke-width="3"/><circle cx="212" cy="176" r="16" fill="#0d0e1a" stroke="#555b80" stroke-width="3"/>'+pawPrint(60,110,1,"#c9a83c",-20)+pawPrint(84,96,0.9,"#b3924a",-30)+pawPrint(110,88,0.8,"#a8863c",-40)+'</svg>'; }
+function artStudyDoor(){ return '<svg viewBox="0 0 300 220"><rect width="300" height="220" fill="#0a0c22" rx="14"/>'+moonSVG(220,50,20)+[[40,40],[80,80],[60,130],[120,60],[160,110],[110,150],[200,140],[250,110],[180,30]].map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2" fill="#e8eefc"/>').join("")+'<rect x="20" y="170" width="260" height="40" fill="#1a1c33"/><text x="150" y="196" text-anchor="middle" font-size="10" fill="#9a97b8" font-style="italic">her sky, apparently</text></svg>'; }
+function artYard(){ return '<svg viewBox="0 0 300 220"><rect width="300" height="220" fill="#0e1c12" rx="14"/>'+moonSVG(250,40,18)+'<ellipse cx="80" cy="100" rx="60" ry="46" fill="#24402c"/><path d="M70 210 q-4 -60 -8 -80" stroke="#2c2135" stroke-width="14" fill="none"/>'+[[180,120,"#7ee0a3"],[220,150,"#ffd166"],[200,90,"#9fd8ff"],[250,120,"#b08fd4"]].map(f=>'<circle cx="'+f[0]+'" cy="'+f[1]+'" r="3.5" fill="'+f[2]+'"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.6s" repeatCount="indefinite"/></circle>').join("")+'</svg>'; }
+function artStars(){ return '<svg viewBox="0 0 300 220"><rect width="300" height="220" fill="#0a0c22" rx="14"/><circle cx="70" cy="70" r="4" fill="#9fd8ff"/><circle cx="125" cy="100" r="4" fill="#9fd8ff"/><circle cx="98" cy="150" r="4" fill="#9fd8ff"/><circle cx="190" cy="155" r="4" fill="#9fd8ff"/><circle cx="245" cy="105" r="4" fill="#9fd8ff"/><path d="M70 70 L125 100 L98 150 L190 155 L245 105" stroke="#9fd8ff" stroke-width="2" fill="none" opacity="0.8"/><text x="150" y="200" text-anchor="middle" font-size="10" fill="#9fd8ff" font-style="italic">Felis Minor — the Little Smoke</text></svg>'; }
+function artNinth(){ return '<svg viewBox="0 0 300 220"><rect width="300" height="220" fill="#0a0c22" rx="14"/>'+moonSVG(50,44,20)+'<rect x="115" y="50" width="70" height="130" rx="6" fill="#3a2418" stroke="#8a6a3c" stroke-width="3"/><circle cx="176" cy="120" r="4" fill="#d4a94e"/>'+ghostCat(150,195,0.6,1)+[[30,120],[70,90],[230,90],[270,120]].map((p,i)=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="5" fill="#ff9e5e"><animate attributeName="opacity" values="0.5;1;0.5" dur="'+(1.4+i*0.3)+'s" repeatCount="indefinite"/></circle>').join("")+'</svg>'; }
+function artBell(){ return '<svg viewBox="0 0 300 220"><rect width="300" height="220" fill="#0a0c22" rx="14"/><path d="M150 40 q0 -18 14 -18" stroke="#8a6a3c" stroke-width="5" fill="none"/><circle cx="150" cy="58" r="20" fill="#ffd166" class="glowGold"/><circle cx="150" cy="68" r="4" fill="#5c4718"/><path d="M96 120 q54 60 108 0" stroke="#ffe9a8" stroke-width="2" fill="none" opacity="0.5"/><path d="M80 140 q70 84 140 0" stroke="#ffe9a8" stroke-width="1.5" fill="none" opacity="0.3"/></svg>'; }
+function artChest(){ return '<svg viewBox="0 0 300 220"><rect width="300" height="220" fill="#1c1830" rx="14"/><ellipse cx="150" cy="180" rx="120" ry="30" fill="#2a2342"/><ellipse cx="150" cy="130" rx="52" ry="34" fill="#8a8fa8"/><path d="M110 112 l-8 -18 l16 6 M190 112 l8 -18 l-16 6" fill="#8a8fa8"/><path d="M132 126 q4 -6 9 0 M160 126 q4 -6 9 0" stroke="#2a2138" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M142 140 q8 7 16 0" stroke="#2a2138" stroke-width="2.5" fill="none"/><circle cx="150" cy="158" r="5" fill="#ffd166"/><circle cx="230" cy="50" r="24" fill="#ffd166" opacity="0.85"/></svg>'; }
+function artMorning(){ return '<svg viewBox="0 0 300 220"><rect width="300" height="220" fill="#2a2342" rx="14"/><circle cx="150" cy="220" r="130" fill="#ffd166" opacity="0.25"/><circle cx="150" cy="230" r="90" fill="#ff9e5e" opacity="0.35"/><rect x="40" y="140" width="220" height="50" rx="12" fill="#5c3d5e"/>'+pawPrint(120,120,1.1,"#ffd166",0)+pawPrint(150,100,1,"#ffd166",10)+pawPrint(180,80,0.9,"#ffd166",20)+pawPrint(208,62,0.8,"#ffd166",30)+'</svg>'; }
+
+/* ================= [JS-16] HINTS ================= */
+const HINTS=[
+ {k:"lv_start", room:"living", t:"Where do I even start?", avail:()=>!S.flags.kitchenOpen, tiers:[
+   "Start where you two always started: the couch. Then read everything on the walls — she can't read, but you left notes everywhere for someone who can.",
+   "Check under all three couch cushions. The framed photo is not just a photo — it's a schedule. And count which books lean.",
+   "Photo → set the grandfather clock to 5:15. The five tilted books spell her favorite chase (MOUSE) for the cabinet's letter lock. Brass key from the clock opens the side table; matches from the cabinet light the fireplace; the drawer key opens the hall door."]},
+ {k:"clock", room:"living", t:"The grandfather clock", avail:()=>!S.solved.clock, tiers:[
+   "The clock wants 'the hour she kept.' She kept exactly one appointment her whole life, and it was YOUR appointment.",
+   "The framed photo on the wall states the time outright, engraved under a picture of her mid-yowl.",
+   "Set the hands to 5:15 and press Set."]},
+ {k:"cabinet", room:"living", t:"The letter lock cabinet", avail:()=>!S.solved.cabinet, tiers:[
+   "The plaque asks for her favorite thing to chase. Five letters. The bookshelf has been trying to tell you for years.",
+   "The five tilted books read E, S, U, M, O — she knocked those exact five down her whole life. Rearrange them.",
+   "MOUSE."]},
+ {k:"fire", room:"living", t:"The cold fireplace", avail:()=>S.solved.cabinet&&!S.flags.fireLit, tiers:[
+   "Fires want a spark. Somebody in this room used to bat matchboxes off the mantel; they ended up somewhere lockable.",
+   "The matchbox was in the letter-lock cabinet. Items must be HELD to be used.",
+   "Tap the matchbox in your pockets so it glows, then tap the fireplace."]},
+ {k:"table", room:"living", t:"The locked side table", avail:()=>!S.flags.sideTableOpen, tiers:[
+   "A small brass keyhole wants a small brass key.",
+   "The grandfather clock gives up a brass key when set to her hour (5:15).",
+   "Hold the brass key (tap it in your pockets), then tap the side table."]},
+ {k:"jar", room:"kitchen", t:"The treat jar", avail:()=>!S.solved.jar, tiers:[
+   "Four digits. There is exactly one number sequence you'd never forget in a kitchen, and it isn't a birthday.",
+   "The cookbook stand holds her Sunday recipe. Read the quantities top to bottom.",
+   "3 kibble, 1 tuna, 4 treats, 4 a.m. → 3144."]},
+ {k:"stove", room:"kitchen", t:"The oven dials", avail:()=>!S.solved.stove, tiers:[
+   "The burnt note in the oven lists four questions. Every answer is visible somewhere in this kitchen.",
+   "Treats stolen → the chalkboard tally. Lives → the famous number. Bowls → count them on the floor (she owned both). The screaming hour → the wall clock died at it.",
+   "7 · 9 · 2 · 4."]},
+ {k:"pantry", room:"kitchen", t:"The pantry tile lock", avail:()=>!S.solved.pantry, tiers:[
+   "A slide puzzle needs a target picture. She posed with the finished floor once, very proud. Photos live on fridges.",
+   "The fridge photo shows a fish skeleton facing left. And you scratched tiny numbers in the tile corners — 1 through 8, reading order.",
+   "Arrange the tiles so the corner numbers read 1,2,3 / 4,5,6 / 7,8 with the gap at bottom-right."]},
+ {k:"toolbox", room:"garage", t:"The rolling toolbox", avail:()=>!S.solved.toolbox, tiers:[
+   "'The day she came home.' You kept exactly one photo from that day, and you kept it where you'd see it while driving nowhere.",
+   "Look inside the S13 — flip the sun visor.",
+   "The polaroid says 07/15. Enter 0715."]},
+ {k:"wires", room:"garage", t:"The wiring harness", avail:()=>!S.solved.wires, tiers:[
+   "Five wires, 120 wrong ways. You wrote yourself a diagram. Where does everything end up in this shop?",
+   "The diagram card is in the toolbox. Read it CAREFULLY — the previous owner swapped two feeds, and the card tells you which.",
+   "Yellow→IGN, Blue→ECU, Red→FUEL, Green→FAN, Black→GND. (Red and yellow were swapped: red is the quiet one now.)"]},
+ {k:"keycab", room:"garage", t:"The key cabinet", avail:()=>!S.solved.keycab, tiers:[
+   "Four digits, and it's too dark to find the clue. Solve the garage's light problem first: harness, then fuse box.",
+   "With the lights on, her old oil paw-prints cross the numbered floor tiles. The darkest print is her first step, the faintest her last.",
+   "She walked 2 → 4 → 1 → 3. Enter 2413."]},
+ {k:"lockbox", room:"study", t:"The desk lockbox", avail:()=>!S.solved.lockbox, tiers:[
+   "A dainty silver keyhole. You've already held the key — it looked ridiculous next to the oven mitts.",
+   "The small silver key came out of the kitchen's warming drawer (the oven dial puzzle).",
+   "Hold the silver key, tap the lockbox."]},
+ {k:"stars", room:"study", t:"The night sky", avail:()=>!S.solved.stars, tiers:[
+   "The stars want an order. You can't guess a constellation — you need the chart, whole. It tore into two halves, hidden in two rooms.",
+   "One half was in the living room letter-lock cabinet; the other is in the study's desk lockbox. When you carry both, they mend themselves. Then tap the chart in your pockets twice to STUDY it.",
+   "Tap the 5 stars matching the chart's shape: start far-left (her eye, ~upper-left), then down-right, then lower-left, then lower-right, then up-right to the tail. Wrong stars reset it."]},
+ {k:"mirrors", room:"study", t:"The mirror garden", avail:()=>S.solved.stars&&!S.solved.mirrors, tiers:[
+   "The moonbeam falls from the window onto the first mirror. It needs to climb all the way to her bed on the high shelf. Each tap flips a mirror's tilt.",
+   "Think of the light's journey: down from the window, ACROSS the floor, then UP to the perch. First mirror sends it down, second sends it right, third sends it up.",
+   "First mirror: tilted \\. Second mirror: tilted \\. Third mirror: tilted /."]},
+ {k:"birdlock", room:"study", t:"The bird log's band lock", avail:()=>!S.solved.birdjournal, tiers:[
+   "Three digits, three species, in the order the cover says. The tallies are on the back cover.",
+   "Cardinals: 4. The pigeon: 1. Sparrows: 11 tallied, but THREE got away — the lock wants the ones that STAYED.",
+   "4 · 1 · 8."]},
+ {k:"chimes", room:"yard", t:"The wind chimes", avail:()=>!S.solved.chimes, tiers:[
+   "The chimes wait for a song. Someone in this yard is already performing it, on a loop, in color.",
+   "Watch the fireflies: five flashes, each a color matching a chime's ribbon. Play the colors back in order.",
+   "Green, violet, amber, green, blue."]},
+ {k:"dig", room:"yard", t:"Something buried", avail:()=>S.solved.chimes&&!S.flags.dug, tiers:[
+   "The gnome's plaque (after the chimes) says where. Also: only 'the trowel-anointed' may dig — the trowel from the toolbox, held.",
+   "'Where her noon shadow pointed.' At high noon, every shadow points away from the sun — the same direction the moss grows, because moss avoids sunlight.",
+   "Hold the trowel, tap the oak, dig the NORTH root — the mossy one, top of the picture."]},
+ {k:"moongate", room:"yard", t:"The back gate dial", avail:()=>!S.flags.yardGateOpen, tiers:[
+   "The dial needs its missing centerpiece first — something crescent-shaped that she owned. Then: 'the night she came home.'",
+   "The moon charm is in her buried tin (dig puzzle). The night she came home is in the buried journal page — read it in your journal 📖.",
+   "Insert the charm (hold it, tap the gate), then turn the dial to the WANING CRESCENT — the thin sliver lit on the LEFT, one turn before the dark new moon — and pull the latch."]},
+ {k:"order", room:"gate", t:"The eight sconces", avail:()=>!S.flags.orderSolved, tiers:[
+   "The door wants her lives in the order LIVED — by year, kitten to elder. You wrote all the years down; they're in your journal 📖.",
+   "Each journal page is titled with a year. Match each life's name to its year and fill sconces 1→8 as years 1→8.",
+   "Breakfast Thief, Counter Surfer, Shop Supervisor, Parts Inspector, Bird Watcher, Sunbeam Scholar, Midnight Huntress, Napper."]},
+ {k:"bell", room:"gate", t:"The iron hook", avail:()=>S.flags.orderSolved&&!S.flags.bellHung, tiers:[
+   "The ninth life 'was never hers alone.' What object in this dream belonged to both of you — her wearing it, you listening for it?",
+   "Her collar bell. If you never found it: it's under the MIDDLE couch cushion, back in the living room. The rooms all stay open.",
+   "Hold the collar bell and tap the door."]},
+];
+function openHints(){
+  const rel=HINTS.filter(h=>h.room===S.room&&h.avail());
+  let html='<h3>🐾 Ask Smokey</h3>';
+  if(!rel.length){ html+='<div class="body">She blinks at you, slow and approving. Nothing in this room still needs her help. (Try another room, or just… look around. She liked watching you figure things out.)</div>'; }
+  else {
+    html+='<div class="mut">She materializes on the nearest surface, knocks nothing off it (a courtesy), and offers wisdom in three sizes. Reveal only what you need.</div>';
+    rel.forEach(h=>{
+      html+='<div class="hintTier"><div class="ht">'+h.t+'</div>';
+      ["a nudge","a strong hint","just tell me"].forEach((lbl,ti)=>{
+        const key=h.k+"_"+ti;
+        if(S.hintsRevealed[key]) html+='<div class="body" style="margin-top:4px">• '+h.tiers[ti]+'</div>';
+        else html+='<div style="margin-top:4px"><button class="revealBtn" onclick="revealHint(\''+h.k+'\','+ti+')">🐾 '+lbl+'</button></div>';
+      });
+      html+='</div>';
+    });
+  }
+  const c=document.getElementById("hintCard");
+  c.innerHTML='<div class="xbtn" onclick="document.getElementById(\'hintOv\').classList.remove(\'show\')">✕</div>'+html;
+  document.getElementById("hintOv").classList.add("show");
+}
+function revealHint(k,ti){
+  S.hintsRevealed[k+"_"+ti]=1; save(); sfx.tap(); openHints();
+}
+
+/* ================= [JS-17] JOURNAL / MENU ================= */
+function openJournal(){
+  const pages=Object.keys(JOURNAL).filter(id=>S.journal[id]);
+  let html='<h3>📖 The Journal of Smokey Bones</h3>';
+  html+='<div class="mut">Pages you\'ve recovered from around the house. '+(pages.length?'':'None yet — she hid them well, and you helped.')+'</div>';
+  const sorted=pages.sort((a,b)=>{
+    const ya=JOURNAL[a].t, yb=JOURNAL[b].t;
+    const order=["One","Two","Three","Four","Five","Six","Seven","Eight","Ninth"];
+    return order.findIndex(o=>ya.includes(o)) - order.findIndex(o=>yb.includes(o));
+  });
+  sorted.forEach(id=>{ html+='<div class="jpage"><h4>'+JOURNAL[id].t+'</h4><p>'+JOURNAL[id].p+'</p></div>'; });
+  html+='<div class="mut" style="margin-top:12px">Flames lit: '+flameCount()+' of 9 — '+FLAMES.filter(f=>S.flames[f.id]).map(f=>f.life).join(" · ")+'</div>';
+  const c=document.getElementById("journalCard");
+  c.innerHTML='<div class="xbtn" onclick="document.getElementById(\'journalOv\').classList.remove(\'show\')">✕</div>'+html;
+  document.getElementById("journalOv").classList.add("show");
+}
+function openMenu(){
+  const c=document.getElementById("menuCard");
+  c.innerHTML='<div class="xbtn" onclick="document.getElementById(\'menuOv\').classList.remove(\'show\')">✕</div>'
+   +'<h3>Smokey Bones &amp; the House of Nine Lives</h3>'
+   +'<div class="body">A pocket escape room about the greatest girl there ever was. Progress saves automatically on this device.</div>'
+   +'<div class="mut" style="margin-top:8px">v'+VERSION+' · a Smolder Studios fireside project · sound uses your phone\'s media volume</div>'
+   +'<button class="btn wide" onclick="document.getElementById(\'menuOv\').classList.remove(\'show\')">Back to the house</button>'
+   +'<button class="btn wide" onclick="if(confirm(\'Erase all progress and start the night over?\'))resetAll()" style="color:var(--bad)">Restart from the beginning</button>';
+  document.getElementById("menuOv").classList.add("show");
+}
+
+/* ================= [JS-18] BOOT ================= */
+document.getElementById("btnJournal").addEventListener("click",()=>{ sfx.tap(); openJournal(); });
+document.getElementById("btnHint").addEventListener("click",()=>{ sfx.tap(); openHints(); });
+document.getElementById("btnMenu").addEventListener("click",()=>{ sfx.tap(); openMenu(); });
+["modalOv","journalOv","hintOv","menuOv"].forEach(id=>{
+  const ov=document.getElementById(id);
+  ov.addEventListener("click",e=>{ if(e.target===ov) ov.classList.remove("show"); });
+});
+
+const INTRO=[
+ {art:artCouch(), text:"You fell asleep on the couch again.\n\nThe TV is off, though you don't remember turning it off. The house is dark, though you left lights on. The clock in the hall says 11:58 and has, you suspect, been saying it for a while."},
+ {art:artCouch(), text:"Somewhere in the house, a small brass bell rings.\n\nYou know that bell.\n\nYou'd know that bell anywhere, in any dark, in any dream, at any distance. It used to announce her arrivals like tiny royalty."},
+ {art:artChest(), text:"Smokey Bones.\n\nGray as smoke, soft as trouble, foreman of the garage, empress of the counters, scholar of sunbeams, terror of exactly four cardinals.\n\nThe greatest girl there ever was."},
+ {art:artFire(), text:"The house feels… awake. Moonlight pools where no window faces. Every door is locked, and none of these doors HAVE locks.\n\nOn the arm of the couch: a patch of warmth. Cat-shaped. Recent.\n\nThe house remembers her. Tonight, it wants to make sure you do too.\n\nFind her nine flames. Light them all. She'll be waiting at the end — she was always terrible at waiting, so hurry."},
+];
+
+function boot(){
+  const params=new URLSearchParams(location.search);
+  load();
+  if(!S.started) S.started=1;
+  renderAll();
+  if(!S.intro){
+    S.intro=true; save();
+    showStory(INTRO, ()=>{ save(); });
+  }
+  if(params.get("dev")==="1") initDev();
+}
+function initDev(){
+  const p=document.getElementById("devPanel");
+  p.style.display="flex";
+  const acts={
+    "ch1 done":()=>{ ["clock","cabinet"].forEach(k=>S.solved[k]=1); Object.assign(S.flags,{clockLooted:1,sideTableOpen:1,fireLit:1,kitchenOpen:1,cush2:1}); ["bell","chartL","hallkey"].forEach(i=>S.items[i]=1); S.used.hallkey=1; S.journal.j_napper=1; S.flames.F1=1; },
+    "ch2 done":()=>{ acts["ch1 done"](); ["jar","stove","pantry"].forEach(k=>S.solved[k]=1); Object.assign(S.flags,{stoveLooted:1,pantryLooted:1,garageOpen:1,sawFish:1}); ["treats","silverkey","catnip"].forEach(i=>S.items[i]=1); S.journal.j_thief=1; S.journal.j_surfer=1; S.flames.F2=1; S.flames.F3=1; },
+    "ch3 done":()=>{ acts["ch2 done"](); ["toolbox","wires","keycab"].forEach(k=>S.solved[k]=1); Object.assign(S.flags,{wipedPlate:1,gotPolaroid:1,powerOn:1,toolboxLooted:1,keycabLooted:1,studyOpen:1}); ["rag","trowel","wirecard","polaroid"].forEach(i=>S.items[i]=1); S.journal.j_supervisor=1; S.journal.j_inspector=1; S.flames.F4=1; S.flames.F5=1; },
+    "ch4 done":()=>{ acts["ch3 done"](); ["lockbox","stars","mirrors","birdjournal"].forEach(k=>S.solved[k]=1); Object.assign(S.flags,{mir1:1,mir2:1,mir3:0,yardOpen:1}); S.items.chart=1; S.journal.j_scholar=1; S.journal.j_watcher=1; S.flames.F6=1; S.flames.F7=1; },
+    "ch5 done":()=>{ acts["ch4 done"](); S.solved.chimes=1; Object.assign(S.flags,{gnomeRiddle:1,dug:1,charmSet:1,moonIdx:7,yardGateOpen:1,gateOpen:1}); S.journal.j_huntress=1; S.flames.F8=1; },
+    "wipe":()=>resetAll(),
+  };
+  p.innerHTML="<b style='font-size:10px;color:var(--bad)'>DEV</b>";
+  Object.keys(acts).forEach(k=>{
+    const b=document.createElement("button"); b.textContent=k;
+    b.onclick=()=>{ acts[k](); save(); renderAll(); toast("dev: "+k); };
+    p.appendChild(b);
+  });
+}
+boot();
+</script>
+</body>
+</html>
