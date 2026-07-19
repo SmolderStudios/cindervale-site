@@ -61,9 +61,9 @@ body[data-night="5"] #castle .moonorb{background:radial-gradient(circle at 38% 3
   position:absolute;left:-10%;right:-10%;bottom:-6vh;height:44vh;
   background:linear-gradient(0deg, rgba(10,5,9,.96) 0%, rgba(10,5,9,.6) 40%, rgba(10,5,9,0) 100%);
 }
-#lightning{position:fixed;inset:0;z-index:65;pointer-events:none;background:#cfe0ff;opacity:0}
+#lightning{position:fixed;inset:0;z-index:0;pointer-events:none;background:#9fb8e0;opacity:0;mix-blend-mode:screen}
 #lightning.flash{animation:bolt 1.1s ease-out}
-@keyframes bolt{0%{opacity:0}4%{opacity:.20}9%{opacity:.02}14%{opacity:.14}22%{opacity:0}100%{opacity:0}}
+@keyframes bolt{0%{opacity:0}5%{opacity:.09}11%{opacity:.01}17%{opacity:.06}26%{opacity:0}100%{opacity:0}}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 input{font-family:inherit}
 ::-webkit-scrollbar{width:10px;height:10px}
@@ -342,10 +342,23 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 .ptrow.hdr .dmgc{color:#6a5a60}
 /* market: wide rows instead of one long column */
 #shopPacks,#shopSingles{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:8px}
-#shopAltar{display:grid;grid-template-columns:repeat(auto-fit,minmax(184px,1fr));gap:7px}
+#shopAltar{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:5px}
+#shopAltar .atile.wt{grid-column:span 1}
+#altarSyms{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:5px;margin-top:6px}
+.wchip{display:flex;align-items:center;gap:5px;padding:6px 7px;border-radius:9px;cursor:pointer;
+  background:#1a0e13;border:1px solid #2a161e;transition:border-color .12s,transform .08s}
+.wchip:hover{border-color:#7a3242;transform:translateY(-1px)}
+.wchip.poor{opacity:.45;cursor:default}
+.wchip.poor:hover{transform:none;border-color:#2a161e}
+.wchip .symw{width:1.5em;height:1.5em;flex:0 0 auto}
+.wchip .wn{font-size:10.5px;color:#b0a396;font-weight:700;line-height:1.1;flex:1;min-width:0}
+.wchip .wo{font-size:10px;font-weight:900;color:#6fd784}
+.wchip .wc{font-size:11px;font-weight:900;color:#ff5b6e}
+.wchip .cashb{font-size:9.5px;padding:2px 5px}
+.altsub{font-size:10px;color:#6a5a60;text-transform:uppercase;letter-spacing:1.2px;margin-top:9px}
 .atile{
-  background:#1a0e13;border:1px solid #2a161e;border-radius:10px;padding:9px 10px;cursor:pointer;
-  display:flex;flex-direction:column;gap:3px;transition:border-color .12s,transform .08s,background .12s;
+  background:#1a0e13;border:1px solid #2a161e;border-radius:10px;padding:7px 8px;cursor:pointer;
+  display:flex;flex-direction:column;gap:2px;transition:border-color .12s,transform .08s,background .12s;
 }
 .atile:hover{border-color:#7a3242;transform:translateY(-2px)}
 .atile.owned{border-color:#4a2a34;background:#20101a}
@@ -353,13 +366,13 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 .atile.poor:hover{transform:none;border-color:#2a161e}
 .atile .ah{display:flex;align-items:center;gap:6px}
 .atile .ai{font-size:19px;line-height:1}
-.atile .an{font-size:12.5px;font-weight:800;color:#e8e0d0;flex:1;line-height:1.15}
+.atile .an{font-size:11.5px;font-weight:800;color:#e8e0d0;flex:1;line-height:1.1}
 .atile .an .mk{font-size:10px}
 .atile .aown{font-size:11px;font-weight:900;color:#6fd784;background:#12281a;border:1px solid #2e6b41;border-radius:6px;padding:0 5px}
-.atile .ad{font-size:11px;color:#8a7a80;line-height:1.3}
-.atile .anow{font-size:11px;font-weight:800;color:#6fd784}
+.atile .ad{font-size:10.5px;color:#8a7a80;line-height:1.25}
+.atile .anow{font-size:10px;font-weight:800;color:#6fd784}
 .atile .anow.dim{color:#4a3a40;font-weight:400}
-.atile .acost{font-size:13px;font-weight:900;color:#ff5b6e;margin-top:2px}
+.atile .acost{font-size:12px;font-weight:900;color:#ff5b6e;margin-top:1px}
 /* marked symbols */
 .ptrow.marked{background:rgba(255,59,82,.09);border-radius:7px}
 .ptrow .mkdot{font-size:9px;margin-left:1px;vertical-align:top}
@@ -691,6 +704,49 @@ input[type=range].vol::-moz-range-thumb{
 .mkpair b{color:#ff5b6e}
 .ptspec .row .i .symw{width:1.15em;height:1.15em}
 .oddsbar .od i .symw{width:1.1em;height:1.1em}
+/* ============ THE DESCENT ============ */
+.sigc{color:#7ee0ff;font-weight:800}
+.floorb{
+  position:absolute;top:3px;left:6px;font-size:9.5px;font-weight:900;letter-spacing:.5px;
+  color:var(--night,#b45cf0);opacity:.95;
+}
+#tollBox{position:relative}
+.descrow{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:11px;
+  background:linear-gradient(180deg,#141a24,#0c1017);border:1px solid #24384a}
+.descrow .dl{font-size:11px;color:#7ee0ff;text-transform:uppercase;letter-spacing:1.4px;font-weight:800}
+.descrow .dv{font-size:11px;color:#8a7a80;margin-left:auto;text-align:right;line-height:1.25}
+.dsteps{display:flex;gap:4px;flex-wrap:wrap}
+.dstep{width:23px;height:23px;border-radius:7px;font-size:11px;font-weight:900;
+  background:#0d1219;border:1px solid #24384a;color:#4a5a68;display:flex;align-items:center;justify-content:center}
+.dstep.avail{color:#7ee0ff;border-color:#3a6b84}
+.dstep.on{background:#1d5570;color:#dff6ff;border-color:#7ee0ff;box-shadow:0 0 12px rgba(126,224,255,.4)}
+.dstep.lock{opacity:.4;cursor:default}
+/* escape screen */
+.escT{
+  font-size:clamp(30px,6vw,58px);font-weight:900;letter-spacing:7px;text-align:center;line-height:1;margin-top:20px;
+  background:linear-gradient(180deg,#dff6ff,#7ee0ff 45%,#1d5570);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 24px rgba(126,224,255,.45));
+}
+.escR{text-align:center;color:#8a7a80;letter-spacing:3px;font-size:13px;text-transform:uppercase;margin-top:9px}
+.escSigBig{text-align:center;font-size:44px;font-weight:900;color:#7ee0ff;margin-top:12px;
+  text-shadow:0 0 26px rgba(126,224,255,.5)}
+/* black grimoire */
+.sigwrap{margin-top:22px;border-top:1px solid #24384a;padding-top:16px}
+.sighead{font-size:14px;font-weight:900;letter-spacing:2px;color:#7ee0ff;text-transform:uppercase;
+  margin-bottom:6px;display:flex;justify-content:space-between;align-items:baseline}
+.sigrow{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:11px;margin-bottom:7px;
+  background:linear-gradient(180deg,#101822,#0a0e14);border:1px solid #24384a}
+.sigrow .ic{font-size:21px;width:28px;text-align:center}
+.sigrow .grow{flex:1}
+.sigrow .nm{font-weight:800;font-size:13.5px;color:#dff6ff}
+.sigrow .ds{font-size:11.5px;color:#8a9aa8;line-height:1.35}
+.sigrow .pips{display:flex;gap:3px;margin-top:5px}
+.sigrow .pip{width:15px;height:4px;border-radius:2px;background:#1a2630}
+.sigrow .pip.on{background:#7ee0ff}
+.sigrow .buyb{padding:7px 11px;border-radius:9px;font-weight:800;font-size:12px;
+  background:#12303f;border:1px solid #3a6b84;color:#7ee0ff}
+.sigrow .buyb:disabled{opacity:.35;cursor:default}
 /* ============ RARITIES / TYPES ============ */
 .r0{--rc:#8a8f98}.r1{--rc:#58c15f}.r2{--rc:#4d9fef}.r3{--rc:#b45cf0}.r4{--rc:#ffae2e}
 .rtxt{color:var(--rc);font-weight:800}
@@ -858,11 +914,16 @@ input[type=range].vol::-moz-range-thumb{
     <div class="subtitle">a horror slots roguelike</div>
     <div class="menu-btns">
       <button class="btn bld" id="mNew">▶ &nbsp;New Run</button>
+      <div class="descrow" id="descRow" style="display:none">
+        <span class="dl">🪜 Descent</span>
+        <div class="dsteps" id="descSteps"></div>
+        <span class="dv" id="descV"></span>
+      </div>
       <button class="btn" id="mResume" style="display:none">↻ &nbsp;Resume Run</button>
       <button class="btn" id="mDuel">⚔️ &nbsp;Play with a Friend</button>
       <button class="btn" id="mTrials">🎯 &nbsp;Trials <span class="dim" id="mTrialCt"></span></button>
       <button class="btn" id="mColl">🗃️ &nbsp;Collection <span class="dim" id="mCollCt"></span></button>
-      <button class="btn" id="mUp">📖 &nbsp;Grimoire <span class="blood" id="mTok"></span></button>
+      <button class="btn" id="mUp">📖 &nbsp;Grimoire <span class="blood" id="mTok"></span> <span class="sigc" id="mSig"></span></button>
       <button class="btn" id="mHelp">❔ &nbsp;How to Play</button>
       <button class="btn" id="mFx">🦇 &nbsp;Atmosphere: On</button>
       <div class="volrow">
@@ -876,7 +937,7 @@ input[type=range].vol::-moz-range-thumb{
       <div class="panel"><div class="v" id="stRuns">0</div><div class="k">Runs</div></div>
       <div class="panel"><div class="v" id="stBestSpins">0</div><div class="k">Best Spins</div></div>
       <div class="panel"><div class="v" id="stBestCash">$0</div><div class="k">Best Cash</div></div>
-      <div class="panel"><div class="v" id="stWins">0</div><div class="k">Duel Wins</div></div>
+      <div class="panel"><div class="v" id="stDeepest">0</div><div class="k">Deepest Floor</div></div>
     </div>
     <div class="footnote">Smolder Studios · the House always collects</div>
   </div>
@@ -902,7 +963,7 @@ input[type=range].vol::-moz-range-thumb{
         <div class="panel"><div class="v blood" id="cashV">$0</div><div class="k" id="cashK">Cash</div></div>
         <div class="panel"><div class="v blood" id="bloodV">0</div><div class="k">🩸 Blood</div></div>
         <div class="panel"><div class="v" style="color:#ffae2e" id="potV">$0</div><div class="k" id="potK">🔥 Hellpot</div></div>
-        <div class="panel" id="tollBox"><div class="v bone" id="tollV">$0</div><div class="k" id="tollK">Reaper's Toll in 10</div></div>
+        <div class="panel" id="tollBox"><span class="floorb" id="floorV">F1</span><div class="v bone" id="tollV">$0</div><div class="k" id="tollK">Reaper's Toll in 10</div></div>
       </div>
       <div class="panel bosspanel" id="bossPanel" style="display:none">
         <div class="bhead"><span class="bic" id="bossIc">⚰️</span><span class="bnm" id="bossName">—</span><span class="bsp" id="bossSpins"></span></div>
@@ -1019,6 +1080,11 @@ input[type=range].vol::-moz-range-thumb{
   <div class="wrap">
     <div class="dim" style="font-size:13px;margin-bottom:12px">Permanent pacts, paid in Souls. Souls are earned when a run ends.</div>
     <div id="upList"></div>
+    <div class="sigwrap" id="sigWrap">
+      <div class="sighead">◈ The Black Grimoire <span class="sigc" id="upSig"></span></div>
+      <div class="dim" style="font-size:12px;margin-bottom:10px">Bought with Sigils, and Sigils are only taken from the keep by escaping it. These bend a run rather than pad it.</div>
+      <div id="sigList"></div>
+    </div>
   </div>
 </div>
 
@@ -1063,6 +1129,21 @@ input[type=range].vol::-moz-range-thumb{
 </div>
 
 <!-- ============ DEATH ============ -->
+<div id="scrEscape" class="scr">
+  <div class="wrap">
+    <div class="escT">YOU GOT OUT</div>
+    <div class="escR" id="escFloor">Floor 25</div>
+    <div class="escSigBig" id="escSig">◈ 1</div>
+    <div class="panel" style="margin-top:14px" id="escTokens"></div>
+    <div class="panel" style="margin-top:10px;font-size:12.5px;line-height:1.5" id="escNext"></div>
+    <div class="menu-btns" style="margin-top:16px">
+      <button class="btn bld" id="escDeeper">🪜 &nbsp;Descend Again</button>
+      <button class="btn" id="escSigils">◈ &nbsp;Black Grimoire</button>
+      <button class="btn" id="escMenu">🏠 &nbsp;Menu</button>
+    </div>
+  </div>
+</div>
+
 <div id="scrDeath" class="scr">
   <div class="wrap">
     <div class="deathT">DEATH COLLECTS</div>
@@ -1097,6 +1178,8 @@ input[type=range].vol::-moz-range-thumb{
     <div id="shopSingles"></div>
     <div class="dim" style="font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:12px 0 6px">🩸 The Altar <span style="text-transform:none;letter-spacing:0">— buy again and again, the price always climbs</span></div>
     <div id="shopAltar"></div>
+    <div class="altsub" id="altSymHead">Reel weight</div>
+    <div id="altarSyms"></div>
     <div id="shopSinks"></div>
     <div style="display:flex;gap:10px;margin-top:14px">
       <button class="btn" id="shopReroll">🎲 Reroll</button>
@@ -1180,6 +1263,7 @@ input[type=range].vol::-moz-range-thumb{
       <li><b>🖐️ The Dead Hand.</b> All fifteen cells, one symbol. It is the rarest thing in the game: it pays <b>16× a five-of-a-kind on every line at once</b> AND takes the Hellpot. You cannot force it, but relics and rites make it likelier — and when the reels start landing all-the-same, <b>everything slows down</b>. Two reels matching dims the room. Three drains the colour. Four stops the world.</li>
       <li><b>Hot streak:</b> consecutive winning spins boost payouts. A dead spin resets it.</li>
       <li><b>Duels:</b> invite a friend by lobby code. You each fight your own reels — last one alive wins. Hexes sabotage them; their panel shows every card they play. <b>Tolls are checkpoints:</b> after your Toll you shop, then press <b>✔ Ready</b> — neither player spins the next round until both are ready, so nobody races ahead while you browse. Their reels mirror live in your panel.</li>
+      <li><b>🪜 The Descent (solo).</b> Every Toll is a <b>Floor</b>. Clearing <b>Floor 20</b> is an <b>escape</b> — the only way a run ends well — and it pays a <b>◈ Sigil</b>, the one currency Souls cannot buy. Sigils buy the <b>Black Grimoire</b>, which bends a run rather than padding it. Escaping also opens the next <b>Descent</b>: the same keep with heavier Tolls, paying more Sigils. That is the long game.</li>
       <li><b>Death is progress.</b> You keep <b>Souls</b> for permanent Grimoire pacts, and every card you pull joins your Collection forever.</li>
     </ul>
     <button class="btn" id="helpClose" style="margin-top:14px">Close</button>
@@ -1229,7 +1313,7 @@ input[type=range].vol::-moz-range-thumb{
 </div></div>
 <div id="toasts"></div>
 <div id="tip"></div>
-<div class="ver">DEADSPIN v3.4.0</div>
+<div class="ver">DEADSPIN v3.5.0</div>
 
 <script>
 'use strict';
@@ -1450,32 +1534,32 @@ const CARDS=[
 {id:'bat_swarm',n:'Bat Swarm',i:'🦇',r:0,kind:'relic',mx:Infinity,d:l=>`Bats pay +${Math.round(17*l)}%`,f:'The attic was never empty.',eff:l=>({pay:{bat:.17*l}})},
 {id:'spider_silk',n:'Spider Silk',i:'🕷️',r:0,kind:'relic',mx:Infinity,d:l=>`Spiders pay +${Math.round(20*l)}%`,f:'Soft as a last breath.',eff:l=>({pay:{spider:.20*l}})},
 {id:'black_tallow',n:'Black Tallow',i:'🕯️',r:0,kind:'relic',mx:Infinity,d:l=>`Candles pay +${Math.round(23*l)}%`,f:'Burns green. Smells of copper.',eff:l=>({pay:{candle:.23*l}})},
-{id:'grave_dirt',n:'Grave Dirt',i:'⚱️',r:0,kind:'relic',mx:5,d:l=>`Cobwebs appear less often (−${(1.1*l).toFixed(1)})`,f:'Fresh, from somewhere unmarked.',eff:l=>({webW:-1.1*l})},
-{id:'tomb_coin',n:'Tomb Coin',i:'🪙',r:0,kind:'relic',mx:5,d:l=>`Cursed Gold is worth +${Math.round(7*l)}% of your bet`,f:'Two for the ferryman.',eff:l=>({coinVal:.07*l})},
-{id:'small_mercy',n:'Small Mercy',i:'🥀',r:0,kind:'relic',mx:5,d:l=>`Dead spins refund ${Math.round(8*l)}% of your bet`,f:'Even the House pities.',eff:l=>({betRefund:.08*l})},
+{id:'grave_dirt',n:'Grave Dirt',i:'⚱️',r:0,kind:'relic',mx:Infinity,d:l=>`Cobwebs appear less often (−${(1.1*l).toFixed(1)})`,f:'Fresh, from somewhere unmarked.',eff:l=>({webW:-1.1*l})},
+{id:'tomb_coin',n:'Tomb Coin',i:'🪙',r:0,kind:'relic',mx:Infinity,d:l=>`Cursed Gold is worth +${Math.round(7*l)}% of your bet`,f:'Two for the ferryman.',eff:l=>({coinVal:.07*l})},
+{id:'small_mercy',n:'Small Mercy',i:'🥀',r:0,kind:'relic',mx:Infinity,d:l=>`Dead spins refund ${Math.round(8*l)}% of your bet`,f:'Even the House pities.',eff:l=>({betRefund:.08*l})},
 /* ---- RELICS: uncommon ---- */
 {id:'coffin_nails',n:'Coffin Nails',i:'⚰️',r:1,kind:'relic',mx:Infinity,d:l=>`Coffins pay +${Math.round(26*l)}%`,f:'Nine of them. Always nine.',eff:l=>({pay:{coffin:.26*l}})},
 {id:'ectoplasm',n:'Ectoplasm',i:'👻',r:1,kind:'relic',mx:Infinity,d:l=>`Ghosts pay +${Math.round(30*l)}%`,f:'Still warm.',eff:l=>({pay:{ghost:.30*l}})},
-{id:'witchs_eye',n:"Witch's Eye",i:'👁️',r:1,kind:'relic',mx:5,d:l=>`The Eye (wild) appears more often (+${(0.55*l).toFixed(2)})`,f:'It blinks when you lie.',eff:l=>({wildW:.55*l})},
-{id:'moonstone',n:'Moonstone',i:'🌑',r:1,kind:'relic',mx:5,d:l=>`Moons appear more often (+${(0.55*l).toFixed(2)})`,f:'It pulls at something in you.',eff:l=>({moonW:.55*l})},
-{id:'embalmers_tab',n:"Embalmer's Tab",i:'🧪',r:1,kind:'relic',mx:5,d:l=>`Night Market prices −${Math.round(4.5*l)}%`,f:'He gives discounts to regulars.',eff:l=>({packDisc:.045*l})},
-{id:'blood_pact',n:'Blood Pact',i:'🩸',r:1,kind:'relic',mx:5,d:l=>`Earn 5% interest at each Toll (max $${42*l})`,f:'Signed in the usual place.',eff:l=>({interest:.05,interestCap:42*l})},
+{id:'witchs_eye',n:"Witch's Eye",i:'👁️',r:1,kind:'relic',mx:Infinity,d:l=>`The Eye (wild) appears more often (+${(0.55*l).toFixed(2)})`,f:'It blinks when you lie.',eff:l=>({wildW:.55*l})},
+{id:'moonstone',n:'Moonstone',i:'🌑',r:1,kind:'relic',mx:Infinity,d:l=>`Moons appear more often (+${(0.55*l).toFixed(2)})`,f:'It pulls at something in you.',eff:l=>({moonW:.55*l})},
+{id:'embalmers_tab',n:"Embalmer's Tab",i:'🧪',r:1,kind:'relic',mx:Infinity,d:l=>`Night Market prices −${Math.round(4.5*l)}%`,f:'He gives discounts to regulars.',eff:l=>({packDisc:.045*l})},
+{id:'blood_pact',n:'Blood Pact',i:'🩸',r:1,kind:'relic',mx:Infinity,d:l=>`Earn 5% interest at each Toll (max $${42*l})`,f:'Signed in the usual place.',eff:l=>({interest:.05,interestCap:42*l})},
 /* ---- RELICS: rare ---- */
 {id:'polished_skull',n:'Polished Skull',i:'💀',r:2,kind:'relic',mx:Infinity,d:l=>`Skulls pay +${Math.round(34*l)}%`,f:'You can almost see your face.',eff:l=>({pay:{skull:.34*l}})},
 {id:'devils_digit',n:"Devil's Digit",i:'😈',r:2,kind:'relic',mx:Infinity,d:l=>`Sixes pay +${Math.round(40*l)}%`,f:'It counts for him.',eff:l=>({pay:{six:.40*l}})},
-{id:'forged_ledger',n:'Forged Ledger',i:'📜',r:2,kind:'relic',mx:5,d:l=>`Reaper's Tolls are ${(5.5*l).toFixed(1)}% smaller`,f:'Death is bad at arithmetic.',eff:l=>({tollReduce:.055*l})},
-{id:'fang_of_greed',n:'Fang of Greed',i:'🦷',r:2,kind:'relic',mx:5,d:l=>`Hot streak grows +${(2.8*l).toFixed(1)}% per win, cap +${Math.round(28*l)}%`,f:'It grew back twice.',eff:l=>({streakStep:.028*l,streakCap:.28*l})},
-{id:'blood_chalice',n:'Blood Chalice',i:'🍷',r:2,kind:'relic',mx:5,d:l=>`+${l} free spin${l>1?'s':''} per Blood Moon`,f:'Never quite empty.',eff:l=>({moonSpins:l})},
+{id:'forged_ledger',n:'Forged Ledger',i:'📜',r:2,kind:'relic',mx:Infinity,d:l=>`Reaper's Tolls are ${(5.5*l).toFixed(1)}% smaller`,f:'Death is bad at arithmetic.',eff:l=>({tollReduce:.055*l})},
+{id:'fang_of_greed',n:'Fang of Greed',i:'🦷',r:2,kind:'relic',mx:Infinity,d:l=>`Hot streak grows +${(2.8*l).toFixed(1)}% per win, cap +${Math.round(28*l)}%`,f:'It grew back twice.',eff:l=>({streakStep:.028*l,streakCap:.28*l})},
+{id:'blood_chalice',n:'Blood Chalice',i:'🍷',r:2,kind:'relic',mx:Infinity,d:l=>`+${l} free spin${l>1?'s':''} per Blood Moon`,f:'Never quite empty.',eff:l=>({moonSpins:l})},
 /* ---- RELICS: epic ---- */
-{id:'hand_of_midas',n:'Hand of Midas',i:'👑',r:3,kind:'relic',mx:5,d:l=>`All line payouts +${(8.5*l).toFixed(1)}%`,f:'Severed, but still generous.',eff:l=>({payAll:.085*l})},
-{id:'haunted_reel',n:'Haunted Reel',i:'🎡',r:3,kind:'relic',mx:5,d:l=>`${(2.2*l).toFixed(1)}% chance the middle reel spins all Wild`,f:'Something turns it from inside.',eff:l=>({wildCol:.022*l})},
-{id:'hellpot_tithe',n:'Hellpot Tithe',i:'🔥',r:3,kind:'relic',mx:5,d:l=>`The Hellpot grows +${(4.5*l).toFixed(1)}% of every bet`,f:'Feed it and it feeds you.',eff:l=>({potPct:.045*l})},
-{id:'vampiric_touch',n:'Vampiric Touch',i:'🧛',r:3,kind:'relic',mx:5,d:l=>`Gain $${(1.1*l).toFixed(1)} every spin, win or lose`,f:'A little off the top.',eff:l=>({drip:1.1*l})},
+{id:'hand_of_midas',n:'Hand of Midas',i:'👑',r:3,kind:'relic',mx:Infinity,d:l=>`All line payouts +${(8.5*l).toFixed(1)}%`,f:'Severed, but still generous.',eff:l=>({payAll:.085*l})},
+{id:'haunted_reel',n:'Haunted Reel',i:'🎡',r:3,kind:'relic',mx:Infinity,d:l=>`${(2.2*l).toFixed(1)}% chance the middle reel spins all Wild`,f:'Something turns it from inside.',eff:l=>({wildCol:.022*l})},
+{id:'hellpot_tithe',n:'Hellpot Tithe',i:'🔥',r:3,kind:'relic',mx:Infinity,d:l=>`The Hellpot grows +${(4.5*l).toFixed(1)}% of every bet`,f:'Feed it and it feeds you.',eff:l=>({potPct:.045*l})},
+{id:'vampiric_touch',n:'Vampiric Touch',i:'🧛',r:3,kind:'relic',mx:Infinity,d:l=>`Gain $${(1.1*l).toFixed(1)} every spin, win or lose`,f:'A little off the top.',eff:l=>({drip:1.1*l})},
 /* ---- RELICS: legendary ---- */
-{id:'number_beast',n:'Number of the Beast',i:'🐐',r:4,kind:'relic',mx:5,d:l=>`Sixes also pay on a left pair (${(3+1.2*l).toFixed(1)}× bet)`,f:'Two is close enough for him.',eff:l=>({sixPair:3+1.2*l})},
-{id:'loaded_bones',n:'Loaded Bones',i:'🦴',r:4,kind:'relic',mx:5,d:l=>`All line payouts +${Math.round(17*l)}%, but Cobwebs appear more (+3)`,f:'They always land his way.',eff:l=>({payAll:.17*l,webW:3})},
-{id:'moon_child',n:'Moon Child',i:'🌝',r:4,kind:'relic',mx:3,d:l=>`The Blood Moon meter fills ${Math.round(25*l)}% faster`,f:'She was born during one.',eff:l=>({moonFill:.25*l})},
-{id:'golden_ghoul',n:'Golden Ghoul',i:'🧟',r:4,kind:'relic',mx:5,d:l=>`Every 10th spin pays ${(1.1*l).toFixed(1)}× your bet`,f:'It digs up more than bodies.',eff:l=>({ghoul:1.1*l})},
+{id:'number_beast',n:'Number of the Beast',i:'🐐',r:4,kind:'relic',mx:Infinity,d:l=>`Sixes also pay on a left pair (${(3+1.2*l).toFixed(1)}× bet)`,f:'Two is close enough for him.',eff:l=>({sixPair:3+1.2*l})},
+{id:'loaded_bones',n:'Loaded Bones',i:'🦴',r:4,kind:'relic',mx:Infinity,d:l=>`All line payouts +${Math.round(17*l)}%, but Cobwebs appear more (+3)`,f:'They always land his way.',eff:l=>({payAll:.17*l,webW:3})},
+{id:'moon_child',n:'Moon Child',i:'🌝',r:4,kind:'relic',mx:Infinity,d:l=>`The Blood Moon meter fills ${Math.round(25*l)}% faster`,f:'She was born during one.',eff:l=>({moonFill:.25*l})},
+{id:'golden_ghoul',n:'Golden Ghoul',i:'🧟',r:4,kind:'relic',mx:Infinity,d:l=>`Every 10th spin pays ${(1.1*l).toFixed(1)}× your bet`,f:'It digs up more than bodies.',eff:l=>({ghoul:1.1*l})},
 /* ---- CHARMS (consumed on play) ---- */
 {id:'adrenaline',n:'Adrenaline Vial',i:'💉',r:0,kind:'charm',dur:5,d:()=>'For 5 spins: all wins ×1.5',f:'Your heart remembers how.',ceff:{winMult:.5}},
 {id:'lucky_bones',n:'Lucky Bones',i:'🎲',r:0,kind:'charm',dur:8,d:()=>'For 8 spins: line payouts +25%',f:'Knuckle bones. Not yours.',ceff:{payAll:.25}},
@@ -1488,10 +1572,10 @@ const CARDS=[
 /* ---- RELICS: luck & risk ---- */
 {id:'four_leaf',n:'Four-Leaf',i:'🍀',r:1,kind:'relic',mx:Infinity,d:l=>`Black Clovers spawn more often (+${(0.4*l).toFixed(1)})`,f:'Found in a grave, so it counts.',eff:l=>({cloverW:.4*l})},
 {id:'damned_luck',n:'Luck of the Damned',i:'☘️',r:2,kind:'relic',mx:Infinity,d:l=>`Each Clover multiplies the spin +${Math.round(25*l)}% more`,f:'It works. That is the problem.',eff:l=>({cloverMult:.25*l})},
-{id:'reckless_wager',n:'Reckless Wager',i:'🎲',r:2,kind:'relic',mx:5,d:l=>`All payouts +${Math.round(22*l)}%, but the Death Roll is ${(0.25*l).toFixed(2)}% likelier`,f:'Everyone dies. Few profit.',eff:l=>({payAll:.22*l,deathOdds:.0025*l})},
-{id:'devils_luck',n:"Devil's Luck",i:'😈',r:3,kind:'relic',mx:5,d:l=>`The Eye +${(0.7*l).toFixed(1)}, Clovers +${(0.3*l).toFixed(1)}, Death Roll +${(0.3*l).toFixed(2)}%`,f:'He is generous, and he collects.',eff:l=>({wildW:.7*l,cloverW:.3*l,deathOdds:.003*l})},
-{id:'hollow_bargain',n:'Hollow Bargain',i:'🕳️',r:3,kind:'relic',mx:5,d:l=>`Blood +${Math.round(45*l)}%, but the Death Roll is ${(0.35*l).toFixed(2)}% likelier`,f:'Sign here. And here.',eff:l=>({bloodGain:.45*l,deathOdds:.0035*l})},
-{id:'warding_salt',n:'Warding Salt',i:'🧂',r:2,kind:'relic',mx:5,d:l=>`The Death Roll is ${(0.3*l).toFixed(2)}% less likely`,f:'Pour it at the threshold.',eff:l=>({deathOdds:-.003*l})},
+{id:'reckless_wager',n:'Reckless Wager',i:'🎲',r:2,kind:'relic',mx:Infinity,d:l=>`All payouts +${Math.round(22*l)}%, but the Death Roll is ${(0.25*l).toFixed(2)}% likelier`,f:'Everyone dies. Few profit.',eff:l=>({payAll:.22*l,deathOdds:.0025*l})},
+{id:'devils_luck',n:"Devil's Luck",i:'😈',r:3,kind:'relic',mx:Infinity,d:l=>`The Eye +${(0.7*l).toFixed(1)}, Clovers +${(0.3*l).toFixed(1)}, Death Roll +${(0.3*l).toFixed(2)}%`,f:'He is generous, and he collects.',eff:l=>({wildW:.7*l,cloverW:.3*l,deathOdds:.003*l})},
+{id:'hollow_bargain',n:'Hollow Bargain',i:'🕳️',r:3,kind:'relic',mx:Infinity,d:l=>`Blood +${Math.round(45*l)}%, but the Death Roll is ${(0.35*l).toFixed(2)}% likelier`,f:'Sign here. And here.',eff:l=>({bloodGain:.45*l,deathOdds:.0035*l})},
+{id:'warding_salt',n:'Warding Salt',i:'🧂',r:2,kind:'relic',mx:Infinity,d:l=>`The Death Roll is ${(0.3*l).toFixed(2)}% less likely`,f:'Pour it at the threshold.',eff:l=>({deathOdds:-.003*l})},
 /* ---- RELICS: keystones ----
    Build-defining, not stat-defining. Each one changes a RULE, so finding one
    is a reason to steer the whole run around it. All are mx:1 — they are a
@@ -1509,16 +1593,16 @@ const CARDS=[
    which is the sink a rich run actually wants. */
 {id:'sanguine_pact',n:'Sanguine Pact',i:'🧛',r:3,kind:'relic',mx:1,d:()=>'The Altar accepts cash as well as Blood, at the going rate',f:'He does not mind how you pay.',eff:()=>({cashAltar:1})},
 /* ---- RELICS: blood ---- */
-{id:'bloodletter',n:'Bloodletter',i:'🩸',r:1,kind:'relic',mx:5,d:l=>`Marked symbols bleed +${Math.round(30*l)}% Blood`,f:'A clean cut wastes nothing.',eff:l=>({bloodGain:.30*l})},
-{id:'crimson_mark',n:'Crimson Mark',i:'🔻',r:2,kind:'relic',mx:3,d:l=>`+${l} marked symbol${l>1?'s':''} this run`,f:'It chooses. You obey.',eff:l=>({marks:l})},
-{id:'hemophage',n:'Hemophage',i:'🦟',r:3,kind:'relic',mx:5,d:l=>`Every winning line bleeds ${(0.2*l).toFixed(1)} Blood, marked or not`,f:'It is not fussy.',eff:l=>({bloodAny:.2*l})},
+{id:'bloodletter',n:'Bloodletter',i:'🩸',r:1,kind:'relic',mx:Infinity,d:l=>`Marked symbols bleed +${Math.round(30*l)}% Blood`,f:'A clean cut wastes nothing.',eff:l=>({bloodGain:.30*l})},
+{id:'crimson_mark',n:'Crimson Mark',i:'🔻',r:2,kind:'relic',mx:Infinity,d:l=>`+${l} marked symbol${l>1?'s':''} this run`,f:'It chooses. You obey.',eff:l=>({marks:l})},
+{id:'hemophage',n:'Hemophage',i:'🦟',r:3,kind:'relic',mx:Infinity,d:l=>`Every winning line bleeds ${(0.2*l).toFixed(1)} Blood, marked or not`,f:'It is not fussy.',eff:l=>({bloodAny:.2*l})},
 /* ---- MORE KEYSTONES ---- */
 {id:'the_tally',n:'The Tally',i:'🧮',r:3,kind:'relic',mx:1,d:()=>'Every 6th spin costs nothing',f:'He counts. He always counts.',eff:()=>({tally:6})},
 {id:'the_wake',n:'The Wake',i:'🕯️',r:4,kind:'relic',mx:1,d:()=>'Every win has an 18% chance to spin again, free',f:'They will not let you leave.',eff:()=>({wake:.18})},
 {id:'debt_collector',n:'Debt Collector',i:'🧾',r:4,kind:'relic',mx:1,d:()=>"Reaper's Tolls −45%, but you bleed no Blood",f:'He works for the other side now.',eff:()=>({tollReduce:.45,noBlood:1})},
 /* ---- MORE RELICS ---- */
-{id:'grave_whisper',n:'Grave Whisper',i:'🔻',r:2,kind:'relic',mx:5,d:l=>`Marked symbols pay +${Math.round(22*l)}% cash too`,f:'It tells you which to chase.',eff:l=>({markPay:.22*l})},
-{id:'cadaver_sync',n:'Cadaver Sync',i:'🫂',r:3,kind:'relic',mx:5,d:l=>`+${Math.round(20*l)}% payouts while your partner is in a Blood Moon`,f:'Two hearts, one arrhythmia.',eff:l=>({syncPay:.20*l})},
+{id:'grave_whisper',n:'Grave Whisper',i:'🔻',r:2,kind:'relic',mx:Infinity,d:l=>`Marked symbols pay +${Math.round(22*l)}% cash too`,f:'It tells you which to chase.',eff:l=>({markPay:.22*l})},
+{id:'cadaver_sync',n:'Cadaver Sync',i:'🫂',r:3,kind:'relic',mx:Infinity,d:l=>`+${Math.round(20*l)}% payouts while your partner is in a Blood Moon`,f:'Two hearts, one arrhythmia.',eff:l=>({syncPay:.20*l})},
 {id:'gallows_humour',n:'Gallows Humour',i:'😅',r:1,kind:'charm',dur:8,d:()=>'For 8 spins: dead spins pay 0.4× your bet',f:'You have to laugh.',ceff:{deadPay:.4}},
 /* ---- PACTS (co-op only: they affect BOTH hunters) ---- */
 {id:'communion',n:'Communion',i:'🕯️',r:1,kind:'pact',d:()=>'BOTH hunters: +35% payouts for 8 spins',f:'Say it together.',pc:{kind:'buff',dur:8,eff:{payAll:.35}}},
@@ -1532,16 +1616,16 @@ const CARDS=[
    away from what you don't, which is the same idea from the other end — and it
    is strictly the better lever late, because the reel is a fixed pie: starving
    three commons concentrates the whole table, not just one row of it. */
-{id:'ratcatcher',n:'Ratcatcher',i:'🪤',r:0,kind:'relic',mx:5,d:l=>`Rats spawn far less often (−${(2.2*l).toFixed(1)})`,f:'Paid by the tail.',eff:l=>({symW:{rat:-2.2*l}})},
-{id:'smoke_out',n:'Smoke Them Out',i:'🚬',r:0,kind:'relic',mx:5,d:l=>`Bats spawn far less often (−${(2.1*l).toFixed(1)})`,f:'They came out. All of them.',eff:l=>({symW:{bat:-2.1*l}})},
-{id:'boot_heel',n:'Boot Heel',i:'🥾',r:1,kind:'relic',mx:5,d:l=>`Spiders spawn less often (−${(1.8*l).toFixed(1)})`,f:'Quick, and quite final.',eff:l=>({symW:{spider:-1.8*l}})},
-{id:'snuffer',n:'The Snuffer',i:'🕯️',r:1,kind:'relic',mx:5,d:l=>`Candles spawn less often (−${(1.6*l).toFixed(1)})`,f:'Every wick, one by one.',eff:l=>({symW:{candle:-1.6*l}})},
-{id:'thinning_veil',n:'Thinning Veil',i:'🌫️',r:2,kind:'relic',mx:5,d:l=>`Rats, Bats and Spiders each spawn −${(0.6*l).toFixed(1)}`,f:'Less of everything small.',eff:l=>({symW:{rat:-0.6*l,bat:-0.6*l,spider:-0.6*l}})},
-{id:'exhumation',n:'Exhumation',i:'⛏️',r:2,kind:'relic',mx:5,d:l=>`Coffins and Candles each spawn −${(1.3*l).toFixed(1)}`,f:'Whatever is down there, it is not staying.',eff:l=>({symW:{coffin:-1.3*l,candle:-1.3*l}})},
-{id:'starvation',n:'Starvation',i:'🦴',r:3,kind:'relic',mx:5,d:l=>`Every symbol below a Skull spawns −${(0.35*l).toFixed(2)}`,f:'Only the strong are fed.',eff:l=>({symW:{rat:-0.35*l,bat:-0.35*l,spider:-0.35*l,candle:-0.35*l,coffin:-0.35*l,ghost:-0.35*l}})},
+{id:'ratcatcher',n:'Ratcatcher',i:'🪤',r:0,kind:'relic',mx:Infinity,d:l=>`Rats spawn far less often (−${(2.2*l).toFixed(1)})`,f:'Paid by the tail.',eff:l=>({symW:{rat:-2.2*l}})},
+{id:'smoke_out',n:'Smoke Them Out',i:'🚬',r:0,kind:'relic',mx:Infinity,d:l=>`Bats spawn far less often (−${(2.1*l).toFixed(1)})`,f:'They came out. All of them.',eff:l=>({symW:{bat:-2.1*l}})},
+{id:'boot_heel',n:'Boot Heel',i:'🥾',r:1,kind:'relic',mx:Infinity,d:l=>`Spiders spawn less often (−${(1.8*l).toFixed(1)})`,f:'Quick, and quite final.',eff:l=>({symW:{spider:-1.8*l}})},
+{id:'snuffer',n:'The Snuffer',i:'🕯️',r:1,kind:'relic',mx:Infinity,d:l=>`Candles spawn less often (−${(1.6*l).toFixed(1)})`,f:'Every wick, one by one.',eff:l=>({symW:{candle:-1.6*l}})},
+{id:'thinning_veil',n:'Thinning Veil',i:'🌫️',r:2,kind:'relic',mx:Infinity,d:l=>`Rats, Bats and Spiders each spawn −${(0.6*l).toFixed(1)}`,f:'Less of everything small.',eff:l=>({symW:{rat:-0.6*l,bat:-0.6*l,spider:-0.6*l}})},
+{id:'exhumation',n:'Exhumation',i:'⛏️',r:2,kind:'relic',mx:Infinity,d:l=>`Coffins and Candles each spawn −${(1.3*l).toFixed(1)}`,f:'Whatever is down there, it is not staying.',eff:l=>({symW:{coffin:-1.3*l,candle:-1.3*l}})},
+{id:'starvation',n:'Starvation',i:'🦴',r:3,kind:'relic',mx:Infinity,d:l=>`Every symbol below a Skull spawns −${(0.35*l).toFixed(2)}`,f:'Only the strong are fed.',eff:l=>({symW:{rat:-0.35*l,bat:-0.35*l,spider:-0.35*l,candle:-0.35*l,coffin:-0.35*l,ghost:-0.35*l}})},
 /* ---- RELICS: the dead hand ---- */
-{id:'grasping_hand',n:'Grasping Hand',i:'🫱',r:3,kind:'relic',mx:5,d:l=>`The Dead Hand is ${(l*100).toFixed(0)}% likelier to find you`,f:'It has been reaching a long time.',eff:l=>({handOdds:1*l})},
-{id:'fifteen_nails',n:'Fifteen Nails',i:'🔩',r:4,kind:'relic',mx:5,d:l=>`The Dead Hand pays +${Math.round(35*l)}% and teases ${Math.round(30*l)}% more often`,f:'One for every cell.',eff:l=>({handPay:.35*l,teaseOdds:.30*l})},
+{id:'grasping_hand',n:'Grasping Hand',i:'🫱',r:3,kind:'relic',mx:Infinity,d:l=>`The Dead Hand is ${(l*100).toFixed(0)}% likelier to find you`,f:'It has been reaching a long time.',eff:l=>({handOdds:1*l})},
+{id:'fifteen_nails',n:'Fifteen Nails',i:'🔩',r:4,kind:'relic',mx:Infinity,d:l=>`The Dead Hand pays +${Math.round(35*l)}% and teases ${Math.round(30*l)}% more often`,f:'One for every cell.',eff:l=>({handPay:.35*l,teaseOdds:.30*l})},
 {id:'the_dead_hand',n:'The Dead Hand',i:'🖐️',r:4,kind:'relic',mx:1,d:()=>'The Dead Hand is FIVE times likelier — but every Toll is 30% larger',f:'Fifteen fingers. Count them.',eff:()=>({handOdds:4,tollReduce:-.30})},
 /* ---- KEYSTONE: the narrowing ---- */
 {id:'the_narrowing',n:'The Narrowing',i:'🕳️',r:4,kind:'relic',mx:1,d:()=>'Rats, Bats and Spiders spawn far less often (−6 each)',f:'The small things left first.',eff:()=>({symW:{rat:-6,bat:-6,spider:-6}})},
@@ -1712,9 +1796,9 @@ function altarCashCost(bloodCost){return Math.round(bloodCost*CASH_PER_BLOOD*(to
 const NIGHTS=[
   {n:1,name:'NIGHT I',   sub:'The Rat Warrens',  from:0,  hue:'#b45cf0', tollMul:1.00, death:1.00},
   {n:2,name:'NIGHT II',  sub:'The Long Corridor',from:4,  hue:'#5bc9d8', tollMul:1.00, death:1.10},
-  {n:3,name:'NIGHT III', sub:'The Ossuary',      from:8,  hue:'#6fd784', tollMul:1.06, death:1.25},
-  {n:4,name:'NIGHT IV',  sub:'The Red Chapel',   from:14, hue:'#ffae2e', tollMul:1.12, death:1.45},
-  {n:5,name:'NIGHT V',   sub:'He Is Here',       from:20, hue:'#ff3b52', tollMul:1.20, death:1.75},
+  {n:3,name:'NIGHT III', sub:'The Ossuary',      from:8,  hue:'#6fd784', tollMul:1.04, death:1.25},
+  {n:4,name:'NIGHT IV',  sub:'The Red Chapel',   from:12, hue:'#ffae2e', tollMul:1.08, death:1.45},
+  {n:5,name:'NIGHT V',   sub:'He Is Here',       from:16, hue:'#ff3b52', tollMul:1.14, death:1.75},
 ];
 function nightOf(cutNum){
   let cur=NIGHTS[0];
@@ -1724,8 +1808,37 @@ function nightOf(cutNum){
 /* Past this Toll the geometric curve gets a second, compounding multiplier on
    top. Player power is bounded and card growth is roughly linear, so without a
    second gear a deep run flattens into an unkillable grind. */
-const TOLL_HARD_FROM=12;
-const TOLL_HARD=1.085;
+const TOLL_HARD_FROM=8;
+const TOLL_HARD=1.15;
+
+/* ============ [DATA] THE DESCENT — single-player endgame ============ */
+/* A run had no win state: it only ever ended in death, so "deep" was a number
+   nobody was chasing. Each Toll is now a FLOOR, and clearing FINAL_FLOOR is an
+   escape — the run ends in victory. Winning pays a Sigil, which is the only
+   currency that buys the Black Grimoire, and unlocks the next Descent: a harder
+   restart that pays more Sigils. That is the loop that gives solo a reason to
+   push past the point where Souls have stopped mattering. */
+const FINAL_FLOOR=20;
+const DESCENT_TOLL=0.22;   /* each Descent adds this much to every Toll */
+const DESCENT_MAX=8;
+function descentMult(d){return 1+DESCENT_TOLL*(d||0);}
+function sigilsFor(descent,floors){
+  /* one for the escape, one per Descent cleared, plus depth credit */
+  return 1+(descent||0)+Math.floor(Math.max(0,floors-FINAL_FLOOR)/5);
+}
+/* Bought with Sigils only. These are deliberately run-SHAPING rather than
+   +x% — the Grimoire already covers incremental power. */
+const SIGILS=[
+  {id:'sig_rite',   n:'The Fourth Path', i:'🕯️',mx:2,cost:r=>1+r,   d:'+1 Rite choice after every Toll'},
+  {id:'sig_draft',  n:'Wider Eyes',      i:'👁️',mx:2,cost:r=>1+r,   d:'+1 card shown in every draft'},
+  {id:'sig_start',  n:'Grave Inheritance',i:'⚱️',mx:3,cost:r=>2+r,  d:'Start each run with a random Relic already played'},
+  {id:'sig_reroll', n:"Ferryman's Favour",i:'⛵',mx:2,cost:r=>2+r,  d:'Free Night Market reroll each floor'},
+  {id:'sig_blood',  n:'Open Vein',       i:'🩸',mx:3,cost:r=>2+r*2, d:'Start each run with 40 Blood'},
+  {id:'sig_floor',  n:'Lower Stair',     i:'🪜',mx:3,cost:r=>3+r*2, d:'Skip the first floor — start at Floor 2 with its cash'},
+  {id:'sig_pot',    n:'Ember Hoard',     i:'🔥',mx:2,cost:r=>3+r*2, d:'The Hellpot floor is 50% higher'},
+  {id:'sig_hand',   n:'His Own Hand',    i:'🖐️',mx:3,cost:r=>4+r*3, d:'The Dead Hand is twice as likely'},
+];
+const SIGIL_BY_ID={}; SIGILS.forEach(s=>SIGIL_BY_ID[s.id]=s);
 /* per-symbol weight buys, so any archetype can steer its own reels */
 const ALTAR_SYMS=['rat','bat','spider','candle','coffin','ghost','skull'];
 function altarSymCost(owned){return Math.max(1,Math.round(4*Math.pow(1.44,owned||0)));}
@@ -1776,8 +1889,10 @@ const TRIALS=[
   {id:'coll45',  n:'Complete the Ledger', i:'📖',rw:150,d:'Discover every card',               p:m=>[Object.keys(m.coll||{}).length,CARDS.length]},
   {id:'hand1',   n:'Fifteen Fingers',     i:'🖐️',rw:120,d:'Pull a Dead Hand — all 15 cells',   p:m=>[m.stats.deadHands||0,1]},
   {id:'hand3',   n:'He Holds You',        i:'🫱',rw:260,d:'Pull three Dead Hands',             p:m=>[m.stats.deadHands||0,3]},
-  {id:'night3',  n:'Third Night',         i:'🌑',rw:70, d:'Reach Night III (Toll 9)',          p:(m,r)=>[Math.max(m.stats.bestCuts||0,r?r.cutsPaid:0),8]},
-  {id:'night5',  n:'The Last Night',      i:'🩸',rw:200,d:'Reach Night V (Toll 21)',           p:(m,r)=>[Math.max(m.stats.bestCuts||0,r?r.cutsPaid:0),20]},
+  {id:'night3',  n:'Third Night',         i:'🌑',rw:70, d:'Reach Night III (Floor 9)',        p:(m,r)=>[Math.max(m.stats.bestCuts||0,r?r.cutsPaid:0),8]},
+  {id:'night5',  n:'The Last Night',      i:'🩸',rw:200,d:'Reach Night V (Floor 17)',        p:(m,r)=>[Math.max(m.stats.bestCuts||0,r?r.cutsPaid:0),16]},
+  {id:'escape1', n:'Out',                 i:'🚪',rw:250,d:'Escape the keep',                  p:m=>[m.stats.escapes||0,1]},
+  {id:'descent3',n:'Deeper Still',        i:'🪜',rw:400,d:'Clear Descent 3',                  p:m=>[m.descent||0,4]},
   {id:'maxrelic',n:'Mastery',             i:'⭐',rw:50, d:'Raise any Relic to Lv5',            p:(m,r)=>[m.stats.maxRelicLv||0,5]},
   {id:'rites12', n:'Sworn Twelve',        i:'🕯️',rw:60, d:'Swear 12 Rites in one run',         p:(m,r)=>[Math.max(m.stats.mostRites||0,r?(r.rites||[]).length:0),12]},
   {id:'moon10',  n:'Child of the Moon',   i:'🌕',rw:45, d:'Trigger 10 Blood Moons (lifetime)', p:m=>[m.stats.moons||0,10]},
@@ -1817,8 +1932,9 @@ const DUEL_WS='wss://'+DUEL_HOST;
 var meta=null, run=null, anim=false;
 
 function freshMeta(){return {v:2,tokens:0,up:{},coll:{},snd:1,vol:0.7,fx:1,turbo:0,name:'',trials:{},
+  sigils:0,sig:{},deepest:0,descent:0,wins:0,
   stats:{runs:0,spins:0,jackpots:0,bestCash:0,bestSpins:0,bestCuts:0,totalWon:0,duelWins:0,duelLosses:0,
-    moons:0,maxRelicLv:0,mostRites:0,debtTolls:0,soulsEarned:0,deadHands:0}};}
+    moons:0,maxRelicLv:0,mostRites:0,debtTolls:0,soulsEarned:0,deadHands:0,escapes:0}};}
 
 function loadAll(){
   meta=freshMeta(); run=null;
@@ -1835,6 +1951,12 @@ function loadAll(){
           /* volume arrived after the first saves: an old save has snd but no
              vol, so seed it from whether sound was on at all */
           if(meta.vol===undefined) meta.vol=meta.snd?0.7:0;
+          /* the Descent arrived after v3.4 — seed it for existing saves */
+          if(meta.sigils===undefined) meta.sigils=0;
+          if(!meta.sig) meta.sig={};
+          if(meta.deepest===undefined) meta.deepest=meta.stats?(meta.stats.bestCuts||0):0;
+          if(meta.descent===undefined) meta.descent=0;
+          if(meta.wins===undefined) meta.wins=0;
           meta.stats=Object.assign(freshMeta().stats,s.meta.stats||{});
           if(s.run && !s.run.over && s.run.storage){
             run=s.run;
@@ -1853,6 +1975,7 @@ function loadAll(){
             if(run.potStake===undefined) run.potStake=run.bet||10;
             if(run.deadHands===undefined) run.deadHands=0;
             if(run.night===undefined) run.night=nightOf(run.cutNum||1).n;
+            if(run.descent===undefined) run.descent=0;
             if(run.shopBuys===undefined) run.shopBuys=0;
             if(!run.altarSym) run.altarSym={};
             if(run.blood===undefined) run.blood=0;
@@ -1920,7 +2043,8 @@ function EFF(){
      with more lifetime Souls starts stronger, which is not a fight. */
   if(!run||!run.duel){
     mergeEff(e,{payAll:.04*(up.highroller||0), wildW:.4*(up.loaded_dice||0),
-      packDisc:.06*(up.haggler||0), potPct:.04*(up.hellpot_boost||0), moonSpins:(up.blood_moon||0)});
+      packDisc:.06*(up.haggler||0), potPct:.04*(up.hellpot_boost||0), moonSpins:(up.blood_moon||0),
+      handOdds:1*((meta.sig&&meta.sig.sig_hand)||0)});
   }
   if(run){
     for(const id in (run.altar||{})){
@@ -1940,7 +2064,32 @@ function EFF(){
     for(const db of run.debuffs){if(db.eff) mergeEff(e,db.eff);}
     comebackEff(e);
   }
+  clampEff(e);
   return e;
+}
+/* Relic ladders are uncapped, which is the point — the geometric Toll is meant
+   to outrun linear card growth. But a handful of effects do not merely get
+   large, they hit a wall and break the game: a 100% Toll reduction is
+   immortality, a 100% shop discount is a free shop, a refund above 1.0 is an
+   infinite money printer off dead spins. Those are clamped HERE rather than by
+   capping the cards, so the ladder still climbs and the tooltip still reads
+   honestly — the value simply stops mattering past the wall. */
+function clampEff(e){
+  e.tollReduce=Math.min(0.80,e.tollReduce);   /* the Reaper always asks for something */
+  e.packDisc  =Math.min(0.75,e.packDisc);
+  e.betRefund =Math.min(0.90,e.betRefund);    /* a dead spin never profits */
+  e.deadPay   =Math.min(0.90,e.deadPay);
+  e.wildCol   =Math.min(0.60,e.wildCol);
+  e.teaseOdds =Math.min(24,e.teaseOdds);      /* ~8% of spins, past that it is noise */
+  e.winMult   =Math.max(-0.9,e.winMult);
+}
+/* The Death Roll deepens with the descent. Nights give it a step, and every
+   floor adds a little on top, so late floors are genuinely more dangerous —
+   but it takes a share of cash, never the run, so a bad roll is survivable. */
+const DEATH_DEPTH=0.075;
+function deathOddsAt(n,eff){
+  const base=DEATH_ROLL*nightOf(n).death*(1+DEATH_DEPTH*Math.max(0,n-1));
+  return Math.max(0.0004,base+(eff?eff.deathOdds:0));
 }
 function storageCap(){return STORAGE_CAP+((run&&run.duel)?0:2*((meta.up.deep_pockets)||0))+(run?EFF_SLOTS():0);}
 /* slots come from rites only — resolved without a full EFF() pass (avoids recursion
@@ -2228,7 +2377,7 @@ function tollUnit(n){
   if(n>TOLL_HARD_FROM) u*=Math.pow(TOLL_HARD,n-TOLL_HARD_FROM);
   return u*nightOf(n).tollMul*g;
 }
-function tollBase(n){ return Math.max(10,Math.round(tollUnit(n)*tollStake())); }
+function tollBase(n){ return Math.max(10,Math.round(tollUnit(n)*tollStake()*descentMult(run?run.descent:0))); }
 function tollAmount(n,eff){
   let amt=tollBase(n)*(1-eff.tollReduce);
   if(run) amt=amt*run.tollMods.mult+run.tollMods.add;
@@ -2247,7 +2396,9 @@ REEL_EV_CAP=(function(){
 
 window.__data={SYM,SYMLIST,PAYSYMS,SYMSVG,CARDS,RITES,PACKS,TRIALS,ALTAR,ALTAR_SYMS,UPS,RARS,BETS,NIGHTS,
   DEAD_HAND,DEAD_HAND_MULT,TEASE_ODDS,POT_FLOOR_MULT,POT_SEED_MULT,RITE_PINNACLE_FROM,
-  TOLL_HARD_FROM,TOLL_HARD,TOLL_GROWTH,PAYSCALE};
+  TOLL_HARD_FROM,TOLL_HARD,TOLL_GROWTH,PAYSCALE,
+  FINAL_FLOOR,DESCENT_MAX,DESCENT_TOLL,SIGILS,SIGIL_BY_ID,DEATH_DEPTH,
+  SYM_SHARE_CAP,WEB_FLOOR,REEL_EV_HEADROOM};
 
 /* dev/sim hook: base RTP over n spins (no cards).
    This MUST model everything spin() does, including the hidden Dead Hand and
@@ -2514,13 +2665,23 @@ document.addEventListener('click',e=>{
 });
 
 /* ============ [RUN LIFECYCLE] ============ */
-function startRun(duel,coop){
+function sigLv(id){return (meta&&meta.sig&&meta.sig[id])||0;}
+function startRun(duel,coop,descent){
+  /* Sigils only shape SOLO runs. In a duel they would just mean the player with
+     more lifetime escapes starts stronger, which is not a fight. */
+  const solo=!duel;
+  const stair=solo?sigLv('sig_floor'):0;
   const startCash=200+(duel?0:25*((meta.up.bankroll)||0));
-  run={cash:startCash,bet:10,spins:0,sinceCut:0,cutNum:1,pot:POT_SEED,streak:0,potStake:10,deadHands:0,night:1,
+  run={cash:startCash,bet:10,spins:0,sinceCut:0,cutNum:1+stair,pot:POT_SEED,streak:0,potStake:10,deadHands:0,night:1,descent:(solo?(descent||0):0),
     freeSpins:0,over:false,relics:{},relicOrder:[],charms:[],debuffs:[],storage:[],
     tollMods:{mult:1,add:0,skip:0},shop:null,inShop:false,rites:[],grudge:0,moonCharge:0,pawned:0,roundReady:true,stake:0,shopBuys:0,altar:{},altarSym:{},blood:0,tributes:0,bribes:0,marks:rollMarks(MARKS_BASE),bloodEarned:0,hp:DUEL_HP,roundCash:{},coop:!!coop,scythes:0,bossNum:1,boss:null,bossKills:0,
     peak:startCash,bigWin:0,jackpots:0,cutsPaid:0,newCards:0,usedWind:false,
     rerollsUsed:0,ghoulCt:0,duel:!!duel,played:[]};
+  run.night=nightOf(run.cutNum).n;
+  if(solo){
+    run.blood=40*sigLv('sig_blood');
+    if(stair) run.cash+=Math.round(tollBase(1)*1.5*stair);
+  }
   meta.stats.runs++;
   saveAll();
   show('scrGame');
@@ -2533,6 +2694,18 @@ function startRun(duel,coop){
     const c=pool[Math.floor(Math.random()*pool.length)];
     gainCard(c.id); toast('🔮 Lucky Departure: '+c.i+' '+c.n+' in storage','good');
   }
+  if(solo){
+    /* Grave Inheritance: a relic already on the table, so a run opens with a
+       direction instead of twelve blind spins */
+    for(let i=0;i<sigLv('sig_start');i++){
+      const pool=CARDS.filter(c=>c.kind==='relic'&&c.mx!==1);
+      const c=pool[Math.floor(Math.random()*pool.length)];
+      meta.coll[c.id]=(meta.coll[c.id]||0)+1;
+      autoPlay(c.id);
+    }
+    if(sigLv('sig_start')) toast('⚱️ Grave Inheritance — you did not arrive empty-handed','good');
+  }
+  applyNightTheme();
   if(meta.up.head_start) openPack(PACKS[0],true);
 }
 function soulsFor(r){
@@ -2615,7 +2788,7 @@ function buildCastle(){
 /* Weather, not a loop: each strike schedules the next at an irregular distance
    so it never settles into a rhythm the eye can predict. */
 function scheduleLightning(){
-  const next=9000+Math.random()*26000;
+  const next=26000+Math.random()*54000;
   setTimeout(()=>{
     if(meta.fx){
       const l=$('lightning');
@@ -2681,6 +2854,44 @@ function endRun(reason,opts){
   show('scrDeath');
   sToll();
 }
+/* You got out. The only good ending, and the gate on the whole meta layer. */
+function escape(){
+  if(!run||run.over) return;
+  stopAuto();
+  run.over=true; run.escaped=true;
+  const d=run.descent||0;
+  const gained=sigilsFor(d,run.cutNum-1);
+  meta.sigils=(meta.sigils||0)+gained;
+  meta.wins=(meta.wins||0)+1;
+  meta.stats.escapes=(meta.stats.escapes||0)+1;
+  /* clearing a Descent unlocks the next one */
+  if(d>=(meta.descent||0)&&d<DESCENT_MAX) meta.descent=d+1;
+  const s=meta.stats;
+  s.bestCash=Math.max(s.bestCash,run.peak);
+  s.bestSpins=Math.max(s.bestSpins,run.spins);
+  s.bestCuts=Math.max(s.bestCuts,run.cutsPaid);
+  const {parts,tok}=soulsFor(run);
+  const bonus=Math.round(tok*(0.75+0.25*d));
+  meta.tokens+=tok+bonus;
+  s.soulsEarned=(s.soulsEarned||0)+tok+bonus;
+  const trialSouls=checkTrials();
+  saveAll();
+  ovClose('ovShop');ovClose('ovPack');ovClose('ovAct');ovClose('ovRite');
+  $('escFloor').textContent='Floor '+FINAL_FLOOR+(d?(' · Descent '+d):'');
+  $('escSig').textContent='◈ '+gained;
+  let h='';
+  for(const [k,v] of parts) if(v>0) h+='<div class="tokline"><span class="dim">'+k+'</span><span>+'+v+'</span></div>';
+  h+='<div class="tokline"><span class="ghoul">Escaped the keep</span><span class="ghoul">+'+bonus+'</span></div>';
+  h+='<div class="tokline"><span>Souls earned</span><span>👻 '+(tok+bonus)+'</span></div>';
+  if(trialSouls>0) h+='<div class="tokline"><span class="ghoul">🎯 Trials completed</span><span class="ghoul">👻 +'+trialSouls+'</span></div>';
+  h+='<div class="tokline"><span class="sigc">Sigils claimed</span><span class="sigc">◈ '+gained+'</span></div>';
+  $('escTokens').innerHTML=h;
+  $('escNext').textContent=(d<DESCENT_MAX)
+    ? ('Descent '+(d+1)+' is open — every Toll '+Math.round(DESCENT_TOLL*(d+1)*100)+'% heavier, and it pays '+sigilsFor(d+1,FINAL_FLOOR)+' Sigils.')
+    : 'You have cleared every Descent. There is nothing left down there.';
+  show('scrEscape');
+  [392,494,587,784,988,1175].forEach((f,i)=>beep(f,.32,i*.13,'triangle',.12));
+}
 function endRunSilent(){
   if(!run||run.over)return;
   const keep=run;
@@ -2742,7 +2953,8 @@ function spin(){
 /* the Hellpot's floor, and what it re-seeds to after a claim */
 function potFloor(){
   const s=run?Math.max(10,run.potStake||run.bet||10):10;
-  return Math.max(POT_SEED,Math.round(s*POT_FLOOR_MULT));
+  const sig=1+0.5*((meta.sig&&meta.sig.sig_pot)||0);
+  return Math.max(POT_SEED,Math.round(s*POT_FLOOR_MULT*sig));
 }
 function potReseed(){
   const s=run?Math.max(10,run.potStake||run.bet||10):10;
@@ -2820,7 +3032,7 @@ function applyResult(grid,res,free,eff){
   }
   if(eff.drip>0) run.cash+=eff.drip;
   /* the Death Roll — rare, and it takes a real bite */
-  if(!free&&run.cash>0&&Math.random()<Math.max(0,DEATH_ROLL*nightOf(run.cutNum).death+eff.deathOdds)){
+  if(!free&&run.cash>0&&Math.random()<deathOddsAt(run.cutNum,eff)){
     const bite=Math.round(run.cash*DEATH_BITE);
     run.cash-=bite;
     run.deathRolls=(run.deathRolls||0)+1;
@@ -2981,7 +3193,10 @@ function tollPaid(due,broke,wasInDebt){
   meta.stats.bestCuts=Math.max(meta.stats.bestCuts||0,run.cutsPaid);
   meta.stats.mostRites=Math.max(meta.stats.mostRites||0,(run.rites||[]).length);
   meta.stats.bestCash=Math.max(meta.stats.bestCash||0,run.peak);
+  meta.deepest=Math.max(meta.deepest||0,run.cutNum);
   checkTrials();
+  /* THE ESCAPE. Clearing the final floor is the only way a run ends well. */
+  if(!run.duel&&run.cutNum>FINAL_FLOOR){ escape(); return; }
   toast('💀 Toll paid: −'+fmt(due),'bad');
   saveAll();
   renderGame();
@@ -3017,7 +3232,7 @@ function rollRites(n){
 }
 const RITE_TIER_NAME=['Rite','Greater Rite','Pinnacle Rite'];
 function offerRites(){
-  const picks=rollRites(3);
+  const picks=rollRites(3+((run&&!run.duel)?sigLv('sig_rite'):0));
   if(!picks.length){openShop();return;}
   ritePending=true;
   const wrap=$('riteCards');
@@ -3381,7 +3596,10 @@ function rollShop(){
   const eff=EFF();
   /* every purchase makes the next dearer — buying singles forever after one
      big win was the loophole */
-  const scale=(1+0.13*Math.max(0,run.cutNum-2))*Math.pow(1.14,run.shopBuys||0)*Math.max(0,1-eff.packDisc);
+  /* Was ALSO scaling with the floor, which quietly taxed players for surviving
+     rather than for spending. It is now purely a function of how much you have
+     bought, so a frugal run keeps cheap options open however deep it goes. */
+  const scale=Math.pow(1.19,run.shopBuys||0)*Math.max(0,1-eff.packDisc);
   const pool=CARDS.filter(c=>(isPvP()||c.kind!=='hex')&&(isCoop()||c.kind!=='pact'));
   const singles=[];
   for(let i=0;i<2;i++){
@@ -3395,6 +3613,7 @@ function rollShop(){
     packs:PACKS.map(p=>({id:p.id,cost:Math.round(p.cost*scale)})),
     singles,
     rerollCost:20,
+    freeRerolls:(run.duel?0:sigLv('sig_reroll')),
   };
 }
 function openShop(){
@@ -3461,25 +3680,26 @@ function renderShop(){
       +(cashAltar?('<button class="cashb" data-altarcash="'+a.id+'"'+(run.cash<ccost?' disabled':'')+'>'+fmtC(ccost)+'</button>'):'')
       +'</div></div>';
   }
-  /* per-symbol reel weight, the most direct build steering there is */
-  for(const s of ALTAR_SYMS){
-    const owned=(run.altarSym&&run.altarSym[s])||0;
-    const cost=altarSymCost(owned);
-    const afford=(run.blood||0)>=cost;
-    const marked=isMarked(s,aeff);
-    const scc=altarCashCost(cost);
-    ah+='<div class="atile wt'+(owned?' owned':'')+(afford?'':' poor')+'" data-altarsym="'+s+'">'
-      +'<div class="ah"><span class="ai">'+symHTML(s)+'</span>'
-      +'<span class="an">'+SYM[s].name+' weight'+(marked?' <span class="mk">🔻</span>':'')+'</span>'
-      +(owned?('<span class="aown">×'+owned+'</span>'):'')+'</div>'
-      +'<div class="ad">+0.8 spawn weight</div>'
-      +'<div class="anow'+(owned?'':' dim')+'">'+(owned?('now +'+(0.8*owned).toFixed(1)+' weight'):'not bought yet')+'</div>'
-      +'<div class="acost">🩸 '+cost
-      +(cashAltar?('<button class="cashb" data-altarsymcash="'+s+'"'+(run.cash<scc?' disabled':'')+'>'+fmtC(scc)+'</button>'):'')
-      +'</div></div>';
-  }
   if(aeff.noAltar>0) ah='<div class="dim" style="grid-column:1/-1;font-size:12px">⛓️ <b>Gravebound</b> — the Altar will not take your Blood. You traded that away.</div>';
   $('shopAltar').innerHTML=ah;
+  /* Per-symbol weight buys used to be full-size tiles, which made the Altar
+     seventeen cards tall and pushed the market's own buttons below the fold.
+     Same purchase, in a chip a quarter the height. */
+  let sh='';
+  for(const sy of ALTAR_SYMS){
+    const owned=(run.altarSym&&run.altarSym[sy])||0;
+    const cost=altarSymCost(owned);
+    const afford=(run.blood||0)>=cost;
+    const scc=altarCashCost(cost);
+    sh+='<div class="wchip'+(afford?'':' poor')+(isMarked(sy,aeff)?' marked':'')+'" data-altarsym="'+sy+'">'
+      +symHTML(sy)
+      +'<span class="wn">'+SYM[sy].name+(owned?('<br><span class="wo">+'+(0.8*owned).toFixed(1)+'</span>'):'')+'</span>'
+      +'<span class="wc">🩸'+cost+'</span>'
+      +(cashAltar?('<button class="cashb" data-altarsymcash="'+sy+'"'+(run.cash<scc?' disabled':'')+'>'+fmtC(scc)+'</button>'):'')
+      +'</div>';
+  }
+  $('altarSyms').innerHTML=aeff.noAltar>0?'':sh;
+  $('altSymHead').style.display=aeff.noAltar>0?'none':'';
   /* Two ways to spend a fortune: convert it to Blood, or buy off the Reaper.
      Both climb steeply, so a 15-million pile still runs out of road. */
   const trib=run.tributes||0;
@@ -3522,7 +3742,7 @@ function renderShop(){
     renderShop(); renderGame(); saveAll();
     if(run.duel) sendState();
   });
-  document.querySelectorAll('#shopAltar .cashb[data-altarsymcash]').forEach(el=>el.onclick=ev=>{
+  document.querySelectorAll('#altarSyms .cashb[data-altarsymcash]').forEach(el=>el.onclick=ev=>{
     ev.stopPropagation();
     const s=el.dataset.altarsymcash;
     const owned=(run.altarSym&&run.altarSym[s])||0;
@@ -3545,7 +3765,7 @@ function renderShop(){
     renderShop(); renderGame(); saveAll();
     if(run.duel) sendState();
   });
-  document.querySelectorAll('#shopAltar .atile[data-altarsym]').forEach(el=>el.onclick=()=>{
+  document.querySelectorAll('#altarSyms .wchip[data-altarsym]').forEach(el=>el.onclick=()=>{
     const s=el.dataset.altarsym;
     const owned=(run.altarSym&&run.altarSym[s])||0;
     const cost=altarSymCost(owned);
@@ -3556,8 +3776,9 @@ function renderShop(){
     renderShop(); renderGame(); saveAll();
     if(run.duel) sendState();
   });
-  $('shopReroll').textContent='🎲 Reroll ('+fmt(run.shop.rerollCost)+')';
-  $('shopReroll').disabled=run.cash<run.shop.rerollCost;
+  const freeR=run.shop.freeRerolls||0;
+  $('shopReroll').textContent=freeR?('🎲 Reroll (free ×'+freeR+')'):('🎲 Reroll ('+fmt(run.shop.rerollCost)+')');
+  $('shopReroll').disabled=!freeR&&run.cash<run.shop.rerollCost;
   document.querySelectorAll('#shopPacks .buyb').forEach(b=>b.onclick=()=>{
     const sp=run.shop.packs.find(x=>x.id===b.dataset.pack);
     const p=PACKS.find(x=>x.id===b.dataset.pack);
@@ -3586,8 +3807,10 @@ function gainCard(id){
   const isNew=!meta.coll[id];
   meta.coll[id]=(meta.coll[id]||0)+1;
   if(isNew) run.newCards++;
-  if(isCoop()){
-    /* A hunt has no bag — picking a card IS playing it. */
+  /* A hunt has no bag at all, and in a duel the bag holds HEXES ONLY —
+     shelving relics and charms mid-fight was pure friction, and the only card
+     you ever actually want to time is the one you throw at your opponent. */
+  if(isCoop()||(isPvP()&&c.kind!=='hex')){
     const r=autoPlay(id);
     return {new:isNew,msg:c.i+' '+c.n+(isNew?' — NEW! ':' ')+r};
   }
@@ -3643,7 +3866,7 @@ function openPack(pack,freebie){
   /* DRAFT: reveal `show` cards, the player keeps `keep` of them. Choice beats
      a blind lottery — you can build toward the relics you already hold. */
   const pulls=[];
-  const show=pack.show||pack.cards||3, keep=Math.min(pack.keep||1,show);
+  const show=(pack.show||pack.cards||3)+(run&&!run.duel?sigLv('sig_draft'):0), keep=Math.min(pack.keep||1,show);
   for(let i=0;i<show;i++){
     let r=Math.random()*100,rar=0;
     for(let j=0;j<5;j++){r-=pack.odds[j];if(r<0){rar=j;break;}}
@@ -3747,9 +3970,12 @@ function updateDraftHint(){
   const giving=Object.keys(draftGive).length;
   $('packHint').innerHTML='Choose <b>'+draftKeep+'</b> — <b>'+draftPicks.length+'/'+draftKeep+'</b> selected'
     +(isCoop()&&duelAlive()?(giving?(' · <b class="giftx">'+giving+' to give away</b> (click again to toggle)'):' · click a picked card again to <b class="giftx">give it to your partner</b>'):'')
-    +'. The rest are lost.';
-  $('packDone').disabled=draftPicks.length!==draftKeep;
-  $('packDone').textContent=draftPicks.length===draftKeep?('Take '+draftKeep):('Select '+(draftKeep-draftPicks.length)+' more');
+    +'. The rest are lost — you may take fewer, or none.';
+  /* Taking fewer than the cap — or nothing at all — is a legitimate choice.
+     Forcing the full keep meant a bad draft actively hurt you by filling
+     storage with cards you would only sell. */
+  $('packDone').disabled=false;
+  $('packDone').textContent=draftPicks.length?('Take '+draftPicks.length):'Take nothing';
 }
 function finishDraft(){
   const els=[...document.querySelectorAll('#packCards .pcard')];
@@ -3918,6 +4144,7 @@ function renderGame(){
   const left=TOLL_EVERY-run.sinceCut;
   $('tollV').textContent=fmtC(due);
   $('tollK').textContent="Reaper's Toll in "+left;
+  $('floorV').textContent=(run.duel?'F':'FLOOR ')+run.cutNum+(run.duel?'':(run.descent?(' · D'+run.descent):('/'+FINAL_FLOOR)));
   $('tollBox').classList.toggle('warn',left<=3||run.cash<due);
   /* pacing: the last three spins of a round visibly close in */
   document.body.classList.toggle('reaperclose',left<=3&&!run.over);
@@ -4226,8 +4453,10 @@ function renderMenu(){
   $('stRuns').textContent=s.runs;
   $('stBestSpins').textContent=s.bestSpins;
   $('stBestCash').textContent=fmt(s.bestCash);
-  $('stWins').textContent=s.duelWins;
+  $('stDeepest').textContent=meta.deepest||0;
   $('mTok').textContent='👻 '+meta.tokens;
+  $('mSig').textContent=(meta.sigils||0)?('◈ '+meta.sigils):'';
+  renderDescent();
   $('mCollCt').textContent=Object.keys(meta.coll).length+'/'+CARDS.length;
   $('mTrialCt').textContent=TRIALS.filter(t=>meta.trials&&meta.trials[t.id]).length+'/'+TRIALS.length;
   $('mResume').style.display=(run&&!run.over&&!run.duel)?'block':'none';
@@ -4240,6 +4469,53 @@ function renderVol(){
   if(sl){ sl.value=v; sl.style.setProperty('--p',v+'%'); }
   if(lbl) lbl.textContent=v+'%';
   if(ic) ic.textContent=v===0?'🔇':(v<40?'🔈':(v<75?'🔉':'🔊'));
+}
+/* The Descent picker only exists once you have escaped at least once — before
+   that it is noise, and afterwards it is the whole reason to keep playing. */
+var pickDescent=0;
+function renderDescent(){
+  const row=$('descRow'); if(!row) return;
+  const unlocked=meta.descent||0;
+  row.style.display=unlocked>0?'':'none';
+  if(unlocked<=0) return;
+  pickDescent=Math.min(pickDescent,unlocked);
+  let h='';
+  for(let i=0;i<=Math.min(DESCENT_MAX,unlocked);i++){
+    h+='<div class="dstep'+(i===pickDescent?' on':(i<=unlocked?' avail':' lock'))+'" data-desc="'+i+'">'+i+'</div>';
+  }
+  $('descSteps').innerHTML=h;
+  $('descV').innerHTML=pickDescent
+    ? ('Tolls ×'+descentMult(pickDescent).toFixed(2)+'<br>escape pays ◈'+sigilsFor(pickDescent,FINAL_FLOOR))
+    : ('the standard keep<br>escape pays ◈'+sigilsFor(0,FINAL_FLOOR));
+  document.querySelectorAll('#descSteps .dstep[data-desc]').forEach(el=>el.onclick=()=>{
+    const d=+el.dataset.desc;
+    if(d>unlocked) return;
+    pickDescent=d; sFlip(); renderDescent();
+  });
+}
+function renderSigils(){
+  const wrap=$('sigWrap'); if(!wrap) return;
+  /* hidden until the first escape, so a new player is not shown a locked shop */
+  wrap.style.display=((meta.sigils||0)>0||(meta.wins||0)>0)?'':'none';
+  $('upSig').textContent='◈ '+(meta.sigils||0);
+  let h='';
+  for(const u of SIGILS){
+    const r=(meta.sig&&meta.sig[u.id])||0, maxed=r>=u.mx, cost=u.cost(r);
+    let pips='';
+    for(let i=0;i<u.mx;i++) pips+='<div class="pip'+(i<r?' on':'')+'"></div>';
+    h+='<div class="sigrow"><div class="ic">'+u.i+'</div><div class="grow"><div class="nm">'+u.n+'</div>'
+      +'<div class="ds">'+u.d+'</div><div class="pips">'+pips+'</div></div>'
+      +'<button class="buyb" data-sig="'+u.id+'" '+((maxed||(meta.sigils||0)<cost)?'disabled':'')+'>'
+      +(maxed?'MAX':'◈ '+cost)+'</button></div>';
+  }
+  $('sigList').innerHTML=h;
+  document.querySelectorAll('#sigList .buyb[data-sig]').forEach(b=>b.onclick=()=>{
+    const u=SIGIL_BY_ID[b.dataset.sig], r=(meta.sig&&meta.sig[u.id])||0;
+    if(r>=u.mx||(meta.sigils||0)<u.cost(r)) return;
+    meta.sigils-=u.cost(r);
+    meta.sig=meta.sig||{}; meta.sig[u.id]=r+1;
+    sRare(); saveAll(); renderUps();
+  });
 }
 function renderColl(){
   const found=Object.keys(meta.coll).length;
@@ -4258,6 +4534,7 @@ function renderColl(){
 }
 function renderUps(){
   $('upTok').textContent='👻 '+meta.tokens;
+  renderSigils();
   let h='';
   for(const u of UPS){
     const r=meta.up[u.id]||0, maxed=r>=u.mx, cost=u.cost(r);
@@ -4732,8 +5009,9 @@ function showDuelEnd(won,reason,souls){
 /* ============ [WIRING] ============ */
 function wire(){
   $('mNew').onclick=()=>{
-    if(run&&!run.over){confirmBox('Start over?','Your current run will be abandoned (you still earn its Souls).',()=>{endRunSilent();startRun(false);});}
-    else startRun(false);
+    const d=pickDescent||0;
+    if(run&&!run.over){confirmBox('Start over?','Your current run will be abandoned (you still earn its Souls).',()=>{endRunSilent();startRun(false,false,d);});}
+    else startRun(false,false,d);
   };
   $('mResume').onclick=()=>{show('scrGame');buildGridCells();$('oppBox').classList.remove('on');renderGame();};
   $('mDuel').onclick=()=>{
@@ -4775,9 +5053,13 @@ function wire(){
     if(run.duel){ sendState(); toast('✔ Ready — waiting for '+(opp?opp.name:'your rival'),'good'); }
   };
   $('shopReroll').onclick=()=>{
-    if(run.cash<run.shop.rerollCost) return;
-    run.cash-=run.shop.rerollCost;
-    sFlip(); rollShop(); renderShop(); renderGame(); saveAll();
+    const free=run.shop.freeRerolls||0;
+    if(!free&&run.cash<run.shop.rerollCost) return;
+    const keepFree=free?free-1:0;
+    if(free) run.shop.freeRerolls=keepFree; else run.cash-=run.shop.rerollCost;
+    sFlip(); rollShop();
+    run.shop.freeRerolls=keepFree;   /* rollShop rebuilds the shop object */
+    renderShop(); renderGame(); saveAll();
   };
   $('packDone').onclick=finishDraft;
   $('mTrials').onclick=()=>{renderTrials();show('scrTrials');};
@@ -4787,9 +5069,13 @@ function wire(){
   $('actSell').onclick=()=>{ovClose('ovAct');sellCard(actIdx);};
   $('actGift').onclick=()=>{ovClose('ovAct');giftCard(actIdx);};
   $('actClose').onclick=()=>ovClose('ovAct');
-  $('dNew').onclick=()=>startRun(false);
+  $('dNew').onclick=()=>startRun(false,false,pickDescent||0);
   $('dUp').onclick=()=>{renderUps();show('scrUp');};
   $('dMenu').onclick=()=>{renderMenu();show('scrMenu');};
+  /* escape screen */
+  $('escDeeper').onclick=()=>{ pickDescent=Math.min(meta.descent||0,DESCENT_MAX); startRun(false,false,pickDescent); };
+  $('escSigils').onclick=()=>{renderUps();show('scrUp');};
+  $('escMenu').onclick=()=>{renderMenu();show('scrMenu');};
   $('confNo').onclick=()=>{confCb=null;ovClose('ovConfirm');};
   $('confYes').onclick=()=>{ovClose('ovConfirm');if(confCb){const cb=confCb;confCb=null;cb();}};
   /* lobby */
