@@ -140,8 +140,10 @@ input{font-family:inherit}
 #spinBtn.moon{background:linear-gradient(180deg,#5b76c9,#2c3f85);border-color:#9db8ff;box-shadow:0 4px 0 #17224a,0 0 24px rgba(157,184,255,.35);color:#e8efff}
 .betcol{display:flex;flex-direction:column;gap:5px;justify-content:center}
 .betcol .lbl{font-size:10px;color:#8a7a80;text-align:center;text-transform:uppercase;letter-spacing:1px}
-#betRow{display:flex;gap:5px}
-.betb{padding:9px 0;width:46px;border-radius:9px;font-weight:800;font-size:13px;background:#170b10;border:1px solid #3d222c;color:#b0a396}
+#betRow{display:grid;grid-template-columns:repeat(4,44px);gap:4px}
+.betb{padding:7px 0;border-radius:8px;font-weight:800;font-size:12px;background:#170b10;border:1px solid #3d222c;color:#b0a396}
+.betb.big{color:#ffd76b;border-color:#6b4a12}
+.betb.on.big{background:#ffae2e;color:#241a02;border-color:#ffe9a8}
 .betb.on{background:#e01b3c;color:#ffe4e8;border-color:#ff8a9a}
 .betb:disabled{opacity:.3}
 .streakrow{display:flex;justify-content:space-between;align-items:center;margin-top:9px;font-size:13px;color:#8a7a80}
@@ -213,6 +215,35 @@ input{font-family:inherit}
 #oppCards .acard{width:30px;height:30px;font-size:15px;border-radius:6px}
 #oppFeed{margin-top:8px;font-size:11.5px;color:#8a7a80;line-height:1.6;min-height:34px;border-top:1px solid #2a161e;padding-top:6px}
 #oppFeed .hexline{color:#ff5b6e;font-weight:700}
+/* opponent live reels */
+#oppGrid{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:3px;background:#080407;
+  border:1px solid #2a161e;border-radius:8px;padding:5px;min-height:34px;
+  align-items:center;justify-items:center;transition:box-shadow .25s,border-color .25s;
+}
+#oppGrid.win{border-color:#ffd76b;box-shadow:0 0 14px rgba(255,215,107,.45)}
+#oppGrid .ocell{
+  aspect-ratio:1;width:100%;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,#160d12,#0d070a);border-radius:4px;font-size:15px;
+}
+#oppGrid .ocell .s6{font-size:1em;font-weight:900;font-style:italic;
+  background:linear-gradient(180deg,#ff8a8a,#e01b3c 55%,#6e0a1c);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+/* "your build" strip inside shop / draft overlays */
+.bstrip{background:#0f070a;border:1px solid #2a161e;border-radius:10px;padding:8px 10px;margin-bottom:12px;text-align:left}
+.bstrip .bl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#8a7a80;font-weight:800;margin-bottom:5px}
+.bstrip .brow{display:flex;gap:5px;flex-wrap:wrap;min-height:26px;align-items:center}
+.bstrip .brow .acard{width:28px;height:28px;font-size:15px;border-radius:6px}
+.bstrip .brow .acard .bdg{font-size:8px;padding:0 3px;bottom:-4px;right:-4px}
+.bstrip .bnone{font-size:11.5px;color:#4a3a40}
+.bstrip .bnums{display:flex;gap:12px;flex-wrap:wrap;margin-top:7px;font-size:11.5px;color:#8a7a80;border-top:1px solid #241318;padding-top:6px}
+.bstrip .bnums b{color:#d8cfc0}
+.bstrip .bnums .ghoul{color:#6fd784}
+/* keep the paytable readable while shopping/drafting on wide screens */
+@media (min-width:1330px){
+  #ovShop,#ovPack{justify-content:flex-start;padding-left:404px}
+  #ovShop,#ovPack{backdrop-filter:none;background:rgba(4,2,4,.55)}
+}
 /* ambient atmosphere layer */
 #fx{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 #fx.off{display:none}
@@ -542,6 +573,10 @@ input{font-family:inherit}
           <span class="k">Streak</span><span class="v" id="oppStreak">—</span>
         </div>
         <div class="oplayed">
+          <div class="lbl">Their reels</div>
+          <div id="oppGrid"></div>
+        </div>
+        <div class="oplayed">
           <div class="lbl">Cards they played</div>
           <div id="oppCards"><span class="none dim" style="font-size:11px">nothing yet</span></div>
         </div>
@@ -640,12 +675,13 @@ input{font-family:inherit}
   <div class="ovbox">
     <h2>🕯️ The Night Market</h2>
     <div class="sub">Toll paid. Spend it before Death does — <span class="blood" id="shopCash"></span> · storage <span id="shopSlots"></span></div>
+    <div id="shopBuild"></div>
     <div id="shopPacks"></div>
     <div class="dim" style="font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:12px 0 6px">Single cards</div>
     <div id="shopSingles"></div>
     <div style="display:flex;gap:10px;margin-top:14px">
       <button class="btn" id="shopReroll">🎲 Reroll</button>
-      <button class="btn bld" id="shopDone">Continue ▶</button>
+      <button class="btn bld" id="shopDone">✔ Ready</button>
     </div>
   </div>
 </div>
@@ -664,6 +700,7 @@ input{font-family:inherit}
   <div class="ovbox" style="text-align:center">
     <h2 id="packTitle">Pack</h2>
     <div class="sub">Tap to reveal, then choose which to keep</div>
+    <div id="packBuild"></div>
     <div id="packHint"></div>
     <div id="packCards"></div>
     <button class="btn bld" id="packDone" disabled>Take Cards</button>
@@ -703,7 +740,7 @@ input{font-family:inherit}
           <span><i style="background:#b45cf0"></i>Λ shape</span>
         </div>
       </li>
-      <li><b>The Reaper's Toll.</b> Every 10 spins Death demands cash — and the price always rises. <b>Only the Toll can kill you:</b> going broke mid-round puts you in <b>debt</b> (red cash) — the House lends you spins down to the size of your next Toll. If the Toll arrives and you can't pay, the run ends.</li>
+      <li><b>The Reaper's Toll.</b> Every 12 spins Death demands cash. The price rises <b>34% every time, forever</b> — it never looks at how rich you are, only how long you have lasted. <b>Only the Toll can kill you:</b> going broke mid-round puts you in <b>debt</b> (red cash) — the House lends you spins down to the size of your next Toll. If the Toll arrives and you can't pay, the run ends.</li>
       <li><b>Rites.</b> Every Toll you survive, the dark pays you back: pick <b>1 of 3 Rites</b> — run-permanent buffs, many of which bend the actual spawn odds on the reels. Watch the paytable percentages move as you take them.</li>
       <li><b>Desperation.</b> The lower your cash falls (and into debt), the luckier the reels get — up to <b>+45% payouts</b> plus more wilds, gold and moons. Losing makes you dangerous.</li>
       <li><b>Underdog & Grudge (duels).</b> Falling behind grants <b>Underdog</b> (up to +30% payouts and more wilds). Every hex you eat and every Toll you spend behind fills the <b>Grudge</b> meter — at 100 it forces a free Hex into your hand. The leader never gets to coast.</li>
@@ -711,10 +748,10 @@ input{font-family:inherit}
       <li><b>The Night Market.</b> After each Toll, buy <b>card drafts</b> — you are shown several cards and <b>choose which to keep</b>, so you can build toward what you already have. Cards go to your <b>storage</b> — play them when YOU choose:
         <span class="kchip relic">Relic</span> <b>PERMANENT</b> once played · <span class="kchip charm">Charm</span> <b>ONE USE</b>, temporary boost · <span class="kchip hex">Hex</span> <b>ONE USE</b>, strikes your duel opponent. Playing a duplicate Relic upgrades it, <b>up to Lv5</b>. Unwanted cards sell for cash.</li>
       <li><b>Trials.</b> Long-term goals that persist across every run and pay Souls once — check them from the menu for something to chase after the basics stop scaring you.</li>
-      <li><b>👁️ The Eye</b> is wild — it becomes anything. <b>🌕 3+ Moons</b> anywhere = <b>Blood Moon</b> free spins, wins ×2 — <b>your bet locks</b> at the amount that triggered it, and more Moons during it pay cash instead of extending it. <b>🪙 Cursed Gold</b> pays instantly. <b>🕸️ Cobwebs</b> pay nothing.</li>
+      <li><b>👁️ The Eye</b> is wild — it becomes anything. <b>🌕 Moons charge the Blood Moon meter</b> (watch the phase next to your streak): every Moon on screen pushes it up, and at full you get free spins with wins ×2 and <b>your bet locked</b> — then the meter empties and starts again. <b>🪙 Cursed Gold</b> pays instantly. <b>🕸️ Cobwebs</b> pay nothing.</li>
       <li><b>🔥 The Hellpot</b> grows with every bet. Line up <b>6·6·6</b> to claim it all.</li>
       <li><b>Hot streak:</b> consecutive winning spins boost payouts. A dead spin resets it.</li>
-      <li><b>Duels:</b> invite a friend by lobby code. You each fight your own reels — last one alive wins. Hexes sabotage them; their panel shows every card they play. <b>Tolls are checkpoints:</b> after paying yours, the Reaper holds you until your opponent pays theirs — you march to the grave in step.</li>
+      <li><b>Duels:</b> invite a friend by lobby code. You each fight your own reels — last one alive wins. Hexes sabotage them; their panel shows every card they play. <b>Tolls are checkpoints:</b> after your Toll you shop, then press <b>✔ Ready</b> — neither player spins the next round until both are ready, so nobody races ahead while you browse. Their reels mirror live in your panel.</li>
       <li><b>Death is progress.</b> You keep <b>Souls</b> for permanent Grimoire pacts, and every card you pull joins your Collection forever.</li>
     </ul>
     <button class="btn" id="helpClose" style="margin-top:14px">Close</button>
@@ -749,7 +786,7 @@ input{font-family:inherit}
 <div id="jpFlash"><div class="t">🔥 666 🔥<br><span id="jpAmt"></span></div></div>
 <div id="toasts"></div>
 <div id="tip"></div>
-<div class="ver">DEADSPIN v2.4.0 · spinfall</div>
+<div class="ver">DEADSPIN v2.5.0 · spinfall</div>
 
 <script>
 'use strict';
@@ -772,7 +809,7 @@ const SYM={
   skull: {e:'💀',name:'Skull',      w:4,   pay:[15,55,200]},
   six:   {e:'6', name:'The Six',    w:3,   pay:[30,120,666]},
   eye:   {e:'👁️',name:'The Eye',    w:2.5, pay:null},  /* WILD */
-  moon:  {e:'🌕',name:'Moon',       w:3.5, pay:null},  /* scatter */
+  moon:  {e:'🌕',name:'Moon',       w:2.2, pay:null},  /* charges the Blood Moon meter */
   gold:  {e:'🪙',name:'Cursed Gold',w:4,   pay:null},  /* instant coin */
   web:   {e:'🕸️',name:'Cobweb',     w:14,  pay:null},  /* dud */
 };
@@ -789,14 +826,18 @@ const LINES=[
 const LINE_COLORS=['#ffd76b','#ff5b6e','#6fd784','#5bc9d8','#b45cf0'];
 const TOLL_EVERY=12;
 const MIN_BET=5;
-const BETS=[5,10,25,50,100];
+const BETS=[5,10,25,50,100,250,500,1000];
 const RAT_PAIR=0.4;      /* left pair of rats pays this x bet */
 const COIN_VAL=0.40;     /* each cursed gold pays this x bet */
 const POT_BASE=0.10;     /* hellpot grows by this x bet per spin */
 const POT_SEED=66;
-const MOON_NEED=3;
 const MOON_SPINS=5;
-const MOON_COOL=18;   /* paid spins for the moon to wax back to full after a Blood Moon */
+/* Blood Moon is a CHARGE, not a scatter roll. Every paid spin drifts the meter
+   up a little; every Moon symbol on screen pushes it much harder. At full the
+   Blood Moon rises and the meter resets to empty, so it can never chain. This
+   replaced "3 moons anywhere" — moons that could not trigger felt like duds. */
+const MOON_DRIFT=0.011;   /* per paid spin */
+const MOON_PER=0.055;     /* per Moon symbol on screen */
 const STORAGE_CAP=12;
 
 /* ============ [DATA] RARITIES ============ */
@@ -845,7 +886,7 @@ const CARDS=[
 /* ---- RELICS: legendary ---- */
 {id:'number_beast',n:'Number of the Beast',i:'🐐',r:4,kind:'relic',mx:5,d:l=>`Sixes also pay on a left pair (${(3+1.2*l).toFixed(1)}× bet)`,f:'Two is close enough for him.',eff:l=>({sixPair:3+1.2*l})},
 {id:'loaded_bones',n:'Loaded Bones',i:'🦴',r:4,kind:'relic',mx:5,d:l=>`All line payouts +${Math.round(17*l)}%, but Cobwebs appear more (+3)`,f:'They always land his way.',eff:l=>({payAll:.17*l,webW:3})},
-{id:'moon_child',n:'Moon Child',i:'🌝',r:4,kind:'relic',mx:1,d:l=>`Blood Moon triggers with only 2 Moons`,f:'She was born during one.',eff:l=>({moonNeed:1})},
+{id:'moon_child',n:'Moon Child',i:'🌝',r:4,kind:'relic',mx:3,d:l=>`The Blood Moon meter fills ${Math.round(25*l)}% faster`,f:'She was born during one.',eff:l=>({moonFill:.25*l})},
 {id:'golden_ghoul',n:'Golden Ghoul',i:'🧟',r:4,kind:'relic',mx:5,d:l=>`Every 10th spin pays ${(1.1*l).toFixed(1)}× your bet`,f:'It digs up more than bodies.',eff:l=>({ghoul:1.1*l})},
 /* ---- CHARMS (consumed on play) ---- */
 {id:'adrenaline',n:'Adrenaline Vial',i:'💉',r:0,kind:'charm',dur:5,d:()=>'For 5 spins: all wins ×1.5',f:'Your heart remembers how.',ceff:{winMult:.5}},
@@ -993,7 +1034,8 @@ function loadAll(){
             /* forward-guard fields added after a save was written */
             run.rites=run.rites||[]; run.grudge=run.grudge||0;
             if(run.freeBet===undefined) run.freeBet=null;
-            if(run.moonReady===undefined) run.moonReady=1;
+            if(run.moonCharge===undefined) run.moonCharge=0;
+            if(run.roundReady===undefined) run.roundReady=true;
           }
         }else{
           /* v1 Spinfall save: keep the currency + lifetime stats, new card world */
@@ -1015,7 +1057,7 @@ function saveAll(){
 /* ============ [EFFECTS] ============ */
 function baseEff(){return {pay:{},symW:{},payAll:0,winMult:0,wildW:0,moonW:0,sixW:0,webW:0,goldW:0,coinVal:0,
   betRefund:0,packDisc:0,streakStep:0,streakCap:0,interest:0,interestCap:0,tollReduce:0,
-  moonSpins:0,moonNeed:0,wildCol:0,potPct:0,drip:0,sixPair:0,ghoul:0,slots:0,
+  moonSpins:0,moonFill:0,wildCol:0,potPct:0,drip:0,sixPair:0,ghoul:0,slots:0,
   blackout:0,freezeReel:0,moonBlock:0};}
 function mergeEff(t,s){
   for(const k in s){
@@ -1152,26 +1194,19 @@ function streakMultOf(streak,eff){
   const step=0.05+eff.streakStep, cap=0.5+eff.streakCap;
   return 1+Math.min(streak*step,cap);
 }
-/* Toll curve. Deliberately gentle for the first few rounds: a run needs to
-   bank 3-4 Rites before its economy turns positive, so the early Tolls are a
-   ramp, not a wall. Late Tolls still climb quadratically and end every run. */
+/* Toll curve — a pure function of how many Tolls you have survived. It does
+   NOT look at your cash: taxing a hoard punished winning and kept dragging
+   totals back down. Instead it grows GEOMETRICALLY, so it is generous early,
+   brutal late, and always eventually outruns a build (player power is bounded:
+   relics cap at Lv5 and each Rite may be sworn once). */
+const TOLL_GROWTH=1.34;
 function tollBase(n){
   const g=1-0.1*((meta.up&&meta.up.grace)||0);
-  return Math.max(10,Math.round(18+(9*(n-1)+2.4*(n-1)*(n-1))*g));
+  const raw=20*Math.pow(TOLL_GROWTH,n-1)+6*(n-1);
+  return Math.max(10,Math.round(raw*g));
 }
-/* The Reaper's share: he takes a growing cut of whatever you have HOARDED
-   above a protected floor. This is the anti-runaway valve — a struggling
-   player pays only the flat base, while a player sitting on a fortune pays
-   for the privilege. It is what stops a snowballed run (or duel leader)
-   from becoming immortal. */
-const TOLL_SAFE=300;
-function tollTax(n,cash){
-  const rate=Math.min(0.78,0.075*n);
-  return Math.max(0,(cash||0)-TOLL_SAFE)*rate;
-}
-function tollAmount(n,eff,cashOverride){
-  const cash=(cashOverride!==undefined)?cashOverride:(run?run.cash:0);
-  let amt=(tollBase(n)+tollTax(n,cash))*(1-eff.tollReduce);
+function tollAmount(n,eff){
+  let amt=tollBase(n)*(1-eff.tollReduce);
   if(run) amt=amt*run.tollMods.mult+run.tollMods.add;
   return Math.max(0,Math.round(amt));
 }
@@ -1185,7 +1220,7 @@ window.__simRTP=function(n,bet){
     const r=evalSpin(g,bet,eff,{streakMult:1,free:false});
     wagered+=bet; won+=r.total;
     if(r.total>0)hits++;
-    if(r.scatters>=MOON_NEED)scat++;
+    scat+=r.scatters;
     if(r.jackpot)jack++;
   }
   return {rtp:won/wagered,hitRate:hits/n,scatterRate:scat/n,jackRate:jack/n};
@@ -1271,11 +1306,20 @@ function tipHTML(c,extra){
   return h;
 }
 function tipShowFor(el){
-  const id=el.dataset.tipcard; const c=CARD_BY_ID[id]; if(!c) return;
-  const lv=el.dataset.tiplv?+el.dataset.tiplv:0;
   const tip=$('tip');
-  tip.className='r'+c.r+' on';
-  tip.innerHTML=tipHTML(c,lv?{lv}:null);
+  if(el.dataset.tiprite){
+    const rt=RITE_BY_ID[el.dataset.tiprite]; if(!rt) return;
+    tip.className='r'+(rt.t===1?4:1)+' on';
+    tip.innerHTML='<div class="t-head"><div class="t-ic">'+rt.i+'</div><div><div class="t-nm">'+rt.n+'</div>'
+      +'<div class="t-rr">'+(rt.t===1?'Greater Rite':'Rite')+'</div></div></div>'
+      +'<div class="t-d">'+rt.d+'</div>'
+      +'<div class="t-m">Sworn for this run · Rites may be taken once each</div>';
+  }else{
+    const id=el.dataset.tipcard; const c=CARD_BY_ID[id]; if(!c) return;
+    const lv=el.dataset.tiplv?+el.dataset.tiplv:0;
+    tip.className='r'+c.r+' on';
+    tip.innerHTML=tipHTML(c,lv?{lv}:null);
+  }
   const r=el.getBoundingClientRect();
   let x=r.right+10, y=r.top-4;
   if(x+260>window.innerWidth) x=r.left-260;
@@ -1288,12 +1332,13 @@ function tipShowFor(el){
   tip.style.top=y+'px';
 }
 function tipHide(){$('tip').classList.remove('on');}
+const TIPSEL='[data-tipcard],[data-tiprite]';
 document.addEventListener('mouseover',e=>{
-  const t=e.target.closest?e.target.closest('[data-tipcard]'):null;
+  const t=e.target.closest?e.target.closest(TIPSEL):null;
   if(t) tipShowFor(t); else tipHide();
 });
 document.addEventListener('click',e=>{
-  const t=e.target.closest?e.target.closest('[data-tipcard]'):null;
+  const t=e.target.closest?e.target.closest(TIPSEL):null;
   if(!t) tipHide();
 });
 
@@ -1302,7 +1347,7 @@ function startRun(duel){
   const startCash=200+25*((meta.up.bankroll)||0);
   run={cash:startCash,bet:10,spins:0,sinceCut:0,cutNum:1,pot:POT_SEED,streak:0,
     freeSpins:0,over:false,relics:{},relicOrder:[],charms:[],debuffs:[],storage:[],
-    tollMods:{mult:1,add:0,skip:0},shop:null,inShop:false,rites:[],grudge:0,moonReady:1,pawned:0,
+    tollMods:{mult:1,add:0,skip:0},shop:null,inShop:false,rites:[],grudge:0,moonCharge:0,pawned:0,roundReady:true,
     peak:startCash,bigWin:0,jackpots:0,cutsPaid:0,newCards:0,usedWind:false,
     rerollsUsed:0,ghoulCt:0,duel:!!duel,played:[]};
   meta.stats.runs++;
@@ -1425,6 +1470,7 @@ function spin(){
   const grid=rollGrid(eff);
   const res=evalSpin(grid,betUsed,eff,{streakMult,free});
   res.betUsed=betUsed;
+  if(run.duel) duelSend({t:'grid',g:grid,w:res.total>0});
   animateReels(grid,()=>applyResult(grid,res,free,eff));
   renderGame();
 }
@@ -1478,27 +1524,29 @@ function applyResult(grid,res,free,eff){
     }
   }
   /* blood moon */
-  /* Moon phase: a Blood Moon leaves the moon dark, and it must wax back to full
-     before another can rise. While it is waning, moons pay cash instead — so a
-     moon landing is never a silent dud. */
-  if(!free) run.moonReady=Math.min(1,(run.moonReady||0)+1/MOON_COOL);
-  const need=Math.max(2,MOON_NEED-eff.moonNeed);
-  if(res.scatters>=need){
-    if(free||run.moonReady<1){
-      const bonus=res.betUsed*(free?2:1.5);
-      run.cash+=bonus;
-      addFloat((free?'🌕':'🌘')+' +'+fmt(bonus),'',slot++);
-      if(!free) toast('🌘 The moon is still waning — moons paid '+fmt(bonus)+' instead');
-      sCoin();
-    }else{
+  /* Blood Moon charge: every paid spin drifts the meter up, and every Moon on
+     screen pushes it hard. It rises to full, fires, and drops back to empty —
+     so Blood Moons are rare but always visibly approaching, and a Moon symbol
+     is never a dud (it always moves the meter). */
+  if(!free&&eff.moonBlock<=0){
+    const fillMult=1+eff.moonFill;
+    const gain=(MOON_DRIFT+res.scatters*MOON_PER)*fillMult;
+    run.moonCharge=Math.min(1,(run.moonCharge||0)+gain);
+    if(res.scatters>0&&run.moonCharge<1) addFloat('🌘 +'+Math.round(gain*100)+'%','bad',slot++);
+    if(run.moonCharge>=1){
       const add=MOON_SPINS+eff.moonSpins;
       run.freeSpins+=add;
-      run.moonReady=0;
+      run.moonCharge=0;
       if(!run.freeBet) run.freeBet=run.bet; /* bet locks at the amount that triggered it */
       meta.stats.moons=(meta.stats.moons||0)+1;
       toast('🌕 BLOOD MOON — '+add+' free spins, wins ×2 at $'+run.freeBet,'good');
       sMoon();
     }
+  }else if(free&&res.scatters>0){
+    const bonus=res.betUsed*res.scatters*0.5;
+    run.cash+=bonus;
+    addFloat('🌕 +'+fmt(bonus),'',slot++);
+    sCoin();
   }
   /* tick temporary effects */
   run.charms=run.charms.filter(ch=>{ch.left--;return ch.left>0;});
@@ -1516,12 +1564,17 @@ function applyResult(grid,res,free,eff){
 /* ============ [REAPER'S TOLL] ============ */
 function doToll(){
   const eff=EFF();
+  if(run.duel){run.roundReady=false;sendState();}
   if(run.tollMods.skip>0){
     run.tollMods={mult:1,add:0,skip:0};
-    run.cutNum++; run.sinceCut=0;
+    run.cutsPaid++; run.cutNum++; run.sinceCut=0;
     toast('🌫️ Ghost Walk — the Reaper passed you by','good');
     saveAll(); renderGame();
     if(run.duel) sendState();
+    /* a skipped Toll is still the end of a round: you still get your Rite and
+       the Night Market. Previously this returned early and silently swallowed
+       both, which read as "the shop skipped completely". */
+    offerRites();
     return;
   }
   const due=tollAmount(run.cutNum,eff);
@@ -1582,6 +1635,7 @@ function rollRites(n){
 function offerRites(){
   const picks=rollRites(3);
   if(!picks.length){openShop();return;}
+  ritePending=true;
   const wrap=$('riteCards');
   wrap.innerHTML='';
   for(const r of picks){
@@ -1596,8 +1650,11 @@ function offerRites(){
   ovOpen('ovRite');
   sMoon();
 }
+var ritePending=false;
 function takeRite(id){
   const r=RITE_BY_ID[id]; if(!r) return;
+  if(!ritePending) return; /* guard: a double-click must not resolve twice */
+  ritePending=false;
   ovClose('ovRite');
   if(r.instant==='pardon'){
     if(run.cash<0) run.cash=0;
@@ -1761,6 +1818,7 @@ function renderShop(){
   if(!run||!run.shop) return;
   $('shopCash').textContent=fmt(run.cash);
   $('shopSlots').textContent=run.storage.length+'/'+storageCap();
+  $('shopBuild').innerHTML=buildStripHTML();
   let h='';
   for(const sp of run.shop.packs){
     const p=PACKS.find(x=>x.id===sp.id);
@@ -1823,6 +1881,7 @@ function openPack(pack,freebie){
   }
   draftPicks=[]; draftKeep=Math.min(keep,Math.max(0,storageCap()-run.storage.length));
   $('packTitle').textContent=(freebie?'🎁 ':'')+pack.n;
+  $('packBuild').innerHTML=buildStripHTML();
   const wrap=$('packCards'); wrap.innerHTML=''; wrap.className='draft';
   packPending=pulls.length;
   $('packDone').disabled=true;
@@ -1857,6 +1916,36 @@ function openPack(pack,freebie){
   });
   packOpenedAt=Date.now();
   ovOpen('ovPack');
+}
+/* Compact read-out of what you already hold, shown inside the shop and draft
+   overlays — you cannot see the paytable behind them, and picking a card
+   blind to your own build is the whole thing drafts are meant to fix. */
+function buildStripHTML(){
+  const eff=EFF(), base=baseEff();
+  let h='<div class="bstrip"><div class="bl">Your build</div><div class="brow">';
+  if(!run.relicOrder.length) h+='<span class="bnone">no relics played yet</span>';
+  for(const id of run.relicOrder){
+    const c=CARD_BY_ID[id];
+    h+='<div class="acard r'+c.r+'" data-tipcard="'+id+'" data-tiplv="'+run.relics[id]+'">'+c.i+'<span class="bdg">L'+run.relics[id]+'</span></div>';
+  }
+  for(const rid of (run.rites||[])){
+    const rt=RITE_BY_ID[rid]; if(!rt) continue;
+    h+='<div class="acard r'+(rt.t===1?4:1)+'" data-tiprite="'+rid+'">'+(rid==='sixth_hour'?'<span class="s6">6</span>':rt.i)+'</div>';
+  }
+  h+='</div><div class="bnums">';
+  const wt=weightTable(eff), wb=weightTable(base);
+  let tot=0,totb=0; for(const s of SYMLIST){tot+=wt[s];totb+=wb[s];}
+  const pa=Math.round(eff.payAll*100);
+  h+='<span>Payouts <b class="'+(pa>0?'ghoul':'dim')+'">'+(pa>0?'+'+pa+'%':'base')+'</b></span>';
+  h+='<span>👁️ <b>'+(wt.eye/tot*100).toFixed(1)+'%</b></span>';
+  h+='<span>🌕 <b>'+(wt.moon/tot*100).toFixed(1)+'%</b></span>';
+  h+='<span>🕸️ <b>'+(wt.web/tot*100).toFixed(1)+'%</b></span>';
+  const boosted=PAYSYMS.filter(s=>(eff.pay[s]||0)>0.001)
+    .sort((a,b)=>(eff.pay[b]||0)-(eff.pay[a]||0)).slice(0,3)
+    .map(s=>symHTML(s)+'<b>+'+Math.round(eff.pay[s]*100)+'%</b>').join(' ');
+  if(boosted) h+='<span>'+boosted+'</span>';
+  h+='</div></div>';
+  return h;
 }
 function updateDraftHint(){
   const unrevealed=document.querySelectorAll('#packCards .pcard:not(.flip)').length;
@@ -1998,24 +2087,26 @@ function renderGame(){
   sb.disabled=anim||waiting;
   const sm=streakMultOf(run.streak,eff);
   $('streakV').textContent=run.streak>0?(run.streak+' 🔥 ×'+sm.toFixed(2)):'—';
-  /* moon phase chip */
-  const mc=$('moonChip'), mr=Math.max(0,Math.min(1,run.moonReady||0));
+  /* moon charge chip */
+  const mc=$('moonChip'), mr=Math.max(0,Math.min(1,run.moonCharge||0));
   const PHASES=['🌑','🌒','🌓','🌔','🌕'];
   if(free){
     mc.className='active'; mc.querySelector('.mi').textContent='🌕';
     $('moonTxt').textContent='Blood Moon ×2 · '+run.freeSpins+' left';
-  }else if(mr>=1){
-    mc.className='ready'; mc.querySelector('.mi').textContent='🌕';
-    $('moonTxt').textContent='Moon full — ready';
+  }else if(eff.moonBlock>0){
+    mc.className='cool'; mc.querySelector('.mi').textContent='🌑';
+    $('moonTxt').textContent='Moon stolen';
   }else{
-    mc.className='cool'; mc.querySelector('.mi').textContent=PHASES[Math.min(3,Math.floor(mr*4))];
-    $('moonTxt').textContent='Waning · '+Math.ceil((1-mr)*MOON_COOL)+' spins';
+    mc.className=mr>=0.75?'ready':'cool';
+    mc.querySelector('.mi').textContent=PHASES[Math.min(4,Math.floor(mr*4.999))];
+    $('moonTxt').textContent='Blood Moon '+Math.round(mr*100)+'%';
   }
   const floor=-due;
   const shownBet=free?(run.freeBet||run.bet):run.bet;
   let bh='';
   for(const b of BETS){
-    bh+='<button class="betb'+(shownBet===b?' on':'')+'" data-bet="'+b+'" '+((free||run.cash-b<floor)?'disabled':'')+'>$'+b+'</button>';
+    const lbl=b>=1000?('$'+(b/1000)+'k'):('$'+b);
+    bh+='<button class="betb'+(shownBet===b?' on':'')+(b>=250?' big':'')+'" data-bet="'+b+'" '+((free||run.cash-b<floor)?'disabled':'')+'>'+lbl+'</button>';
   }
   $('betRow').innerHTML=bh;
   $('betLbl').textContent=free?'Bet 🔒':'Bet';
@@ -2033,7 +2124,7 @@ function renderGame(){
   let rih='';
   for(const id of (run.rites||[])){
     const r=RITE_BY_ID[id]; if(!r) continue;
-    rih+='<div class="acard r'+(r.t===1?4:1)+'" title="'+r.n+' — '+r.d+'">'+(r.id==='sixth_hour'?'<span class="s6">6</span>':r.i)+'</div>';
+    rih+='<div class="acard r'+(r.t===1?4:1)+'" data-tiprite="'+r.id+'">'+(r.id==='sixth_hour'?'<span class="s6">6</span>':r.i)+'</div>';
   }
   $('riteRow').innerHTML=rih||'<span class="none">none yet — survive a Toll to earn one</span>';
   $('riteCt').textContent=(run.rites||[]).length?(run.rites.length+' taken'):'';
@@ -2112,20 +2203,20 @@ function renderPaytable(eff){
     lh+='<div class="plz" style="--plc:'+LINE_COLORS[li]+'"><div class="plgrid">'+cells+'</div><span>'+LNAMES[li]+'</span></div>';
   }
   $('ptLines').innerHTML=lh;
-  const need=Math.max(2,MOON_NEED-eff.moonNeed);
   const cv=(COIN_VAL+eff.coinVal)*bet;
   const moonCh=(wt.moon/tot*100), eyeCh=(wt.eye/tot*100), webCh=(wt.web/tot*100), goldCh=(wt.gold/tot*100);
   const spins=MOON_SPINS+eff.moonSpins;
   let sp='';
   sp+='<div class="row"><span class="i">👁️</span><span><b>The Eye</b> is wild — becomes anything · '+eyeCh.toFixed(1)+'% per cell</span></div>';
-  sp+='<div class="row"><span class="i">🌕</span><span><b>'+need+'+ Moons</b> anywhere → Blood Moon: '+spins+' free spins, wins ×2, bet locked · '+moonCh.toFixed(1)+'% per cell. The moon must be <b>full</b> — it wanes for '+MOON_COOL+' spins after one, and moons pay cash meanwhile.</span></div>';
+  const chargeNow=Math.round((run?run.moonCharge||0:0)*100);
+  const perMoon=Math.round((MOON_PER*(1+eff.moonFill))*100);
+  sp+='<div class="row"><span class="i">🌕</span><span><b>Blood Moon '+chargeNow+'%</b> — each 🌕 on screen charges it +'+perMoon+'% ('+moonCh.toFixed(1)+'% per cell). At full: '+spins+' free spins, wins ×2, bet locked — then it empties.</span></div>';
   sp+='<div class="row"><span class="i">🪙</span><span><b>Cursed Gold</b> pays '+fmt(cv)+' instantly · '+goldCh.toFixed(1)+'%</span></div>';
   sp+='<div class="row"><span class="i">🕸️</span><span><b>Cobwebs</b> pay nothing · '+webCh.toFixed(1)+'%</span></div>';
   sp+='<div class="row"><span class="i">🔥</span><span><b>6·6·6</b> on a line claims the Hellpot: <b style="color:#ffae2e">'+fmt(run?run.pot:POT_SEED)+'</b></span></div>';
   if(run){
     sp+='<div class="row"><span class="i">💀</span><span>Tolls ahead: <b>'+fmt(tollAmount(run.cutNum,eff))+'</b>, then ~'+fmt(tollAmount(run.cutNum+1,eff))+', ~'+fmt(tollAmount(run.cutNum+2,eff))+'</span></div>';
-    const tax=Math.round(tollTax(run.cutNum,run.cash)*(1-eff.tollReduce));
-    if(tax>0) sp+='<div class="row"><span class="i">🩸</span><span><b style="color:#ff5b6e">'+fmt(tax)+'</b> of that Toll is the Reaper\'s share of your hoard ('+Math.round(Math.min(30,3.5*run.cutNum))+'% above '+fmt(TOLL_SAFE)+') — wealth is not safety.</span></div>';
+    sp+='<div class="row"><span class="i">📈</span><span>Each Toll is <b>'+Math.round((TOLL_GROWTH-1)*100)+'% steeper</b> than the last, forever. It never looks at your cash — only how long you have lasted.</span></div>';
     if(run.cash<0) sp+='<div class="row"><span class="i">🩸</span><span><b style="color:#ff5b6e">You are '+fmt(Math.abs(run.cash))+' in debt.</b> The House lends down to −(next Toll). Only the Toll can kill you.</span></div>';
     const dsp=desperation(), und=underdog();
     if(dsp>0) sp+='<div class="row"><span class="i">🔥</span><span><b style="color:#ff9c54">Desperation '+Math.round(dsp*100)+'%</b> — the lower your cash, the luckier the reels (payouts, wilds, gold, moons above)</span></div>';
@@ -2234,12 +2325,16 @@ function confirmBox(title,desc,cb){
 /* ============ [DUEL: state] ============ */
 var ws=null, opp=null, duelActive=false, pendingCode='', wasWaiting=false;
 function duelAlive(){return !!(ws&&ws.readyState===1&&opp&&opp.alive);}
-/* Toll checkpoint gate: once you've paid Toll N (your cutNum advanced), you
-   cannot spin again until the opponent has paid theirs too. */
+/* Toll checkpoint gate. You cannot spin the next round until BOTH players have
+   finished their Toll business (Rite + Night Market) and pressed Ready. */
 function duelWaiting(){
-  return !!(run&&run.duel&&duelActive&&opp&&opp.alive&&(opp.cutNum||1)<run.cutNum);
+  if(!(run&&run.duel&&duelActive&&opp&&opp.alive)) return false;
+  if(!run.roundReady) return false;              /* still in your own shop */
+  if((opp.cutNum||1)<run.cutNum) return true;    /* they have not paid yet */
+  if((opp.cutNum||1)===run.cutNum&&!opp.ready) return true; /* not ready yet */
+  return false;
 }
-function freshOpp(name){return {name:name||'…',cash:0,spins:0,tollIn:'—',tollDue:0,streak:0,free:0,cutNum:1,inShop:false,alive:true,played:[],relicsSeen:[],feed:[]};}
+function freshOpp(name){return {name:name||'…',cash:0,spins:0,tollIn:'—',tollDue:0,streak:0,free:0,cutNum:1,inShop:false,ready:true,alive:true,grid:null,played:[],relicsSeen:[],feed:[]};}
 function resetOppPanel(){if(!opp)opp=freshOpp();renderOpp();}
 function duelSend(o){try{if(ws&&ws.readyState===1)ws.send(JSON.stringify(o));}catch(e){}}
 function sendState(){
@@ -2248,13 +2343,22 @@ function sendState(){
   duelSend({t:'state',cash:Math.round(run.cash),spins:run.spins,
     tollIn:TOLL_EVERY-run.sinceCut,tollDue:tollAmount(run.cutNum,eff),
     streak:run.streak,free:run.freeSpins,alive:!run.over,
-    cutNum:run.cutNum,inShop:!!run.inShop});
+    cutNum:run.cutNum,inShop:!!run.inShop,ready:!!run.roundReady});
 }
 function oppFeed(msg,cls){
   if(!opp)return;
   opp.feed.unshift({msg,cls});
   opp.feed=opp.feed.slice(0,3);
   renderOpp();
+}
+function renderOppGrid(){
+  const el=$('oppGrid'); if(!el||!opp) return;
+  if(!opp.grid){el.innerHTML='<span class="dim" style="font-size:11px">waiting for their first spin…</span>';return;}
+  let h='';
+  for(let i=0;i<CELLS;i++) h+='<div class="ocell">'+symHTML(opp.grid[i])+'</div>';
+  el.innerHTML=h;
+  el.classList.toggle('win',!!opp.gridWin);
+  if(opp.gridWin){setTimeout(()=>el.classList.remove('win'),700);}
 }
 function renderOpp(){
   if(!opp)return;
@@ -2264,6 +2368,8 @@ function renderOpp(){
   $('oppSpins').textContent=opp.spins||0;
   if(run&&(opp.cutNum||1)>run.cutNum)
     $('oppToll').textContent='✔ paid — waiting for you'+(opp.inShop?' (shopping)':'');
+  else if(opp.ready===false)
+    $('oppToll').textContent='⏳ in the market…';
   else
     $('oppToll').textContent=opp.tollDue?fmt(opp.tollDue)+' in '+opp.tollIn:'—';
   $('oppStreak').textContent=(opp.streak||0)+(opp.free>0?' · 🌕'+opp.free:'');
@@ -2422,7 +2528,7 @@ function onDuelMsg(m){
       if(!opp) opp=freshOpp();
       opp.cash=m.cash; opp.spins=m.spins; opp.tollIn=m.tollIn; opp.tollDue=m.tollDue;
       opp.streak=m.streak; opp.free=m.free;
-      opp.cutNum=m.cutNum||1; opp.inShop=!!m.inShop;
+      opp.cutNum=m.cutNum||1; opp.inShop=!!m.inShop; opp.ready=(m.ready!==false);
       if(m.alive===false&&opp.alive){opp.alive=false;}
       renderOpp();
       const g=duelWaiting();
@@ -2432,6 +2538,11 @@ function onDuelMsg(m){
       }
       if(run&&!run.over) renderGame(); /* opponent cash drives Underdog + lead */
       break;}
+    case 'grid':
+      if(!opp) opp=freshOpp();
+      opp.grid=m.g; opp.gridWin=!!m.w;
+      renderOppGrid();
+      break;
     case 'played':{
       if(!opp) opp=freshOpp();
       const c=CARD_BY_ID[m.id];
@@ -2522,8 +2633,10 @@ function wire(){
   $('gHelp').onclick=()=>ovOpen('ovHelp');
   $('gAbandon').onclick=()=>confirmBox('Abandon run?','The run ends and you collect its Souls.'+(run&&run.duel?' In a duel this means DEFEAT.':''),()=>endRun('You walked away from the table.'));
   $('shopDone').onclick=()=>{
-    run.inShop=false; ovClose('ovShop'); saveAll(); renderGame();
-    if(run.duel) sendState();
+    run.inShop=false;
+    run.roundReady=true;
+    ovClose('ovShop'); saveAll(); renderGame();
+    if(run.duel){ sendState(); toast('✔ Ready — waiting for '+(opp?opp.name:'your rival'),'good'); }
   };
   $('shopReroll').onclick=()=>{
     if(run.cash<run.shop.rerollCost) return;
