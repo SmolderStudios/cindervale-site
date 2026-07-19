@@ -91,6 +91,12 @@ input{font-family:inherit}
 }
 #moonBan.on{display:block}
 @keyframes banPulse{from{opacity:.7}to{opacity:1}}
+#waitBan{
+  display:none;text-align:center;font-weight:900;letter-spacing:2px;color:#b8a8d8;
+  text-shadow:0 0 14px rgba(180,92,240,.5);margin-bottom:8px;font-size:14px;
+  animation:banPulse 1.2s infinite alternate;
+}
+#waitBan.on{display:block}
 #grid{
   display:grid;grid-template-columns:repeat(5,1fr);gap:7px;
   background:#080407;border-radius:11px;padding:10px;border:1px solid #2a161e;
@@ -381,6 +387,7 @@ input{font-family:inherit}
       </div>
       <div class="machine" id="machineBox">
         <div id="moonBan">🌕 BLOOD MOON — <span id="moonN">0</span> FREE SPINS · WINS ×<span id="moonM">2</span> 🌕</div>
+        <div id="waitBan">⏳ THE REAPER HOLDS YOU — <span id="waitWho"></span></div>
         <div id="grid"></div>
         <div class="ctrls">
           <div class="betcol">
@@ -562,7 +569,7 @@ input{font-family:inherit}
       <li><b>👁️ The Eye</b> is wild — it becomes anything. <b>🌕 3+ Moons</b> anywhere = <b>Blood Moon</b> free spins, wins ×2. <b>🪙 Cursed Gold</b> pays instantly. <b>🕸️ Cobwebs</b> pay nothing.</li>
       <li><b>🔥 The Hellpot</b> grows with every bet. Line up <b>6·6·6</b> to claim it all.</li>
       <li><b>Hot streak:</b> consecutive winning spins boost payouts. A dead spin resets it.</li>
-      <li><b>Duels:</b> invite a friend by lobby code. You each fight your own reels — last one alive wins. Hexes sabotage them; their panel shows every card they play.</li>
+      <li><b>Duels:</b> invite a friend by lobby code. You each fight your own reels — last one alive wins. Hexes sabotage them; their panel shows every card they play. <b>Tolls are checkpoints:</b> after paying yours, the Reaper holds you until your opponent pays theirs — you march to the grave in step.</li>
       <li><b>Death is progress.</b> You keep <b>Souls</b> for permanent Grimoire pacts, and every card you pull joins your Collection forever.</li>
     </ul>
     <button class="btn" id="helpClose" style="margin-top:14px">Close</button>
@@ -597,7 +604,7 @@ input{font-family:inherit}
 <div id="jpFlash"><div class="t">🔥 666 🔥<br><span id="jpAmt"></span></div></div>
 <div id="toasts"></div>
 <div id="tip"></div>
-<div class="ver">DEADSPIN v2.0.0 · spinfall</div>
+<div class="ver">DEADSPIN v2.1.0 · spinfall</div>
 
 <script>
 'use strict';
@@ -1096,6 +1103,7 @@ function endRunSilent(){
 /* ============ [SPIN] ============ */
 function spin(){
   if(anim||!run||run.over||run.inShop) return;
+  if(run.duel&&duelWaiting()) return; /* Toll checkpoint: opponent hasn't paid theirs yet */
   const eff=EFF();
   const free=run.freeSpins>0;
   if(!free){
@@ -1438,10 +1446,18 @@ function renderGame(){
   $('moonBan').classList.toggle('on',free);
   $('machineBox').classList.toggle('bloodmoon',free);
   if(free){$('moonN').textContent=run.freeSpins;$('moonM').textContent=(2*(1+eff.winMult)*streakMultOf(run.streak,eff)).toFixed(1);}
+  const waiting=run.duel&&duelWaiting();
+  if(run.duel) wasWaiting=waiting; /* renderGame is the source of truth for the gate UI */
+  $('waitBan').classList.toggle('on',waiting);
+  if(waiting){
+    const who=opp?opp.name:'Opponent';
+    const inN=(opp&&typeof opp.tollIn==='number')?(' — due in '+opp.tollIn+' spin'+(opp.tollIn===1?'':'s')):'';
+    $('waitWho').textContent=who+' still owes the Reaper'+inN;
+  }
   const sb=$('spinBtn');
   sb.classList.toggle('moon',free);
-  sb.textContent=free?'FREE SPIN':'SPIN';
-  sb.disabled=anim;
+  sb.textContent=waiting?'WAITING…':(free?'FREE SPIN':'SPIN');
+  sb.disabled=anim||waiting;
   const sm=streakMultOf(run.streak,eff);
   $('streakV').textContent=run.streak>0?(run.streak+' 🔥 ×'+sm.toFixed(2)):'—';
   let bh='';
@@ -1625,9 +1641,14 @@ function confirmBox(title,desc,cb){
 }
 
 /* ============ [DUEL: state] ============ */
-var ws=null, opp=null, duelActive=false, pendingCode='';
+var ws=null, opp=null, duelActive=false, pendingCode='', wasWaiting=false;
 function duelAlive(){return !!(ws&&ws.readyState===1&&opp&&opp.alive);}
-function freshOpp(name){return {name:name||'…',cash:0,spins:0,tollIn:'—',tollDue:0,streak:0,free:0,alive:true,played:[],relicsSeen:[],feed:[]};}
+/* Toll checkpoint gate: once you've paid Toll N (your cutNum advanced), you
+   cannot spin again until the opponent has paid theirs too. */
+function duelWaiting(){
+  return !!(run&&run.duel&&duelActive&&opp&&opp.alive&&(opp.cutNum||1)<run.cutNum);
+}
+function freshOpp(name){return {name:name||'…',cash:0,spins:0,tollIn:'—',tollDue:0,streak:0,free:0,cutNum:1,inShop:false,alive:true,played:[],relicsSeen:[],feed:[]};}
 function resetOppPanel(){if(!opp)opp=freshOpp();renderOpp();}
 function duelSend(o){try{if(ws&&ws.readyState===1)ws.send(JSON.stringify(o));}catch(e){}}
 function sendState(){
@@ -1635,7 +1656,8 @@ function sendState(){
   const eff=EFF();
   duelSend({t:'state',cash:Math.round(run.cash),spins:run.spins,
     tollIn:TOLL_EVERY-run.sinceCut,tollDue:tollAmount(run.cutNum,eff),
-    streak:run.streak,free:run.freeSpins,alive:!run.over});
+    streak:run.streak,free:run.freeSpins,alive:!run.over,
+    cutNum:run.cutNum,inShop:!!run.inShop});
 }
 function oppFeed(msg,cls){
   if(!opp)return;
@@ -1649,7 +1671,10 @@ function renderOpp(){
   $('oppBox').classList.toggle('dead',!opp.alive);
   $('oppCash').textContent=typeof opp.cash==='number'?fmt(opp.cash):'—';
   $('oppSpins').textContent=opp.spins||0;
-  $('oppToll').textContent=opp.tollDue?fmt(opp.tollDue)+' in '+opp.tollIn:'—';
+  if(run&&(opp.cutNum||1)>run.cutNum)
+    $('oppToll').textContent='✔ paid — waiting for you'+(opp.inShop?' (shopping)':'');
+  else
+    $('oppToll').textContent=opp.tollDue?fmt(opp.tollDue)+' in '+opp.tollIn:'—';
   $('oppStreak').textContent=(opp.streak||0)+(opp.free>0?' · 🌕'+opp.free:'');
   let h='';
   for(const id of opp.played.slice(-14)){
@@ -1789,19 +1814,27 @@ function onDuelMsg(m){
       const other=(m.names||[]).find(n=>n!==name)||(m.names||[])[0]||'Opponent';
       opp=freshOpp(other);
       duelActive=true;
+      wasWaiting=false;
       ovClose('ovDuelEnd');
       if(run&&!run.over&&!run.duel) endRunSilent();
       startRun(true);
       toast('⚔️ Duel started vs '+other,'good');
       sendState();
       break;}
-    case 'state':
+    case 'state':{
       if(!opp) opp=freshOpp();
       opp.cash=m.cash; opp.spins=m.spins; opp.tollIn=m.tollIn; opp.tollDue=m.tollDue;
       opp.streak=m.streak; opp.free=m.free;
+      opp.cutNum=m.cutNum||1; opp.inShop=!!m.inShop;
       if(m.alive===false&&opp.alive){opp.alive=false;}
       renderOpp();
-      break;
+      const g=duelWaiting();
+      if(g!==wasWaiting){
+        wasWaiting=g;
+        if(!g&&run&&!run.over){toast('⚔️ '+opp.name+' paid their Toll — spin on','good');sMoon();}
+        if(run&&!run.over) renderGame();
+      }
+      break;}
     case 'played':{
       if(!opp) opp=freshOpp();
       const c=CARD_BY_ID[m.id];
