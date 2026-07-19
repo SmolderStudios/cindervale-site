@@ -704,6 +704,57 @@ input[type=range].vol::-moz-range-thumb{
 .mkpair b{color:#ff5b6e}
 .ptspec .row .i .symw{width:1.15em;height:1.15em}
 .oddsbar .od i .symw{width:1.1em;height:1.1em}
+/* ============ HELP TABS ============ */
+.helptabs{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 4px;border-bottom:1px solid #2a161e;padding-bottom:9px}
+.htab{
+  padding:6px 11px;border-radius:9px;font-size:12px;font-weight:800;letter-spacing:.4px;
+  background:#170b10;border:1px solid #3d222c;color:#8a7a80;transition:all .12s;
+}
+.htab:hover{border-color:#7a3242;color:#d8cfc0}
+.htab.on{background:linear-gradient(180deg,#c41d3a,#7c0e23);border-color:#ff5b6e;color:#ffe4e8}
+.hpane{display:none}
+.hpane.on{display:block}
+/* the help box scrolls internally so switching tabs never resizes the dialog */
+#ovHelp .ovbox{display:flex;flex-direction:column}
+#ovHelp .hpane{overflow-y:auto;max-height:58vh;padding-right:4px}
+/* ============ LAYOUT STABILITY ============ */
+/* Panels that grow and shrink mid-run (Desperation appearing, a debt line, a
+   Blood readout getting longer) were changing the page height, which toggled
+   the window scrollbar and shunted the whole layout sideways. Reserving the
+   gutter and giving the variable blocks a floor stops the screen from jumping. */
+html{scrollbar-gutter:stable}
+#ptSpec{min-height:214px}
+#meterRow{min-height:26px}
+.gwrap>div{align-self:flex-start}
+/* ============ UI SCALE ============ */
+.uirow{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:11px;
+  background:linear-gradient(180deg,#241318,#170b10);border:1px solid #3d222c;margin-top:11px}
+.uirow .vi{font-size:17px;width:26px;text-align:center;cursor:pointer}
+.uirow .vl{font-size:12px;color:#8a7a80;text-transform:uppercase;letter-spacing:1.4px;flex:0 0 auto}
+.uirow .vv{font-size:12px;color:#e8e0d0;font-weight:800;width:44px;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range].uiscale{
+  -webkit-appearance:none;appearance:none;flex:1;height:6px;border-radius:4px;
+  background:linear-gradient(90deg,#5bc9d8 0%,#5bc9d8 var(--p,50%),#2a161e var(--p,50%),#2a161e 100%);
+  outline:none;cursor:pointer;
+}
+input[type=range].uiscale::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:17px;height:17px;border-radius:50%;
+  background:radial-gradient(circle at 35% 32%,#a8e8f2,#2c7f8f);border:1px solid #7ee0ff;
+  box-shadow:0 0 10px rgba(91,201,216,.6);cursor:pointer;
+}
+input[type=range].uiscale::-moz-range-thumb{
+  width:15px;height:15px;border-radius:50%;background:#2c7f8f;border:1px solid #7ee0ff;cursor:pointer;
+}
+/* ============ SYMBOL TOOLTIP ============ */
+.t-sym{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.t-sym .symw{width:2.1em;height:2.1em;flex:0 0 auto}
+.t-sym .sn{font-weight:800;font-size:14px;color:#e8e0d0;line-height:1.15}
+.t-sym .sr{font-size:10.5px;color:#8a7a80;letter-spacing:.4px}
+.t-pays{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:11.5px;margin:7px 0}
+.t-pays .k{color:#8a7a80}
+.t-pays .v{text-align:right;color:#d8cfc0;font-variant-numeric:tabular-nums;font-weight:700}
+.t-pays .v.up{color:#6fd784}
+.t-mark{background:#2c0f16;border:1px solid #7a2333;border-radius:7px;padding:5px 7px;font-size:11px;color:#ff8a9a;margin-top:5px}
 /* ============ THE DESCENT ============ */
 .sigc{color:#7ee0ff;font-weight:800}
 .floorb{
@@ -926,6 +977,12 @@ input[type=range].vol::-moz-range-thumb{
       <button class="btn" id="mUp">📖 &nbsp;Grimoire <span class="blood" id="mTok"></span> <span class="sigc" id="mSig"></span></button>
       <button class="btn" id="mHelp">❔ &nbsp;How to Play</button>
       <button class="btn" id="mFx">🦇 &nbsp;Atmosphere: On</button>
+      <div class="uirow">
+        <span class="vi" id="uiReset" title="Reset to 100%">🔍</span>
+        <span class="vl">UI size</span>
+        <input type="range" class="uiscale" id="uiSlide" min="65" max="140" step="5" value="100">
+        <span class="vv" id="uiVal">100%</span>
+      </div>
       <div class="volrow">
         <span class="vi" id="mSnd" title="Mute">🔊</span>
         <span class="vl">Volume</span>
@@ -1232,8 +1289,18 @@ input[type=range].vol::-moz-range-thumb{
 <div id="ovHelp" class="ov">
   <div class="ovbox" style="max-width:560px">
     <h2>❔ How to Play</h2>
-    <ul class="helpl" style="margin-top:12px">
-      <li><b>Spin.</b> Each spin costs your bet. Match <b>3, 4, or 5 of a kind from the left</b> on any payline. The paytable on the left shows every symbol's value and odds — live.</li>
+    <div class="helptabs" id="helpTabs">
+      <button class="htab on" data-htab="basics">Basics</button>
+      <button class="htab" data-htab="symbols">Symbols</button>
+      <button class="htab" data-htab="run">The Run</button>
+      <button class="htab" data-htab="cards">Cards</button>
+      <button class="htab" data-htab="blood">Blood</button>
+      <button class="htab" data-htab="descent">The Descent</button>
+      <button class="htab" data-htab="together">Together</button>
+    </div>
+
+    <ul class="helpl hpane on" data-hpane="basics">
+      <li><b>Spin.</b> Each spin costs your bet. Match <b>3, 4 or 5 of a kind from the left</b> on any payline. The paytable on the left shows every symbol's value and odds — live, as your build changes them. <b>Hover any symbol there</b> for its full detail.</li>
       <li>The 5 paylines:
         <div class="linelegend">
           <span><i style="background:#ffd76b"></i>Top row</span>
@@ -1243,28 +1310,63 @@ input[type=range].vol::-moz-range-thumb{
           <span><i style="background:#b45cf0"></i>Λ shape</span>
         </div>
       </li>
-      <li><b>The Reaper's Toll.</b> Every 12 spins Death demands cash. The price climbs geometrically and <b>past the twelfth Toll it climbs faster still</b> — the late game is meant to close. It also scales to the <b>stakes you choose</b>, so a $10,000 bettor is asked $10,000-bettor money. <b>Only the Toll can kill you:</b> going broke mid-round puts you in <b>debt</b> (red cash) — the House lends you spins down to the size of your next Toll. If the Toll arrives and you can't pay, the run ends.</li>
-      <li><b>🌑 The Nights.</b> A run is cut into five Nights. Each one recolours the keep, steepens the Toll, and makes the Death Roll likelier. Reaching <b>Night V</b> is the deep end.</li>
-      <li><b>Rites.</b> Every Toll you survive, the dark pays you back: pick <b>1 of 3 Rites</b> — run-permanent buffs, many of which bend the actual spawn odds on the reels. Watch the paytable percentages move as you take them. Some <b>starve</b> symbols instead of feeding them, which lifts everything else at once. From the ninth Toll, <b>Pinnacle Rites</b> start appearing — they are the answer to the curve.</li>
+      <li><b>Hot streak.</b> Consecutive winning spins boost payouts. A dead spin resets it.</li>
+      <li><b>Playing faster.</b> <b>AUTO</b> spins for you (10 / 50 / ∞) and <b>pauses itself</b> for the market, a Rite or a duel checkpoint, then carries on once you are done. <b>⚡</b> is turbo reels.</li>
+      <li><b>Keys:</b> <b>Space</b> spin · <b>A</b> autospin · <b>T</b> turbo · <b>1–0</b> and <b>-</b> bet · <b>Esc</b> close / stop.</li>
+      <li><b>Too big or too small?</b> There is a <b>UI size</b> slider on the menu — it scales the whole game, so you can fit it all on one screen or make it readable from the sofa.</li>
+    </ul>
+
+    <ul class="helpl hpane" data-hpane="symbols">
+      <li><b>👁️ The Eye</b> is <b>wild</b> — it becomes any symbol.</li>
+      <li><b>🌕 Moons charge the Blood Moon meter</b> (watch the phase next to your streak). Every Moon on screen pushes it up; at full you get free spins with wins <b>×2</b> and <b>your bet locked</b>, then the meter empties and starts again. A Moon is never a dud — it always moves the meter.</li>
+      <li><b>🪙 Cursed Gold</b> pays instantly, no line needed. <b>🕸️ Cobwebs</b> pay nothing — they are the reel's ballast, and they can be thinned but never removed entirely.</li>
+      <li><b>🍀 Black Clover</b> multiplies the whole spin. Every Clover on screen adds to the multiplier, so two or three at once turn a modest line into a real win.</li>
+      <li><b>🔥 The Hellpot</b> grows with every bet, and its floor <b>scales to the biggest bet you have made</b> — so <b>6·6·6</b> on a line is always worth chasing at whatever stakes you play.</li>
+      <li><b>🖐️ The Dead Hand.</b> All fifteen cells, one symbol. The rarest thing in the game: it pays a <b>6× bonus on top of the five lines it already makes</b> AND takes the Hellpot. You cannot force it, but relics and rites make it likelier — and when the reels start landing all-the-same, <b>everything slows down</b>. Two reels matching dims the room. Three drains the colour. Four stops the world.</li>
+    </ul>
+
+    <ul class="helpl hpane" data-hpane="run">
+      <li><b>The Reaper's Toll.</b> Every 12 spins Death demands cash. The price climbs geometrically and <b>past the eighth Floor it climbs faster still</b> — the late game is meant to close. It also scales to the <b>stakes you choose</b>, so a $10,000 bettor is asked $10,000-bettor money.</li>
+      <li><b>Only the Toll can kill you.</b> Going broke mid-round puts you in <b>debt</b> (red cash) — the House lends you spins down to the size of your next Toll. If the Toll arrives and you cannot pay, the run ends.</li>
+      <li><b>🌑 The Nights.</b> A run is cut into five Nights. Each recolours the keep, steepens the Toll and makes the Death Roll likelier. <b>Night V</b> is the deep end.</li>
+      <li><b>☠️ The Death Roll.</b> A rare bad spin that takes a share of your cash — never the run. It grows more likely the deeper you go, and risk cards raise it further in exchange for power. Warding cards push it back down.</li>
+      <li><b>Rites.</b> Every Toll you survive, the dark pays you back: pick <b>1 of 3</b> run-permanent boons. Many bend the actual spawn odds on the reels — watch the paytable percentages move as you take them. Some <b>starve</b> symbols instead of feeding them, which lifts everything else at once. From Floor 9, <b>Pinnacle Rites</b> appear — they are the answer to the curve.</li>
       <li><b>Desperation.</b> The lower your cash falls (and into debt), the luckier the reels get — up to <b>+45% payouts</b> plus more wilds, gold and moons. Losing makes you dangerous.</li>
-      <li><b>Underdog & Grudge (duels).</b> Falling behind grants <b>Underdog</b> (up to +30% payouts and more wilds). Every hex you eat and every Toll you spend behind fills the <b>Grudge</b> meter — at 100 it forces a free Hex into your hand. The leader never gets to coast.</li>
-      <li><b>🗡️ Co-op: The Hunt.</b> Same lobby, pick <b>The Hunt</b> instead of Duel. You each spin your own reels and pay your own Tolls, but <b>Scythes</b> landing on either player's reels fill a shared Summoning meter. At full, a <b>boss</b> rises for both of you with a shared timer. Your winning lines <b>wound it</b> — and the wound is your payout multiple for that symbol, so whatever you have stacked is what you hit with: a rat-focused build genuinely mauls it with rats. Kill it for cash and a trophy card; the next one is far stronger, forever. Let it escape and it feeds on your cash. <b>Shared fate:</b> if either of you falls, the hunt ends — so keep your partner solvent with 💸.</li>
-      <li><b>In duels, mercy exists.</b> Your opponent's panel has <b>💸 Send $50</b> and you have <b>🙏 Beg</b> — a rich rival can bail you out of debt to keep the duel going.</li>
-      <li><b>The Night Market.</b> After each Toll, buy <b>card drafts</b> — you are shown several cards and <b>choose which to keep</b>, so you can build toward what you already have. Cards go to your <b>storage</b> — play them when YOU choose:
-        <span class="kchip relic">Relic</span> <b>PERMANENT</b> once played · <span class="kchip charm">Charm</span> <b>ONE USE</b>, temporary boost · <span class="kchip hex">Hex</span> <b>ONE USE</b>, strikes your duel opponent. Playing a duplicate Relic upgrades it — <b>symbol relics have no cap at all</b>. Unwanted cards sell for cash.</li>
-      <li><b>🩸 Blood &amp; the Altar.</b> A few symbols are <b>🔻 marked</b> each run (shown in the paytable). Only a winning <b>line</b> of a marked symbol bleeds <b>Blood</b> — the Altar's only currency, so it rewards committing to a symbol rather than betting big. One mark moves at every Toll. Altar offerings are infinite and climb in price; each tile shows what you own and what it currently totals, including direct <b>reel weight</b> buys.</li>
-      <li><b>🗡️ Wounding a boss.</b> Every winning line hurts it. The wound is that line's <b>payout multiple × your multiplier for that symbol × 30</b> — so it comes from your BUILD, not your bet. Three rats normally hit for ~100; with Rat King at Lv5 the same line hits for ~240. While a boss is up the paytable shows a <b>🗡️ column</b> with exactly what each symbol wounds for. Pairs and Cursed Gold pay cash but deal nothing.</li>
-      <li><b>🎴 On a Hunt there is no bag.</b> A card you take is played immediately — relics level up, charms start ticking. When you pick a card you can <b>click it again to send it to your partner</b> instead, and it plays on their side.</li>
-      <li><b>🤝 Helping each other (co-op).</b> Give cards straight to your partner from any card's popover, send them cash, and watch their panel: their marks, their Blood, their reels, every card they play and every blow they land on the boss.</li>
-      <li><b>Playing faster.</b> <b>AUTO</b> spins for you (10 / 50 / ∞) and <b>pauses itself</b> for the market, a Rite or a duel checkpoint, then carries on once you are done. <b>⚡</b> is turbo reels. Keys: <b>Space</b> spin · <b>A</b> autospin · <b>T</b> turbo · <b>1–0</b> bet · <b>Esc</b> close / stop.</li>
-      <li><b>Trials.</b> Long-term goals that persist across every run and pay Souls once — check them from the menu for something to chase after the basics stop scaring you.</li>
-      <li><b>👁️ The Eye</b> is wild — it becomes anything. <b>🌕 Moons charge the Blood Moon meter</b> (watch the phase next to your streak): every Moon on screen pushes it up, and at full you get free spins with wins ×2 and <b>your bet locked</b> — then the meter empties and starts again. <b>🪙 Cursed Gold</b> pays instantly. <b>🕸️ Cobwebs</b> pay nothing.</li>
-      <li><b>🔥 The Hellpot</b> grows with every bet, and its floor <b>scales to the biggest bet you have made</b> — so 6·6·6 is always worth chasing at whatever stakes you play.</li>
-      <li><b>🖐️ The Dead Hand.</b> All fifteen cells, one symbol. It is the rarest thing in the game: it pays <b>16× a five-of-a-kind on every line at once</b> AND takes the Hellpot. You cannot force it, but relics and rites make it likelier — and when the reels start landing all-the-same, <b>everything slows down</b>. Two reels matching dims the room. Three drains the colour. Four stops the world.</li>
-      <li><b>Hot streak:</b> consecutive winning spins boost payouts. A dead spin resets it.</li>
-      <li><b>Duels:</b> invite a friend by lobby code. You each fight your own reels — last one alive wins. Hexes sabotage them; their panel shows every card they play. <b>Tolls are checkpoints:</b> after your Toll you shop, then press <b>✔ Ready</b> — neither player spins the next round until both are ready, so nobody races ahead while you browse. Their reels mirror live in your panel.</li>
-      <li><b>🪜 The Descent (solo).</b> Every Toll is a <b>Floor</b>. Clearing <b>Floor 20</b> is an <b>escape</b> — the only way a run ends well — and it pays a <b>◈ Sigil</b>, the one currency Souls cannot buy. Sigils buy the <b>Black Grimoire</b>, which bends a run rather than padding it. Escaping also opens the next <b>Descent</b>: the same keep with heavier Tolls, paying more Sigils. That is the long game.</li>
+    </ul>
+
+    <ul class="helpl hpane" data-hpane="cards">
+      <li><b>The Night Market.</b> After each Toll, buy <b>card drafts</b> — you are shown several cards and <b>choose which to keep</b>, so you can build toward what you already hold. You may take fewer than the limit, or <b>none at all</b>.</li>
+      <li><b>Prices climb with every purchase</b>, not with how deep you are — a frugal run keeps cheap options open however far it goes.</li>
+      <li><span class="kchip relic">Relic</span> <b>PERMANENT</b> once played. Duplicates level it up, and <b>relic ladders have no cap</b> — there is always a next level. <span class="kchip charm">Charm</span> <b>ONE USE</b>, a temporary boost. <span class="kchip hex">Hex</span> <b>ONE USE</b>, strikes your duel opponent.</li>
+      <li><b>Keystones</b> are the exception: one level only, because each changes a <b>rule</b> rather than a number. Finding one is a reason to steer the whole run around it.</li>
+      <li><b>Storage.</b> In solo, cards wait in your bag until you choose to play them. Unwanted cards sell for cash. <b>In duels the bag holds Hexes only</b> — relics and charms play themselves the moment you take them, because the only card worth timing is the one you throw.</li>
+    </ul>
+
+    <ul class="helpl hpane" data-hpane="blood">
+      <li><b>🩸 Blood</b> is a second currency, and cash cannot buy it. A few symbols are <b>🔻 marked</b> each run (shown in the paytable). Only a winning <b>line</b> of a marked symbol bleeds Blood.</li>
+      <li>That means Blood rewards <b>committing to a symbol</b> rather than betting big. Rare symbols bleed proportionally more, so no mark set is a dead hand. <b>One mark moves at every Toll</b>, so a build has to keep adapting.</li>
+      <li><b>The Altar</b> is the only thing Blood buys, and it is the endgame money sink: infinitely repeatable offerings whose price climbs forever. Every symbol family has one, so no single build is the only way to scale. Direct <b>reel weight</b> buys sit underneath as compact chips.</li>
+      <li>The paytable shows your <b>expected Blood per spin</b> and the exact bleed value of every marked symbol — hover them for detail.</li>
+    </ul>
+
+    <ul class="helpl hpane" data-hpane="descent">
+      <li><b>🪜 Every Toll is a Floor.</b> The number sits beside the Reaper's Toll.</li>
+      <li><b>Clearing Floor 20 is an escape</b> — the only way a run ends well. It pays a Souls bonus and a <b>◈ Sigil</b>, the one currency Souls cannot buy.</li>
+      <li><b>The Black Grimoire</b> is bought with Sigils. Unlike the Souls Grimoire it does not pad your numbers — it bends the run: an extra Rite choice, wider drafts, a relic already in play, free rerolls, starting Blood, skipping the first floor.</li>
+      <li><b>Descents.</b> Escaping opens the next one: the same keep with heavier Tolls, paying more Sigils. Eight of them. That is the long game.</li>
+      <li><b>Trials</b> are goals that persist across every run and pay Souls once — check them from the menu for something to chase once the basics stop scaring you.</li>
       <li><b>Death is progress.</b> You keep <b>Souls</b> for permanent Grimoire pacts, and every card you pull joins your Collection forever.</li>
+    </ul>
+
+    <ul class="helpl hpane" data-hpane="together">
+      <li><b>⚔️ Duels.</b> Invite a friend by lobby code. You each fight your own reels — last one alive wins. Hexes sabotage them; their panel shows every card they play and mirrors their reels live.</li>
+      <li><b>Tolls are checkpoints.</b> After your Toll you shop, then press <b>✔ Ready</b> — neither player spins the next round until both are ready, so nobody races ahead while you browse.</li>
+      <li><b>Underdog &amp; Grudge.</b> Falling behind grants <b>Underdog</b> (up to +30% payouts and more wilds). Every hex you eat and every Toll you spend behind fills the <b>Grudge</b> meter — at 100 it forces a free Hex into your hand. The leader never gets to coast.</li>
+      <li><b>Mercy exists.</b> Your opponent's panel has <b>💸 Send</b>, and you have <b>🙏 Beg</b> — a rich rival can bail you out of debt to keep the duel going.</li>
+      <li><b>🗡️ Co-op: The Hunt.</b> Same lobby, pick <b>The Hunt</b> instead. You each spin your own reels and pay your own Tolls, but <b>Scythes</b> landing on either player's reels fill a shared Summoning meter. At full, a <b>boss</b> rises for both of you.</li>
+      <li><b>Wounding a boss.</b> Every winning line hurts it, and the wound is that line's <b>payout multiple × your multiplier for that symbol × 30</b> — so it comes from your BUILD, not your bet. While a boss is up the paytable shows a <b>🗡️ column</b> with exactly what each symbol wounds for. Pairs and Cursed Gold pay cash but deal nothing.</li>
+      <li><b>🎴 A Hunt has no bag.</b> A card you take is played immediately. When you pick one you can <b>click it again to send it to your partner</b> instead, and it plays on their side.</li>
+      <li><b>Shared fate.</b> If either of you falls, the hunt ends — so keep your partner solvent, and cover their Toll when the button appears.</li>
     </ul>
     <button class="btn" id="helpClose" style="margin-top:14px">Close</button>
   </div>
@@ -1313,7 +1415,7 @@ input[type=range].vol::-moz-range-thumb{
 </div></div>
 <div id="toasts"></div>
 <div id="tip"></div>
-<div class="ver">DEADSPIN v3.5.0</div>
+<div class="ver">DEADSPIN v3.6.0</div>
 
 <script>
 'use strict';
@@ -1632,6 +1734,29 @@ const CARDS=[
 /* "Cobwebs never appear" is no longer promisable — the dud is the reel's RTP
    regulator and now has a hard floor. Reworded to what it actually does. */
 {id:'last_lantern',n:'The Last Lantern',i:'🏮',r:4,kind:'relic',mx:1,d:()=>'Cobwebs become rare — but Cursed Gold pays nothing',f:'It shows you only what matters.',eff:()=>({webW:-9,coinVal:-99})},
+/* ---- RELICS: the reel, symbol by symbol ----
+   Every paying symbol now has a card that feeds it directly, so any archetype
+   can be steered from a draft rather than only from the Altar. Uncapped, and
+   bounded by the reel-shape guard rather than by a level cap. */
+{id:'plague_pit',n:'Plague Pit',i:'🐀',r:0,kind:'relic',mx:Infinity,d:l=>`Rats spawn more often (+${(1.6*l).toFixed(1)})`,f:'They found the soft ground.',eff:l=>({symW:{rat:1.6*l}})},
+{id:'belfry',n:'The Belfry',i:'🦇',r:0,kind:'relic',mx:Infinity,d:l=>`Bats spawn more often (+${(1.5*l).toFixed(1)})`,f:'Ring it and they answer.',eff:l=>({symW:{bat:1.5*l}})},
+{id:'broodmother',n:'Broodmother',i:'🕷️',r:1,kind:'relic',mx:Infinity,d:l=>`Spiders spawn more often (+${(1.3*l).toFixed(1)})`,f:'She is somewhere above you.',eff:l=>({symW:{spider:1.3*l}})},
+{id:'chandlery',n:'The Chandlery',i:'🕯️',r:1,kind:'relic',mx:Infinity,d:l=>`Candles spawn more often (+${(1.15*l).toFixed(2)})`,f:'Wax enough for a long night.',eff:l=>({symW:{candle:1.15*l}})},
+{id:'undertaking',n:'The Undertaking',i:'⚰️',r:2,kind:'relic',mx:Infinity,d:l=>`Coffins spawn more often (+${(0.95*l).toFixed(2)})`,f:'Business has never been better.',eff:l=>({symW:{coffin:0.95*l}})},
+{id:'seance_hall',n:'Séance Hall',i:'👻',r:2,kind:'relic',mx:Infinity,d:l=>`Ghosts spawn more often (+${(0.75*l).toFixed(2)})`,f:'Everyone here is listening.',eff:l=>({symW:{ghost:0.75*l}})},
+{id:'charnel',n:'Charnel House',i:'💀',r:3,kind:'relic',mx:Infinity,d:l=>`Skulls spawn more often (+${(0.55*l).toFixed(2)})`,f:'Stacked by height, then by age.',eff:l=>({symW:{skull:0.55*l}})},
+{id:'the_summoning',n:'The Summoning',i:'😈',r:4,kind:'relic',mx:Infinity,d:l=>`Sixes spawn more often (+${(0.4*l).toFixed(2)})`,f:'He answers to arithmetic.',eff:l=>({sixW:0.4*l})},
+/* ---- RELICS: the specials ---- */
+{id:'clover_patch',n:'Clover Patch',i:'🍀',r:2,kind:'relic',mx:Infinity,d:l=>`Black Clovers spawn more often (+${(0.5*l).toFixed(2)}) and each adds +${Math.round(12*l)}%`,f:'It grows where they fell.',eff:l=>({cloverW:.5*l,cloverMult:.12*l})},
+{id:'coin_press',n:'The Coin Press',i:'🪙',r:1,kind:'relic',mx:Infinity,d:l=>`Cursed Gold spawns more often (+${(0.9*l).toFixed(2)})`,f:'Struck from something that was owed.',eff:l=>({goldW:.9*l})},
+{id:'lunatic',n:'Lunatic',i:'🌕',r:2,kind:'relic',mx:Infinity,d:l=>`Moons spawn more often (+${(0.45*l).toFixed(2)}) and charge ${Math.round(8*l)}% faster`,f:'He only sleeps by day.',eff:l=>({moonW:.45*l,moonFill:.08*l})},
+{id:'third_eye',n:'The Third Eye',i:'👁️',r:3,kind:'relic',mx:Infinity,d:l=>`The Eye (wild) spawns more often (+${(0.4*l).toFixed(2)})`,f:'It was always open.',eff:l=>({wildW:.4*l})},
+/* ---- CHARMS: short, sharp spawn swings ---- */
+{id:'vermin_tide',n:'Vermin Tide',i:'🐀',r:0,kind:'charm',dur:7,d:()=>'For 7 spins: Rats and Bats spawn far more often (+6 each)',f:'The floor moves.',ceff:{symW:{rat:6,bat:6}}},
+{id:'cold_snap',n:'Cold Snap',i:'❄️',r:1,kind:'charm',dur:6,d:()=>'For 6 spins: Cobwebs spawn far less often (−8)',f:'Even the spiders went in.',ceff:{webW:-8}},
+{id:'high_mass',n:'High Mass',i:'⛪',r:2,kind:'charm',dur:6,d:()=>'For 6 spins: Coffins, Ghosts and Skulls spawn far more often',f:'Standing room only.',ceff:{symW:{coffin:3,ghost:2.5,skull:2}}},
+{id:'greed',n:'Greed',i:'💰',r:2,kind:'charm',dur:8,d:()=>'For 8 spins: Cursed Gold and Clovers spawn far more often',f:'Take it. Take all of it.',ceff:{goldW:4,cloverW:2}},
+{id:'the_hour',n:'The Hour',i:'🕕',r:4,kind:'charm',dur:4,d:()=>'For 4 spins: Sixes spawn enormously more often (+9)',f:'It is exactly six o’clock.',ceff:{sixW:9}},
 /* ---- HEXES (duel only, consumed on play) ---- */
 /* Hexes are PERCENTAGE based so they still bite in a million-dollar endgame.
    Flat amounts stopped mattering the moment bets passed $250. */
@@ -1759,6 +1884,29 @@ function bloodValue(sym){
   return Math.max(1,Math.round(BLOOD_PER*Math.pow(13/w,1.9)));
 }
 function bloodFor(len,sym){return Math.max(1,len-2)*bloodValue(sym);}
+/* Expected Blood per spin, so the paytable can answer "is this mark set worth
+   chasing?" without the player having to run the experiment. Analytic rather
+   than sampled: per payline, the chance of a 3/4/5 run of a marked symbol from
+   the left (wilds count), times what that run bleeds. */
+function bloodPerSpin(eff,marks,wt,tot){
+  if(!eff||eff.noBlood>0||!tot) return 0;
+  let ev=0;
+  for(const s of (marks||[])){
+    if(!SYM[s]||!SYM[s].pay) continue;
+    const q=Math.min(1,(wt[s]+wt.eye)/tot);
+    const q3=q*q*q, q4=q3*q, q5=q4*q;
+    const per=bloodValue(s)*(1+eff.bloodGain);
+    ev+=q3*(1-q)*per + q4*(1-q)*2*per + q5*3*per;
+  }
+  if(eff.bloodAny>0){
+    /* the flat bleed applies to ANY winning line, marked or not */
+    for(const s of PAYSYMS){
+      const q=Math.min(1,(wt[s]+wt.eye)/tot);
+      ev+=q*q*q*eff.bloodAny;
+    }
+  }
+  return ev*LINES.length;
+}
 
 /* ============ [DATA] THE ALTAR ============ */
 /* An INFINITE, geometrically-priced money sink at every Night Market. This is
@@ -1931,7 +2079,7 @@ const DUEL_WS='wss://'+DUEL_HOST;
 /* ============ [STATE] ============ */
 var meta=null, run=null, anim=false;
 
-function freshMeta(){return {v:2,tokens:0,up:{},coll:{},snd:1,vol:0.7,fx:1,turbo:0,name:'',trials:{},
+function freshMeta(){return {v:2,tokens:0,up:{},coll:{},snd:1,vol:0.7,uiScale:1,fx:1,turbo:0,name:'',trials:{},
   sigils:0,sig:{},deepest:0,descent:0,wins:0,
   stats:{runs:0,spins:0,jackpots:0,bestCash:0,bestSpins:0,bestCuts:0,totalWon:0,duelWins:0,duelLosses:0,
     moons:0,maxRelicLv:0,mostRites:0,debtTolls:0,soulsEarned:0,deadHands:0,escapes:0}};}
@@ -1951,6 +2099,7 @@ function loadAll(){
           /* volume arrived after the first saves: an old save has snd but no
              vol, so seed it from whether sound was on at all */
           if(meta.vol===undefined) meta.vol=meta.snd?0.7:0;
+          if(meta.uiScale===undefined) meta.uiScale=1;
           /* the Descent arrived after v3.4 — seed it for existing saves */
           if(meta.sigils===undefined) meta.sigils=0;
           if(!meta.sig) meta.sig={};
@@ -2629,7 +2778,12 @@ function tipHTML(c,extra){
 }
 function tipShowFor(el){
   const tip=$('tip');
-  if(el.dataset.tiprite){
+  if(el.dataset.tipsym){
+    const s=el.dataset.tipsym;
+    if(!SYM[s]) return;
+    tip.className='r'+(SYM[s].pay?(SYM[s].w>=9?0:(SYM[s].w>=6?1:(SYM[s].w>=4?2:3))):4)+' on';
+    tip.innerHTML=tipSymHTML(s);
+  }else if(el.dataset.tiprite){
     const rt=RITE_BY_ID[el.dataset.tiprite]; if(!rt) return;
     tip.className='r'+(rt.t===2?3:(rt.t===1?4:1))+' on';
     tip.innerHTML='<div class="t-head"><div class="t-ic">'+rt.i+'</div><div><div class="t-nm">'+rt.n+'</div>'
@@ -2642,19 +2796,72 @@ function tipShowFor(el){
     tip.className='r'+c.r+' on';
     tip.innerHTML=tipHTML(c,lv?{lv}:null);
   }
+  /* getBoundingClientRect reports VISUAL pixels, but style.left is interpreted
+     inside the zoomed root — so every measurement has to be divided by the UI
+     scale or the tooltip drifts further off the anchor the further you zoom. */
+  const z=uiZoom();
   const r=el.getBoundingClientRect();
-  let x=r.right+10, y=r.top-4;
-  if(x+260>window.innerWidth) x=r.left-260;
+  const vw=window.innerWidth/z, vh=window.innerHeight/z;
+  let x=r.right/z+10, y=r.top/z-4;
+  if(x+260>vw) x=r.left/z-260;
   if(x<4) x=4;
   tip.style.left=x+'px';
   tip.style.top='0px';
   const th=tip.offsetHeight;
-  if(y+th>window.innerHeight-8) y=window.innerHeight-th-8;
+  if(y+th>vh-8) y=vh-th-8;
   if(y<4) y=4;
   tip.style.top=y+'px';
 }
 function tipHide(){$('tip').classList.remove('on');}
-const TIPSEL='[data-tipcard],[data-tiprite]';
+/* ---- symbol detail, for hovering the paytable ----
+   The paytable can only show three payout columns and a percentage. Everything
+   else a player wants mid-run — what it bleeds, how far the relic has been
+   taken, how a pair or the wild interacts — lives here. */
+function tipSymHTML(s){
+  const eff=EFF(), base=baseEff();
+  const wt=weightTable(eff), wb=weightTable(base);
+  let tot=0,totb=0; for(const x of SYMLIST){tot+=wt[x];totb+=wb[x];}
+  const bet=run?run.bet:10;
+  const sy=SYM[s];
+  const ch=wt[s]/tot*100, chb=wb[s]/totb*100;
+  const marks=activeMarks(eff);
+  const marked=marks.indexOf(s)>=0;
+  let h='<div class="t-sym">'+symHTML(s)+'<div><div class="sn">'+sy.name+'</div>'
+    +'<div class="sr">'+(sy.pay?'paying symbol':'special')+' · base weight '+sy.w+'</div></div></div>';
+  if(sy.pay){
+    const pm=payMult(eff,s,marks), pb=payMult(base,s,marks);
+    const up=pm>pb+0.001?' up':'';
+    h+='<div class="t-pays">';
+    for(let k=0;k<3;k++) h+='<span class="k">'+(k+3)+' of a kind</span><span class="v'+up+'">'+fmt(sy.pay[k]*bet*pm)+'</span>';
+    h+='<span class="k">spawn odds</span><span class="v'+(ch>chb+0.05?' up':'')+'">'+ch.toFixed(2)+'%'
+      +(Math.abs(ch-chb)>0.05?(' <span class="dim">(was '+chb.toFixed(2)+'%)</span>'):'')+'</span>';
+    h+='<span class="k">a 5-line lands</span><span class="v">~1 in '+Math.round(1/Math.max(1e-9,Math.pow((wt[s]+wt.eye)/tot,5)*LINES.length)).toLocaleString('en-US')+' spins</span>';
+    const rid=SYM_RELIC[s], rc=rid?CARD_BY_ID[rid]:null;
+    if(rc){
+      const lv=(run&&run.relics[rid])||0;
+      h+='<span class="k">'+rc.i+' '+rc.n+'</span><span class="v'+(lv?' up':'')+'">'+(lv?('Lv'+lv+' · +'+Math.round((eff.pay[s]||0)*100)+'%'):'not held')+'</span>';
+    }
+    h+='</div>';
+    if(marked) h+='<div class="t-mark">🔻 <b>Marked</b> — a winning line of these bleeds <b>'+Math.round(bloodValue(s)*(1+eff.bloodGain))+' Blood</b> per extra symbol beyond two.</div>';
+    if(s==='rat') h+='<div class="t-m">Also pays on a left pair ('+fmt(RAT_PAIR*bet*payMult(eff,'rat',marks))+').</div>';
+    if(s==='six') h+='<div class="t-m">Three from the left claims the <b>Hellpot</b>.</div>';
+  }else{
+    const notes={
+      eye:'Wild — stands in for any symbol. Three or more from the left pay as Sixes.',
+      moon:'Charges the Blood Moon meter. Every Moon on screen pushes it up; at full you get free spins at ×2 with your bet locked.',
+      gold:'Pays '+fmt(coinValue(eff)*bet)+' instantly, no line required.',
+      clover:'Each one on screen multiplies the ENTIRE spin. Two or three together turn a modest line into a real win.',
+      web:'Pays nothing. It is the reel’s ballast — it can be thinned, but never removed entirely.',
+      scythe:'Co-op only. Fills the shared Summoning meter until a boss rises.'
+    };
+    h+='<div class="t-d">'+(notes[s]||'')+'</div>';
+    h+='<div class="t-pays"><span class="k">spawn odds</span><span class="v'+(ch>chb+0.05?' up':'')+'">'+ch.toFixed(2)+'%</span>';
+    if(s==='clover') h+='<span class="k">each adds</span><span class="v">×'+(CLOVER_MULT+eff.cloverMult).toFixed(2)+'</span>';
+    h+='</div>';
+  }
+  return h;
+}
+const TIPSEL='[data-tipcard],[data-tiprite],[data-tipsym]';
 document.addEventListener('mouseover',e=>{
   const t=e.target.closest?e.target.closest(TIPSEL):null;
   if(t) tipShowFor(t); else tipHide();
@@ -4288,7 +4495,7 @@ function renderPaytable(eff){
     const ch=(wt[s]/tot*100), chb=(wb[s]/totb*100);
     const cls=pm>pb+0.001?' up':(pm<pb-0.001?' dn':'');
     const ccls=ch>chb+0.05?' up':(ch<chb-0.05?' dn':'');
-    h+='<div class="ptrow'+(hunting?' hunt':'')+(marksNow.indexOf(s)>=0?' marked':'')+((typeof focusSym!=='undefined'&&focusSym===s)?' focus':'')+'" data-focus="'+s+'"><div class="ic">'+symHTML(s)+(marksNow.indexOf(s)>=0?'<span class="mkdot">🔻</span>':'')+'</div>';
+    h+='<div class="ptrow'+(hunting?' hunt':'')+(marksNow.indexOf(s)>=0?' marked':'')+((typeof focusSym!=='undefined'&&focusSym===s)?' focus':'')+'" data-focus="'+s+'" data-tipsym="'+s+'"><div class="ic">'+symHTML(s)+(marksNow.indexOf(s)>=0?'<span class="mkdot">🔻</span>':'')+'</div>';
     for(let k=0;k<3;k++) h+='<div class="pv'+cls+'">'+fmt(SYM[s].pay[k]*bet*pm)+'</div>';
     if(hunting) h+='<div class="pv dmgc">'+numC(SYM[s].pay[0]*pm*DMG_K)+'</div>';
     /* how far you have taken this symbol, and how far it can still go */
@@ -4333,11 +4540,13 @@ function renderPaytable(eff){
      all. Every line that only restated a rule the player already knows has been
      cut — the ramp is visible in the three Toll figures, so it does not also
      need a sentence explaining that it ramps. */
+  const cloverCh=(wt.clover/tot*100);
   let sp='<div class="oddsbar">'
-    +'<span class="od'+dir(eyeCh,wb2.eye/tb*100)+'"><i>'+symHTML('eye')+'</i><b>'+eyeCh.toFixed(1)+'%</b></span>'
-    +'<span class="od'+dir(moonCh,wb2.moon/tb*100)+'"><i>'+symHTML('moon')+'</i><b>'+moonCh.toFixed(1)+'%</b></span>'
-    +'<span class="od'+dir(goldCh,wb2.gold/tb*100)+'"><i>'+symHTML('gold')+'</i><b>'+goldCh.toFixed(1)+'%</b></span>'
-    +'<span class="od'+dir(wb2.web/tb*100,webCh)+'"><i>'+symHTML('web')+'</i><b>'+webCh.toFixed(1)+'%</b></span>'
+    +'<span class="od'+dir(eyeCh,wb2.eye/tb*100)+'" data-tipsym="eye"><i>'+symHTML('eye')+'</i><b>'+eyeCh.toFixed(1)+'%</b></span>'
+    +'<span class="od'+dir(moonCh,wb2.moon/tb*100)+'" data-tipsym="moon"><i>'+symHTML('moon')+'</i><b>'+moonCh.toFixed(1)+'%</b></span>'
+    +'<span class="od'+dir(goldCh,wb2.gold/tb*100)+'" data-tipsym="gold"><i>'+symHTML('gold')+'</i><b>'+goldCh.toFixed(1)+'%</b></span>'
+    +'<span class="od'+dir(cloverCh,wb2.clover/tb*100)+'" data-tipsym="clover"><i>'+symHTML('clover')+'</i><b>'+cloverCh.toFixed(1)+'%</b></span>'
+    +'<span class="od'+dir(wb2.web/tb*100,webCh)+'" data-tipsym="web"><i>'+symHTML('web')+'</i><b>'+webCh.toFixed(1)+'%</b></span>'
     +'</div>';
   sp+='<div class="moonbar"><span class="mlbl">Blood Moon</span><span class="mtrack"><span class="mfil" style="width:'+chargeNow+'%"></span></span><span class="mpct">'+chargeNow+'%</span></div>';
   sp+='<div class="row"><span class="i">'+symHTML('moon')+'</span><span>+'+perMoon+'% each → '+spins+' free spins ×2</span></div>';
@@ -4345,16 +4554,18 @@ function renderPaytable(eff){
   sp+='<div class="row"><span class="i">'+symHTML('gold')+'</span><span>'+fmt(cv)+' instantly</span></div>';
   sp+='<div class="row"><span class="i">🔥</span><span><b>6·6·6</b> → Hellpot <b style="color:#ffae2e">'+fmtC(run?run.pot:POT_SEED)+'</b></span></div>';
   sp+='<div class="row"><span class="i">🖐️</span><span>all 15 → <b style="color:#ff5b6e">DEAD HAND</b> ×'+(DEAD_HAND_MULT*(1+eff.handPay)).toFixed(0)+' + Hellpot</span></div>';
-  sp+='<div class="row"><span class="i">🔻</span><span>'+(marksNow.map(s=>'<span class="mkpair">'+symHTML(s)+'<b>'+Math.round(bloodValue(s)*(1+eff.bloodGain))+'</b></span>').join('')||'none')+'</span></div>';
+  sp+='<div class="row"><span class="i">🔻</span><span>'+(marksNow.map(s=>'<span class="mkpair" data-tipsym="'+s+'">'+symHTML(s)+'<b>'+Math.round(bloodValue(s)*(1+eff.bloodGain))+'</b></span>').join('')||'none')+'</span></div>';
+  sp+='<div class="row"><span class="i">🩸</span><span>~<b>'+bloodPerSpin(eff,marksNow,wt,tot).toFixed(2)+'</b> Blood per spin at this build</span></div>';
   if(run){
     const p=nightOf(run.cutNum);
     sp+='<div class="row"><span class="i">🌑</span><span><b style="color:'+p.hue+'">'+p.name+'</b> · '+p.sub+'</span></div>';
     sp+='<div class="row"><span class="i">💀</span><span>Tolls: <b>'+fmtC(tollAmount(run.cutNum,eff))+'</b> → '+fmtC(tollAmount(run.cutNum+1,eff))+' → '+fmtC(tollAmount(run.cutNum+2,eff))+'</span></div>';
-    if(run.cash<0) sp+='<div class="row"><span class="i">🩸</span><span><b style="color:#ff5b6e">'+fmt(Math.abs(run.cash))+' in debt</b> — only the Toll kills</span></div>';
-    const dsp=desperation(), und=underdog();
-    if(dsp>0) sp+='<div class="row"><span class="i">🔥</span><span><b style="color:#ff9c54">Desperation '+Math.round(dsp*100)+'%</b></span></div>';
-    if(und>0) sp+='<div class="row"><span class="i">⚔️</span><span><b style="color:#5bc9d8">Underdog '+Math.round(und*100)+'%</b></span></div>';
-    if(run.streak>0) sp+='<div class="row"><span class="i">🔥</span><span>Streak ×'+streakMultOf(run.streak,eff).toFixed(2)+'</span></div>';
+    /* Debt, Desperation, Underdog and Streak used to be listed here too. They
+       are already on screen — debt in the cash HUD, Desperation and Underdog as
+       meters under the reels, the streak beside them — and because they come
+       and go they were the thing changing this panel's height mid-run, which
+       resized the page and shunted the whole layout. Shown once, in the place
+       that does not move. */
   }
   $('ptSpec').innerHTML=sp;
   $('ptBlackout').classList.toggle('on',eff.blackout>0);
@@ -4462,6 +4673,23 @@ function renderMenu(){
   $('mResume').style.display=(run&&!run.over&&!run.duel)?'block':'none';
   $('mFx').textContent=meta.fx?'🦇  Atmosphere: On':'🌑  Atmosphere: Off';
   renderVol();
+}
+/* ============ [UI SCALE] ============ */
+/* The three-column layout is built at a fixed pixel width, so on a small screen
+   it overflows and on a large one it swims. `zoom` on the root scales the whole
+   thing — including fixed overlays and the tooltip — in one property. Anything
+   that measures the DOM must divide by uiZoom(). */
+function uiZoom(){
+  const v=(meta&&meta.uiScale!==undefined)?meta.uiScale:1;
+  return Math.max(0.65,Math.min(1.4,v));
+}
+function applyUIScale(){
+  const z=uiZoom();
+  document.documentElement.style.zoom=z===1?'':String(z);
+  const sl=$('uiSlide'), lbl=$('uiVal');
+  const pct=Math.round(z*100);
+  if(sl){ sl.value=pct; sl.style.setProperty('--p',((pct-65)/(140-65)*100)+'%'); }
+  if(lbl) lbl.textContent=pct+'%';
 }
 function renderVol(){
   const v=Math.round(masterVol()*100);
@@ -5030,6 +5258,17 @@ function wire(){
     renderVol();
   };
   $('volSlide').onchange=()=>{ saveAll(); if(meta.vol>0) sFlip(); };
+  /* UI size: zoom the root so the whole three-column layout fits whatever
+     screen it is on. Anything measuring the DOM divides by uiZoom(). */
+  $('uiSlide').oninput=e=>{ meta.uiScale=(+e.target.value||100)/100; applyUIScale(); };
+  $('uiSlide').onchange=()=>saveAll();
+  $('uiReset').onclick=()=>{ meta.uiScale=1; applyUIScale(); saveAll(); sFlip(); };
+  /* help tabs */
+  document.querySelectorAll('#helpTabs .htab').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.htab;
+    document.querySelectorAll('#helpTabs .htab').forEach(x=>x.classList.toggle('on',x===b));
+    document.querySelectorAll('#ovHelp .hpane').forEach(p=>p.classList.toggle('on',p.dataset.hpane===k));
+  });
   $('mSnd').onclick=()=>{
     /* the speaker icon is a mute toggle that remembers where you were */
     if(meta.vol>0){ meta.volWas=meta.vol; meta.vol=0; meta.snd=0; }
@@ -5179,6 +5418,7 @@ buildGridCells();
 buildFx();
 buildCastle();
 applyNightTheme();
+applyUIScale();
 checkTrials(true);
 renderMenu();
 saveAll();
