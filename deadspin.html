@@ -1160,7 +1160,7 @@ input[type=range].vol::-moz-range-thumb{
           <span><i style="background:#b45cf0"></i>Λ shape</span>
         </div>
       </li>
-      <li><b>The Reaper's Toll.</b> Every 12 spins Death demands cash. The price climbs geometrically and <b>past the ninth Toll it climbs faster still</b> — the late game is meant to close. It also scales to the <b>stakes you choose</b>, so a $10,000 bettor is asked $10,000-bettor money. <b>Only the Toll can kill you:</b> going broke mid-round puts you in <b>debt</b> (red cash) — the House lends you spins down to the size of your next Toll. If the Toll arrives and you can't pay, the run ends.</li>
+      <li><b>The Reaper's Toll.</b> Every 12 spins Death demands cash. The price climbs geometrically and <b>past the twelfth Toll it climbs faster still</b> — the late game is meant to close. It also scales to the <b>stakes you choose</b>, so a $10,000 bettor is asked $10,000-bettor money. <b>Only the Toll can kill you:</b> going broke mid-round puts you in <b>debt</b> (red cash) — the House lends you spins down to the size of your next Toll. If the Toll arrives and you can't pay, the run ends.</li>
       <li><b>🌑 The Nights.</b> A run is cut into five Nights. Each one recolours the keep, steepens the Toll, and makes the Death Roll likelier. Reaching <b>Night V</b> is the deep end.</li>
       <li><b>Rites.</b> Every Toll you survive, the dark pays you back: pick <b>1 of 3 Rites</b> — run-permanent buffs, many of which bend the actual spawn odds on the reels. Watch the paytable percentages move as you take them. Some <b>starve</b> symbols instead of feeding them, which lifts everything else at once. From the ninth Toll, <b>Pinnacle Rites</b> start appearing — they are the answer to the curve.</li>
       <li><b>Desperation.</b> The lower your cash falls (and into debt), the luckier the reels get — up to <b>+45% payouts</b> plus more wilds, gold and moons. Losing makes you dangerous.</li>
@@ -1536,16 +1536,18 @@ const CARDS=[
 {id:'smoke_out',n:'Smoke Them Out',i:'🚬',r:0,kind:'relic',mx:5,d:l=>`Bats spawn far less often (−${(2.1*l).toFixed(1)})`,f:'They came out. All of them.',eff:l=>({symW:{bat:-2.1*l}})},
 {id:'boot_heel',n:'Boot Heel',i:'🥾',r:1,kind:'relic',mx:5,d:l=>`Spiders spawn less often (−${(1.8*l).toFixed(1)})`,f:'Quick, and quite final.',eff:l=>({symW:{spider:-1.8*l}})},
 {id:'snuffer',n:'The Snuffer',i:'🕯️',r:1,kind:'relic',mx:5,d:l=>`Candles spawn less often (−${(1.6*l).toFixed(1)})`,f:'Every wick, one by one.',eff:l=>({symW:{candle:-1.6*l}})},
-{id:'thinning_veil',n:'Thinning Veil',i:'🌫️',r:2,kind:'relic',mx:5,d:l=>`Rats, Bats and Spiders each spawn −${(1.1*l).toFixed(1)}`,f:'Less of everything small.',eff:l=>({symW:{rat:-1.1*l,bat:-1.1*l,spider:-1.1*l}})},
+{id:'thinning_veil',n:'Thinning Veil',i:'🌫️',r:2,kind:'relic',mx:5,d:l=>`Rats, Bats and Spiders each spawn −${(0.6*l).toFixed(1)}`,f:'Less of everything small.',eff:l=>({symW:{rat:-0.6*l,bat:-0.6*l,spider:-0.6*l}})},
 {id:'exhumation',n:'Exhumation',i:'⛏️',r:2,kind:'relic',mx:5,d:l=>`Coffins and Candles each spawn −${(1.3*l).toFixed(1)}`,f:'Whatever is down there, it is not staying.',eff:l=>({symW:{coffin:-1.3*l,candle:-1.3*l}})},
-{id:'starvation',n:'Starvation',i:'🦴',r:3,kind:'relic',mx:5,d:l=>`Every symbol below a Skull spawns −${(0.8*l).toFixed(1)}`,f:'Only the strong are fed.',eff:l=>({symW:{rat:-0.8*l,bat:-0.8*l,spider:-0.8*l,candle:-0.8*l,coffin:-0.8*l,ghost:-0.8*l}})},
+{id:'starvation',n:'Starvation',i:'🦴',r:3,kind:'relic',mx:5,d:l=>`Every symbol below a Skull spawns −${(0.35*l).toFixed(2)}`,f:'Only the strong are fed.',eff:l=>({symW:{rat:-0.35*l,bat:-0.35*l,spider:-0.35*l,candle:-0.35*l,coffin:-0.35*l,ghost:-0.35*l}})},
 /* ---- RELICS: the dead hand ---- */
 {id:'grasping_hand',n:'Grasping Hand',i:'🫱',r:3,kind:'relic',mx:5,d:l=>`The Dead Hand is ${(l*100).toFixed(0)}% likelier to find you`,f:'It has been reaching a long time.',eff:l=>({handOdds:1*l})},
 {id:'fifteen_nails',n:'Fifteen Nails',i:'🔩',r:4,kind:'relic',mx:5,d:l=>`The Dead Hand pays +${Math.round(35*l)}% and teases ${Math.round(30*l)}% more often`,f:'One for every cell.',eff:l=>({handPay:.35*l,teaseOdds:.30*l})},
 {id:'the_dead_hand',n:'The Dead Hand',i:'🖐️',r:4,kind:'relic',mx:1,d:()=>'The Dead Hand is FIVE times likelier — but every Toll is 30% larger',f:'Fifteen fingers. Count them.',eff:()=>({handOdds:4,tollReduce:-.30})},
 /* ---- KEYSTONE: the narrowing ---- */
-{id:'the_narrowing',n:'The Narrowing',i:'🕳️',r:4,kind:'relic',mx:1,d:()=>'Rats, Bats and Spiders never appear again',f:'The small things left first.',eff:()=>({symW:{rat:-99,bat:-99,spider:-99}})},
-{id:'last_lantern',n:'The Last Lantern',i:'🏮',r:4,kind:'relic',mx:1,d:()=>'Cobwebs never appear — but Cursed Gold pays nothing',f:'It shows you only what matters.',eff:()=>({webW:-99,coinVal:-99})},
+{id:'the_narrowing',n:'The Narrowing',i:'🕳️',r:4,kind:'relic',mx:1,d:()=>'Rats, Bats and Spiders spawn far less often (−6 each)',f:'The small things left first.',eff:()=>({symW:{rat:-6,bat:-6,spider:-6}})},
+/* "Cobwebs never appear" is no longer promisable — the dud is the reel's RTP
+   regulator and now has a hard floor. Reworded to what it actually does. */
+{id:'last_lantern',n:'The Last Lantern',i:'🏮',r:4,kind:'relic',mx:1,d:()=>'Cobwebs become rare — but Cursed Gold pays nothing',f:'It shows you only what matters.',eff:()=>({webW:-9,coinVal:-99})},
 /* ---- HEXES (duel only, consumed on play) ---- */
 /* Hexes are PERCENTAGE based so they still bite in a million-dollar endgame.
    Flat amounts stopped mattering the moment bets passed $250. */
@@ -1611,8 +1613,8 @@ const RITES=[
   {id:'spider_cull',n:'Crush the Nest', i:'🥾',t:0,d:'Spiders spawn less often (−4)',        eff:{symW:{spider:-4}}},
   {id:'wax_cull',   n:'Snuff the Wicks',i:'💨',t:1,d:'Candles spawn less often (−4)',        eff:{symW:{candle:-4}}},
   {id:'cof_cull',   n:'Empty the Plot', i:'⛏️',t:1,d:'Coffins spawn less often (−3.5)',      eff:{symW:{coffin:-3.5}}},
-  {id:'thin_herd',  n:'Thin the Herd',  i:'🌫️',t:1,d:'Rats, Bats and Spiders each spawn −2.5',eff:{symW:{rat:-2.5,bat:-2.5,spider:-2.5}}},
-  {id:'famine',     n:'Famine',         i:'🦴',t:2,d:'Every symbol below a Skull spawns −2',  eff:{symW:{rat:-2,bat:-2,spider:-2,candle:-2,coffin:-2,ghost:-2}}},
+  {id:'thin_herd',  n:'Thin the Herd',  i:'🌫️',t:1,d:'Rats, Bats and Spiders each spawn −1.5',eff:{symW:{rat:-1.5,bat:-1.5,spider:-1.5}}},
+  {id:'famine',     n:'Famine',         i:'🦴',t:2,d:'Every symbol below a Skull spawns −1',  eff:{symW:{rat:-1,bat:-1,spider:-1,candle:-1,coffin:-1,ghost:-1}}},
   /* --- the dead hand --- */
   {id:'reaching',   n:'The Reaching',   i:'🫱',t:1,d:'The Dead Hand is twice as likely',      eff:{handOdds:1}},
   {id:'fifteen',    n:'Fifteen',        i:'🖐️',t:2,d:'The Dead Hand is 4× likelier and pays +50%',eff:{handOdds:3,handPay:.5}},
@@ -1644,7 +1646,7 @@ const RITES=[
 /* Rite tiers: 0 base, 1 greater, 2 pinnacle. Pinnacle rites are the late-run
    answer to the late-run Toll curve — they are strong enough to matter at Night
    III and above, and they simply are not offered before then. */
-const RITE_PINNACLE_FROM=8;
+const RITE_PINNACLE_FROM=9;
 const RITE_BY_ID={}; RITES.forEach(r=>RITE_BY_ID[r.id]=r);
 
 /* ============ [DATA] PACKS ============ */
@@ -1722,8 +1724,8 @@ function nightOf(cutNum){
 /* Past this Toll the geometric curve gets a second, compounding multiplier on
    top. Player power is bounded and card growth is roughly linear, so without a
    second gear a deep run flattens into an unkillable grind. */
-const TOLL_HARD_FROM=9;
-const TOLL_HARD=1.115;
+const TOLL_HARD_FROM=12;
+const TOLL_HARD=1.085;
 /* per-symbol weight buys, so any archetype can steer its own reels */
 const ALTAR_SYMS=['rat','bat','spider','candle','coffin','ghost','skull'];
 function altarSymCost(owned){return Math.max(1,Math.round(4*Math.pow(1.44,owned||0)));}
@@ -1975,6 +1977,18 @@ function isMarked(sym,eff){return activeMarks(eff).includes(sym);}
 /* co-op predicates: `duel` means "networked"; pvp means "fighting each other" */
 function isCoop(){return !!(run&&run.duel&&run.coop);}
 function isPvP(){return !!(run&&run.duel&&!run.coop);}
+/* ---- THE REEL IS A FIXED PIE ----
+   Adding weight to one symbol and starving the rest are the same move, and
+   neither had a ceiling. Because all five paylines share the same columns, a
+   symbol's payout rate goes as p^3..p^5 while the reel only fills linearly, so
+   concentration compounds viciously: measured RTP ran 1.17 → 74 → 159 → 340 as
+   one symbol went 7% → 49% → 59% → 71% of the reel. Two guards hold the line.
+   Both are applied AFTER every card, rite and Altar buy, so no stack escapes. */
+const SYM_SHARE_CAP=0.30;   /* no single symbol may exceed this share of a reel */
+const WEB_FLOOR=4;          /* the dud is the RTP regulator — it never vanishes */
+/* set from the base reel by measurement, not by feel: see __reelCap() */
+const REEL_EV_HEADROOM=1.60; /* how much a cull may improve the reel before duds are added back */
+var REEL_EV_CAP=1e9;        /* seeded below once the base shape is known */
 function weightTable(eff){
   const w={};
   for(const s of SYMLIST) w[s]=Math.max(0,SYM[s].w+((eff.symW&&eff.symW[s])||0));
@@ -1983,10 +1997,60 @@ function weightTable(eff){
   w.eye=Math.max(0,w.eye+eff.wildW);
   w.moon=Math.max(0,w.moon+eff.moonW);
   w.six=Math.max(0,w.six+eff.sixW);
-  w.web=Math.max(0,w.web+eff.webW);
+  w.web=Math.max(WEB_FLOOR,w.web+eff.webW);
   w.gold=Math.max(0,w.gold+eff.goldW);
   w.clover=Math.max(0,w.clover+eff.cloverW);
+  /* 1. no symbol may own the reel. Solve w/(w+rest)=CAP for w, a few passes so
+        clamping one symbol cannot push another over. */
+  for(let pass=0;pass<4;pass++){
+    let tot=0; for(const s of SYMLIST) tot+=w[s];
+    if(tot<=0) break;
+    let changed=false;
+    for(const s of SYMLIST){
+      if(s==='web') continue;             /* the dud is allowed to dominate */
+      const rest=tot-w[s];
+      const max=SYM_SHARE_CAP*rest/(1-SYM_SHARE_CAP);
+      if(w[s]>max+1e-9){ w[s]=max; changed=true; }
+    }
+    if(!changed) break;
+  }
+  /* 2. Culling the bottom of the table is not really about weight — it deletes
+        the CHEAP symbols, so every line that lands is worth more. Weight share
+        cannot see that (a reel of nothing but Sixes is only 30% "concentrated"
+        yet pays 25x). So the second guard measures the reel's SHAPE VALUE and
+        dilutes with duds until it is under the ceiling.
+        Deliberately measured with raw paytable values and NO card multipliers:
+        payout cards grow linearly and the geometric Toll outruns them, which is
+        the intended power curve. It is only the p^3..p^5 reel-shape term that
+        compounds, so that is the only thing bounded here. */
+  const ev0=reelShapeEV(w);
+  if(ev0>REEL_EV_CAP){
+    const web0=w.web;
+    let lo=0,hi=8;
+    while(hi<4096){ w.web=web0+hi; if(reelShapeEV(w)<=REEL_EV_CAP) break; hi*=2; }
+    for(let i=0;i<26;i++){
+      const mid=(lo+hi)/2;
+      w.web=web0+mid;
+      if(reelShapeEV(w)>REEL_EV_CAP) lo=mid; else hi=mid;
+    }
+    w.web=web0+hi;
+  }
   return w;
+}
+/* Expected payout of one spin in multiples of the bet, from the reel's shape
+   alone: 5 left-anchored lines, wilds counted as any symbol. Pure function of
+   the weight table — no player multipliers, no state. */
+function reelShapeEV(w){
+  let tot=0; for(const s of SYMLIST) tot+=w[s];
+  if(tot<=0) return 0;
+  const eyeShare=w.eye/tot;
+  let ev=0;
+  for(const s of PAYSYMS){
+    const q=Math.min(1,(w[s]+w.eye)/tot);   /* a cell that can serve as this symbol */
+    const q3=q*q*q, q4=q3*q, q5=q4*q;
+    ev+=q3*(1-q)*SYM[s].pay[0] + q4*(1-q)*SYM[s].pay[1] + q5*SYM[s].pay[2];
+  }
+  return ev*LINES.length;
 }
 function rollSym(w,total){
   let r=Math.random()*total;
@@ -2048,11 +2112,16 @@ function matchDepth(grid){
    real house edge. A sub-1 RTP made the median run die at Toll 3 no matter how
    well it was played, because no amount of skill outran the drain. Tune here. */
 const PAYSCALE=1.34;
+/* Cards express "pays nothing" as a large negative (coinVal:-99, webW:-99) so
+   one value can cancel any stack. Weights already clamp at 0 in weightTable;
+   payouts must too, or "Cursed Gold pays nothing" becomes "every Cursed Gold
+   CHARGES you 98x your bet" — which is exactly what The Last Lantern did. */
+function coinValue(eff){return Math.max(0,COIN_VAL+eff.coinVal);}
 function payMult(eff,sym,marks){
   let m=1+eff.payAll;
   if(eff.markPay>0&&marks&&marks.indexOf(sym)>=0) m+=eff.markPay;
   if(eff.syncPay>0&&typeof opp!=='undefined'&&opp&&opp.free>0) m+=eff.syncPay;
-  return PAYSCALE*m*(1+(eff.pay[sym]||0));
+  return Math.max(0,PAYSCALE*m*(1+(eff.pay[sym]||0)));
 }
 function lineWin(syms,eff,bet,marks){
   let wl=0; for(const s of syms){if(s==='eye')wl++;else break;}
@@ -2094,7 +2163,7 @@ function evalSpin(grid,bet,eff,ctx){
     }
   }
   for(const s of grid){
-    if(s==='gold') res.coinWin+=(COIN_VAL+eff.coinVal)*bet;
+    if(s==='gold') res.coinWin+=coinValue(eff)*bet;
     else if(s==='moon') res.scatters++;
     else if(s==='scythe') res.scythes=(res.scythes||0)+1;
     else if(s==='web'&&eff.webPay>0) res.coinWin+=eff.webPay*bet;
@@ -2169,6 +2238,13 @@ function tollAmount(n,eff){
 /* Top-level `const` lives in the global LEXICAL scope, not on `window`, so the
    data tables were unreachable from tests and every validator had to either
    re-declare them or poke at the DOM. This is the one place they are exported. */
+/* The ceiling is expressed as a multiple of the UNMODIFIED reel, so it stays
+   meaningful if the base paytable is ever retuned. */
+REEL_EV_CAP=(function(){
+  const w={}; for(const s of SYMLIST) w[s]=SYM[s].w; w.scythe=0;
+  return reelShapeEV(w)*REEL_EV_HEADROOM;
+})();
+
 window.__data={SYM,SYMLIST,PAYSYMS,SYMSVG,CARDS,RITES,PACKS,TRIALS,ALTAR,ALTAR_SYMS,UPS,RARS,BETS,NIGHTS,
   DEAD_HAND,DEAD_HAND_MULT,TEASE_ODDS,POT_FLOOR_MULT,POT_SEED_MULT,RITE_PINNACLE_FROM,
   TOLL_HARD_FROM,TOLL_HARD,TOLL_GROWTH,PAYSCALE};
@@ -4017,7 +4093,7 @@ function renderPaytable(eff){
     lh+='<div class="plz" style="--plc:'+LINE_COLORS[li]+'"><div class="plgrid">'+cells+'</div><span>'+LNAMES[li]+'</span></div>';
   }
   $('ptLines').innerHTML=lh;
-  const cv=(COIN_VAL+eff.coinVal)*bet;
+  const cv=coinValue(eff)*bet;
   const moonCh=(wt.moon/tot*100), eyeCh=(wt.eye/tot*100), webCh=(wt.web/tot*100), goldCh=(wt.gold/tot*100);
   const spins=MOON_SPINS+eff.moonSpins;
   /* Odds at a glance first, prose second — the numbers are what you read mid-spin. */
