@@ -2,242 +2,336 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#0b0b14">
-<title>Spinfall — a slots roguelike</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a0509">
+<title>DEADSPIN — a horror slots roguelike</title>
 <style>
 /* ============ RESET / BASE ============ */
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
 body{
-  background:#0b0b14 radial-gradient(1200px 600px at 50% -10%, #1a1030 0%, #0b0b14 60%);
-  color:#e8e6f0;
-  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:#0a0509 radial-gradient(1400px 700px at 50% -10%, #2a0a14 0%, #0a0509 62%);
+  color:#d8cfc0;
+  font-family:'Segoe UI',system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;
-  touch-action:manipulation;
   user-select:none;-webkit-user-select:none;
-  overflow-x:hidden;
+  overflow-x:auto;
 }
-button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;touch-action:manipulation}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input{font-family:inherit}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#3a1a22;border-radius:5px}
+::-webkit-scrollbar-track{background:#120a0e}
 /* ============ SCREENS ============ */
-.scr{display:none;min-height:100dvh;flex-direction:column;align-items:center;padding:18px 14px 40px}
+.scr{display:none;min-height:100vh;flex-direction:column;align-items:center;padding:20px 18px 46px}
 .scr.on{display:flex}
-.wrap{width:100%;max-width:540px}
+.wrap{width:100%;max-width:560px}
 /* ============ TYPE / BITS ============ */
 .title{
-  font-size:52px;font-weight:900;letter-spacing:6px;text-align:center;line-height:1;
-  background:linear-gradient(180deg,#ffe9a8 0%,#f5c04a 45%,#b8860b 100%);
+  font-size:64px;font-weight:900;letter-spacing:8px;text-align:center;line-height:1;
+  background:linear-gradient(180deg,#ff9aa4 0%,#e01b3c 42%,#5e0716 100%);
   -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 0 18px rgba(245,192,74,.35));
-  margin-top:34px;
+  filter:drop-shadow(0 0 22px rgba(224,27,60,.4));
+  margin-top:30px;
 }
-.subtitle{text-align:center;color:#8f8ba6;letter-spacing:3px;font-size:13px;text-transform:uppercase;margin-top:8px}
-.panel{background:#14141f;border:1px solid #26263a;border-radius:14px;padding:14px}
-.gold{color:#f5c04a}
-.cyan{color:#37e0d8}
-.red{color:#ff5470}
-.dim{color:#8f8ba6}
+.subtitle{text-align:center;color:#8a7a80;letter-spacing:4px;font-size:13px;text-transform:uppercase;margin-top:10px}
+.panel{background:#150b10;border:1px solid #35202a;border-radius:12px;padding:14px}
+.blood{color:#ff3b52}
+.bone{color:#e8e0d0}
+.ghoul{color:#58c15f}
+.dim{color:#8a7a80}
+.moonc{color:#9db8ff}
 .btn{
-  display:block;width:100%;padding:14px;border-radius:12px;font-size:17px;font-weight:700;
-  background:linear-gradient(180deg,#242438,#1a1a2b);border:1px solid #34344e;color:#e8e6f0;
-  transition:transform .08s, box-shadow .15s;
+  display:block;width:100%;padding:14px;border-radius:11px;font-size:16px;font-weight:700;
+  background:linear-gradient(180deg,#241318,#170b10);border:1px solid #3d222c;color:#d8cfc0;
+  transition:transform .08s, border-color .15s;
 }
-.btn:active{transform:scale(.97)}
-.btn.gld{background:linear-gradient(180deg,#f7cf6b,#d99e23);border-color:#f5c04a;color:#241a02;box-shadow:0 0 18px rgba(245,192,74,.25)}
-.btn.sm{padding:9px 12px;font-size:14px;width:auto;display:inline-block}
-.btn:disabled{opacity:.4;cursor:default}
+.btn:hover{border-color:#7a3242}
+.btn:active{transform:scale(.98)}
+.btn.bld{background:linear-gradient(180deg,#c41d3a,#7c0e23);border-color:#ff3b52;color:#ffe4e8;box-shadow:0 0 20px rgba(224,27,60,.25)}
+.btn.bld:hover{box-shadow:0 0 28px rgba(224,27,60,.45)}
+.btn.sm{padding:9px 13px;font-size:13px;width:auto;display:inline-block}
+.btn:disabled{opacity:.35;cursor:default}
 .btn:disabled:active{transform:none}
-.menu-btns{display:flex;flex-direction:column;gap:12px;margin-top:34px}
-.backrow{width:100%;max-width:540px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.ver{position:fixed;bottom:8px;right:12px;font-size:11px;color:#565270}
-.footnote{text-align:center;color:#565270;font-size:12px;margin-top:26px}
+.menu-btns{display:flex;flex-direction:column;gap:11px;margin-top:32px}
+.backrow{width:100%;max-width:1280px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.ver{position:fixed;bottom:8px;right:12px;font-size:11px;color:#4a3a40;z-index:5}
+.footnote{text-align:center;color:#4a3a40;font-size:12px;margin-top:26px}
 .statgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:22px}
 .statgrid .panel{text-align:center;padding:10px}
-.statgrid .v{font-size:20px;font-weight:800;color:#f5c04a}
-.statgrid .k{font-size:11px;color:#8f8ba6;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
-/* ============ GAME HUD ============ */
-.hud{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:100%;max-width:540px;margin-bottom:10px}
+.statgrid .v{font-size:20px;font-weight:800;color:#ff3b52}
+.statgrid .k{font-size:11px;color:#8a7a80;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+/* ============ GAME LAYOUT (desktop 3-col) ============ */
+#scrGame{padding-top:14px}
+.gwrap{display:flex;gap:14px;align-items:flex-start;justify-content:center;width:100%;max-width:1340px}
+.lpanel{width:300px;flex:0 0 300px}
+.ccol{width:660px;flex:0 0 660px}
+.rpanel{width:330px;flex:0 0 330px;display:flex;flex-direction:column;gap:12px}
+@media (max-width:1330px){.gwrap{flex-wrap:wrap}.lpanel{order:2}.ccol{order:1}.rpanel{order:3}}
+/* ============ HUD ============ */
+.hud{display:grid;grid-template-columns:1.2fr 1fr 1.2fr;gap:8px;margin-bottom:10px}
 .hud .panel{padding:8px 6px;text-align:center}
-.hud .v{font-size:19px;font-weight:800}
-.hud .k{font-size:10px;color:#8f8ba6;text-transform:uppercase;letter-spacing:1px}
-#cutBox.warn{border-color:#ff5470;box-shadow:0 0 14px rgba(255,84,112,.25)}
-#cutBox.warn .v{color:#ff5470}
+.hud .v{font-size:20px;font-weight:800}
+.hud .k{font-size:10px;color:#8a7a80;text-transform:uppercase;letter-spacing:1px}
+#tollBox.warn{border-color:#ff3b52;box-shadow:0 0 16px rgba(255,59,82,.3);animation:tollPulse 1.1s infinite alternate}
+#tollBox.warn .v{color:#ff3b52}
+@keyframes tollPulse{from{box-shadow:0 0 8px rgba(255,59,82,.2)}to{box-shadow:0 0 20px rgba(255,59,82,.45)}}
 /* ============ MACHINE ============ */
 .machine{
-  width:100%;max-width:540px;position:relative;
-  background:linear-gradient(180deg,#1d1d30,#14141f);
-  border:2px solid #34344e;border-radius:18px;padding:14px;
-  box-shadow:0 8px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);
+  position:relative;
+  background:linear-gradient(180deg,#1d1016,#120a0e);
+  border:2px solid #3d222c;border-radius:16px;padding:14px;
+  box-shadow:0 10px 44px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.04);
 }
-.machine::before{
-  content:'';position:absolute;inset:-2px;border-radius:18px;pointer-events:none;
-  background:linear-gradient(90deg,transparent 30%,rgba(245,192,74,.08) 50%,transparent 70%);
+.machine.bloodmoon{border-color:#8a1626;box-shadow:0 0 34px rgba(224,27,60,.35), inset 0 0 40px rgba(224,27,60,.08)}
+#moonBan{
+  display:none;text-align:center;font-weight:900;letter-spacing:3px;color:#ff5b6e;
+  text-shadow:0 0 16px rgba(255,59,82,.7);margin-bottom:8px;font-size:16px;
+  animation:banPulse 1s infinite alternate;
 }
-#freeBan{
-  display:none;text-align:center;font-weight:900;letter-spacing:2px;color:#37e0d8;
-  text-shadow:0 0 14px rgba(55,224,216,.6);margin-bottom:8px;font-size:16px;
-  animation:pulseGlow 1s infinite alternate;
-}
-#freeBan.on{display:block}
-@keyframes pulseGlow{from{opacity:.75}to{opacity:1}}
+#moonBan.on{display:block}
+@keyframes banPulse{from{opacity:.7}to{opacity:1}}
 #grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
-  background:#0a0a12;border-radius:12px;padding:10px;border:1px solid #26263a;
+  display:grid;grid-template-columns:repeat(5,1fr);gap:7px;
+  background:#080407;border-radius:11px;padding:10px;border:1px solid #2a161e;
 }
 .cell{
   aspect-ratio:1;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(180deg,#191927,#101018);
-  border:1px solid #26263a;border-radius:10px;
-  font-size:min(11.5vw,52px);position:relative;overflow:hidden;
+  background:linear-gradient(180deg,#160d12,#0d070a);
+  border:1px solid #2a161e;border-radius:9px;
+  font-size:52px;position:relative;overflow:hidden;
 }
-.cell .s7{
-  font-weight:900;font-style:italic;font-size:1.15em;line-height:1;
-  background:linear-gradient(180deg,#ff8a8a,#e01b3c 60%,#8f0f24);
+.cell .s6{
+  font-weight:900;font-style:italic;font-size:1.05em;line-height:1;
+  background:linear-gradient(180deg,#ff8a8a,#e01b3c 55%,#6e0a1c);
   -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 0 8px rgba(255,60,90,.55));
+  filter:drop-shadow(0 0 9px rgba(255,60,90,.6));
 }
-.cell .wild{filter:drop-shadow(0 0 10px rgba(55,224,216,.7))}
-.cell.hit{border-color:#f5c04a;box-shadow:0 0 16px rgba(245,192,74,.45), inset 0 0 12px rgba(245,192,74,.15);animation:hitPop .35s}
-@keyframes hitPop{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
-.cell.stopb{animation:stopBounce .22s}
-@keyframes stopBounce{0%{transform:translateY(-8px)}60%{transform:translateY(2px)}100%{transform:translateY(0)}}
-#floats{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:18px}
+.cell .wild{filter:drop-shadow(0 0 10px rgba(157,184,255,.8))}
+.cell.hit{border-color:var(--lc,#ff3b52);box-shadow:0 0 14px color-mix(in srgb,var(--lc,#ff3b52) 55%,transparent), inset 0 0 12px color-mix(in srgb,var(--lc,#ff3b52) 18%,transparent);animation:hitPop .35s}
+@keyframes hitPop{0%{transform:scale(1)}40%{transform:scale(1.1)}100%{transform:scale(1)}}
+.cell.stopb{animation:stopBounce .2s}
+@keyframes stopBounce{0%{transform:translateY(-7px)}60%{transform:translateY(2px)}100%{transform:translateY(0)}}
+#floats{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:16px;z-index:6}
 .float{
-  position:absolute;left:50%;transform:translateX(-50%);font-weight:900;font-size:26px;color:#f5c04a;
-  text-shadow:0 0 12px rgba(245,192,74,.6), 0 2px 4px #000;white-space:nowrap;
+  position:absolute;left:50%;transform:translateX(-50%);font-weight:900;font-size:28px;color:#ff5b6e;
+  text-shadow:0 0 12px rgba(255,59,82,.6), 0 2px 4px #000;white-space:nowrap;
   animation:floatUp 1.5s ease-out forwards;
 }
-.float.big{font-size:34px;color:#37e0d8;text-shadow:0 0 16px rgba(55,224,216,.7),0 2px 4px #000}
-.float.bad{font-size:18px;color:#8f8ba6;text-shadow:0 2px 4px #000}
-@keyframes floatUp{0%{opacity:0;translate:0 14px}12%{opacity:1}80%{opacity:1}100%{opacity:0;translate:0 -66px}}
-/* spin controls */
+.float.big{font-size:36px;color:#ffd76b;text-shadow:0 0 18px rgba(255,215,107,.7),0 2px 4px #000}
+.float.bad{font-size:17px;color:#8a7a80;text-shadow:0 2px 4px #000}
+@keyframes floatUp{0%{opacity:0;translate:0 14px}12%{opacity:1}80%{opacity:1}100%{opacity:0;translate:0 -70px}}
+/* controls */
 .ctrls{display:flex;gap:10px;margin-top:12px;align-items:stretch}
 #spinBtn{
-  flex:1;font-size:24px;font-weight:900;letter-spacing:3px;border-radius:14px;
-  background:linear-gradient(180deg,#f7cf6b,#d99e23);color:#241a02;border:1px solid #ffe9a8;
-  box-shadow:0 4px 0 #8a6210, 0 0 22px rgba(245,192,74,.25);
-  padding:16px;transition:transform .06s, box-shadow .06s;
+  flex:1;font-size:25px;font-weight:900;letter-spacing:4px;border-radius:13px;
+  background:linear-gradient(180deg,#c41d3a,#7c0e23);color:#ffe4e8;border:1px solid #ff5b6e;
+  box-shadow:0 4px 0 #4a0713, 0 0 24px rgba(224,27,60,.25);
+  padding:15px;transition:transform .06s, box-shadow .06s;
 }
-#spinBtn:active{transform:translateY(3px);box-shadow:0 1px 0 #8a6210}
-#spinBtn:disabled{filter:grayscale(.7);opacity:.5}
-#spinBtn.free{background:linear-gradient(180deg,#6bf7ef,#23d9ce);border-color:#a8fff9;box-shadow:0 4px 0 #0f7d76,0 0 22px rgba(55,224,216,.35);color:#02322f}
+#spinBtn:active{transform:translateY(3px);box-shadow:0 1px 0 #4a0713}
+#spinBtn:disabled{filter:grayscale(.6);opacity:.5}
+#spinBtn.moon{background:linear-gradient(180deg,#5b76c9,#2c3f85);border-color:#9db8ff;box-shadow:0 4px 0 #17224a,0 0 24px rgba(157,184,255,.35);color:#e8efff}
 .betcol{display:flex;flex-direction:column;gap:5px;justify-content:center}
-.betcol .lbl{font-size:10px;color:#8f8ba6;text-align:center;text-transform:uppercase;letter-spacing:1px}
+.betcol .lbl{font-size:10px;color:#8a7a80;text-align:center;text-transform:uppercase;letter-spacing:1px}
 #betRow{display:flex;gap:5px}
-.betb{
-  padding:8px 0;width:44px;border-radius:9px;font-weight:800;font-size:13px;
-  background:#1a1a2b;border:1px solid #34344e;color:#b9b5cf;
-}
-.betb.on{background:#f5c04a;color:#241a02;border-color:#ffe9a8}
+.betb{padding:9px 0;width:46px;border-radius:9px;font-weight:800;font-size:13px;background:#170b10;border:1px solid #3d222c;color:#b0a396}
+.betb.on{background:#e01b3c;color:#ffe4e8;border-color:#ff8a9a}
 .betb:disabled{opacity:.3}
-.streakrow{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:13px;color:#8f8ba6}
+.streakrow{display:flex;justify-content:space-between;align-items:center;margin-top:9px;font-size:13px;color:#8a7a80}
 #streakV{font-weight:800;color:#ff9c54}
-/* card strip */
-.striplbl{width:100%;max-width:540px;display:flex;justify-content:space-between;align-items:baseline;margin:14px 0 6px;font-size:12px;color:#8f8ba6;text-transform:uppercase;letter-spacing:1px}
-#cardStrip{
-  width:100%;max-width:540px;display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;
-  scrollbar-width:thin;min-height:64px;
+/* active cards rows */
+.activebox{margin-top:10px}
+.activebox .lbl{font-size:11px;color:#8a7a80;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;display:flex;justify-content:space-between}
+.arow{display:flex;gap:6px;flex-wrap:wrap;min-height:40px}
+.acard{
+  width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  background:#150b10;border:2px solid var(--rc,#8a8f98);font-size:20px;position:relative;cursor:default;
 }
-.ccard{
-  flex:0 0 auto;width:52px;height:62px;border-radius:9px;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:2px;background:#14141f;position:relative;
-  border:2px solid var(--rc,#9aa3b2);box-shadow:0 0 8px color-mix(in srgb,var(--rc) 30%,transparent);
-  font-size:22px;
+.acard .bdg{
+  position:absolute;bottom:-5px;right:-5px;font-size:9px;font-weight:900;background:#0a0509;
+  border:1px solid var(--rc);color:var(--rc);border-radius:7px;padding:0 4px;line-height:1.3;
 }
-.ccard .lv{font-size:9px;font-weight:800;color:var(--rc)}
-.ccard.empty{border:2px dashed #26263a;box-shadow:none;color:#3a3a52;font-size:11px}
-/* game bottom row */
-.gbot{width:100%;max-width:540px;display:flex;gap:10px;margin-top:6px}
-.gbot .btn{font-size:13px;padding:10px}
-/* ============ RARITIES ============ */
-.r0{--rc:#9aa3b2}.r1{--rc:#59c15f}.r2{--rc:#42a5f5}.r3{--rc:#c05cf0}.r4{--rc:#ffb300}
+.acard.fade{opacity:.85}
+.arow .none{font-size:12px;color:#4a3a40;align-self:center}
+/* ============ PAYTABLE PANEL ============ */
+.ptab{position:relative}
+.ptab h3{font-size:13px;letter-spacing:2px;color:#e8e0d0;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline}
+.ptab h3 .dim{font-size:10px;letter-spacing:0}
+.ptrow{display:grid;grid-template-columns:34px 1fr 1fr 1fr 44px;gap:3px;align-items:center;padding:3.5px 4px;border-radius:7px;font-size:12px}
+.ptrow:nth-child(even){background:rgba(255,255,255,.02)}
+.ptrow .ic{font-size:19px;text-align:center}
+.ptrow .pv{text-align:right;color:#b0a396;font-variant-numeric:tabular-nums}
+.ptrow .pv.up{color:#58c15f;font-weight:700}
+.ptrow .pv.dn{color:#ff5b6e}
+.ptrow .pc{text-align:right;color:#6a5a60;font-size:11px;font-variant-numeric:tabular-nums}
+.ptrow .pc.up{color:#58c15f;font-weight:700}
+.ptrow .pc.dn{color:#ff5b6e;font-weight:700}
+.ptrow.hdr{font-size:9px;color:#6a5a60;text-transform:uppercase;letter-spacing:1px}
+.ptrow.hdr .pv,.ptrow.hdr .pc{color:#6a5a60}
+.ptspec{font-size:11.5px;color:#8a7a80;line-height:1.55;margin-top:8px;border-top:1px solid #2a161e;padding-top:8px}
+.ptspec b{color:#d8cfc0}
+.ptspec .row{display:flex;gap:6px;margin-bottom:4px;align-items:baseline}
+.ptspec .row .i{width:20px;text-align:center;flex:0 0 20px}
+#ptBlackout{
+  display:none;position:absolute;inset:0;border-radius:12px;z-index:3;
+  background:rgba(6,3,5,.94);align-items:center;justify-content:center;flex-direction:column;gap:8px;
+  color:#ff5b6e;font-weight:800;text-align:center;font-size:14px;letter-spacing:1px;
+}
+#ptBlackout.on{display:flex}
+/* ============ STORAGE / RIGHT PANEL ============ */
+.rp-h{font-size:13px;letter-spacing:2px;color:#e8e0d0;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline}
+#stGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.stc{
+  aspect-ratio:.82;border-radius:9px;background:#170b10;border:2px solid var(--rc,#3d222c);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  cursor:pointer;position:relative;transition:transform .08s, box-shadow .12s;
+}
+.stc:hover{transform:translateY(-2px);box-shadow:0 4px 12px color-mix(in srgb,var(--rc) 35%,transparent)}
+.stc .ic{font-size:22px}
+.stc .kd{font-size:8px;font-weight:900;letter-spacing:.5px;color:var(--rc);text-transform:uppercase}
+.stc.empty{border:2px dashed #2a161e;cursor:default;color:#3a2a30;font-size:10px}
+.stc.empty:hover{transform:none;box-shadow:none}
+/* opponent panel */
+#oppBox{display:none}
+#oppBox.on{display:block}
+#oppBox .oname{font-size:16px;font-weight:800;color:#e8e0d0;display:flex;align-items:center;gap:8px}
+#oppBox .odot{width:9px;height:9px;border-radius:50%;background:#58c15f;box-shadow:0 0 8px #58c15f}
+#oppBox.dead .odot{background:#ff3b52;box-shadow:0 0 8px #ff3b52}
+.ostats{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-top:8px;font-size:12.5px}
+.ostats .k{color:#8a7a80}
+.ostats .v{text-align:right;font-weight:700;color:#d8cfc0;font-variant-numeric:tabular-nums}
+.oplayed{margin-top:9px}
+.oplayed .lbl{font-size:10px;color:#8a7a80;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+#oppCards{display:flex;gap:4px;flex-wrap:wrap;min-height:30px}
+#oppCards .acard{width:30px;height:30px;font-size:15px;border-radius:6px}
+#oppFeed{margin-top:8px;font-size:11.5px;color:#8a7a80;line-height:1.6;min-height:34px;border-top:1px solid #2a161e;padding-top:6px}
+#oppFeed .hexline{color:#ff5b6e;font-weight:700}
+/* debuff row */
+#debuffRow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.debuff{
+  display:flex;align-items:center;gap:4px;background:#1d0c11;border:1px solid #7a1a2c;border-radius:8px;
+  padding:3px 8px;font-size:12px;color:#ff8a9a;font-weight:700;
+}
+/* ============ RARITIES / TYPES ============ */
+.r0{--rc:#8a8f98}.r1{--rc:#58c15f}.r2{--rc:#4d9fef}.r3{--rc:#b45cf0}.r4{--rc:#ffae2e}
 .rtxt{color:var(--rc);font-weight:800}
-/* ============ OVERLAYS ============ */
-.ov{
-  display:none;position:fixed;inset:0;z-index:40;background:rgba(5,5,12,.82);
-  align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px);
+.kchip{display:inline-block;font-size:9px;font-weight:900;letter-spacing:1px;text-transform:uppercase;border-radius:5px;padding:1px 6px;vertical-align:middle}
+.kchip.relic{background:#1a2438;color:#7ea8ff;border:1px solid #33507e}
+.kchip.charm{background:#12281a;color:#6fd784;border:1px solid #2e6b41}
+.kchip.hex{background:#2c0f16;color:#ff6b80;border:1px solid #7a2333}
+/* ============ TOOLTIP ============ */
+#tip{
+  display:none;position:fixed;z-index:120;width:250px;background:#120a0e;border:1px solid var(--rc,#3d222c);
+  border-radius:11px;padding:11px;pointer-events:none;box-shadow:0 8px 30px rgba(0,0,0,.7), 0 0 16px color-mix(in srgb,var(--rc,#000) 25%,transparent);
 }
+#tip.on{display:block}
+#tip .t-head{display:flex;align-items:center;gap:8px}
+#tip .t-ic{font-size:26px}
+#tip .t-nm{font-weight:800;font-size:14px;color:#e8e0d0;line-height:1.15}
+#tip .t-rr{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--rc);font-weight:800}
+#tip .t-d{font-size:12.5px;color:#c9beb0;line-height:1.45;margin-top:7px}
+#tip .t-f{font-size:11px;color:#6a5a60;font-style:italic;margin-top:6px;font-family:Georgia,serif}
+#tip .t-m{font-size:10.5px;color:#8a7a80;margin-top:6px;border-top:1px solid #2a161e;padding-top:5px}
+/* ============ OVERLAYS ============ */
+.ov{display:none;position:fixed;inset:0;z-index:40;background:rgba(4,2,4,.85);align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px)}
 .ov.on{display:flex}
 #ovPack{z-index:45}
-#ovCard,#ovConfirm{z-index:50}
-.ovbox{width:100%;max-width:480px;max-height:92dvh;overflow-y:auto;background:#14141f;border:1px solid #34344e;border-radius:16px;padding:18px}
-.ovbox h2{font-size:20px;letter-spacing:1px;margin-bottom:4px}
-.ovbox .sub{color:#8f8ba6;font-size:13px;margin-bottom:14px}
+#ovAct,#ovConfirm{z-index:50}
+.ovbox{width:100%;max-width:500px;max-height:92vh;overflow-y:auto;background:#150b10;border:1px solid #3d222c;border-radius:15px;padding:18px}
+.ovbox h2{font-size:20px;letter-spacing:1px;margin-bottom:4px;color:#e8e0d0}
+.ovbox .sub{color:#8a7a80;font-size:13px;margin-bottom:14px}
 /* shop */
-.shoprow{display:flex;align-items:center;gap:10px;background:#1a1a2b;border:1px solid #26263a;border-radius:12px;padding:10px;margin-bottom:8px}
-.shoprow .ic{font-size:30px;width:44px;text-align:center}
-.shoprow .nm{font-weight:800;font-size:15px}
-.shoprow .ds{font-size:12px;color:#8f8ba6}
+.shoprow{display:flex;align-items:center;gap:10px;background:#1a0e13;border:1px solid #2a161e;border-radius:11px;padding:10px;margin-bottom:8px}
+.shoprow .ic{font-size:29px;width:42px;text-align:center}
+.shoprow .nm{font-weight:800;font-size:15px;color:#e8e0d0}
+.shoprow .ds{font-size:12px;color:#8a7a80}
 .shoprow .grow{flex:1;min-width:0}
-.buyb{padding:9px 13px;border-radius:10px;font-weight:800;background:#f5c04a;color:#241a02;font-size:14px;white-space:nowrap}
-.buyb:disabled{background:#3a3a52;color:#77738f}
-.packic{filter:drop-shadow(0 0 6px color-mix(in srgb,var(--rc,#f5c04a) 50%,transparent))}
+.buyb{padding:9px 13px;border-radius:9px;font-weight:800;background:#e01b3c;color:#ffe4e8;font-size:14px;white-space:nowrap}
+.buyb:hover{background:#ff3b52}
+.buyb:disabled{background:#3a2228;color:#77606a}
 /* pack opening */
-#packCards{display:flex;gap:10px;justify-content:center;margin:18px 0}
-.pcard{width:104px;height:148px;perspective:600px;cursor:pointer}
+#packCards{display:flex;gap:10px;justify-content:center;margin:18px 0;flex-wrap:wrap}
+.pcard{width:104px;height:150px;perspective:600px;cursor:pointer}
 .pcard .inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .5s}
 .pcard.flip .inner{transform:rotateY(180deg)}
-.pface{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:6px}
-.pback{background:linear-gradient(135deg,#1d1d30,#2a1a45);border:2px solid #34344e;font-size:34px}
-.pback::after{content:'?';font-size:40px;font-weight:900;color:#565270}
-.pfront{transform:rotateY(180deg);background:#14141f;border:2px solid var(--rc);box-shadow:0 0 16px color-mix(in srgb,var(--rc) 45%,transparent)}
-.pfront .ic{font-size:36px}
-.pfront .nm{font-size:11px;font-weight:800;text-align:center;line-height:1.2}
+.pface{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:6px}
+.pback{background:linear-gradient(135deg,#1d1016,#33101f);border:2px solid #3d222c}
+.pback::after{content:'☠';font-size:42px;color:#4a2a34}
+.pfront{transform:rotateY(180deg);background:#150b10;border:2px solid var(--rc);box-shadow:0 0 18px color-mix(in srgb,var(--rc) 50%,transparent)}
+.pfront .ic{font-size:34px}
+.pfront .nm{font-size:11px;font-weight:800;text-align:center;line-height:1.2;color:#e8e0d0}
 .pfront .rr{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--rc);font-weight:800}
-.pfront .tag{font-size:10px;font-weight:800;color:#37e0d8}
+.pfront .tag{font-size:10px;font-weight:800;color:#6fd784}
 .pcard.flip.r3 .inner,.pcard.flip.r4 .inner{animation:rareShake .5s .45s}
 @keyframes rareShake{0%,100%{transform:rotateY(180deg) scale(1)}30%{transform:rotateY(180deg) scale(1.12) rotate(-2deg)}60%{transform:rotateY(180deg) scale(1.08) rotate(2deg)}}
+/* card action popover */
+#ovAct .ovbox{max-width:330px;text-align:center}
+#actIc{font-size:50px}
+#actNm{font-size:19px;font-weight:800;color:#e8e0d0;margin-top:2px}
+#actDs{font-size:14px;color:#c9beb0;line-height:1.5;margin-top:8px}
+#actFl{font-size:12px;color:#6a5a60;font-style:italic;margin-top:6px;font-family:Georgia,serif}
+#actBtns{display:flex;gap:8px;margin-top:16px}
+#actNote{font-size:11.5px;color:#8a7a80;margin-top:9px}
 /* collection */
-#collGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;width:100%}
-.collc{
-  border:2px solid var(--rc,#26263a);border-radius:10px;background:#14141f;padding:8px 4px;
-  display:flex;flex-direction:column;align-items:center;gap:3px;min-height:88px;justify-content:center;cursor:pointer;
-}
-.collc .ic{font-size:26px}
-.collc .nm{font-size:10px;text-align:center;font-weight:700;line-height:1.15}
-.collc .ct{font-size:9px;color:#8f8ba6}
-.collc.unk{border-color:#26263a;color:#3a3a52}
-.collc.unk .ic{filter:grayscale(1) brightness(.4)}
+#collGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;width:100%;max-width:1000px}
+.collc{border:2px solid var(--rc,#2a161e);border-radius:10px;background:#150b10;padding:9px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:96px;justify-content:center;cursor:default}
+.collc .ic{font-size:25px}
+.collc .nm{font-size:10px;text-align:center;font-weight:700;line-height:1.15;color:#d8cfc0}
+.collc .ct{font-size:9px;color:#8a7a80}
+.collc.unk{border-color:#2a161e;color:#3a2a30}
+.collc.unk .ic{filter:grayscale(1) brightness(.35)}
+.collc.unk .nm{color:#3a2a30}
 /* upgrades */
-.uprow{display:flex;align-items:center;gap:10px;background:#1a1a2b;border:1px solid #26263a;border-radius:12px;padding:10px;margin-bottom:8px}
-.uprow .ic{font-size:26px;width:38px;text-align:center}
+.uprow{display:flex;align-items:center;gap:10px;background:#1a0e13;border:1px solid #2a161e;border-radius:11px;padding:10px;margin-bottom:8px}
+.uprow .ic{font-size:25px;width:36px;text-align:center}
 .uprow .grow{flex:1;min-width:0}
-.uprow .nm{font-weight:800;font-size:14px}
-.uprow .ds{font-size:12px;color:#8f8ba6}
+.uprow .nm{font-weight:800;font-size:14px;color:#e8e0d0}
+.uprow .ds{font-size:12px;color:#8a7a80}
 .pips{display:flex;gap:3px;margin-top:4px}
-.pip{width:14px;height:6px;border-radius:3px;background:#26263a}
-.pip.on{background:#f5c04a}
-/* death */
-.deathT{font-size:34px;font-weight:900;letter-spacing:2px;color:#ff5470;text-align:center;margin-top:40px;text-shadow:0 0 18px rgba(255,84,112,.4)}
-.deathR{text-align:center;color:#8f8ba6;margin-top:6px}
-.tokline{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;border-bottom:1px solid #1e1e2e}
-.tokline:last-child{border-bottom:none;font-weight:800;color:#f5c04a;font-size:16px}
-/* toasts */
-#toasts{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:94%;max-width:420px}
-.toast{
-  background:#1d1d30;border:1px solid #34344e;color:#e8e6f0;border-radius:10px;padding:9px 16px;
-  font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.5);text-align:center;
-  animation:toastIn .25s, toastOut .4s 2.4s forwards;max-width:100%;
+.pip{width:14px;height:6px;border-radius:3px;background:#2a161e}
+.pip.on{background:#e01b3c}
+/* lobby */
+#lobbyBox{max-width:430px;width:100%}
+#lobbyBox .panel{margin-bottom:12px}
+#nameIn,#codeIn{
+  width:100%;padding:11px;border-radius:9px;background:#0d070a;border:1px solid #3d222c;color:#e8e0d0;
+  font-size:15px;outline:none;text-align:center;letter-spacing:1px;
 }
-.toast.good{border-color:#f5c04a;color:#f5c04a}
-.toast.bad{border-color:#ff5470;color:#ff5470}
+#codeIn{text-transform:uppercase;letter-spacing:6px;font-weight:800;font-size:19px}
+#lobbyWait{display:none;text-align:center}
+#lobbyWait.on{display:block}
+#lobbyCode{font-size:44px;font-weight:900;letter-spacing:12px;color:#ff3b52;text-shadow:0 0 18px rgba(224,27,60,.5);margin:10px 0}
+.waitdots::after{content:'…';animation:dots 1.4s steps(4) infinite}
+@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
+/* death / duel end */
+.deathT{font-size:38px;font-weight:900;letter-spacing:3px;color:#ff3b52;text-align:center;margin-top:36px;text-shadow:0 0 22px rgba(255,59,82,.45)}
+.deathR{text-align:center;color:#8a7a80;margin-top:6px}
+.tokline{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;border-bottom:1px solid #241318}
+.tokline:last-child{border-bottom:none;font-weight:800;color:#ff3b52;font-size:16px}
+#duelEndT{font-size:44px;font-weight:900;letter-spacing:4px;text-align:center}
+#duelEndT.win{color:#6fd784;text-shadow:0 0 24px rgba(111,215,132,.5)}
+#duelEndT.lose{color:#ff3b52;text-shadow:0 0 24px rgba(255,59,82,.5)}
+/* toasts */
+#toasts{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:94%;max-width:440px}
+.toast{background:#1d1016;border:1px solid #3d222c;color:#d8cfc0;border-radius:10px;padding:9px 16px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.55);text-align:center;animation:toastIn .25s, toastOut .4s 2.6s forwards;max-width:100%}
+.toast.good{border-color:#58c15f;color:#6fd784}
+.toast.bad{border-color:#ff3b52;color:#ff5b6e}
+.toast.hexed{border-color:#b45cf0;color:#d18aff;box-shadow:0 0 22px rgba(180,92,240,.35)}
 @keyframes toastIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1}}
 @keyframes toastOut{to{opacity:0;transform:translateY(-12px)}}
-/* jackpot flash */
-#jpFlash{display:none;position:fixed;inset:0;z-index:55;pointer-events:none;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(245,192,74,.25),transparent 70%)}
-#jpFlash.on{display:flex;animation:jpIn 2.6s forwards}
-#jpFlash .t{font-size:44px;font-weight:900;letter-spacing:4px;color:#f5c04a;text-shadow:0 0 30px rgba(245,192,74,.9),0 4px 8px #000;text-align:center}
+/* hellpot flash */
+#jpFlash{display:none;position:fixed;inset:0;z-index:55;pointer-events:none;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(224,27,60,.3),transparent 70%)}
+#jpFlash.on{display:flex;animation:jpIn 2.8s forwards}
+#jpFlash .t{font-size:52px;font-weight:900;letter-spacing:6px;color:#ff3b52;text-shadow:0 0 34px rgba(255,59,82,.9),0 4px 8px #000;text-align:center}
 @keyframes jpIn{0%{opacity:0}10%{opacity:1}80%{opacity:1}100%{opacity:0}}
-/* help list */
-.helpl{font-size:14px;line-height:1.55;color:#c9c5dc}
-.helpl b{color:#f5c04a}
+/* help */
+.helpl{font-size:14px;line-height:1.6;color:#c9beb0}
+.helpl b{color:#ff5b6e}
 .helpl li{margin:0 0 9px 18px}
-/* small screens */
-@media (max-width:380px){
-  .title{font-size:40px}
-  .cell{font-size:13vw}
-  .pcard{width:88px;height:126px}
-}
+.linelegend{display:flex;gap:10px;margin:6px 0 10px;font-size:12px;flex-wrap:wrap}
+.linelegend span{display:flex;align-items:center;gap:5px}
+.linelegend i{width:16px;height:4px;border-radius:2px;display:inline-block}
 </style>
 </head>
 <body>
@@ -245,13 +339,14 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 <!-- ============ MENU ============ -->
 <div id="scrMenu" class="scr on">
   <div class="wrap">
-    <div class="title">SPINFALL</div>
-    <div class="subtitle">a slots roguelike</div>
+    <div class="title">DEADSPIN</div>
+    <div class="subtitle">a horror slots roguelike</div>
     <div class="menu-btns">
-      <button class="btn gld" id="mNew">▶ &nbsp;New Run</button>
+      <button class="btn bld" id="mNew">▶ &nbsp;New Run</button>
       <button class="btn" id="mResume" style="display:none">↻ &nbsp;Resume Run</button>
+      <button class="btn" id="mDuel">⚔️ &nbsp;Duel a Friend</button>
       <button class="btn" id="mColl">🗃️ &nbsp;Collection <span class="dim" id="mCollCt"></span></button>
-      <button class="btn" id="mUp">⬆️ &nbsp;Upgrades <span class="gold" id="mTok"></span></button>
+      <button class="btn" id="mUp">📖 &nbsp;Grimoire <span class="blood" id="mTok"></span></button>
       <button class="btn" id="mHelp">❔ &nbsp;How to Play</button>
       <button class="btn" id="mSnd">🔊 &nbsp;Sound: On</button>
     </div>
@@ -259,73 +354,146 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
       <div class="panel"><div class="v" id="stRuns">0</div><div class="k">Runs</div></div>
       <div class="panel"><div class="v" id="stBestSpins">0</div><div class="k">Best Spins</div></div>
       <div class="panel"><div class="v" id="stBestCash">$0</div><div class="k">Best Cash</div></div>
-      <div class="panel"><div class="v" id="stJack">0</div><div class="k">Jackpots</div></div>
+      <div class="panel"><div class="v" id="stWins">0</div><div class="k">Duel Wins</div></div>
     </div>
-    <div class="footnote">Smolder Studios · fake money, real bad luck</div>
+    <div class="footnote">Smolder Studios · the House always collects</div>
   </div>
 </div>
 
 <!-- ============ GAME ============ -->
 <div id="scrGame" class="scr">
-  <div class="hud">
-    <div class="panel"><div class="v gold" id="cashV">$0</div><div class="k">Cash</div></div>
-    <div class="panel"><div class="v cyan" id="potV">$0</div><div class="k">Jackpot Pot</div></div>
-    <div class="panel" id="cutBox"><div class="v" id="cutV">$0</div><div class="k" id="cutK">Cut in 10</div></div>
-  </div>
-  <div class="machine">
-    <div id="freeBan">★ FREE SPINS — <span id="freeN">0</span> LEFT · WINS ×<span id="freeM">2</span> ★</div>
-    <div id="grid"></div>
-    <div class="ctrls">
-      <div class="betcol">
-        <div class="lbl">Bet</div>
-        <div id="betRow"></div>
+  <div class="gwrap">
+    <!-- LEFT: paytable -->
+    <div class="lpanel">
+      <div class="panel ptab">
+        <h3>Paytable <span class="dim" id="ptBet"></span></h3>
+        <div id="ptRows"></div>
+        <div class="ptspec" id="ptSpec"></div>
+        <div id="ptBlackout">🕳️<br>HEXED<br><span style="font-size:11px;font-weight:400">the ledger bleeds — numbers hidden</span></div>
       </div>
-      <button id="spinBtn">SPIN</button>
     </div>
-    <div class="streakrow">
-      <span>Hot streak: <span id="streakV">—</span></span>
-      <span class="dim" id="spinCt">Spin 0</span>
+    <!-- CENTER: machine -->
+    <div class="ccol">
+      <div class="hud">
+        <div class="panel"><div class="v blood" id="cashV">$0</div><div class="k">Cash</div></div>
+        <div class="panel"><div class="v" style="color:#ffae2e" id="potV">$0</div><div class="k">🔥 Hellpot</div></div>
+        <div class="panel" id="tollBox"><div class="v bone" id="tollV">$0</div><div class="k" id="tollK">Reaper's Toll in 10</div></div>
+      </div>
+      <div class="machine" id="machineBox">
+        <div id="moonBan">🌕 BLOOD MOON — <span id="moonN">0</span> FREE SPINS · WINS ×<span id="moonM">2</span> 🌕</div>
+        <div id="grid"></div>
+        <div class="ctrls">
+          <div class="betcol">
+            <div class="lbl">Bet</div>
+            <div id="betRow"></div>
+          </div>
+          <button id="spinBtn">SPIN</button>
+        </div>
+        <div class="streakrow">
+          <span>Hot streak: <span id="streakV">—</span></span>
+          <span class="dim" id="spinCt">Spin 0</span>
+        </div>
+        <div id="floats"></div>
+      </div>
+      <div class="activebox">
+        <div class="lbl"><span>Active Relics</span><span class="dim" id="relicCt"></span></div>
+        <div class="arow" id="relicRow"></div>
+      </div>
+      <div class="activebox">
+        <div class="lbl"><span>Active Charms</span></div>
+        <div class="arow" id="charmRow"></div>
+      </div>
+      <div id="debuffRow"></div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button class="btn sm" id="gHelp">❔ Help</button>
+        <button class="btn sm" id="gAbandon">🏳️ Abandon Run</button>
+      </div>
     </div>
-    <div id="floats"></div>
-  </div>
-  <div class="striplbl"><span>Cards</span><span id="cardCt" class="dim"></span></div>
-  <div id="cardStrip"></div>
-  <div class="gbot">
-    <button class="btn" id="gHelp">❔ Help</button>
-    <button class="btn" id="gAbandon">🏳️ Abandon Run</button>
+    <!-- RIGHT: opponent + storage -->
+    <div class="rpanel">
+      <div class="panel" id="oppBox">
+        <div class="oname"><span class="odot"></span><span id="oppName">—</span></div>
+        <div class="ostats">
+          <span class="k">Cash</span><span class="v" id="oppCash">—</span>
+          <span class="k">Spins</span><span class="v" id="oppSpins">—</span>
+          <span class="k">Toll due</span><span class="v" id="oppToll">—</span>
+          <span class="k">Streak</span><span class="v" id="oppStreak">—</span>
+        </div>
+        <div class="oplayed">
+          <div class="lbl">Cards they played</div>
+          <div id="oppCards"><span class="none dim" style="font-size:11px">nothing yet</span></div>
+        </div>
+        <div id="oppFeed"></div>
+      </div>
+      <div class="panel">
+        <div class="rp-h">🧳 Card Storage <span class="dim" id="stCt"></span></div>
+        <div id="stGrid"></div>
+        <div class="dim" style="font-size:11px;margin-top:8px">Click a card to play or sell it. Hover to inspect.</div>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- ============ COLLECTION ============ -->
 <div id="scrColl" class="scr">
   <div class="backrow"><button class="btn sm" id="collBack">← Back</button><span class="dim" id="collHead"></span></div>
-  <div class="wrap"><div id="collGrid"></div></div>
+  <div id="collGrid"></div>
 </div>
 
-<!-- ============ UPGRADES ============ -->
+<!-- ============ GRIMOIRE (upgrades) ============ -->
 <div id="scrUp" class="scr">
-  <div class="backrow"><button class="btn sm" id="upBack">← Back</button><span class="gold" id="upTok" style="font-weight:800"></span></div>
+  <div class="backrow" style="max-width:560px"><button class="btn sm" id="upBack">← Back</button><span class="blood" id="upTok" style="font-weight:800"></span></div>
   <div class="wrap">
-    <div class="dim" style="font-size:13px;margin-bottom:12px">Permanent upgrades. Tokens are earned when a run ends.</div>
+    <div class="dim" style="font-size:13px;margin-bottom:12px">Permanent pacts, paid in Souls. Souls are earned when a run ends.</div>
     <div id="upList"></div>
+  </div>
+</div>
+
+<!-- ============ LOBBY ============ -->
+<div id="scrLobby" class="scr">
+  <div class="backrow" style="max-width:430px"><button class="btn sm" id="lobbyBack">← Back</button><span class="dim">Duel a Friend</span></div>
+  <div id="lobbyBox">
+    <div id="lobbyMain">
+      <div class="panel">
+        <div class="rp-h">Your name</div>
+        <input id="nameIn" maxlength="14" placeholder="Player">
+      </div>
+      <div class="panel">
+        <div class="rp-h">Create a lobby</div>
+        <div class="dim" style="font-size:12.5px;margin-bottom:10px">Get a 4-letter code, send it to your victim.</div>
+        <button class="btn bld" id="lobbyCreate">🕯️ Create Lobby</button>
+      </div>
+      <div class="panel">
+        <div class="rp-h">Join a lobby</div>
+        <input id="codeIn" maxlength="4" placeholder="CODE">
+        <button class="btn" id="lobbyJoin" style="margin-top:10px">⚔️ Join</button>
+      </div>
+      <div class="dim" style="font-size:12px;text-align:center">Both players race their own reels. Last one alive wins.<br>Hex cards strike your opponent — watch their panel.</div>
+    </div>
+    <div id="lobbyWait">
+      <div class="dim" style="letter-spacing:2px;text-transform:uppercase;font-size:12px;margin-top:20px">Lobby code</div>
+      <div id="lobbyCode">····</div>
+      <div class="dim waitdots" id="lobbyStatus">Waiting for an opponent</div>
+      <button class="btn" id="lobbyCancel" style="margin-top:26px">Cancel</button>
+    </div>
   </div>
 </div>
 
 <!-- ============ DEATH ============ -->
 <div id="scrDeath" class="scr">
   <div class="wrap">
-    <div class="deathT">RUN OVER</div>
+    <div class="deathT">DEATH COLLECTS</div>
     <div class="deathR" id="deathReason"></div>
     <div class="statgrid">
       <div class="panel"><div class="v" id="dSpins">0</div><div class="k">Spins</div></div>
       <div class="panel"><div class="v" id="dPeak">$0</div><div class="k">Peak Cash</div></div>
-      <div class="panel"><div class="v" id="dCuts">0</div><div class="k">Cuts Paid</div></div>
+      <div class="panel"><div class="v" id="dCuts">0</div><div class="k">Tolls Paid</div></div>
       <div class="panel"><div class="v" id="dBigWin">$0</div><div class="k">Biggest Win</div></div>
     </div>
     <div class="panel" style="margin-top:14px" id="dTokens"></div>
     <div class="menu-btns" style="margin-top:16px">
-      <button class="btn gld" id="dNew">▶ &nbsp;New Run</button>
-      <button class="btn" id="dUp">⬆️ &nbsp;Spend Tokens</button>
+      <button class="btn bld" id="dNew">▶ &nbsp;New Run</button>
+      <button class="btn" id="dUp">📖 &nbsp;Spend Souls</button>
       <button class="btn" id="dMenu">🏠 &nbsp;Menu</button>
     </div>
   </div>
@@ -334,14 +502,14 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 <!-- ============ SHOP OVERLAY ============ -->
 <div id="ovShop" class="ov">
   <div class="ovbox">
-    <h2>🛒 The Shop</h2>
-    <div class="sub">Cut paid. Spend it before you lose it — <span class="gold" id="shopCash"></span></div>
+    <h2>🕯️ The Night Market</h2>
+    <div class="sub">Toll paid. Spend it before Death does — <span class="blood" id="shopCash"></span> · storage <span id="shopSlots"></span></div>
     <div id="shopPacks"></div>
     <div class="dim" style="font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:12px 0 6px">Single cards</div>
     <div id="shopSingles"></div>
     <div style="display:flex;gap:10px;margin-top:14px">
       <button class="btn" id="shopReroll">🎲 Reroll</button>
-      <button class="btn gld" id="shopDone">Continue ▶</button>
+      <button class="btn bld" id="shopDone">Continue ▶</button>
     </div>
   </div>
 </div>
@@ -350,172 +518,242 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 <div id="ovPack" class="ov">
   <div class="ovbox" style="text-align:center">
     <h2 id="packTitle">Pack</h2>
-    <div class="sub">Tap the cards to reveal</div>
+    <div class="sub">Tap the cards to reveal — they go to your storage</div>
     <div id="packCards"></div>
-    <button class="btn gld" id="packDone" disabled>Take Cards</button>
+    <button class="btn bld" id="packDone" disabled>Take Cards</button>
   </div>
 </div>
 
-<!-- ============ CARD DETAIL OVERLAY ============ -->
-<div id="ovCard" class="ov">
-  <div class="ovbox" style="text-align:center;max-width:320px">
-    <div id="cardBig" style="font-size:52px"></div>
-    <h2 id="cardNm"></h2>
-    <div id="cardRr" style="font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:800;margin:4px 0 10px"></div>
-    <div id="cardDs" style="font-size:15px;color:#c9c5dc;line-height:1.5"></div>
-    <div id="cardMeta" class="dim" style="font-size:12px;margin-top:10px"></div>
-    <button class="btn" id="cardClose" style="margin-top:16px">Close</button>
+<!-- ============ CARD ACTION POPOVER ============ -->
+<div id="ovAct" class="ov">
+  <div class="ovbox">
+    <div id="actIc"></div>
+    <div id="actNm"></div>
+    <div id="actRr" style="font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:800;margin-top:3px"></div>
+    <div id="actDs"></div>
+    <div id="actFl"></div>
+    <div id="actNote"></div>
+    <div id="actBtns">
+      <button class="btn bld" id="actPlay">Play</button>
+      <button class="btn" id="actSell">Sell</button>
+      <button class="btn" id="actClose">Close</button>
+    </div>
   </div>
 </div>
 
 <!-- ============ HELP OVERLAY ============ -->
 <div id="ovHelp" class="ov">
-  <div class="ovbox">
+  <div class="ovbox" style="max-width:560px">
     <h2>❔ How to Play</h2>
     <ul class="helpl" style="margin-top:12px">
-      <li><b>Spin.</b> Each spin costs your bet. Match 3 on any of the 5 lines (3 rows + 2 diagonals) to win. Cherries pay on a left pair too.</li>
-      <li><b>The House Cut.</b> Every 10 spins the House demands cash — and it always wants more. Can't pay? Run over. Go broke? Run over.</li>
-      <li><b>The Shop.</b> After each Cut, buy <b>card packs</b>. Cards are passive bonuses in 5 rarities. Duplicates level them up (max Lv 3), spares refund cash.</li>
-      <li><b>🃏 Wild</b> substitutes any symbol. <b>⭐ 3+ Stars</b> anywhere = free spins with doubled wins. <b>🪙 Coins</b> pay instantly. <b>💀 Skulls</b> pay nothing… usually.</li>
-      <li><b>Jackpot Pot</b> grows with every bet. Line up <b>7·7·7</b> to claim it all.</li>
+      <li><b>Spin.</b> Each spin costs your bet. Match <b>3, 4, or 5 of a kind from the left</b> on any payline. The paytable on the left shows every symbol's value and odds — live.</li>
+      <li>The 5 paylines:
+        <div class="linelegend">
+          <span><i style="background:#ffd76b"></i>Top row</span>
+          <span><i style="background:#ff5b6e"></i>Middle row</span>
+          <span><i style="background:#6fd784"></i>Bottom row</span>
+          <span><i style="background:#5bc9d8"></i>V shape</span>
+          <span><i style="background:#b45cf0"></i>Λ shape</span>
+        </div>
+      </li>
+      <li><b>The Reaper's Toll.</b> Every 10 spins Death demands cash — and the price always rises. Can't pay? The run ends. Broke? Same.</li>
+      <li><b>The Night Market.</b> After each Toll, buy <b>card packs</b>. Cards go to your <b>storage</b> — play them when YOU choose:
+        <span class="kchip relic">Relic</span> permanent passive · <span class="kchip charm">Charm</span> temporary boost · <span class="kchip hex">Hex</span> strikes your duel opponent. Playing a duplicate Relic upgrades it (max Lv3). Unwanted cards sell for cash.</li>
+      <li><b>👁️ The Eye</b> is wild — it becomes anything. <b>🌕 3+ Moons</b> anywhere = <b>Blood Moon</b> free spins, wins ×2. <b>🪙 Cursed Gold</b> pays instantly. <b>🕸️ Cobwebs</b> pay nothing.</li>
+      <li><b>🔥 The Hellpot</b> grows with every bet. Line up <b>6·6·6</b> to claim it all.</li>
       <li><b>Hot streak:</b> consecutive winning spins boost payouts. A dead spin resets it.</li>
-      <li><b>Death is progress.</b> Runs end. You keep <b>Tokens</b> — spend them on permanent upgrades — and every card you pull is recorded in your Collection forever.</li>
+      <li><b>Duels:</b> invite a friend by lobby code. You each fight your own reels — last one alive wins. Hexes sabotage them; their panel shows every card they play.</li>
+      <li><b>Death is progress.</b> You keep <b>Souls</b> for permanent Grimoire pacts, and every card you pull joins your Collection forever.</li>
     </ul>
     <button class="btn" id="helpClose" style="margin-top:14px">Close</button>
   </div>
 </div>
 
-<!-- ============ CONFIRM OVERLAY ============ -->
+<!-- ============ CONFIRM ============ -->
 <div id="ovConfirm" class="ov">
-  <div class="ovbox" style="max-width:320px;text-align:center">
+  <div class="ovbox" style="max-width:330px;text-align:center">
     <h2 id="confT">Sure?</h2>
     <div class="sub" id="confD"></div>
     <div style="display:flex;gap:10px">
       <button class="btn" id="confNo">Cancel</button>
-      <button class="btn gld" id="confYes">Yes</button>
+      <button class="btn bld" id="confYes">Yes</button>
     </div>
   </div>
 </div>
 
-<div id="jpFlash"><div class="t">💰 JACKPOT 💰<br><span id="jpAmt"></span></div></div>
+<!-- ============ DUEL END ============ -->
+<div id="ovDuelEnd" class="ov">
+  <div class="ovbox" style="max-width:420px;text-align:center">
+    <div id="duelEndT">VICTORY</div>
+    <div class="sub" id="duelEndD" style="margin-top:8px"></div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="btn bld" id="duelRematch">🔁 Rematch</button>
+      <button class="btn" id="duelLeave">Leave</button>
+    </div>
+    <div class="dim" id="rematchStatus" style="font-size:12px;margin-top:10px"></div>
+  </div>
+</div>
+
+<div id="jpFlash"><div class="t">🔥 666 🔥<br><span id="jpAmt"></span></div></div>
 <div id="toasts"></div>
-<div class="ver">Spinfall v1.0.0</div>
+<div id="tip"></div>
+<div class="ver">DEADSPIN v2.0.0 · spinfall</div>
 
 <script>
 'use strict';
 /* =====================================================
-   SPINFALL — a slots roguelike · Smolder Studios
+   DEADSPIN — a horror slots roguelike · Smolder Studios
+   (file kept as spinfall.html; v2 rebrand of Spinfall)
    ===================================================== */
 const SAVE_KEY='spinfall_save_v1';
 const $=id=>document.getElementById(id);
 
 /* ============ [DATA] SYMBOLS ============ */
+/* 5 reels x 3 rows. pay = [x3, x4, x5] multiples of total bet. w = base weight. */
 const SYM={
-  cherry:{e:'🍒',name:'Cherry', w:18,pay:3},
-  lemon: {e:'🍋',name:'Lemon',  w:16,pay:4},
-  grape: {e:'🍇',name:'Grape',  w:14,pay:5},
-  bell:  {e:'🔔',name:'Bell',   w:11,pay:8},
-  clover:{e:'🍀',name:'Clover', w:9, pay:14},
-  gem:   {e:'💎',name:'Diamond',w:6, pay:25},
-  seven: {e:'7', name:'Seven',  w:3, pay:75},
-  wild:  {e:'🃏',name:'Wild',   w:2, pay:0},
-  star:  {e:'⭐',name:'Star',   w:4, pay:0},
-  coin:  {e:'🪙',name:'Coin',   w:5, pay:0},
-  skull: {e:'💀',name:'Skull',  w:12,pay:0},
+  rat:   {e:'🐀',name:'Rat',        w:13,  pay:[2.5,8,25]},
+  bat:   {e:'🦇',name:'Bat',        w:12,  pay:[3,10,30]},
+  spider:{e:'🕷️',name:'Spider',     w:10,  pay:[4,13,40]},
+  candle:{e:'🕯️',name:'Candle',     w:9,   pay:[5,16,55]},
+  coffin:{e:'⚰️',name:'Coffin',     w:8,   pay:[6,22,75]},
+  ghost: {e:'👻',name:'Ghost',      w:6,   pay:[10,36,120]},
+  skull: {e:'💀',name:'Skull',      w:4,   pay:[15,55,200]},
+  six:   {e:'6', name:'The Six',    w:3,   pay:[30,120,666]},
+  eye:   {e:'👁️',name:'The Eye',    w:2.5, pay:null},  /* WILD */
+  moon:  {e:'🌕',name:'Moon',       w:3.5, pay:null},  /* scatter */
+  gold:  {e:'🪙',name:'Cursed Gold',w:4,   pay:null},  /* instant coin */
+  web:   {e:'🕸️',name:'Cobweb',     w:14,  pay:null},  /* dud */
 };
 const SYMLIST=Object.keys(SYM);
-const LINES=[[0,1,2],[3,4,5],[6,7,8],[0,4,8],[6,4,2]];
-const CUT_EVERY=10;
+const PAYSYMS=SYMLIST.filter(s=>SYM[s].pay);
+const COLS=5, ROWS=3, CELLS=15;
+const LINES=[
+  [0,1,2,3,4],      /* top */
+  [5,6,7,8,9],      /* middle */
+  [10,11,12,13,14], /* bottom */
+  [0,6,12,8,4],     /* V */
+  [10,6,2,8,14],    /* Λ */
+];
+const LINE_COLORS=['#ffd76b','#ff5b6e','#6fd784','#5bc9d8','#b45cf0'];
+const TOLL_EVERY=10;
 const MIN_BET=5;
 const BETS=[5,10,25,50,100];
-const CHERRY_PAIR=0.5;   /* left-pair cherry pays this × bet */
-const COIN_VAL=0.40;     /* each coin pays this × bet */
-const POT_BASE=0.10;     /* pot grows by this × bet per spin */
-const POT_SEED=50;
+const RAT_PAIR=0.4;      /* left pair of rats pays this x bet */
+const COIN_VAL=0.40;     /* each cursed gold pays this x bet */
+const POT_BASE=0.10;     /* hellpot grows by this x bet per spin */
+const POT_SEED=66;
+const MOON_NEED=3;
+const MOON_SPINS=5;
+const STORAGE_CAP=12;
 
 /* ============ [DATA] RARITIES ============ */
 const RARS=[
-  {n:'Common',   c:'#9aa3b2', price:25,  refund:10},
-  {n:'Uncommon', c:'#59c15f', price:45,  refund:20},
-  {n:'Rare',     c:'#42a5f5', price:80,  refund:40},
-  {n:'Epic',     c:'#c05cf0', price:140, refund:70},
-  {n:'Legendary',c:'#ffb300', price:240, refund:120},
+  {n:'Common',   c:'#8a8f98', price:25,  sell:12},
+  {n:'Uncommon', c:'#58c15f', price:45,  sell:22},
+  {n:'Rare',     c:'#4d9fef', price:85,  sell:45},
+  {n:'Epic',     c:'#b45cf0', price:150, sell:80},
+  {n:'Legendary',c:'#ffae2e', price:260, sell:130},
 ];
 
 /* ============ [DATA] CARDS ============ */
-/* eff(l) returns additive effect chunks; numbers merge by addition. */
+/* kind: relic (permanent passive, playing dupes levels it to 3)
+         charm (temporary buff / one-shot, consumed on play)
+         hex   (strikes the duel opponent, consumed on play)
+   Relic eff(l) returns additive chunks merged by EFF(). */
 const CARDS=[
-/* commons */
-{id:'cherry_charm',n:'Cherry Charm',i:'🍒',r:0,mx:3,d:l=>`Cherries pay +${40*l}%`,eff:l=>({pay:{cherry:.4*l}})},
-{id:'lemon_zest',n:'Lemon Zest',i:'🍋',r:0,mx:3,d:l=>`Lemons pay +${40*l}%`,eff:l=>({pay:{lemon:.4*l}})},
-{id:'sour_grapes',n:'Sour Grapes',i:'🍇',r:0,mx:3,d:l=>`Grapes pay +${40*l}%`,eff:l=>({pay:{grape:.4*l}})},
-{id:'brass_polish',n:'Brass Polish',i:'🔔',r:0,mx:3,d:l=>`Bells pay +${35*l}%`,eff:l=>({pay:{bell:.35*l}})},
-{id:'coin_pouch',n:'Coin Pouch',i:'👛',r:0,mx:3,d:l=>`Coins are worth +${10*l}% of your bet`,eff:l=>({coinVal:.1*l})},
-{id:'rabbits_foot',n:"Rabbit's Foot",i:'🐇',r:0,mx:3,d:l=>`Wild symbols appear more often (+${l})`,eff:l=>({wildW:.5*l})},
-{id:'spare_change',n:'Spare Change',i:'💸',r:0,mx:3,d:l=>`Get ${12*l}% of your bet back on dead spins`,eff:l=>({betRefund:.12*l})},
-{id:'loose_screw',n:'Loose Screw',i:'🔩',r:0,mx:3,d:l=>`Skulls appear less often (−${l})`,eff:l=>({skullW:-l})},
-{id:'barkeeps_tab',n:"Barkeep's Tab",i:'🍺',r:0,mx:3,d:l=>`Shop prices −${5*l}%`,eff:l=>({packDisc:.05*l})},
-{id:'lucky_cricket',n:'Lucky Cricket',i:'🦗',r:0,mx:3,d:l=>`All line payouts +${5*l}%`,eff:l=>({payAll:.05*l})},
-/* uncommons */
-{id:'pressed_clover',n:'Pressed Clover',i:'🍀',r:1,mx:3,d:l=>`Clovers pay +${50*l}%`,eff:l=>({pay:{clover:.5*l}})},
-{id:'gem_polish',n:'Gem Polish',i:'💎',r:1,mx:3,d:l=>`Diamonds pay +${45*l}%`,eff:l=>({pay:{gem:.45*l}})},
-{id:'double_down',n:'Double Down',i:'🎲',r:1,mx:3,d:l=>`Hot streak grows +${4*l}% per winning spin`,eff:l=>({streakStep:.04*l})},
-{id:'skull_bounty',n:'Skull Bounty',i:'💀',r:1,mx:3,d:l=>`Every Skull pays ${8*l}% of your bet`,eff:l=>({skullPay:.08*l})},
-{id:'star_chart',n:'Star Chart',i:'🔭',r:1,mx:3,d:l=>`Stars appear more often (+${l})`,eff:l=>({starW:.8*l})},
-{id:'compound_interest',n:'Compound Interest',i:'🏦',r:1,mx:3,d:l=>`Earn 5% interest at each House Cut (max $${60*l})`,eff:l=>({interest:.05,interestCap:60*l})},
-{id:'coin_magnet',n:'Coin Magnet',i:'🧲',r:1,mx:3,d:l=>`Coins appear more often (+${l})`,eff:l=>({coinW:1.2*l})},
-{id:'shop_rat',n:'Shop Rat',i:'🐀',r:1,mx:3,d:l=>`${l} free shop reroll${l>1?'s':''} per shop`,eff:l=>({rerollFree:l})},
-/* rares */
-{id:'wild_ink',n:'Wild Ink',i:'🃏',r:2,mx:3,d:l=>`Wilds appear much more often (+${l})`,eff:l=>({wildW:l})},
-{id:'seventh_son',n:'Seventh Son',i:'🎰',r:2,mx:3,d:l=>`Sevens pay +${60*l}%`,eff:l=>({pay:{seven:.6*l}})},
-{id:'golden_cherries',n:'Golden Cherries',i:'✨',r:2,mx:3,d:l=>`Cherry pairs pay +${40*l}% of bet more`,eff:l=>({cherryPair:.4*l})},
-{id:'house_key',n:'House Key',i:'🗝️',r:2,mx:3,d:l=>`House Cuts are ${8*l}% smaller`,eff:l=>({cutReduce:.08*l})},
-{id:'free_refills',n:'Free Refills',i:'🥤',r:2,mx:3,d:l=>`+${l} free spin${l>1?'s':''} whenever free spins trigger`,eff:l=>({freeSpins:l})},
-{id:'neon_streak',n:'Neon Streak',i:'⚡',r:2,mx:3,d:l=>`Hot streak cap raised by +${50*l}%`,eff:l=>({streakCap:.5*l})},
-/* epics */
-{id:'midas_touch',n:'Midas Touch',i:'👑',r:3,mx:3,d:l=>`All line payouts +${15*l}%`,eff:l=>({payAll:.15*l})},
-{id:'wild_reel',n:'Wild Reel',i:'🎡',r:3,mx:3,d:l=>`${3*l}% chance the middle reel spins all Wild`,eff:l=>({wildCol:.03*l})},
-{id:'pot_sweetener',n:'Pot Sweetener',i:'🍯',r:3,mx:3,d:l=>`Jackpot pot grows +${8*l}% of every bet`,eff:l=>({potPct:.08*l})},
-{id:'loan_shark',n:'Loan Shark',i:'🦈',r:3,mx:1,d:l=>`Once per run: pay only half a House Cut you can't afford`,eff:l=>({halfCut:1})},
-{id:'supernova',n:'Supernova',i:'🌠',r:3,mx:3,d:l=>`Free spin wins get ×${(0.5*l).toFixed(1)} extra multiplier`,eff:l=>({freeMult:.5*l})},
-/* legendaries */
-{id:'seventh_heaven',n:'Seventh Heaven',i:'🎇',r:4,mx:3,d:l=>`Sevens also pay on a left pair (${3+2*l}× bet)`,eff:l=>({sevenPair:3+2*l})},
-{id:'loaded_reels',n:'Loaded Reels',i:'🎯',r:4,mx:3,d:l=>`All line payouts +${25*l}%, but Skulls appear more (+2)`,eff:l=>({payAll:.25*l,skullW:2})},
-{id:'golden_goose',n:'Golden Goose',i:'🦢',r:4,mx:3,d:l=>`Every 10th spin pays ${(1+0.5*l).toFixed(1)}× your bet`,eff:l=>({goose:1+.5*l})},
-{id:'devils_bargain',n:"Devil's Bargain",i:'😈',r:4,mx:3,d:l=>`All line payouts +${40*l}%, but House Cuts +25%`,eff:l=>({payAll:.4*l,cutMult:.25})},
-{id:'north_star',n:'North Star',i:'🌟',r:4,mx:1,d:l=>`Free spins trigger with only 2 Stars`,eff:l=>({scatterNeed:1})},
+/* ---- RELICS: common ---- */
+{id:'rat_king',n:'Rat King',i:'🐀',r:0,kind:'relic',mx:3,d:l=>`Rats pay +${50*l}%`,f:'He remembers every crumb.',eff:l=>({pay:{rat:.5*l}})},
+{id:'bat_swarm',n:'Bat Swarm',i:'🦇',r:0,kind:'relic',mx:3,d:l=>`Bats pay +${50*l}%`,f:'The attic was never empty.',eff:l=>({pay:{bat:.5*l}})},
+{id:'spider_silk',n:'Spider Silk',i:'🕷️',r:0,kind:'relic',mx:3,d:l=>`Spiders pay +${50*l}%`,f:'Soft as a last breath.',eff:l=>({pay:{spider:.5*l}})},
+{id:'black_tallow',n:'Black Tallow',i:'🕯️',r:0,kind:'relic',mx:3,d:l=>`Candles pay +${45*l}%`,f:'Burns green. Smells of copper.',eff:l=>({pay:{candle:.45*l}})},
+{id:'grave_dirt',n:'Grave Dirt',i:'⚱️',r:0,kind:'relic',mx:3,d:l=>`Cobwebs appear less often (−${2*l})`,f:'Fresh, from somewhere unmarked.',eff:l=>({webW:-2*l})},
+{id:'tomb_coin',n:'Tomb Coin',i:'🪙',r:0,kind:'relic',mx:3,d:l=>`Cursed Gold is worth +${12*l}% of your bet`,f:'Two for the ferryman.',eff:l=>({coinVal:.12*l})},
+{id:'small_mercy',n:'Small Mercy',i:'🥀',r:0,kind:'relic',mx:3,d:l=>`Dead spins refund ${15*l}% of your bet`,f:'Even the House pities.',eff:l=>({betRefund:.15*l})},
+/* ---- RELICS: uncommon ---- */
+{id:'coffin_nails',n:'Coffin Nails',i:'⚰️',r:1,kind:'relic',mx:3,d:l=>`Coffins pay +${55*l}%`,f:'Nine of them. Always nine.',eff:l=>({pay:{coffin:.55*l}})},
+{id:'ectoplasm',n:'Ectoplasm',i:'👻',r:1,kind:'relic',mx:3,d:l=>`Ghosts pay +${50*l}%`,f:'Still warm.',eff:l=>({pay:{ghost:.5*l}})},
+{id:'witchs_eye',n:"Witch's Eye",i:'👁️',r:1,kind:'relic',mx:3,d:l=>`The Eye (wild) appears more often (+${l})`,f:'It blinks when you lie.',eff:l=>({wildW:l})},
+{id:'moonstone',n:'Moonstone',i:'🌑',r:1,kind:'relic',mx:3,d:l=>`Moons appear more often (+${l})`,f:'It pulls at something in you.',eff:l=>({moonW:l})},
+{id:'embalmers_tab',n:"Embalmer's Tab",i:'🧪',r:1,kind:'relic',mx:3,d:l=>`Night Market prices −${8*l}%`,f:'He gives discounts to regulars.',eff:l=>({packDisc:.08*l})},
+{id:'blood_pact',n:'Blood Pact',i:'🩸',r:1,kind:'relic',mx:3,d:l=>`Earn 5% interest at each Toll (max $${75*l})`,f:'Signed in the usual place.',eff:l=>({interest:.05,interestCap:75*l})},
+/* ---- RELICS: rare ---- */
+{id:'polished_skull',n:'Polished Skull',i:'💀',r:2,kind:'relic',mx:3,d:l=>`Skulls pay +${60*l}%`,f:'You can almost see your face.',eff:l=>({pay:{skull:.6*l}})},
+{id:'devils_digit',n:"Devil's Digit",i:'😈',r:2,kind:'relic',mx:3,d:l=>`Sixes pay +${50*l}%`,f:'It counts for him.',eff:l=>({pay:{six:.5*l}})},
+{id:'forged_ledger',n:'Forged Ledger',i:'📜',r:2,kind:'relic',mx:3,d:l=>`Reaper's Tolls are ${10*l}% smaller`,f:'Death is bad at arithmetic.',eff:l=>({tollReduce:.1*l})},
+{id:'fang_of_greed',n:'Fang of Greed',i:'🦷',r:2,kind:'relic',mx:3,d:l=>`Hot streak grows +${5*l}% per win, cap +${50*l}%`,f:'It grew back twice.',eff:l=>({streakStep:.05*l,streakCap:.5*l})},
+{id:'blood_chalice',n:'Blood Chalice',i:'🍷',r:2,kind:'relic',mx:3,d:l=>`+${2*l} free spins per Blood Moon`,f:'Never quite empty.',eff:l=>({moonSpins:2*l})},
+/* ---- RELICS: epic ---- */
+{id:'hand_of_midas',n:'Hand of Midas',i:'👑',r:3,kind:'relic',mx:3,d:l=>`All line payouts +${15*l}%`,f:'Severed, but still generous.',eff:l=>({payAll:.15*l})},
+{id:'haunted_reel',n:'Haunted Reel',i:'🎡',r:3,kind:'relic',mx:3,d:l=>`${4*l}% chance the middle reel spins all Wild`,f:'Something turns it from inside.',eff:l=>({wildCol:.04*l})},
+{id:'hellpot_tithe',n:'Hellpot Tithe',i:'🔥',r:3,kind:'relic',mx:3,d:l=>`The Hellpot grows +${8*l}% of every bet`,f:'Feed it and it feeds you.',eff:l=>({potPct:.08*l})},
+{id:'vampiric_touch',n:'Vampiric Touch',i:'🧛',r:3,kind:'relic',mx:3,d:l=>`Gain $${2*l} every spin, win or lose`,f:'A little off the top.',eff:l=>({drip:2*l})},
+/* ---- RELICS: legendary ---- */
+{id:'number_beast',n:'Number of the Beast',i:'🐐',r:4,kind:'relic',mx:3,d:l=>`Sixes also pay on a left pair (${3+2*l}× bet)`,f:'Two is close enough for him.',eff:l=>({sixPair:3+2*l})},
+{id:'loaded_bones',n:'Loaded Bones',i:'🦴',r:4,kind:'relic',mx:3,d:l=>`All line payouts +${30*l}%, but Cobwebs appear more (+3)`,f:'They always land his way.',eff:l=>({payAll:.3*l,webW:3})},
+{id:'moon_child',n:'Moon Child',i:'🌝',r:4,kind:'relic',mx:1,d:l=>`Blood Moon triggers with only 2 Moons`,f:'She was born during one.',eff:l=>({moonNeed:1})},
+{id:'golden_ghoul',n:'Golden Ghoul',i:'🧟',r:4,kind:'relic',mx:3,d:l=>`Every 10th spin pays ${2*l}× your bet`,f:'It digs up more than bodies.',eff:l=>({ghoul:2*l})},
+/* ---- CHARMS (consumed on play) ---- */
+{id:'adrenaline',n:'Adrenaline Vial',i:'💉',r:0,kind:'charm',dur:5,d:()=>'For 5 spins: all wins ×1.5',f:'Your heart remembers how.',ceff:{winMult:.5}},
+{id:'lucky_bones',n:'Lucky Bones',i:'🎲',r:0,kind:'charm',dur:8,d:()=>'For 8 spins: line payouts +25%',f:'Knuckle bones. Not yours.',ceff:{payAll:.25}},
+{id:'seance',n:'Séance',i:'🔮',r:1,kind:'charm',dur:4,d:()=>'For 4 spins: The Eye appears far more often (+4)',f:'Ask it nicely.',ceff:{wildW:4}},
+{id:'gold_rush',n:'Gold Rush',i:'💰',r:1,kind:'charm',dur:10,d:()=>'For 10 spins: Cursed Gold pays double',f:'Cold to the touch, all of it.',ceff:{coinVal:.35}},
+{id:'call_moon',n:'Call the Moon',i:'🌙',r:2,kind:'charm',dur:6,d:()=>'For 6 spins: Moons appear far more often (+5)',f:'It was already listening.',ceff:{moonW:5}},
+{id:'iron_will',n:'Iron Will',i:'🛡️',r:2,kind:'charm',dur:0,d:()=>"Your next Reaper's Toll is 40% smaller",f:'Death respects stubbornness.',instant:'tollDown'},
+{id:'sixth_sense',n:'Sixth Sense',i:'🎱',r:3,kind:'charm',dur:5,d:()=>'For 5 spins: Sixes appear far more often (+3)',f:'It always says 6.',ceff:{sixW:3}},
+{id:'ghost_walk',n:'Ghost Walk',i:'🌫️',r:4,kind:'charm',dur:0,d:()=>"Skip your next Reaper's Toll entirely",f:'He cannot collect what he cannot see.',instant:'tollSkip'},
+/* ---- HEXES (duel only, consumed on play) ---- */
+{id:'blood_tax',n:'Blood Tax',i:'🧾',r:0,kind:'hex',d:()=>'Opponent loses $30',f:'Payable immediately.',hx:{type:'cash',amt:30}},
+{id:'poltergeist',n:'Poltergeist',i:'🫥',r:0,kind:'hex',d:()=>'Opponent loses $15 and their hot streak',f:'It hates their luck, specifically.',hx:{type:'poltergeist',amt:15}},
+{id:'web_plague',n:'Plague of Webs',i:'🕸️',r:1,kind:'hex',d:()=>'Opponent: Cobwebs +6 for 6 spins',f:'Something has been busy.',hx:{type:'debuff',dur:6,eff:{webW:6}}},
+{id:'blackout',n:'Blackout',i:'🕳️',r:1,kind:'hex',d:()=>"Opponent's paytable is hidden for 12 spins",f:'Let them guess.',hx:{type:'debuff',dur:12,eff:{blackout:1}}},
+{id:'evil_eye',n:'Evil Eye',i:'🧿',r:2,kind:'hex',d:()=>'Opponent: The Eye −2 for 8 spins',f:'An eye for an eye.',hx:{type:'debuff',dur:8,eff:{wildW:-2}}},
+{id:'grave_robber',n:'Grave Robber',i:'⛏️',r:2,kind:'hex',d:()=>"Steal 10% of opponent's cash (max $150)",f:'They were not using it.',hx:{type:'steal',pct:.1,max:150}},
+{id:'reapers_haste',n:"Reaper's Haste",i:'⏳',r:2,kind:'hex',d:()=>"Opponent's next Toll is 30% larger",f:'A word in his ear.',hx:{type:'tollUp',pct:.3}},
+{id:'frozen_reel',n:'Frozen Reel',i:'🧊',r:3,kind:'hex',d:()=>"Opponent's 5th reel shows only Cobwebs for 3 spins",f:'Cold spreads from the right.',hx:{type:'debuff',dur:3,eff:{freezeReel:1}}},
+{id:'moon_thief',n:'Moon Thief',i:'🌘',r:3,kind:'hex',d:()=>'Opponent cannot trigger Blood Moon for 15 spins',f:'He keeps it in a sack.',hx:{type:'debuff',dur:15,eff:{moonBlock:1}}},
+{id:'cursed_gift',n:'Cursed Gift',i:'🎁',r:4,kind:'hex',d:()=>"Opponent gains $100 now… their next Toll +$250",f:'No refunds. No returns.',hx:{type:'gift',give:100,toll:250}},
+{id:'doppelganger',n:'Doppelgänger',i:'🪞',r:4,kind:'hex',d:()=>"Copy your opponent's newest Relic for yourself",f:'It learned your face first.',hx:{type:'copy'}},
 ];
-const CARD_BY_ID={}; CARDS.forEach(c=>CARD_BY_ID[c.id]=c);
+var CARD_BY_ID={}; CARDS.forEach(c=>CARD_BY_ID[c.id]=c);
+const KIND_LABEL={relic:'Relic',charm:'Charm',hex:'Hex'};
 
 /* ============ [DATA] PACKS ============ */
-/* odds: [common,uncommon,rare,epic,legendary] must sum 100 */
+/* odds: [common,uncommon,rare,epic,legendary] sum 100 */
 const PACKS=[
-  {id:'bronze',n:'Bronze Pack',i:'🟫',cost:35, odds:[70,24,6,0,0]},
-  {id:'silver',n:'Silver Pack',i:'⬜',cost:85, odds:[40,34,20,6,0]},
-  {id:'gold',  n:'Gold Pack',  i:'🟨',cost:170,odds:[15,32,30,17,6]},
+  {id:'pine',    n:'Pine Box',            i:'🪦',cost:40, cards:3,odds:[70,24,6,0,0]},
+  {id:'gilded',  n:'Gilded Coffin',       i:'⚰️',cost:95, cards:3,odds:[38,34,20,7,1]},
+  {id:'obsidian',n:'Obsidian Sarcophagus',i:'🖤',cost:185,cards:4,odds:[12,30,32,19,7]},
 ];
-const SINGLE_ODDS=[35,30,20,11,4];
+const SINGLE_ODDS=[32,30,21,12,5];
 
-/* ============ [DATA] META UPGRADES ============ */
+/* ============ [DATA] GRIMOIRE (meta upgrades, paid in Souls) ============ */
 const UPS=[
-  {id:'bankroll',   n:'Bankroll',     i:'💵',mx:5,cost:r=>15+r*12,d:'+$25 starting cash'},
-  {id:'highroller', n:'High Roller',  i:'🎩',mx:5,cost:r=>25+r*20,d:'+4% all line payouts'},
-  {id:'loaded_dice',n:'Loaded Dice',  i:'🎲',mx:3,cost:r=>30+r*25,d:'Wilds appear more often'},
-  {id:'haggler',    n:'Haggler',      i:'🤝',mx:4,cost:r=>20+r*15,d:'Shop prices −6%'},
-  {id:'grace',      n:'Grace Period', i:'🕊️',mx:3,cost:r=>35+r*30,d:'House Cuts grow 10% slower'},
-  {id:'head_start', n:'Head Start',   i:'🎁',mx:1,cost:r=>60,     d:'Start every run with a free Bronze Pack'},
-  {id:'second_wind',n:'Second Wind',  i:'❤️',mx:1,cost:r=>80,     d:'Once per run, survive a missed Cut (lose all cash)'},
-  {id:'token_magnet',n:'Token Magnet',i:'🧿',mx:4,cost:r=>25+r*20,d:'+10% Tokens earned'},
-  {id:'pot_boost',  n:'Pot Boost',    i:'💰',mx:3,cost:r=>30+r*25,d:'Jackpot pot grows +4% of bets'},
-  {id:'bonus_spins',n:'Bonus Spins',  i:'🌀',mx:2,cost:r=>50+r*40,d:'+1 free spin per trigger'},
+  {id:'bankroll',    n:'Grave Savings', i:'💵',mx:5,cost:r=>15+r*12,d:'+$25 starting cash'},
+  {id:'highroller',  n:'High Roller',   i:'🎩',mx:5,cost:r=>25+r*20,d:'+4% all line payouts'},
+  {id:'loaded_dice', n:'Loaded Dice',   i:'🎲',mx:3,cost:r=>30+r*25,d:'The Eye (wild) appears more often'},
+  {id:'haggler',     n:'Haggler',       i:'🤝',mx:4,cost:r=>20+r*15,d:'Night Market prices −6%'},
+  {id:'grace',       n:'Grace Period',  i:'🕊️',mx:3,cost:r=>35+r*30,d:"Reaper's Tolls grow 10% slower"},
+  {id:'head_start',  n:'Head Start',    i:'🎁',mx:1,cost:r=>60,     d:'Start every run with a free Pine Box'},
+  {id:'second_wind', n:'Second Wind',   i:'❤️',mx:1,cost:r=>80,     d:'Once per run, survive a missed Toll (lose all cash)'},
+  {id:'soul_magnet', n:'Soul Magnet',   i:'🧿',mx:4,cost:r=>25+r*20,d:'+10% Souls earned'},
+  {id:'hellpot_boost',n:'Hellpot Stoker',i:'🔥',mx:3,cost:r=>30+r*25,d:'Hellpot grows +4% of bets'},
+  {id:'blood_moon',  n:'Long Night',    i:'🌕',mx:2,cost:r=>50+r*40,d:'+1 free spin per Blood Moon'},
+  {id:'deep_pockets',n:'Deep Pockets',  i:'🎒',mx:3,cost:r=>30+r*22,d:'+2 card storage slots'},
+  {id:'charm_start', n:'Lucky Departure',i:'🔮',mx:1,cost:r=>55,    d:'Start every run with a random Charm'},
 ];
 const UP_BY_ID={}; UPS.forEach(u=>UP_BY_ID[u.id]=u);
+
+/* ============ [DUEL CONFIG] ============ */
+/* patched to the deployed Cloudflare Worker after `wrangler deploy` */
+const DUEL_HOST='deadspin-duel.may23jordan.workers.dev';
+const DUEL_HTTP='https://'+DUEL_HOST;
+const DUEL_WS='wss://'+DUEL_HOST;
 
 /* ============ [STATE] ============ */
 var meta=null, run=null, anim=false;
 
-function freshMeta(){return {tokens:0,up:{},coll:{},snd:1,
-  stats:{runs:0,spins:0,jackpots:0,bestCash:0,bestSpins:0,bestCuts:0,totalWon:0}};}
+function freshMeta(){return {v:2,tokens:0,up:{},coll:{},snd:1,name:'',
+  stats:{runs:0,spins:0,jackpots:0,bestCash:0,bestSpins:0,bestCuts:0,totalWon:0,duelWins:0,duelLosses:0}};}
 
 function loadAll(){
   meta=freshMeta(); run=null;
@@ -523,9 +761,22 @@ function loadAll(){
     const raw=localStorage.getItem(SAVE_KEY);
     if(raw){
       const s=JSON.parse(raw);
-      if(s.meta){Object.assign(meta,s.meta); meta.up=s.meta.up||{}; meta.coll=s.meta.coll||{};
-        meta.stats=Object.assign(freshMeta().stats,s.meta.stats||{});}
-      if(s.run && !s.run.over) run=s.run;
+      if(s.meta){
+        if(s.meta.v===2){
+          Object.assign(meta,s.meta);
+          meta.up=s.meta.up||{}; meta.coll=s.meta.coll||{};
+          meta.stats=Object.assign(freshMeta().stats,s.meta.stats||{});
+          if(s.run && !s.run.over && s.run.storage) run=s.run;
+        }else{
+          /* v1 Spinfall save: keep the currency + lifetime stats, new card world */
+          meta.tokens=s.meta.tokens||0;
+          meta.snd=(s.meta.snd!==undefined)?s.meta.snd:1;
+          const os=s.meta.stats||{};
+          meta.stats.runs=os.runs||0; meta.stats.spins=os.spins||0;
+          meta.stats.bestCash=os.bestCash||0; meta.stats.bestSpins=os.bestSpins||0;
+          meta.stats.totalWon=os.totalWon||0;
+        }
+      }
     }
   }catch(e){console.warn('load failed',e);}
 }
@@ -534,9 +785,10 @@ function saveAll(){
 }
 
 /* ============ [EFFECTS] ============ */
-function baseEff(){return {pay:{},payAll:0,wildW:0,starW:0,coinW:0,skullW:0,coinVal:0,skullPay:0,
-  betRefund:0,packDisc:0,streakStep:0,streakCap:0,interest:0,interestCap:0,cutReduce:0,cutMult:0,
-  freeSpins:0,freeMult:0,potPct:0,rerollFree:0,sevenPair:0,scatterNeed:0,wildCol:0,goose:0,halfCut:0,cherryPair:0};}
+function baseEff(){return {pay:{},payAll:0,winMult:0,wildW:0,moonW:0,sixW:0,webW:0,coinVal:0,
+  betRefund:0,packDisc:0,streakStep:0,streakCap:0,interest:0,interestCap:0,tollReduce:0,
+  moonSpins:0,moonNeed:0,wildCol:0,potPct:0,drip:0,sixPair:0,ghoul:0,
+  blackout:0,freezeReel:0,moonBlock:0};}
 function mergeEff(t,s){
   for(const k in s){
     if(k==='pay'){for(const p in s.pay) t.pay[p]=(t.pay[p]||0)+s.pay[p];}
@@ -547,69 +799,83 @@ function EFF(){
   const e=baseEff();
   const up=meta?meta.up:{};
   mergeEff(e,{payAll:.04*(up.highroller||0), wildW:.4*(up.loaded_dice||0),
-    packDisc:.06*(up.haggler||0), potPct:.04*(up.pot_boost||0), freeSpins:(up.bonus_spins||0)});
-  if(run) for(const id in run.cards){
-    const c=CARD_BY_ID[id]; if(c) mergeEff(e,c.eff(run.cards[id]));
+    packDisc:.06*(up.haggler||0), potPct:.04*(up.hellpot_boost||0), moonSpins:(up.blood_moon||0)});
+  if(run){
+    for(const id in run.relics){const c=CARD_BY_ID[id]; if(c&&c.eff) mergeEff(e,c.eff(run.relics[id]));}
+    for(const ch of run.charms){const c=CARD_BY_ID[ch.id]; if(c&&c.ceff) mergeEff(e,c.ceff);}
+    for(const db of run.debuffs){if(db.eff) mergeEff(e,db.eff);}
   }
   return e;
 }
+function storageCap(){return STORAGE_CAP+2*((meta.up.deep_pockets)||0);}
 
 /* ============ [ENGINE] pure spin functions ============ */
 function weightTable(eff){
   const w={};
   for(const s of SYMLIST) w[s]=SYM[s].w;
-  w.wild+=eff.wildW; w.star+=eff.starW; w.coin+=eff.coinW; w.skull=Math.max(0,w.skull+eff.skullW);
+  w.eye=Math.max(0,w.eye+eff.wildW);
+  w.moon=Math.max(0,w.moon+eff.moonW);
+  w.six=Math.max(0,w.six+eff.sixW);
+  w.web=Math.max(0,w.web+eff.webW);
   return w;
 }
 function rollSym(w,total){
   let r=Math.random()*total;
   for(const s of SYMLIST){r-=w[s]; if(r<0) return s;}
-  return 'cherry';
+  return 'web';
 }
 function rollGrid(eff){
   const w=weightTable(eff);
   let total=0; for(const s of SYMLIST) total+=w[s];
   const g=[];
-  for(let i=0;i<9;i++) g.push(rollSym(w,total));
-  if(eff.wildCol>0 && Math.random()<eff.wildCol){g[1]='wild';g[4]='wild';g[7]='wild';}
+  for(let i=0;i<CELLS;i++) g.push(rollSym(w,total));
+  if(eff.wildCol>0 && Math.random()<eff.wildCol){g[2]='eye';g[7]='eye';g[12]='eye';}
+  if(eff.freezeReel>0){g[4]='web';g[9]='web';g[14]='web';}
   return g;
 }
 function payMult(eff,sym){return (1+eff.payAll)*(1+(eff.pay[sym]||0));}
-/* evaluate one spin; ctx={streakMult,free} */
+function lineWin(syms,eff,bet){
+  let wl=0; for(const s of syms){if(s==='eye')wl++;else break;}
+  let target=null,len=0;
+  for(const s of syms){
+    if(s==='eye'){len++;continue;}
+    if(!target){target=s;len++;continue;}
+    if(s===target){len++;continue;}
+    break;
+  }
+  let best=null;
+  if(target&&SYM[target].pay&&len>=3)
+    best={sym:target,len,amt:SYM[target].pay[len-3]*bet*payMult(eff,target)};
+  if(wl>=3){
+    const amt=SYM.six.pay[wl-3]*bet*payMult(eff,'six');
+    if(!best||amt>best.amt) best={sym:'six',len:wl,amt};
+  }
+  if(best) return best;
+  const p2=s=>{const a=syms[0],b=syms[1];return (a===s||a==='eye')&&(b===s||b==='eye')&&(a===s||b===s);};
+  if(p2('rat')) return {sym:'rat',len:2,amt:RAT_PAIR*bet*payMult(eff,'rat'),pair:true};
+  if(eff.sixPair>0&&p2('six')) return {sym:'six',len:2,amt:eff.sixPair*bet*payMult(eff,'six'),pair:true};
+  return null;
+}
+/* ctx={streakMult,free} */
 function evalSpin(grid,bet,eff,ctx){
-  const res={lines:[],coinWin:0,skullWin:0,scatters:0,jackpot:false,lineWin:0,total:0};
+  const res={lines:[],coinWin:0,scatters:0,jackpot:false,lineWin:0,total:0};
   for(let li=0;li<LINES.length;li++){
-    const [a,b,c]=LINES[li].map(i=>grid[i]);
-    const syms=[a,b,c];
-    const nw=syms.filter(s=>s!=='wild');
-    let target=null;
-    if(nw.length===0) target='seven';
-    else if(nw.every(s=>s===nw[0])) target=nw[0];
-    if(target && SYM[target].pay>0){
-      const amt=SYM[target].pay*bet*payMult(eff,target);
-      res.lines.push({li,sym:target,amt});
-      if(target==='seven') res.jackpot=true;
-      continue;
-    }
-    /* left-pair rules */
-    const pairIs=s=>( (a===s||a==='wild') && (b===s||b==='wild') && (a===s||b===s) );
-    if(pairIs('cherry')){
-      const amt=(CHERRY_PAIR+eff.cherryPair)*bet*payMult(eff,'cherry');
-      res.lines.push({li,sym:'cherry',amt,pair:true});
-    }else if(eff.sevenPair>0 && pairIs('seven')){
-      const amt=eff.sevenPair*bet*payMult(eff,'seven');
-      res.lines.push({li,sym:'seven',amt,pair:true});
+    const syms=LINES[li].map(i=>grid[i]);
+    const w=lineWin(syms,eff,bet);
+    if(w){
+      res.lines.push({li,sym:w.sym,len:w.len,amt:w.amt});
+      if(w.sym==='six'&&w.len>=3) res.jackpot=true;
     }
   }
   for(const s of grid){
-    if(s==='coin') res.coinWin+=(COIN_VAL+eff.coinVal)*bet;
-    else if(s==='skull'&&eff.skullPay>0) res.skullWin+=eff.skullPay*bet;
-    else if(s==='star') res.scatters++;
+    if(s==='gold') res.coinWin+=(COIN_VAL+eff.coinVal)*bet;
+    else if(s==='moon') res.scatters++;
   }
+  if(eff.moonBlock>0) res.scatters=0;
   res.lineWin=res.lines.reduce((t,l)=>t+l.amt,0);
-  let mult=ctx.streakMult||1;
-  if(ctx.free) mult*=(2+eff.freeMult);
-  res.total=res.lineWin*mult+res.coinWin+res.skullWin;
+  let mult=(ctx.streakMult||1)*(1+eff.winMult);
+  if(ctx.free) mult*=2;
+  res.total=res.lineWin*mult+res.coinWin;
   res.mult=mult;
   return res;
 }
@@ -617,25 +883,29 @@ function streakMultOf(streak,eff){
   const step=0.05+eff.streakStep, cap=0.5+eff.streakCap;
   return 1+Math.min(streak*step,cap);
 }
-function cutAmount(n,eff){
+function tollBase(n){
   const g=1-0.1*((meta.up&&meta.up.grace)||0);
-  let amt=(35+(26*(n-1)+8*(n-1)*(n-1))*g);
-  amt*=(1+eff.cutMult)*(1-eff.cutReduce);
-  return Math.max(10,Math.round(amt));
+  return Math.max(10,Math.round(35+(26*(n-1)+8*(n-1)*(n-1))*g));
+}
+function tollAmount(n,eff){
+  let amt=tollBase(n)*(1-eff.tollReduce);
+  amt=amt*run.tollMods.mult+run.tollMods.add;
+  return Math.max(0,Math.round(amt));
 }
 
-/* dev/sim hook: measure base RTP over n spins (no cards) */
+/* dev/sim hook: base RTP over n spins (no cards) */
 window.__simRTP=function(n,bet){
   n=n||100000; bet=bet||10;
-  const eff=baseEff(); let wagered=0,won=0,hits=0,scat=0;
+  const eff=baseEff(); let wagered=0,won=0,hits=0,scat=0,jack=0;
   for(let i=0;i<n;i++){
     const g=rollGrid(eff);
     const r=evalSpin(g,bet,eff,{streakMult:1,free:false});
     wagered+=bet; won+=r.total;
     if(r.total>0)hits++;
-    if(r.scatters>=3)scat++;
+    if(r.scatters>=MOON_NEED)scat++;
+    if(r.jackpot)jack++;
   }
-  return {rtp:won/wagered,hitRate:hits/n,scatterRate:scat/n};
+  return {rtp:won/wagered,hitRate:hits/n,scatterRate:scat/n,jackRate:jack/n};
 };
 
 /* ============ [SOUND] ============ */
@@ -660,18 +930,19 @@ function beep(f,dur,delay,type,vol){
     o.start(t); o.stop(t+dur+0.05);
   }catch(e){}
 }
-const sTick =()=>beep(320+Math.random()*80,.05,0,'square',.03);
-const sStop =()=>beep(180,.08,0,'square',.07);
-const sWin=w=>{[523,659,784].slice(0,w>50?3:2).forEach((f,i)=>beep(f,.14,i*.07,'triangle',.1));};
-const sBigWin=()=>[523,659,784,1047,1319].forEach((f,i)=>beep(f,.18,i*.08,'triangle',.12));
-const sCoin =()=>beep(1245,.09,0,'sine',.09);
-const sLose =()=>beep(140,.16,0,'sawtooth',.045);
-const sBuy  =()=>{beep(660,.08,0,'sine',.08);beep(880,.1,.08,'sine',.08);};
-const sFlip =()=>beep(500,.06,0,'square',.05);
-const sRare =()=>[440,554,659,880].forEach((f,i)=>beep(f,.2,i*.06,'sine',.1));
-const sCut  =()=>{beep(233,.25,0,'sawtooth',.08);beep(155,.35,.18,'sawtooth',.08);};
-const sJack =()=>[523,659,784,1047,784,1047,1319,1568].forEach((f,i)=>beep(f,.22,i*.1,'triangle',.13));
-const sFree =()=>[784,988,1175,1568].forEach((f,i)=>beep(f,.16,i*.07,'sine',.1));
+const sTick =()=>beep(300+Math.random()*70,.05,0,'square',.025);
+const sStop =()=>beep(160,.08,0,'square',.06);
+const sWin=w=>{[392,494,587].slice(0,w>50?3:2).forEach((f,i)=>beep(f,.14,i*.07,'triangle',.1));};
+const sBigWin=()=>[392,494,587,784,988].forEach((f,i)=>beep(f,.18,i*.08,'triangle',.12));
+const sCoin =()=>beep(1175,.09,0,'sine',.08);
+const sLose =()=>beep(120,.18,0,'sawtooth',.04);
+const sBuy  =()=>{beep(587,.08,0,'sine',.08);beep(784,.1,.08,'sine',.08);};
+const sFlip =()=>beep(460,.06,0,'square',.05);
+const sRare =()=>[415,523,622,831].forEach((f,i)=>beep(f,.2,i*.06,'sine',.1));
+const sToll =()=>{beep(208,.28,0,'sawtooth',.08);beep(139,.4,.2,'sawtooth',.08);};
+const sJack =()=>[466,587,698,932,698,932,1175,1397].forEach((f,i)=>beep(f,.22,i*.1,'triangle',.13));
+const sMoon =()=>[698,880,1047,1397].forEach((f,i)=>beep(f,.16,i*.07,'sine',.1));
+const sHex  =()=>{beep(311,.3,0,'sawtooth',.09);beep(233,.35,.15,'sawtooth',.09);beep(155,.5,.3,'sawtooth',.1);};
 
 /* ============ [UI HELPERS] ============ */
 function fmt(n){return '$'+Math.round(n).toLocaleString('en-US');}
@@ -679,18 +950,18 @@ function toast(msg,cls){
   const t=document.createElement('div');
   t.className='toast'+(cls?' '+cls:''); t.innerHTML=msg;
   $('toasts').appendChild(t);
-  setTimeout(()=>t.remove(),3000);
+  setTimeout(()=>t.remove(),3200);
 }
 function addFloat(txt,cls,slot){
   const f=document.createElement('div');
   f.className='float'+(cls?' '+cls:''); f.textContent=txt;
-  f.style.top=(38+(slot||0)*13)+'%';
+  f.style.top=(34+(slot||0)*12)+'%';
   $('floats').appendChild(f);
   setTimeout(()=>f.remove(),1600);
 }
 function symHTML(s){
-  if(s==='seven') return '<span class="s7">7</span>';
-  if(s==='wild') return '<span class="wild">🃏</span>';
+  if(s==='six') return '<span class="s6">6</span>';
+  if(s==='eye') return '<span class="wild">👁️</span>';
   return SYM[s].e;
 }
 function show(scr){
@@ -700,41 +971,104 @@ function show(scr){
 function ovOpen(id){$(id).classList.add('on');}
 function ovClose(id){$(id).classList.remove('on');}
 
+/* ============ [TOOLTIP] ============ */
+function tipHTML(c,extra){
+  let h='<div class="t-head"><div class="t-ic">'+c.i+'</div><div><div class="t-nm">'+c.n+'</div>'
+    +'<div class="t-rr">'+RARS[c.r].n+' · <span class="kchip '+c.kind+'">'+KIND_LABEL[c.kind]+'</span></div></div></div>';
+  const lv=extra&&extra.lv?extra.lv:1;
+  h+='<div class="t-d">'+c.d(lv)+(extra&&extra.lv&&c.kind==='relic'?' <span class="dim">(Lv'+extra.lv+')</span>':'')+'</div>';
+  if(c.f) h+='<div class="t-f">“'+c.f+'”</div>';
+  const pulls=meta.coll[c.id]||0;
+  let m=[];
+  if(c.kind==='hex') m.push('Duel card — strikes your opponent');
+  if(c.kind==='relic') m.push('Permanent · dupes upgrade to Lv3');
+  if(c.kind==='charm') m.push('One use');
+  m.push(pulls?('Pulled '+pulls+'× all-time'):'Never pulled');
+  h+='<div class="t-m">'+m.join(' · ')+'</div>';
+  return h;
+}
+function tipShowFor(el){
+  const id=el.dataset.tipcard; const c=CARD_BY_ID[id]; if(!c) return;
+  const lv=el.dataset.tiplv?+el.dataset.tiplv:0;
+  const tip=$('tip');
+  tip.className='r'+c.r+' on';
+  tip.innerHTML=tipHTML(c,lv?{lv}:null);
+  const r=el.getBoundingClientRect();
+  let x=r.right+10, y=r.top-4;
+  if(x+260>window.innerWidth) x=r.left-260;
+  if(x<4) x=4;
+  tip.style.left=x+'px';
+  tip.style.top='0px';
+  const th=tip.offsetHeight;
+  if(y+th>window.innerHeight-8) y=window.innerHeight-th-8;
+  if(y<4) y=4;
+  tip.style.top=y+'px';
+}
+function tipHide(){$('tip').classList.remove('on');}
+document.addEventListener('mouseover',e=>{
+  const t=e.target.closest?e.target.closest('[data-tipcard]'):null;
+  if(t) tipShowFor(t); else tipHide();
+});
+document.addEventListener('click',e=>{
+  const t=e.target.closest?e.target.closest('[data-tipcard]'):null;
+  if(!t) tipHide();
+});
+
 /* ============ [RUN LIFECYCLE] ============ */
-function startRun(){
+function startRun(duel){
   const startCash=125+25*((meta.up.bankroll)||0);
   run={cash:startCash,bet:10,spins:0,sinceCut:0,cutNum:1,pot:POT_SEED,streak:0,
-    freeSpins:0,over:false,cards:{},cardOrder:[],shop:null,inShop:false,
-    peak:startCash,bigWin:0,jackpots:0,cutsPaid:0,newCards:0,usedWind:false,usedShark:false,
-    rerollsUsed:0,gooseCt:0};
+    freeSpins:0,over:false,relics:{},relicOrder:[],charms:[],debuffs:[],storage:[],
+    tollMods:{mult:1,add:0,skip:0},shop:null,inShop:false,
+    peak:startCash,bigWin:0,jackpots:0,cutsPaid:0,newCards:0,usedWind:false,
+    rerollsUsed:0,ghoulCt:0,duel:!!duel,played:[]};
   meta.stats.runs++;
   saveAll();
   show('scrGame');
-  renderGame(); buildGridCells();
-  if(meta.up.head_start){
-    openPack(PACKS[0],true);
+  buildGridCells();
+  $('oppBox').classList.toggle('on',!!duel);
+  if(duel) resetOppPanel();
+  renderGame();
+  if(meta.up.charm_start){
+    const pool=CARDS.filter(c=>c.kind==='charm');
+    const c=pool[Math.floor(Math.random()*pool.length)];
+    gainCard(c.id); toast('🔮 Lucky Departure: '+c.i+' '+c.n+' in storage','good');
   }
+  if(meta.up.head_start) openPack(PACKS[0],true);
 }
-function endRun(reason){
+function soulsFor(r){
+  const parts=[
+    ['Spins survived ×0.3', Math.round(r.spins*0.3)],
+    ['Tolls paid ×6', r.cutsPaid*6],
+    ['666s hit ×12', r.jackpots*12],
+    ['New cards ×3', r.newCards*3],
+    ['Peak cash ÷100', Math.round(Math.min(r.peak,3000)/100)],
+  ];
+  if(r.duelWon) parts.push(['Duel won',15]);
+  let tok=parts.reduce((t,p)=>t+p[1],0);
+  tok=Math.max(3,Math.round(tok*(1+0.1*((meta.up.soul_magnet)||0))));
+  return {parts,tok};
+}
+function endRun(reason,opts){
   if(!run||run.over) return;
+  opts=opts||{};
   run.over=true;
+  if(opts.won) run.duelWon=true;
   const s=meta.stats;
   s.bestCash=Math.max(s.bestCash,run.peak);
   s.bestSpins=Math.max(s.bestSpins,run.spins);
   s.bestCuts=Math.max(s.bestCuts,run.cutsPaid);
-  /* tokens */
-  const parts=[
-    ['Spins survived ×0.3', Math.round(run.spins*0.3)],
-    ['Cuts paid ×6', run.cutsPaid*6],
-    ['Jackpots ×12', run.jackpots*12],
-    ['New cards ×3', run.newCards*3],
-    ['Peak cash ÷100', Math.round(Math.min(run.peak,3000)/100)],
-  ];
-  let tok=parts.reduce((t,p)=>t+p[1],0);
-  tok=Math.max(3,Math.round(tok*(1+0.1*((meta.up.token_magnet)||0))));
+  const {parts,tok}=soulsFor(run);
   meta.tokens+=tok;
   saveAll();
-  /* death screen */
+  ovClose('ovShop');ovClose('ovPack');ovClose('ovAct');
+  if(run.duel){
+    if(!opts.won && duelAlive()) duelSend({t:'death'});
+    if(opts.won){s.duelWins++;}else{s.duelLosses++;}
+    saveAll();
+    showDuelEnd(opts.won,reason,tok);
+    return;
+  }
   $('deathReason').textContent=reason;
   $('dSpins').textContent=run.spins;
   $('dPeak').textContent=fmt(run.peak);
@@ -742,11 +1076,21 @@ function endRun(reason){
   $('dBigWin').textContent=fmt(run.bigWin);
   let h='';
   for(const [k,v] of parts) if(v>0) h+='<div class="tokline"><span class="dim">'+k+'</span><span>+'+v+'</span></div>';
-  h+='<div class="tokline"><span>Tokens earned</span><span>🪙 '+tok+'</span></div>';
+  h+='<div class="tokline"><span>Souls earned</span><span>👻 '+tok+'</span></div>';
   $('dTokens').innerHTML=h;
-  ovClose('ovShop');ovClose('ovPack');
   show('scrDeath');
-  sCut();
+  sToll();
+}
+function endRunSilent(){
+  if(!run||run.over)return;
+  const keep=run;
+  run.over=true;
+  const {tok}=soulsFor(keep);
+  meta.tokens+=tok;
+  meta.stats.bestCash=Math.max(meta.stats.bestCash,keep.peak);
+  meta.stats.bestSpins=Math.max(meta.stats.bestSpins,keep.spins);
+  toast('Previous run cashed out: 👻 '+tok,'good');
+  saveAll();
 }
 
 /* ============ [SPIN] ============ */
@@ -756,10 +1100,9 @@ function spin(){
   const free=run.freeSpins>0;
   if(!free){
     if(run.cash<run.bet){
-      /* clamp bet down if possible */
       const affordable=BETS.filter(b=>b<=run.cash);
       if(affordable.length){run.bet=affordable[affordable.length-1];}
-      else{endRun('You went bust — the reels only take cash.');return;}
+      else{endRun('You went broke. The reels only take cash.');return;}
     }
     run.cash-=run.bet;
     run.pot+=run.bet*(POT_BASE+eff.potPct);
@@ -776,11 +1119,14 @@ function spin(){
 }
 function applyResult(grid,res,free,eff){
   let slot=0;
-  /* line hits */
-  const hitCells=new Set();
-  for(const l of res.lines) LINES[l.li].forEach(i=>hitCells.add(i));
-  hitCells.forEach(i=>{const c=$('c'+i); if(c)c.classList.add('hit');});
-  /* jackpot */
+  for(const l of res.lines){
+    const col=LINE_COLORS[l.li];
+    for(let i=0;i<l.len&&i<5;i++){
+      const c=$('c'+LINES[l.li][i]);
+      if(c){c.classList.add('hit');c.style.setProperty('--lc',col);}
+    }
+  }
+  /* hellpot */
   let jackWin=0;
   if(res.jackpot){
     jackWin=Math.round(run.pot);
@@ -797,7 +1143,7 @@ function applyResult(grid,res,free,eff){
     meta.stats.totalWon+=total;
     run.bigWin=Math.max(run.bigWin,total);
     addFloat('+'+fmt(total),total>=run.bet*8?'big':'',slot++);
-    if(res.mult>1.01) addFloat('×'+res.mult.toFixed(2)+' streak','bad',slot++);
+    if(res.mult>1.01) addFloat('×'+res.mult.toFixed(2),'bad',slot++);
     if(!res.jackpot){ if(total>=run.bet*8) sBigWin(); else sWin(total); }
     if(res.coinWin>0) sCoin();
   }else{
@@ -809,93 +1155,100 @@ function applyResult(grid,res,free,eff){
     }
     sLose();
   }
-  /* golden goose */
-  if(eff.goose>0){
-    run.gooseCt=(run.gooseCt||0)+1;
-    if(run.gooseCt>=10){
-      run.gooseCt=0;
-      const g=Math.round(run.bet*eff.goose);
+  if(eff.drip>0) run.cash+=eff.drip;
+  if(eff.ghoul>0){
+    run.ghoulCt=(run.ghoulCt||0)+1;
+    if(run.ghoulCt>=10){
+      run.ghoulCt=0;
+      const g=Math.round(run.bet*eff.ghoul);
       run.cash+=g;
-      addFloat('🦢 +'+fmt(g),'',slot++);
+      addFloat('🧟 +'+fmt(g),'',slot++);
       sCoin();
     }
   }
-  /* scatters → free spins */
-  const need=3-(eff.scatterNeed>0?1:0);
+  /* blood moon */
+  const need=Math.max(2,MOON_NEED-eff.moonNeed);
   if(res.scatters>=need){
-    const add=5+eff.freeSpins;
+    const add=MOON_SPINS+eff.moonSpins;
     run.freeSpins+=add;
-    toast('⭐ FREE SPINS! +'+add+' spins, wins ×'+(2+eff.freeMult).toFixed(1),'good');
-    sFree();
+    toast('🌕 BLOOD MOON — '+add+' free spins, wins ×2','good');
+    sMoon();
   }
+  /* tick temporary effects */
+  run.charms=run.charms.filter(ch=>{ch.left--;return ch.left>0;});
+  run.debuffs=run.debuffs.filter(db=>{db.left--;return db.left>0;});
   run.peak=Math.max(run.peak,run.cash);
-  /* house cut due? (never during free spins) */
-  if(run.sinceCut>=CUT_EVERY&&run.freeSpins<=0){
-    houseCut(eff);
+  if(run.duel) sendState();
+  if(run.sinceCut>=TOLL_EVERY&&run.freeSpins<=0){
+    doToll();
     return;
   }
-  /* bust check */
   if(run.cash<MIN_BET&&run.freeSpins<=0){
-    endRun('You went bust — the reels only take cash.');
+    endRun('You went broke. The reels only take cash.');
     return;
   }
   saveAll();
   renderGame();
 }
 
-/* ============ [HOUSE CUT] ============ */
-function houseCut(eff){
-  const due=cutAmount(run.cutNum,eff);
-  /* interest first */
+/* ============ [REAPER'S TOLL] ============ */
+function doToll(){
+  const eff=EFF();
+  if(run.tollMods.skip>0){
+    run.tollMods={mult:1,add:0,skip:0};
+    run.cutNum++; run.sinceCut=0;
+    toast('🌫️ Ghost Walk — the Reaper passed you by','good');
+    saveAll(); renderGame();
+    if(run.duel) sendState();
+    return;
+  }
+  const due=tollAmount(run.cutNum,eff);
+  run.tollMods={mult:1,add:0,skip:0};
   if(eff.interest>0){
     const gain=Math.min(Math.round(run.cash*eff.interest),eff.interestCap);
-    if(gain>0){run.cash+=gain;toast('🏦 Interest: +'+fmt(gain),'good');}
+    if(gain>0){run.cash+=gain;toast('🩸 Blood Pact interest: +'+fmt(gain),'good');}
   }
   if(run.cash>=due){
     run.cash-=due;
-    payCutOk(due);
-  }else if(eff.halfCut>0&&!run.usedShark&&run.cash>=Math.ceil(due/2)){
-    run.usedShark=true;
-    run.cash-=Math.ceil(due/2);
-    toast('🦈 Loan Shark covered half the Cut','good');
-    payCutOk(due);
+    tollPaid(due);
   }else if(meta.up.second_wind&&!run.usedWind){
     run.usedWind=true;
-    toast('❤️ Second Wind! The House takes everything… but you live','bad');
+    toast('❤️ Second Wind! The Reaper takes everything… but you breathe','bad');
     run.cash=0;
-    payCutOk(due,true);
+    tollPaid(due,true);
   }else{
-    endRun('The House came to collect '+fmt(due)+'. You had '+fmt(run.cash)+'.');
+    endRun('The Reaper came for '+fmt(due)+'. You had '+fmt(run.cash)+'.');
   }
 }
-function payCutOk(due,broke){
-  sCut();
+function tollPaid(due,broke){
+  sToll();
   run.cutsPaid++; run.cutNum++; run.sinceCut=0;
-  toast('🏛️ House Cut paid: −'+fmt(due),'bad');
+  toast('💀 Toll paid: −'+fmt(due),'bad');
   saveAll();
   renderGame();
-  if(broke&&run.cash<MIN_BET){ endRun('Second Wind bought you a breath, but the cash was gone.'); return; }
+  if(run.duel) sendState();
+  if(broke&&run.cash<MIN_BET){ endRun('Second Wind bought a breath, but the cash was gone.'); return; }
   openShop();
 }
 
 /* ============ [SHOP] ============ */
-function shopPrices(eff){return Math.max(0,1-eff.packDisc);}
+function storageFree(){return storageCap()-run.storage.length;}
 function rollShop(){
   const eff=EFF();
-  const scale=(1+0.13*(run.cutNum-2>0?run.cutNum-2:0))*shopPrices(eff);
+  const scale=(1+0.13*Math.max(0,run.cutNum-2))*Math.max(0,1-eff.packDisc);
+  const pool=CARDS.filter(c=>run.duel||c.kind!=='hex');
   const singles=[];
   for(let i=0;i<2;i++){
     let r=Math.random()*100, rar=0;
     for(let j=0;j<5;j++){r-=SINGLE_ODDS[j]; if(r<0){rar=j;break;}}
-    const pool=CARDS.filter(c=>c.r===rar);
-    const card=pool[Math.floor(Math.random()*pool.length)];
+    const rpool=pool.filter(c=>c.r===rar);
+    const card=rpool[Math.floor(Math.random()*rpool.length)];
     singles.push({id:card.id,cost:Math.round(RARS[rar].price*scale)});
   }
   run.shop={
     packs:PACKS.map(p=>({id:p.id,cost:Math.round(p.cost*scale)})),
     singles,
     rerollCost:20,
-    rerollsLeft:eff.rerollFree-(run.rerollsUsed||0),
   };
 }
 function openShop(){
@@ -909,69 +1262,59 @@ function openShop(){
 function renderShop(){
   if(!run||!run.shop) return;
   $('shopCash').textContent=fmt(run.cash);
+  $('shopSlots').textContent=run.storage.length+'/'+storageCap();
   let h='';
   for(const sp of run.shop.packs){
     const p=PACKS.find(x=>x.id===sp.id);
+    const noRoom=storageFree()<p.cards;
     const odds=p.odds.map((o,i)=>o>0?'<span style="color:'+RARS[i].c+'">'+o+'%</span>':null).filter(Boolean).join(' · ');
-    h+='<div class="shoprow"><div class="ic packic">'+p.i+'</div><div class="grow"><div class="nm">'+p.n+'</div><div class="ds">3 cards · '+odds+'</div></div>'
-      +'<button class="buyb" data-pack="'+p.id+'" '+(run.cash<sp.cost?'disabled':'')+'>'+fmt(sp.cost)+'</button></div>';
+    h+='<div class="shoprow"><div class="ic">'+p.i+'</div><div class="grow"><div class="nm">'+p.n+'</div><div class="ds">'+p.cards+' cards · '+odds+'</div></div>'
+      +'<button class="buyb" data-pack="'+p.id+'" '+((run.cash<sp.cost||noRoom)?'disabled':'')+'>'+(noRoom?'FULL':fmt(sp.cost))+'</button></div>';
   }
   $('shopPacks').innerHTML=h;
   h='';
   for(let i=0;i<run.shop.singles.length;i++){
-    const sg=run.shop.singles[i], c=CARD_BY_ID[sg.id], owned=run.cards[c.id]||0;
-    h+='<div class="shoprow r'+c.r+'"><div class="ic">'+c.i+'</div><div class="grow"><div class="nm">'+c.n+' <span class="rtxt" style="font-size:10px">'+RARS[c.r].n+'</span></div>'
-      +'<div class="ds">'+c.d(Math.min(owned+1,c.mx))+(owned?' · owned Lv'+owned:'')+'</div></div>'
-      +'<button class="buyb" data-single="'+i+'" '+(run.cash<sg.cost?'disabled':'')+'>'+fmt(sg.cost)+'</button></div>';
+    const sg=run.shop.singles[i], c=CARD_BY_ID[sg.id];
+    const noRoom=storageFree()<1;
+    h+='<div class="shoprow r'+c.r+'" data-tipcard="'+c.id+'"><div class="ic">'+c.i+'</div><div class="grow"><div class="nm">'+c.n+' <span class="kchip '+c.kind+'">'+KIND_LABEL[c.kind]+'</span> <span class="rtxt" style="font-size:10px">'+RARS[c.r].n+'</span></div>'
+      +'<div class="ds">'+c.d(1)+'</div></div>'
+      +'<button class="buyb" data-single="'+i+'" '+((run.cash<sg.cost||noRoom)?'disabled':'')+'>'+(noRoom?'FULL':fmt(sg.cost))+'</button></div>';
   }
   $('shopSingles').innerHTML=h;
-  const eff=EFF();
-  const freeLeft=Math.max(0,eff.rerollFree-(run.rerollsUsed||0));
-  $('shopReroll').textContent='🎲 Reroll '+(freeLeft>0?'(free)':'('+fmt(run.shop.rerollCost)+')');
-  $('shopReroll').disabled=freeLeft<=0&&run.cash<run.shop.rerollCost;
-  /* wire buttons */
+  $('shopReroll').textContent='🎲 Reroll ('+fmt(run.shop.rerollCost)+')';
+  $('shopReroll').disabled=run.cash<run.shop.rerollCost;
   document.querySelectorAll('#shopPacks .buyb').forEach(b=>b.onclick=()=>{
     const sp=run.shop.packs.find(x=>x.id===b.dataset.pack);
-    if(run.cash<sp.cost) return;
+    const p=PACKS.find(x=>x.id===b.dataset.pack);
+    if(run.cash<sp.cost||storageFree()<p.cards) return;
     run.cash-=sp.cost; sBuy();
-    openPack(PACKS.find(x=>x.id===sp.id));
+    openPack(p);
     renderShop(); renderGame(); saveAll();
   });
   document.querySelectorAll('#shopSingles .buyb').forEach(b=>b.onclick=()=>{
     const i=+b.dataset.single, sg=run.shop.singles[i];
-    if(!sg||run.cash<sg.cost) return;
+    if(!sg||run.cash<sg.cost||storageFree()<1) return;
     run.cash-=sg.cost; sBuy();
-    const got=addCard(sg.id);
+    const got=gainCard(sg.id);
     toast(got.msg,got.new?'good':'');
     run.shop.singles.splice(i,1);
     renderShop(); renderGame(); saveAll();
   });
 }
 
-/* ============ [CARDS] ============ */
-function addCard(id){
+/* ============ [CARDS: gain / storage / play / sell] ============ */
+function gainCard(id){
   const c=CARD_BY_ID[id];
   const isNew=!meta.coll[id];
   meta.coll[id]=(meta.coll[id]||0)+1;
   if(isNew) run.newCards++;
-  const cur=run.cards[id]||0;
-  if(cur===0){
-    run.cards[id]=1; run.cardOrder.push(id);
-    return {new:isNew,lvl:1,msg:c.i+' '+c.n+(isNew?' — NEW!':' added')};
-  }
-  if(cur<c.mx){
-    run.cards[id]=cur+1;
-    return {new:isNew,lvl:cur+1,msg:c.i+' '+c.n+' → Lv'+(cur+1)+'!'};
-  }
-  const refund=RARS[c.r].refund;
-  run.cash+=refund;
-  return {new:isNew,dupe:true,msg:c.i+' '+c.n+' maxed — refunded '+fmt(refund)};
+  run.storage.push(id);
+  return {new:isNew,msg:c.i+' '+c.n+(isNew?' — NEW! → storage':' → storage')};
 }
 var packPending=0, packOpenedAt=0;
 function openPack(pack,freebie){
-  const eff=EFF();
   const pulls=[];
-  for(let i=0;i<3;i++){
+  for(let i=0;i<pack.cards;i++){
     let r=Math.random()*100,rar=0;
     for(let j=0;j<5;j++){r-=pack.odds[j];if(r<0){rar=j;break;}}
     const pool=CARDS.filter(c=>c.r===rar);
@@ -979,18 +1322,18 @@ function openPack(pack,freebie){
   }
   $('packTitle').textContent=(freebie?'🎁 ':'')+pack.n;
   const wrap=$('packCards'); wrap.innerHTML='';
-  packPending=3;
+  packPending=pulls.length;
   $('packDone').disabled=true;
   pulls.forEach(card=>{
-    const got=addCard(card.id);
+    const got=gainCard(card.id);
     const el=document.createElement('div');
     el.className='pcard r'+card.r;
     el.innerHTML='<div class="inner"><div class="pface pback"></div>'
-      +'<div class="pface pfront"><div class="ic">'+card.i+'</div><div class="nm">'+card.n+'</div>'
+      +'<div class="pface pfront" data-tipcard="'+card.id+'"><div class="ic">'+card.i+'</div><div class="nm">'+card.n+'</div>'
       +'<div class="rr">'+RARS[card.r].n+'</div>'
-      +'<div class="tag">'+(got.dupe?'+'+fmt(RARS[card.r].refund):(got.new?'NEW!':'Lv'+got.lvl))+'</div></div></div>';
+      +'<div class="tag">'+(got.new?'NEW!':'')+' <span class="kchip '+card.kind+'">'+KIND_LABEL[card.kind]+'</span></div></div></div>';
     el.onclick=()=>{
-      if(Date.now()-packOpenedAt<250)return; /* shield: ignore click-through from the buy tap */
+      if(Date.now()-packOpenedAt<250)return;
       if(el.classList.contains('flip'))return;
       el.classList.add('flip');
       if(card.r>=3) sRare(); else sFlip();
@@ -1003,15 +1346,80 @@ function openPack(pack,freebie){
   packOpenedAt=Date.now();
   ovOpen('ovPack');
 }
+let actIdx=-1;
+function openAct(idx){
+  const id=run.storage[idx]; if(!id) return;
+  const c=CARD_BY_ID[id];
+  actIdx=idx;
+  const box=$('ovAct').querySelector('.ovbox');
+  box.className='ovbox r'+c.r;
+  $('actIc').textContent=c.i;
+  $('actNm').textContent=c.n;
+  $('actRr').innerHTML=RARS[c.r].n+' · <span class="kchip '+c.kind+'">'+KIND_LABEL[c.kind]+'</span>';
+  $('actRr').style.color=RARS[c.r].c;
+  const lv=c.kind==='relic'?Math.min((run.relics[id]||0)+1,c.mx):1;
+  $('actDs').textContent=c.d(lv);
+  $('actFl').textContent=c.f?'“'+c.f+'”':'';
+  const chk=canPlay(c);
+  $('actPlay').disabled=!chk.ok;
+  $('actNote').textContent=chk.ok?(c.kind==='relic'&&run.relics[id]?('Upgrades your active relic to Lv'+lv):''):chk.why;
+  $('actSell').textContent='Sell '+fmt(RARS[c.r].sell);
+  ovOpen('ovAct');
+}
+function canPlay(c){
+  if(c.kind==='relic'){
+    if((run.relics[c.id]||0)>=c.mx) return {ok:false,why:'Already mastered at Lv'+c.mx+' — sell this copy.'};
+    return {ok:true};
+  }
+  if(c.kind==='charm') return {ok:true};
+  /* hex */
+  if(!run.duel) return {ok:false,why:'Hexes only work in duels. Sell it, or save it for one.'};
+  if(!duelAlive()) return {ok:false,why:'No living opponent to hex.'};
+  if(c.hx.type==='copy'&&!opp.relicsSeen.length) return {ok:false,why:'Your opponent has not played a relic yet.'};
+  return {ok:true};
+}
+function playCard(idx){
+  const id=run.storage[idx]; if(!id) return;
+  const c=CARD_BY_ID[id];
+  const chk=canPlay(c);
+  if(!chk.ok){toast(chk.why,'bad');return;}
+  run.storage.splice(idx,1);
+  run.played.push(id);
+  if(c.kind==='relic'){
+    if(!run.relics[id]){run.relics[id]=1;run.relicOrder.push(id);}
+    else run.relics[id]++;
+    toast(c.i+' '+c.n+(run.relics[id]>1?' → Lv'+run.relics[id]:' active'),'good');
+  }else if(c.kind==='charm'){
+    if(c.instant==='tollDown'){run.tollMods.mult*=0.6;toast('🛡️ Iron Will — your next Toll is 40% smaller','good');}
+    else if(c.instant==='tollSkip'){run.tollMods.skip=1;toast('🌫️ Ghost Walk — your next Toll will be skipped','good');}
+    else{run.charms.push({id,left:c.dur});toast(c.i+' '+c.n+' — '+c.dur+' spins','good');}
+  }else{
+    playHex(c);
+  }
+  if(run.duel) duelSend({t:'played',id});
+  sBuy();
+  saveAll(); renderGame();
+  if(run.duel) sendState();
+}
+function sellCard(idx){
+  const id=run.storage[idx]; if(!id) return;
+  const c=CARD_BY_ID[id];
+  run.storage.splice(idx,1);
+  run.cash+=RARS[c.r].sell;
+  toast(c.i+' sold for '+fmt(RARS[c.r].sell));
+  sCoin();
+  saveAll(); renderGame();
+  if(run.duel) sendState();
+}
 
 /* ============ [RENDER: GAME] ============ */
 function buildGridCells(){
   const g=$('grid');
-  if(g.children.length===9) return;
+  if(g.children.length===CELLS) return;
   g.innerHTML='';
-  for(let i=0;i<9;i++){
+  for(let i=0;i<CELLS;i++){
     const d=document.createElement('div');
-    d.className='cell'; d.id='c'+i; d.innerHTML=symHTML('cherry');
+    d.className='cell'; d.id='c'+i; d.innerHTML=symHTML('web');
     g.appendChild(d);
   }
 }
@@ -1020,24 +1428,22 @@ function renderGame(){
   const eff=EFF();
   $('cashV').textContent=fmt(run.cash);
   $('potV').textContent=fmt(run.pot);
-  const due=cutAmount(run.cutNum,eff);
-  const left=CUT_EVERY-run.sinceCut;
-  $('cutV').textContent=fmt(due);
-  $('cutK').textContent='House Cut in '+left;
-  $('cutBox').classList.toggle('warn',left<=3||run.cash<due);
+  const due=tollAmount(run.cutNum,eff);
+  const left=TOLL_EVERY-run.sinceCut;
+  $('tollV').textContent=fmt(due);
+  $('tollK').textContent="Reaper's Toll in "+left;
+  $('tollBox').classList.toggle('warn',left<=3||run.cash<due);
   $('spinCt').textContent='Spin '+run.spins;
-  /* free spins */
   const free=run.freeSpins>0;
-  $('freeBan').classList.toggle('on',free);
-  if(free){$('freeN').textContent=run.freeSpins;$('freeM').textContent=(2+eff.freeMult).toFixed(1);}
+  $('moonBan').classList.toggle('on',free);
+  $('machineBox').classList.toggle('bloodmoon',free);
+  if(free){$('moonN').textContent=run.freeSpins;$('moonM').textContent=(2*(1+eff.winMult)*streakMultOf(run.streak,eff)).toFixed(1);}
   const sb=$('spinBtn');
-  sb.classList.toggle('free',free);
+  sb.classList.toggle('moon',free);
   sb.textContent=free?'FREE SPIN':'SPIN';
   sb.disabled=anim;
-  /* streak */
   const sm=streakMultOf(run.streak,eff);
   $('streakV').textContent=run.streak>0?(run.streak+' 🔥 ×'+sm.toFixed(2)):'—';
-  /* bets */
   let bh='';
   for(const b of BETS){
     bh+='<button class="betb'+(run.bet===b?' on':'')+'" data-bet="'+b+'" '+(b>run.cash&&!free?'disabled':'')+'>$'+b+'</button>';
@@ -1046,58 +1452,114 @@ function renderGame(){
   document.querySelectorAll('.betb').forEach(el=>el.onclick=()=>{
     if(anim)return; run.bet=+el.dataset.bet; renderGame(); saveAll();
   });
-  /* card strip */
-  let ch='';
-  for(const id of run.cardOrder){
+  /* active relics */
+  let rh='';
+  for(const id of run.relicOrder){
     const c=CARD_BY_ID[id];
-    ch+='<div class="ccard r'+c.r+'" data-card="'+id+'"><span>'+c.i+'</span><span class="lv">Lv'+run.cards[id]+'</span></div>';
+    rh+='<div class="acard r'+c.r+'" data-tipcard="'+id+'" data-tiplv="'+run.relics[id]+'">'+c.i+'<span class="bdg">L'+run.relics[id]+'</span></div>';
   }
-  if(!ch) ch='<div class="ccard empty">no cards</div>';
-  $('cardStrip').innerHTML=ch;
-  $('cardCt').textContent=run.cardOrder.length+' owned';
-  document.querySelectorAll('#cardStrip .ccard[data-card]').forEach(el=>el.onclick=()=>showCard(el.dataset.card,run.cards[el.dataset.card]));
+  $('relicRow').innerHTML=rh||'<span class="none">none active — play them from storage →</span>';
+  $('relicCt').textContent=run.relicOrder.length?run.relicOrder.length+' active':'';
+  /* active charms */
+  let ch='';
+  for(const cm of run.charms){
+    const c=CARD_BY_ID[cm.id];
+    ch+='<div class="acard fade r'+c.r+'" data-tipcard="'+cm.id+'">'+c.i+'<span class="bdg">'+cm.left+'</span></div>';
+  }
+  if(run.tollMods.skip>0) ch+='<div class="acard fade r4" data-tipcard="ghost_walk">🌫️<span class="bdg">toll</span></div>';
+  else if(run.tollMods.mult<1) ch+='<div class="acard fade r2" data-tipcard="iron_will">🛡️<span class="bdg">toll</span></div>';
+  $('charmRow').innerHTML=ch||'<span class="none">none ticking</span>';
+  /* debuffs */
+  let dh='';
+  for(const db of run.debuffs){
+    const c=CARD_BY_ID[db.id];
+    dh+='<div class="debuff" data-tipcard="'+db.id+'">'+c.i+' '+c.n+' · '+db.left+'</div>';
+  }
+  if(run.tollMods.mult>1) dh+='<div class="debuff">⏳ next Toll cursed</div>';
+  if(run.tollMods.add>0) dh+='<div class="debuff">🎁 next Toll +'+fmt(run.tollMods.add)+'</div>';
+  $('debuffRow').innerHTML=dh;
+  renderStorage();
+  renderPaytable(eff);
 }
-function showCard(id,lvl){
-  const c=CARD_BY_ID[id];
-  $('cardBig').textContent=c.i;
-  $('cardNm').textContent=c.n;
-  $('cardRr').textContent=RARS[c.r].n+(lvl?' · Lv'+lvl:'');
-  $('cardRr').style.color=RARS[c.r].c;
-  $('cardDs').textContent=c.d(lvl||1);
-  const pulls=meta.coll[id]||0;
-  $('cardMeta').textContent=pulls?('Pulled '+pulls+'× all-time'):'Never pulled';
-  ovOpen('ovCard');
+function renderStorage(){
+  const cap=storageCap();
+  $('stCt').textContent=run.storage.length+'/'+cap;
+  let h='';
+  run.storage.forEach((id,i)=>{
+    const c=CARD_BY_ID[id];
+    h+='<div class="stc r'+c.r+'" data-tipcard="'+id+'" data-idx="'+i+'"><div class="ic">'+c.i+'</div><div class="kd">'+KIND_LABEL[c.kind]+'</div></div>';
+  });
+  for(let i=run.storage.length;i<cap;i++) h+='<div class="stc empty">—</div>';
+  $('stGrid').innerHTML=h;
+  document.querySelectorAll('#stGrid .stc[data-idx]').forEach(el=>el.onclick=()=>openAct(+el.dataset.idx));
+}
+/* ============ [RENDER: PAYTABLE] ============ */
+function renderPaytable(eff){
+  eff=eff||EFF();
+  const base=baseEff();
+  const wt=weightTable(eff), wb=weightTable(base);
+  let tot=0,totb=0;
+  for(const s of SYMLIST){tot+=wt[s];totb+=wb[s];}
+  const bet=run?run.bet:10;
+  $('ptBet').textContent='at $'+bet+' bet';
+  let h='<div class="ptrow hdr"><div></div><div class="pv">×3</div><div class="pv">×4</div><div class="pv">×5</div><div class="pc">odds</div></div>';
+  for(const s of PAYSYMS){
+    const pm=payMult(eff,s), pb=payMult(base,s);
+    const ch=(wt[s]/tot*100), chb=(wb[s]/totb*100);
+    const cls=pm>pb+0.001?' up':(pm<pb-0.001?' dn':'');
+    const ccls=ch>chb+0.05?' up':(ch<chb-0.05?' dn':'');
+    h+='<div class="ptrow"><div class="ic">'+symHTML(s)+'</div>';
+    for(let k=0;k<3;k++) h+='<div class="pv'+cls+'">'+fmt(SYM[s].pay[k]*bet*pm)+'</div>';
+    h+='<div class="pc'+ccls+'">'+ch.toFixed(1)+'%</div></div>';
+  }
+  $('ptRows').innerHTML=h;
+  const need=Math.max(2,MOON_NEED-eff.moonNeed);
+  const cv=(COIN_VAL+eff.coinVal)*bet;
+  const moonCh=(wt.moon/tot*100), eyeCh=(wt.eye/tot*100), webCh=(wt.web/tot*100), goldCh=(wt.gold/tot*100);
+  const spins=MOON_SPINS+eff.moonSpins;
+  let sp='';
+  sp+='<div class="row"><span class="i">👁️</span><span><b>The Eye</b> is wild — becomes anything · '+eyeCh.toFixed(1)+'% per cell</span></div>';
+  sp+='<div class="row"><span class="i">🌕</span><span><b>'+need+'+ Moons</b> anywhere → Blood Moon: '+spins+' free spins, wins ×2 · '+moonCh.toFixed(1)+'%</span></div>';
+  sp+='<div class="row"><span class="i">🪙</span><span><b>Cursed Gold</b> pays '+fmt(cv)+' instantly · '+goldCh.toFixed(1)+'%</span></div>';
+  sp+='<div class="row"><span class="i">🕸️</span><span><b>Cobwebs</b> pay nothing · '+webCh.toFixed(1)+'%</span></div>';
+  sp+='<div class="row"><span class="i">🔥</span><span><b>6·6·6</b> on a line claims the Hellpot: <b style="color:#ffae2e">'+fmt(run?run.pot:POT_SEED)+'</b></span></div>';
+  if(run){
+    sp+='<div class="row"><span class="i">💀</span><span>Tolls ahead: <b>'+fmt(tollAmount(run.cutNum,eff))+'</b>, then ~'+fmt(Math.round(tollBase(run.cutNum+1)*(1-eff.tollReduce)))+', ~'+fmt(Math.round(tollBase(run.cutNum+2)*(1-eff.tollReduce)))+'</span></div>';
+    if(run.streak>0) sp+='<div class="row"><span class="i">🔥</span><span>Streak ×'+streakMultOf(run.streak,eff).toFixed(2)+' applies to line wins</span></div>';
+  }
+  $('ptSpec').innerHTML=sp;
+  $('ptBlackout').classList.toggle('on',eff.blackout>0);
 }
 
 /* ============ [REEL ANIMATION] ============ */
 function animateReels(grid,done){
   anim=true; renderGame();
-  const cells=[]; for(let i=0;i<9;i++)cells.push($('c'+i));
-  cells.forEach(c=>c.classList.remove('hit','stopb'));
+  const cells=[]; for(let i=0;i<CELLS;i++)cells.push($('c'+i));
+  cells.forEach(c=>{c.classList.remove('hit','stopb');});
   if(window.__fast){
-    for(let i=0;i<9;i++)cells[i].innerHTML=symHTML(grid[i]);
+    for(let i=0;i<CELLS;i++)cells[i].innerHTML=symHTML(grid[i]);
     anim=false; done(); renderGame(); return;
   }
-  const stopped=[false,false,false];
+  const stopped=[false,false,false,false,false];
   const iv=setInterval(()=>{
-    for(let col=0;col<3;col++){
+    for(let col=0;col<COLS;col++){
       if(stopped[col])continue;
-      for(let row=0;row<3;row++){
+      for(let row=0;row<ROWS;row++){
         const s=SYMLIST[Math.floor(Math.random()*SYMLIST.length)];
-        cells[row*3+col].innerHTML=symHTML(s);
+        cells[row*COLS+col].innerHTML=symHTML(s);
       }
     }
     sTick();
   },70);
-  [480,780,1080].forEach((t,col)=>setTimeout(()=>{
+  [380,580,780,980,1180].forEach((t,col)=>setTimeout(()=>{
     stopped[col]=true;
-    for(let row=0;row<3;row++){
-      const i=row*3+col;
+    for(let row=0;row<ROWS;row++){
+      const i=row*COLS+col;
       cells[i].innerHTML=symHTML(grid[i]);
       cells[i].classList.add('stopb');
     }
     sStop();
-    if(col===2){
+    if(col===COLS-1){
       clearInterval(iv);
       anim=false;
       done();
@@ -1106,17 +1568,17 @@ function animateReels(grid,done){
   },t));
 }
 
-/* ============ [RENDER: MENU/COLL/UPGRADES] ============ */
+/* ============ [RENDER: MENU/COLL/GRIMOIRE] ============ */
 function renderMenu(){
   const s=meta.stats;
   $('stRuns').textContent=s.runs;
   $('stBestSpins').textContent=s.bestSpins;
   $('stBestCash').textContent=fmt(s.bestCash);
-  $('stJack').textContent=s.jackpots;
-  $('mTok').textContent='🪙 '+meta.tokens;
+  $('stWins').textContent=s.duelWins;
+  $('mTok').textContent='👻 '+meta.tokens;
   $('mCollCt').textContent=Object.keys(meta.coll).length+'/'+CARDS.length;
-  $('mResume').style.display=(run&&!run.over)?'block':'none';
-  $('mSnd').textContent=meta.snd?'🔊  Sound: On':'🔇  Sound: Off';
+  $('mResume').style.display=(run&&!run.over&&!run.duel)?'block':'none';
+  $('mSnd').textContent=meta.snd?'🔊  Sound: On':'🔇  Sound: Off';
 }
 function renderColl(){
   const found=Object.keys(meta.coll).length;
@@ -1126,23 +1588,22 @@ function renderColl(){
   for(const c of order){
     const ct=meta.coll[c.id]||0;
     if(ct>0){
-      h+='<div class="collc r'+c.r+'" data-card="'+c.id+'"><div class="ic">'+c.i+'</div><div class="nm">'+c.n+'</div><div class="ct">×'+ct+'</div></div>';
+      h+='<div class="collc r'+c.r+'" data-tipcard="'+c.id+'"><div class="ic">'+c.i+'</div><div class="nm">'+c.n+'</div><div class="ct">×'+ct+' · '+KIND_LABEL[c.kind]+'</div></div>';
     }else{
-      h+='<div class="collc unk"><div class="ic">'+c.i+'</div><div class="nm">???</div><div class="ct">'+RARS[c.r].n+'</div></div>';
+      h+='<div class="collc unk"><div class="ic">'+c.i+'</div><div class="nm">???</div><div class="ct">'+RARS[c.r].n+' '+KIND_LABEL[c.kind]+'</div></div>';
     }
   }
   $('collGrid').innerHTML=h;
-  document.querySelectorAll('#collGrid .collc[data-card]').forEach(el=>el.onclick=()=>showCard(el.dataset.card));
 }
 function renderUps(){
-  $('upTok').textContent='🪙 '+meta.tokens;
+  $('upTok').textContent='👻 '+meta.tokens;
   let h='';
   for(const u of UPS){
     const r=meta.up[u.id]||0, maxed=r>=u.mx, cost=u.cost(r);
     let pips='';
     for(let i=0;i<u.mx;i++)pips+='<div class="pip'+(i<r?' on':'')+'"></div>';
     h+='<div class="uprow"><div class="ic">'+u.i+'</div><div class="grow"><div class="nm">'+u.n+'</div><div class="ds">'+u.d+'</div><div class="pips">'+pips+'</div></div>'
-      +'<button class="buyb" data-up="'+u.id+'" '+((maxed||meta.tokens<cost)?'disabled':'')+'>'+(maxed?'MAX':'🪙 '+cost)+'</button></div>';
+      +'<button class="buyb" data-up="'+u.id+'" '+((maxed||meta.tokens<cost)?'disabled':'')+'>'+(maxed?'MAX':'👻 '+cost)+'</button></div>';
   }
   $('upList').innerHTML=h;
   document.querySelectorAll('#upList .buyb').forEach(b=>b.onclick=()=>{
@@ -1163,13 +1624,250 @@ function confirmBox(title,desc,cb){
   ovOpen('ovConfirm');
 }
 
+/* ============ [DUEL: state] ============ */
+var ws=null, opp=null, duelActive=false, pendingCode='';
+function duelAlive(){return !!(ws&&ws.readyState===1&&opp&&opp.alive);}
+function freshOpp(name){return {name:name||'…',cash:0,spins:0,tollIn:'—',tollDue:0,streak:0,free:0,alive:true,played:[],relicsSeen:[],feed:[]};}
+function resetOppPanel(){if(!opp)opp=freshOpp();renderOpp();}
+function duelSend(o){try{if(ws&&ws.readyState===1)ws.send(JSON.stringify(o));}catch(e){}}
+function sendState(){
+  if(!run) return;
+  const eff=EFF();
+  duelSend({t:'state',cash:Math.round(run.cash),spins:run.spins,
+    tollIn:TOLL_EVERY-run.sinceCut,tollDue:tollAmount(run.cutNum,eff),
+    streak:run.streak,free:run.freeSpins,alive:!run.over});
+}
+function oppFeed(msg,cls){
+  if(!opp)return;
+  opp.feed.unshift({msg,cls});
+  opp.feed=opp.feed.slice(0,3);
+  renderOpp();
+}
+function renderOpp(){
+  if(!opp)return;
+  $('oppName').textContent=opp.name;
+  $('oppBox').classList.toggle('dead',!opp.alive);
+  $('oppCash').textContent=typeof opp.cash==='number'?fmt(opp.cash):'—';
+  $('oppSpins').textContent=opp.spins||0;
+  $('oppToll').textContent=opp.tollDue?fmt(opp.tollDue)+' in '+opp.tollIn:'—';
+  $('oppStreak').textContent=(opp.streak||0)+(opp.free>0?' · 🌕'+opp.free:'');
+  let h='';
+  for(const id of opp.played.slice(-14)){
+    const c=CARD_BY_ID[id]; if(!c)continue;
+    h+='<div class="acard r'+c.r+'" data-tipcard="'+id+'">'+c.i+'</div>';
+  }
+  $('oppCards').innerHTML=h||'<span class="none dim" style="font-size:11px">nothing yet</span>';
+  $('oppFeed').innerHTML=opp.feed.map(f=>'<div class="'+(f.cls||'')+'">'+f.msg+'</div>').join('');
+}
+
+/* ============ [DUEL: hexes] ============ */
+function playHex(c){
+  if(c.hx.type==='copy'){
+    const rid=opp.relicsSeen[opp.relicsSeen.length-1];
+    const rc=CARD_BY_ID[rid];
+    if(!run.relics[rid]){run.relics[rid]=1;run.relicOrder.push(rid);}
+    else if(run.relics[rid]<rc.mx) run.relics[rid]++;
+    toast('🪞 Doppelgänger — copied '+rc.i+' '+rc.n,'good');
+    duelSend({t:'hex',id:c.id});
+    return;
+  }
+  duelSend({t:'hex',id:c.id});
+  toast(c.i+' '+c.n+' — hex sent','hexed');
+  sHex();
+}
+function applyHex(id){
+  const c=CARD_BY_ID[id]; if(!c||!c.hx||!run||run.over) return;
+  const hx=c.hx, who=opp?opp.name:'Opponent';
+  sHex();
+  oppFeed('☠️ hexed you: '+c.n,'hexline');
+  switch(hx.type){
+    case 'cash':
+      run.cash=Math.max(0,run.cash-hx.amt);
+      toast('☠️ '+who+' cast '+c.n+' — you lose '+fmt(hx.amt),'hexed');
+      break;
+    case 'poltergeist':
+      run.cash=Math.max(0,run.cash-hx.amt); run.streak=0;
+      toast('☠️ '+who+' cast '+c.n+' — streak shattered, −'+fmt(hx.amt),'hexed');
+      break;
+    case 'steal':{
+      const amt=Math.min(hx.max,Math.round(run.cash*hx.pct));
+      run.cash=Math.max(0,run.cash-amt);
+      duelSend({t:'hexAck',id,amt});
+      toast('☠️ '+who+' robbed your grave — −'+fmt(amt),'hexed');
+      break;}
+    case 'tollUp':
+      run.tollMods.mult*=(1+hx.pct);
+      toast('☠️ '+who+' cast '+c.n+' — your next Toll grows','hexed');
+      break;
+    case 'gift':
+      run.cash+=hx.give; run.tollMods.add+=hx.toll;
+      toast('☠️ '+who+' sent a Cursed Gift: +'+fmt(hx.give)+' now… +'+fmt(hx.toll)+' on your next Toll','hexed');
+      break;
+    case 'debuff':
+      run.debuffs.push({id,left:hx.dur,eff:hx.eff});
+      toast('☠️ '+who+' cast '+c.n,'hexed');
+      break;
+    case 'copy':
+      toast('🪞 '+who+' copied one of your relics','hexed');
+      break;
+  }
+  saveAll(); renderGame(); sendState();
+  if(run.cash<MIN_BET&&run.freeSpins<=0&&!run.inShop){
+    endRun('A hex from '+who+' bled you dry.');
+  }
+}
+
+/* ============ [DUEL: connection] ============ */
+function lobbyStatus(msg){$('lobbyStatus').textContent=msg;}
+function showLobbyWait(code){
+  $('lobbyMain').style.display='none';
+  $('lobbyWait').classList.add('on');
+  $('lobbyCode').textContent=code;
+}
+function showLobbyMain(){
+  $('lobbyMain').style.display='block';
+  $('lobbyWait').classList.remove('on');
+}
+function closeWs(){
+  if(ws){try{ws.onclose=null;ws.close();}catch(e){}}
+  ws=null; duelActive=false;
+}
+function joinRoom(code){
+  closeWs();
+  pendingCode=code;
+  const name=(meta.name||'Player').slice(0,14);
+  let sock;
+  try{sock=new WebSocket(DUEL_WS+'/room/'+code+'/ws?name='+encodeURIComponent(name));}
+  catch(e){toast('Could not reach the duel server','bad');return;}
+  ws=sock;
+  showLobbyWait(code);
+  lobbyStatus('Summoning');
+  sock.onopen=()=>lobbyStatus('Waiting for an opponent');
+  sock.onmessage=ev=>{
+    let m; try{m=JSON.parse(ev.data);}catch(e){return;}
+    onDuelMsg(m);
+  };
+  sock.onclose=()=>{
+    if(duelActive&&run&&!run.over){
+      toast('Connection to the duel was lost','bad');
+      duelActive=false;
+      endRun('The connection died before you did.');
+    }else if($('scrLobby').classList.contains('on')){
+      lobbyStatus('Connection failed — server unreachable?');
+    }
+    ws=null;
+  };
+  sock.onerror=()=>{};
+}
+async function createLobby(){
+  saveName();
+  lobbyStatus('Summoning');
+  try{
+    const r=await fetch(DUEL_HTTP+'/create');
+    const j=await r.json();
+    if(!j.code) throw new Error('no code');
+    joinRoom(j.code);
+  }catch(e){
+    toast('Duel server unreachable','bad');
+    showLobbyMain();
+  }
+}
+function saveName(){
+  const v=$('nameIn').value.trim();
+  meta.name=(v||'Player').slice(0,14);
+  saveAll();
+}
+function onDuelMsg(m){
+  switch(m.t){
+    case 'full':
+      toast('That lobby is already full','bad');
+      closeWs(); showLobbyMain();
+      break;
+    case 'roster': break;
+    case 'start':{
+      const name=(meta.name||'Player').slice(0,14);
+      const other=(m.names||[]).find(n=>n!==name)||(m.names||[])[0]||'Opponent';
+      opp=freshOpp(other);
+      duelActive=true;
+      ovClose('ovDuelEnd');
+      if(run&&!run.over&&!run.duel) endRunSilent();
+      startRun(true);
+      toast('⚔️ Duel started vs '+other,'good');
+      sendState();
+      break;}
+    case 'state':
+      if(!opp) opp=freshOpp();
+      opp.cash=m.cash; opp.spins=m.spins; opp.tollIn=m.tollIn; opp.tollDue=m.tollDue;
+      opp.streak=m.streak; opp.free=m.free;
+      if(m.alive===false&&opp.alive){opp.alive=false;}
+      renderOpp();
+      break;
+    case 'played':{
+      if(!opp) opp=freshOpp();
+      const c=CARD_BY_ID[m.id];
+      if(c){
+        opp.played.push(m.id);
+        if(c.kind==='relic') opp.relicsSeen.push(m.id);
+        oppFeed((c.kind==='hex'?'☠️':'▸')+' played '+c.i+' '+c.n,c.kind==='hex'?'hexline':'');
+      }
+      renderOpp();
+      break;}
+    case 'hex': applyHex(m.id); break;
+    case 'hexAck':{
+      const c=CARD_BY_ID[m.id];
+      if(m.amt>0&&run&&!run.over){
+        run.cash+=m.amt;
+        toast('⛏️ Grave Robber returns with '+fmt(m.amt),'good');
+        saveAll(); renderGame(); sendState();
+      }
+      break;}
+    case 'death':
+      if(opp){opp.alive=false;renderOpp();}
+      if(run&&!run.over&&duelActive){
+        endRun('Your opponent fell first. The House applauds.',{won:true});
+      }
+      break;
+    case 'rematchReq':
+      $('rematchStatus').textContent=(opp?opp.name:'Opponent')+' wants a rematch…';
+      break;
+    case 'gone':
+      if(duelActive&&run&&!run.over){
+        if(opp){opp.alive=false;renderOpp();}
+        endRun('Your opponent fled the table.',{won:true});
+        $('rematchStatus').textContent='Opponent disconnected.';
+        $('duelRematch').disabled=true;
+      }else if($('scrLobby').classList.contains('on')){
+        lobbyStatus('Waiting for an opponent');
+      }else{
+        $('rematchStatus').textContent='Opponent disconnected.';
+        $('duelRematch').disabled=true;
+      }
+      break;
+  }
+}
+function showDuelEnd(won,reason,souls){
+  duelActive=false;
+  const t=$('duelEndT');
+  t.textContent=won?'VICTORY':'DEFEAT';
+  t.className=won?'win':'lose';
+  $('duelEndD').innerHTML=reason+'<br><span class="blood" style="font-weight:800">+'+souls+' 👻 Souls</span>';
+  $('duelRematch').disabled=!(ws&&ws.readyState===1);
+  $('rematchStatus').textContent='';
+  ovOpen('ovDuelEnd');
+}
+
 /* ============ [WIRING] ============ */
 function wire(){
   $('mNew').onclick=()=>{
-    if(run&&!run.over){confirmBox('Start over?','Your current run will be abandoned (you still earn its Tokens).',()=>{endRunSilent();startRun();});}
-    else startRun();
+    if(run&&!run.over){confirmBox('Start over?','Your current run will be abandoned (you still earn its Souls).',()=>{endRunSilent();startRun(false);});}
+    else startRun(false);
   };
-  $('mResume').onclick=()=>{show('scrGame');buildGridCells();renderGame();};
+  $('mResume').onclick=()=>{show('scrGame');buildGridCells();$('oppBox').classList.remove('on');renderGame();};
+  $('mDuel').onclick=()=>{
+    $('nameIn').value=meta.name||'';
+    showLobbyMain();
+    show('scrLobby');
+  };
   $('mColl').onclick=()=>{renderColl();show('scrColl');};
   $('mUp').onclick=()=>{renderUps();show('scrUp');};
   $('mHelp').onclick=()=>ovOpen('ovHelp');
@@ -1177,45 +1875,54 @@ function wire(){
   $('collBack').onclick=()=>{renderMenu();show('scrMenu');};
   $('upBack').onclick=()=>{renderMenu();show('scrMenu');};
   $('helpClose').onclick=()=>ovClose('ovHelp');
-  $('cardClose').onclick=()=>ovClose('ovCard');
   $('spinBtn').onclick=spin;
   $('gHelp').onclick=()=>ovOpen('ovHelp');
-  $('gAbandon').onclick=()=>confirmBox('Abandon run?','The run ends and you collect its Tokens.',()=>endRun('You walked away from the table.'));
+  $('gAbandon').onclick=()=>confirmBox('Abandon run?','The run ends and you collect its Souls.'+(run&&run.duel?' In a duel this means DEFEAT.':''),()=>endRun('You walked away from the table.'));
   $('shopDone').onclick=()=>{
     run.inShop=false; ovClose('ovShop'); saveAll(); renderGame();
-    if(run.cash<MIN_BET&&run.freeSpins<=0) endRun('You spent it all at the shop. The reels only take cash.');
+    if(run.duel) sendState();
+    if(run.cash<MIN_BET&&run.freeSpins<=0) endRun('You spent it all at the Night Market.');
   };
   $('shopReroll').onclick=()=>{
-    const eff=EFF();
-    const freeLeft=Math.max(0,eff.rerollFree-(run.rerollsUsed||0));
-    if(freeLeft>0){run.rerollsUsed=(run.rerollsUsed||0)+1;}
-    else if(run.cash>=run.shop.rerollCost){run.cash-=run.shop.rerollCost;}
-    else return;
+    if(run.cash<run.shop.rerollCost) return;
+    run.cash-=run.shop.rerollCost;
     sFlip(); rollShop(); renderShop(); renderGame(); saveAll();
   };
   $('packDone').onclick=()=>{ovClose('ovPack');renderShop();renderGame();saveAll();};
-  $('dNew').onclick=()=>startRun();
+  $('actPlay').onclick=()=>{ovClose('ovAct');playCard(actIdx);};
+  $('actSell').onclick=()=>{ovClose('ovAct');sellCard(actIdx);};
+  $('actClose').onclick=()=>ovClose('ovAct');
+  $('dNew').onclick=()=>startRun(false);
   $('dUp').onclick=()=>{renderUps();show('scrUp');};
   $('dMenu').onclick=()=>{renderMenu();show('scrMenu');};
   $('confNo').onclick=()=>{confCb=null;ovClose('ovConfirm');};
   $('confYes').onclick=()=>{ovClose('ovConfirm');if(confCb){const cb=confCb;confCb=null;cb();}};
+  /* lobby */
+  $('lobbyBack').onclick=()=>{closeWs();renderMenu();show('scrMenu');};
+  $('lobbyCancel').onclick=()=>{closeWs();showLobbyMain();};
+  $('lobbyCreate').onclick=createLobby;
+  $('lobbyJoin').onclick=()=>{
+    saveName();
+    const code=$('codeIn').value.trim().toUpperCase();
+    if(code.length!==4){toast('Codes are 4 letters','bad');return;}
+    joinRoom(code);
+  };
+  $('codeIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('lobbyJoin').click();});
+  /* duel end */
+  $('duelRematch').onclick=()=>{
+    duelSend({t:'rematch'});
+    $('rematchStatus').textContent='Waiting for opponent…';
+    $('duelRematch').disabled=true;
+  };
+  $('duelLeave').onclick=()=>{
+    closeWs(); ovClose('ovDuelEnd');
+    renderMenu(); show('scrMenu');
+  };
   window.addEventListener('keydown',e=>{
     if(e.code==='Space'&&$('scrGame').classList.contains('on')&&!document.querySelector('.ov.on')){
       e.preventDefault();spin();
     }
   });
-}
-function endRunSilent(){
-  /* end a run for tokens without showing the death screen */
-  if(!run||run.over)return;
-  const keep=run;
-  run.over=true;
-  const tok=Math.max(3,Math.round((keep.spins*0.3+keep.cutsPaid*6+keep.jackpots*12+keep.newCards*3+Math.min(keep.peak,3000)/100)*(1+0.1*((meta.up.token_magnet)||0))));
-  meta.tokens+=tok;
-  meta.stats.bestCash=Math.max(meta.stats.bestCash,keep.peak);
-  meta.stats.bestSpins=Math.max(meta.stats.bestSpins,keep.spins);
-  toast('Previous run cashed out: 🪙 '+tok,'good');
-  saveAll();
 }
 
 /* ============ [BOOT] ============ */
