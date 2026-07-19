@@ -216,6 +216,48 @@ input{font-family:inherit}
 #oppCards .acard{width:30px;height:30px;font-size:15px;border-radius:6px}
 #oppFeed{margin-top:8px;font-size:11.5px;color:#8a7a80;line-height:1.6;min-height:34px;border-top:1px solid #2a161e;padding-top:6px}
 #oppFeed .hexline{color:#ff5b6e;font-weight:700}
+/* boss arrival takeover */
+#bossIntro{display:none;position:fixed;inset:0;z-index:58;pointer-events:none;align-items:center;justify-content:center}
+#bossIntro.on{display:flex;animation:biFade 2.4s forwards}
+#bossIntro::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,rgba(224,27,60,.42),rgba(6,2,4,.92) 68%)}
+#bossIntro .bi-in{position:relative;text-align:center;animation:biPop .7s cubic-bezier(.2,1.4,.4,1)}
+#bossIntro .bi-sub{font-size:12px;letter-spacing:5px;text-transform:uppercase;color:#ff8a9a;margin-bottom:6px}
+#bossIntro .bi-ic{font-size:86px;line-height:1;filter:drop-shadow(0 0 26px rgba(255,59,82,.85))}
+#bossIntro .bi-nm{font-size:44px;font-weight:900;letter-spacing:5px;color:#ff3b52;text-shadow:0 0 34px rgba(255,59,82,.9),0 3px 8px #000;margin-top:6px}
+#bossIntro .bi-hp{font-size:15px;color:#e8e0d0;letter-spacing:2px;margin-top:8px}
+@keyframes biFade{0%{opacity:0}8%{opacity:1}80%{opacity:1}100%{opacity:0}}
+@keyframes biPop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.06);opacity:1}100%{transform:scale(1)}}
+@keyframes screenShake{0%,100%{transform:translate(0,0)}20%{transform:translate(-7px,4px)}40%{transform:translate(6px,-5px)}60%{transform:translate(-4px,-3px)}80%{transform:translate(5px,3px)}}
+body.shake{animation:screenShake .6s}
+/* the machine while a boss is up */
+.machine.hunted{border-color:#8a1626;box-shadow:0 0 40px rgba(224,27,60,.45),inset 0 0 60px rgba(224,27,60,.10);animation:huntPulse 2.1s infinite}
+@keyframes huntPulse{0%,100%{box-shadow:0 0 26px rgba(224,27,60,.32),inset 0 0 40px rgba(224,27,60,.07)}50%{box-shadow:0 0 52px rgba(224,27,60,.6),inset 0 0 70px rgba(224,27,60,.14)}}
+body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:2;
+  background:radial-gradient(ellipse at 50% 50%,transparent 52%,rgba(120,6,22,.30) 100%);animation:vig 2.1s infinite}
+@keyframes vig{0%,100%{opacity:.65}50%{opacity:1}}
+/* blood splatter when a scythe lands */
+#splat{position:fixed;inset:0;pointer-events:none;z-index:56;display:none}
+#splat.on{display:block}
+.sp{position:absolute;border-radius:50% 45% 55% 48%;background:#8f0f24;filter:blur(.4px);animation:spFade .5s ease-out forwards}
+@keyframes spFade{0%{opacity:0;transform:scale(.2)}18%{opacity:.85}100%{opacity:0;transform:scale(1.25)}}
+/* highlight reel */
+#reelHl{padding:9px 12px}
+#reelHl .rt{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#6a5a60;font-weight:800;margin-bottom:5px}
+.hlrow{display:flex;align-items:center;gap:6px;font-size:12px;padding:2.5px 0;border-bottom:1px solid #1e1218}
+.hlrow:last-child{border-bottom:none}
+.hlrow .hs{font-size:14px;letter-spacing:-1px}
+.hlrow .hw{margin-left:auto;font-weight:800;color:#ffd76b;font-variant-numeric:tabular-nums}
+.hlrow.them .hw{color:#7ea8ff}
+.hlrow .who{font-size:10px;color:#6a5a60}
+#reelHl .none{font-size:11.5px;color:#4a3a40}
+/* draft: give-to-partner state */
+.pcard.gift .pfront{box-shadow:0 0 0 3px #7ea8ff,0 0 22px rgba(126,168,255,.55)}
+.pcard.gift::after{content:'🤝';background:#7ea8ff}
+.giftx{color:#7ea8ff}
+/* damage column while hunting */
+.ptrow.hunt{grid-template-columns:30px 1fr 1fr 1fr 52px 40px}
+.ptrow .dmgc{color:#ffd76b;font-weight:700}
+.ptrow.hdr .dmgc{color:#6a5a60}
 /* market: wide rows instead of one long column */
 #shopPacks,#shopSingles{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:8px}
 #shopAltar{display:grid;grid-template-columns:repeat(auto-fit,minmax(184px,1fr));gap:7px}
@@ -725,7 +767,8 @@ input{font-family:inherit}
         </div>
       </div>
       <div class="panel" id="runInfo"></div>
-      <div class="panel">
+      <div class="panel" id="reelHl"></div>
+      <div class="panel" id="storagePanel">
         <div class="rp-h">🧳 Card Storage <span class="dim" id="stCt"></span></div>
         <div id="stGrid"></div>
         <div class="dim" style="font-size:11px;margin-top:8px">Click a card to play or sell it. Hover to inspect.</div>
@@ -895,6 +938,8 @@ input{font-family:inherit}
       <li><b>The Night Market.</b> After each Toll, buy <b>card drafts</b> — you are shown several cards and <b>choose which to keep</b>, so you can build toward what you already have. Cards go to your <b>storage</b> — play them when YOU choose:
         <span class="kchip relic">Relic</span> <b>PERMANENT</b> once played · <span class="kchip charm">Charm</span> <b>ONE USE</b>, temporary boost · <span class="kchip hex">Hex</span> <b>ONE USE</b>, strikes your duel opponent. Playing a duplicate Relic upgrades it, <b>up to Lv5</b>. Unwanted cards sell for cash.</li>
       <li><b>🩸 Blood &amp; the Altar.</b> A few symbols are <b>🔻 marked</b> each run (shown in the paytable). Only a winning <b>line</b> of a marked symbol bleeds <b>Blood</b> — the Altar's only currency, so it rewards committing to a symbol rather than betting big. One mark moves at every Toll. Altar offerings are infinite and climb in price; each tile shows what you own and what it currently totals, including direct <b>reel weight</b> buys.</li>
+      <li><b>🗡️ Wounding a boss.</b> Every winning line hurts it. The wound is that line's <b>payout multiple × your multiplier for that symbol × 30</b> — so it comes from your BUILD, not your bet. Three rats normally hit for ~100; with Rat King at Lv5 the same line hits for ~240. While a boss is up the paytable shows a <b>🗡️ column</b> with exactly what each symbol wounds for. Pairs and Cursed Gold pay cash but deal nothing.</li>
+      <li><b>🎴 On a Hunt there is no bag.</b> A card you take is played immediately — relics level up, charms start ticking. When you pick a card you can <b>click it again to send it to your partner</b> instead, and it plays on their side.</li>
       <li><b>🤝 Helping each other (co-op).</b> Give cards straight to your partner from any card's popover, send them cash, and watch their panel: their marks, their Blood, their reels, every card they play and every blow they land on the boss.</li>
       <li><b>Playing faster.</b> <b>AUTO</b> spins for you (10 / 50 / ∞) and <b>pauses itself</b> for the market, a Rite or a duel checkpoint, then carries on once you are done. <b>⚡</b> is turbo reels. Keys: <b>Space</b> spin · <b>A</b> autospin · <b>T</b> turbo · <b>1–8</b> bet · <b>Esc</b> close / stop.</li>
       <li><b>Trials.</b> Long-term goals that persist across every run and pay Souls once — check them from the menu for something to chase after the basics stop scaring you.</li>
@@ -933,10 +978,12 @@ input{font-family:inherit}
   </div>
 </div>
 
+<div id="bossIntro"><div class="bi-in"><div class="bi-sub">something answers the scythes</div><div class="bi-ic" id="biIc">⚰️</div><div class="bi-nm" id="biNm">—</div><div class="bi-hp" id="biHp"></div></div></div>
+<div id="splat"></div>
 <div id="jpFlash"><div class="t">🔥 666 🔥<br><span id="jpAmt"></span></div></div>
 <div id="toasts"></div>
 <div id="tip"></div>
-<div class="ver">DEADSPIN v2.9.0 · spinfall</div>
+<div class="ver">DEADSPIN v3.0.0 · spinfall</div>
 
 <script>
 'use strict';
@@ -1048,6 +1095,18 @@ const CARDS=[
 {id:'iron_will',n:'Iron Will',i:'🛡️',r:2,kind:'charm',dur:0,d:()=>"Your next Reaper's Toll is 40% smaller",f:'Death respects stubbornness.',instant:'tollDown'},
 {id:'sixth_sense',n:'Sixth Sense',i:'🎱',r:3,kind:'charm',dur:5,d:()=>'For 5 spins: Sixes appear far more often (+3)',f:'It always says 6.',ceff:{sixW:3}},
 {id:'ghost_walk',n:'Ghost Walk',i:'🌫️',r:4,kind:'charm',dur:0,d:()=>"Skip your next Reaper's Toll entirely",f:'He cannot collect what he cannot see.',instant:'tollSkip'},
+/* ---- RELICS: keystones ----
+   Build-defining, not stat-defining. Each one changes a RULE, so finding one
+   is a reason to steer the whole run around it. All are mx:1 — they are a
+   decision, not a ladder. */
+{id:'twin_fangs',n:'Twin Fangs',i:'🦇',r:3,kind:'relic',mx:1,d:()=>'EVERY symbol pays on a left pair (0.5× bet)',f:'Two is a number too.',eff:()=>({anyPair:.5})},
+{id:'carrion_feast',n:'Carrion Feast',i:'🪰',r:2,kind:'relic',mx:1,d:()=>'Every Cobweb on screen pays 0.08× your bet',f:'Nothing is truly worthless.',eff:()=>({webPay:.08})},
+{id:'mirror_reel',n:'Mirror Reel',i:'🪞',r:3,kind:'relic',mx:1,d:()=>'The 5th reel always copies the 1st',f:'It shows you what you already had.',eff:()=>({mirror:1})},
+{id:'hollow_crown',n:'Hollow Crown',i:'👑',r:4,kind:'relic',mx:1,d:()=>'ONLY the middle row pays — but it pays 3.5×',f:'Uneasy, and very heavy.',eff:()=>({onlyMiddle:3.5})},
+{id:'gravebound',n:'Gravebound',i:'⛓️',r:4,kind:'relic',mx:1,d:()=>'All payouts +90%, but the Altar is closed to you forever',f:'Some debts are not paid in blood.',eff:()=>({payAll:.9,noAltar:1})},
+{id:'glass_coffin',n:'Glass Coffin',i:'⚱️',r:4,kind:'relic',mx:1,d:()=>'All payouts +120%, but the House will not lend — you die at $0',f:'Beautiful. Airtight.',eff:()=>({payAll:1.2,noDebt:1})},
+{id:'six_feet_under',n:'Six Feet Under',i:'⚱️',r:3,kind:'relic',mx:1,d:()=>'Sixes spawn far more often (+6), everything else pays −20%',f:'Dig until you find him.',eff:()=>({sixW:6,payAll:-.2,pay:{six:.25}})},
+{id:'sanguine_pact',n:'Sanguine Pact',i:'🧛',r:3,kind:'relic',mx:1,d:()=>'Night Market packs cost Blood instead of cash (÷12)',f:'He prefers it fresh.',eff:()=>({bloodShop:1})},
 /* ---- RELICS: blood ---- */
 {id:'bloodletter',n:'Bloodletter',i:'🩸',r:1,kind:'relic',mx:5,d:l=>`Marked symbols bleed +${Math.round(30*l)}% Blood`,f:'A clean cut wastes nothing.',eff:l=>({bloodGain:.30*l})},
 {id:'crimson_mark',n:'Crimson Mark',i:'🔻',r:2,kind:'relic',mx:3,d:l=>`+${l} marked symbol${l>1?'s':''} this run`,f:'It chooses. You obey.',eff:l=>({marks:l})},
@@ -1304,7 +1363,7 @@ function saveAll(){
 /* ============ [EFFECTS] ============ */
 function baseEff(){return {pay:{},symW:{},payAll:0,winMult:0,wildW:0,moonW:0,sixW:0,webW:0,goldW:0,coinVal:0,
   betRefund:0,packDisc:0,streakStep:0,streakCap:0,interest:0,interestCap:0,tollReduce:0,
-  moonSpins:0,moonFill:0,wildCol:0,potPct:0,drip:0,sixPair:0,ghoul:0,slots:0,bloodGain:0,bloodAny:0,marks:0,
+  moonSpins:0,moonFill:0,wildCol:0,potPct:0,drip:0,sixPair:0,ghoul:0,slots:0,bloodGain:0,bloodAny:0,marks:0,anyPair:0,webPay:0,mirror:0,onlyMiddle:0,noAltar:0,noDebt:0,bloodShop:0,
   blackout:0,freezeReel:0,moonBlock:0};}
 function mergeEff(t,s){
   for(const k in s){
@@ -1422,6 +1481,7 @@ function rollGrid(eff){
   const g=[];
   for(let i=0;i<CELLS;i++) g.push(rollSym(w,total));
   if(eff.wildCol>0 && Math.random()<eff.wildCol){g[2]='eye';g[7]='eye';g[12]='eye';}
+  if(eff.mirror>0){g[4]=g[0];g[9]=g[5];g[14]=g[10];}
   if(eff.freezeReel>0){g[4]='web';g[9]='web';g[14]='web';}
   return g;
 }
@@ -1450,6 +1510,9 @@ function lineWin(syms,eff,bet){
   if(best) return best;
   const p2=s=>{const a=syms[0],b=syms[1];return (a===s||a==='eye')&&(b===s||b==='eye')&&(a===s||b===s);};
   if(p2('rat')) return {sym:'rat',len:2,amt:RAT_PAIR*bet*payMult(eff,'rat'),pair:true};
+  if(eff.anyPair>0){
+    for(const s of PAYSYMS){ if(s!=='rat'&&p2(s)) return {sym:s,len:2,amt:eff.anyPair*bet*payMult(eff,s),pair:true}; }
+  }
   if(eff.sixPair>0&&p2('six')) return {sym:'six',len:2,amt:eff.sixPair*bet*payMult(eff,'six'),pair:true};
   return null;
 }
@@ -1457,8 +1520,10 @@ function lineWin(syms,eff,bet){
 function evalSpin(grid,bet,eff,ctx){
   const res={lines:[],coinWin:0,scatters:0,jackpot:false,lineWin:0,total:0};
   for(let li=0;li<LINES.length;li++){
+    if(eff.onlyMiddle>0&&li!==1) continue;   /* the crown pays one row only */
     const syms=LINES[li].map(i=>grid[i]);
     const w=lineWin(syms,eff,bet);
+    if(w&&eff.onlyMiddle>0) w.amt*=eff.onlyMiddle;
     if(w){
       res.lines.push({li,sym:w.sym,len:w.len,amt:w.amt,pair:!!w.pair});
       if(w.sym==='six'&&w.len>=3) res.jackpot=true;
@@ -1468,6 +1533,7 @@ function evalSpin(grid,bet,eff,ctx){
     if(s==='gold') res.coinWin+=(COIN_VAL+eff.coinVal)*bet;
     else if(s==='moon') res.scatters++;
     else if(s==='scythe') res.scythes=(res.scythes||0)+1;
+    else if(s==='web'&&eff.webPay>0) res.coinWin+=eff.webPay*bet;
   }
   /* Damage is the payout MULTIPLE (not the cash), so wounds come from your
      build rather than your bet — a focused symbol hits for what it is worth. */
@@ -1819,7 +1885,7 @@ function spin(){
   if(!free){
     run.freeBet=null;
     /* debt: only the Toll can kill you — the House lends down to −(next Toll) */
-    const floor=-tollAmount(run.cutNum,eff);
+    const floor=eff.noDebt>0?0:-tollAmount(run.cutNum,eff);
     if(run.cash-run.bet<floor){
       const affordable=BETS.filter(b=>run.cash-b>=floor);
       if(affordable.length){run.bet=affordable[affordable.length-1];}
@@ -1867,6 +1933,12 @@ function applyResult(grid,res,free,eff){
     meta.stats.totalWon+=total;
     run.bigWin=Math.max(run.bigWin,total);
     addFloat('+'+fmt(total),total>=res.betUsed*8?'big':'',slot++);
+    if(total>=res.betUsed*6&&res.lines.length){
+      const best=res.lines.slice().sort((a,b)=>b.amt-a.amt)[0];
+      const syms=SYM[best.sym]?new Array(Math.min(5,best.len)).fill(SYM[best.sym].e).join(''):'';
+      pushHighlight({amt:total,syms,tag:res.jackpot?'HELLPOT':(best.len>=5?'5-line':null)});
+      if(run.duel) duelSend({t:'win',amt:Math.round(total),syms,tag:res.jackpot?'HELLPOT':null});
+    }
     if(res.mult>1.01) addFloat('×'+res.mult.toFixed(2),'bad',slot++);
     if(!res.jackpot){ if(total>=res.betUsed*8) sBigWin(); else sWin(total); }
     if(res.coinWin>0) sCoin();
@@ -1936,6 +2008,7 @@ function applyResult(grid,res,free,eff){
       else if(run.boss.spins<=0) bossEscaped();
     }else if(res.scythes>0){
       run.scythes=(run.scythes||0)+res.scythes;
+      splatter(4+res.scythes*3);
       addFloat('🗡️ ×'+res.scythes,'bad',slot++);
       duelSend({t:'scythe',k:res.scythes});
       if(run.scythes>=scytheNeed(run.bossNum||1)) summonBoss();
@@ -2123,6 +2196,55 @@ function renderHunt(){
     $('scyNext').textContent=bossOf(run.bossNum||1).name+' · '+bossMaxHp(run.bossNum||1).toLocaleString('en-US')+' HP';
   }
 }
+function splatter(n){
+  if(!meta.fx) return;
+  const el=$('splat'); if(!el) return;
+  el.classList.add('on');
+  for(let i=0;i<(n||7);i++){
+    const d=document.createElement('div');
+    const size=18+Math.random()*70;
+    d.className='sp';
+    d.style.width=size+'px'; d.style.height=(size*(.6+Math.random()*.7))+'px';
+    d.style.left=(Math.random()*100)+'vw'; d.style.top=(Math.random()*100)+'vh';
+    d.style.animationDelay=(Math.random()*.12)+'s';
+    el.appendChild(d);
+    setTimeout(()=>d.remove(),700);
+  }
+  setTimeout(()=>{ if(!el.children.length) el.classList.remove('on'); },760);
+}
+function bossIntro(b){
+  if(!meta.fx){ sHex(); return; }
+  $('biIc').innerHTML=b.icon==='6'?'<span class="s6">6</span>':b.icon;
+  $('biNm').textContent=b.name;
+  $('biHp').textContent=b.max.toLocaleString('en-US')+' HP · '+b.spins+' spins';
+  const el=$('bossIntro');
+  el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+  document.body.classList.remove('shake'); void document.body.offsetWidth;
+  document.body.classList.add('shake');
+  setTimeout(()=>document.body.classList.remove('shake'),700);
+  splatter(14);
+  sHex();
+}
+/* last few wins, yours and your partner's */
+function pushHighlight(h){
+  if(!run) return;
+  run.hl=run.hl||[];
+  run.hl.unshift(h);
+  run.hl=run.hl.slice(0,6);
+  renderHighlights();
+}
+function renderHighlights(){
+  const el=$('reelHl'); if(!el||!run) return;
+  const list=run.hl||[];
+  let h='<div class="rt">Highlights</div>';
+  if(!list.length) h+='<div class="none">no big wins yet</div>';
+  for(const x of list){
+    h+='<div class="hlrow'+(x.them?' them':'')+'"><span class="hs">'+(x.syms||'')+'</span>'
+      +'<span class="who">'+(x.them?(opp?opp.name:'partner'):'you')+(x.tag?' · '+x.tag:'')+'</span>'
+      +'<span class="hw">'+fmtC(x.amt)+'</span></div>';
+  }
+  el.innerHTML=h;
+}
 function bossHit(amt,theirs){
   if(!run||!run.boss) return;
   if(theirs) run.boss.theirs=(run.boss.theirs||0)+amt; else run.boss.mine=(run.boss.mine||0)+amt;
@@ -2140,7 +2262,7 @@ function summonBoss(silent){
   run.boss={n,hp:bossMaxHp(n),max:bossMaxHp(n),spins:BOSS_SPINS,name:b.name,icon:b.icon,mine:0,theirs:0};
   if(!silent){
     toast('🗡️ '+b.icon+' <b>'+b.name+'</b> RISES — '+BOSS_SPINS+' spins to bring it down','hexed');
-    sHex();
+    bossIntro(run.boss);
   }
   saveAll(); renderGame();
 }
@@ -2182,7 +2304,8 @@ function bossEscaped(broadcast){
 /* ============ [DEAD END] out of credit — never just sit there ============ */
 function stuck(){
   if(!run||run.over||run.inShop||anim||run.freeSpins>0) return false;
-  const floor=-tollAmount(run.cutNum,EFF());
+  const e=EFF();
+  const floor=e.noDebt>0?0:-tollAmount(run.cutNum,e);
   return run.cash-MIN_BET<floor;
 }
 function pawnValue(){
@@ -2323,12 +2446,14 @@ function openShop(){
 }
 function renderShop(){
   if(!run||!run.shop) return;
-  $('shopCash').textContent=fmt(run.cash);
+  const seff=EFF();
+  const bloodShop=seff.bloodShop>0;
+  $('shopCash').innerHTML=fmt(run.cash)+' · 🩸 <b>'+Math.floor(run.blood||0)+'</b>'+(bloodShop?' <span class="dim">(packs cost Blood)</span>':'');
   $('shopSlots').textContent=run.storage.length+'/'+storageCap();
   $('shopBuild').innerHTML=buildStripHTML();
   /* Storage inside the market: a full bag used to be a dead end, because the
      only way to sell was to close a market you could not reopen. */
-  $('shopStoreWrap').style.display=run.storage.length?'':'none';
+  $('shopStoreWrap').style.display=(!isCoop()&&run.storage.length)?'':'none';
   if(run.storage.length){
     let sh='';
     run.storage.forEach((id,i)=>{
@@ -2341,16 +2466,16 @@ function renderShop(){
   let h='';
   for(const sp of run.shop.packs){
     const p=PACKS.find(x=>x.id===sp.id);
-    const noRoom=storageFree()<1;
+    const noRoom=!isCoop()&&storageFree()<1;
     const odds=p.odds.map((o,i)=>o>0?'<span style="color:'+RARS[i].c+'">'+o+'%</span>':null).filter(Boolean).join(' · ');
     h+='<div class="shoprow"><div class="ic">'+p.i+'</div><div class="grow"><div class="nm">'+p.n+' <span class="ghoul" style="font-size:11px">see '+p.show+' · keep '+p.keep+'</span></div><div class="ds">'+odds+'</div></div>'
-      +'<button class="buyb" data-pack="'+p.id+'" '+((run.cash<sp.cost||noRoom)?'disabled':'')+'>'+(noRoom?'FULL':fmt(sp.cost))+'</button></div>';
+      +'<button class="buyb" data-pack="'+p.id+'" '+((bloodShop?(run.blood||0)<Math.ceil(sp.cost/12):run.cash<sp.cost)||noRoom?'disabled':'')+'>'+(noRoom?'FULL':(bloodShop?('🩸 '+Math.ceil(sp.cost/12)):fmt(sp.cost)))+'</button></div>';
   }
   $('shopPacks').innerHTML=h;
   h='';
   for(let i=0;i<run.shop.singles.length;i++){
     const sg=run.shop.singles[i], c=CARD_BY_ID[sg.id];
-    const noRoom=storageFree()<1;
+    const noRoom=!isCoop()&&storageFree()<1;
     h+='<div class="shoprow r'+c.r+'" data-tipcard="'+c.id+'"><div class="ic">'+c.i+'</div><div class="grow"><div class="nm">'+c.n+' <span class="kchip '+c.kind+'">'+KIND_LABEL[c.kind]+'</span> <span class="rtxt" style="font-size:10px">'+RARS[c.r].n+'</span> <span class="dim" style="font-size:9px;font-weight:800">'+USE_SHORT[c.kind]+'</span></div>'
       +'<div class="ds">'+c.d(1)+'</div></div>'
       +'<button class="buyb" data-single="'+i+'" '+((run.cash<sg.cost||noRoom)?'disabled':'')+'>'+(noRoom?'FULL':fmt(sg.cost))+'</button></div>';
@@ -2386,6 +2511,7 @@ function renderShop(){
       +'<div class="anow'+(owned?'':' dim')+'">'+(owned?('now +'+(0.8*owned).toFixed(1)+' weight'):'not bought yet')+'</div>'
       +'<div class="acost">🩸 '+cost+'</div></div>';
   }
+  if(aeff.noAltar>0) ah='<div class="dim" style="grid-column:1/-1;font-size:12px">⛓️ <b>Gravebound</b> — the Altar will not take your Blood. You traded that away.</div>';
   $('shopAltar').innerHTML=ah;
   document.querySelectorAll('#shopAltar .atile[data-altar]').forEach(el=>el.onclick=()=>{
     const a=ALTAR_BY_ID[el.dataset.altar];
@@ -2414,14 +2540,16 @@ function renderShop(){
   document.querySelectorAll('#shopPacks .buyb').forEach(b=>b.onclick=()=>{
     const sp=run.shop.packs.find(x=>x.id===b.dataset.pack);
     const p=PACKS.find(x=>x.id===b.dataset.pack);
-    if(run.cash<sp.cost||storageFree()<1) return;
-    run.cash-=sp.cost; sBuy();
+    if(!isCoop()&&storageFree()<1) return;
+    if(bloodShop){ const bc=Math.ceil(sp.cost/12); if((run.blood||0)<bc) return; run.blood-=bc; }
+    else { if(run.cash<sp.cost) return; run.cash-=sp.cost; }
+    sBuy();
     openPack(p);
     renderShop(); renderGame(); saveAll();
   });
   document.querySelectorAll('#shopSingles .buyb').forEach(b=>b.onclick=()=>{
     const i=+b.dataset.single, sg=run.shop.singles[i];
-    if(!sg||run.cash<sg.cost||storageFree()<1) return;
+    if(!sg||run.cash<sg.cost||(!isCoop()&&storageFree()<1)) return;
     run.cash-=sg.cost; sBuy();
     const got=gainCard(sg.id);
     toast(got.msg,got.new?'good':'');
@@ -2436,10 +2564,38 @@ function gainCard(id){
   const isNew=!meta.coll[id];
   meta.coll[id]=(meta.coll[id]||0)+1;
   if(isNew) run.newCards++;
+  if(isCoop()){
+    /* A hunt has no bag — picking a card IS playing it. */
+    const r=autoPlay(id);
+    return {new:isNew,msg:c.i+' '+c.n+(isNew?' — NEW! ':' ')+r};
+  }
   run.storage.push(id);
   return {new:isNew,msg:c.i+' '+c.n+(isNew?' — NEW! → storage':' → storage')};
 }
-var packPending=0, packOpenedAt=0, draftPicks=[], draftKeep=1;
+/* used on hunts, and when a partner hands you something */
+function autoPlay(id){
+  const c=CARD_BY_ID[id];
+  if(c.kind==='relic'){
+    const have=run.relics[id]||0;
+    if(have>=c.mx){ run.cash+=RARS[c.r].sell; return 'already mastered — sold for '+fmt(RARS[c.r].sell); }
+    if(!have){run.relics[id]=1;run.relicOrder.push(id);} else run.relics[id]=have+1;
+    meta.stats.maxRelicLv=Math.max(meta.stats.maxRelicLv||0,run.relics[id]);
+    run.played.push(id);
+    if(run.duel) duelSend({t:'played',id});
+    return 'active Lv'+run.relics[id];
+  }
+  if(c.kind==='charm'){
+    run.played.push(id);
+    if(run.duel) duelSend({t:'played',id});
+    if(c.instant==='tollDown'){run.tollMods.mult*=0.6;return 'next Toll −40%';}
+    if(c.instant==='tollSkip'){run.tollMods.skip=1;return 'next Toll skipped';}
+    run.charms.push({id,left:c.dur});
+    return 'active for '+c.dur+' spins';
+  }
+  run.cash+=RARS[c.r].sell;
+  return 'no use here — sold for '+fmt(RARS[c.r].sell);
+}
+var packPending=0, packOpenedAt=0, draftPicks=[], draftGive={}, draftKeep=1;
 function openPack(pack,freebie){
   /* DRAFT: reveal `show` cards, the player keeps `keep` of them. Choice beats
      a blind lottery — you can build toward the relics you already hold. */
@@ -2451,7 +2607,7 @@ function openPack(pack,freebie){
     const pool=CARDS.filter(c=>c.r===rar&&(isPvP()||c.kind!=='hex'));
     pulls.push(pool[Math.floor(Math.random()*pool.length)]);
   }
-  draftPicks=[]; draftKeep=Math.min(keep,Math.max(0,storageCap()-run.storage.length));
+  draftPicks=[]; draftGive={}; draftKeep=isCoop()?keep:Math.min(keep,Math.max(0,storageCap()-run.storage.length));
   $('packTitle').textContent=(freebie?'🎁 ':'')+pack.n;
   $('packBuild').innerHTML=buildStripHTML();
   const wrap=$('packCards'); wrap.innerHTML=''; wrap.className='draft';
@@ -2470,10 +2626,17 @@ function openPack(pack,freebie){
       if(Date.now()-packOpenedAt<250)return;
       if(!el.classList.contains('flip')) return; /* they reveal themselves */
       const i=draftPicks.indexOf(idx);
-      if(i>=0){draftPicks.splice(i,1);el.classList.remove('sel');}
-      else{
-        if(draftPicks.length>=draftKeep){toast('You may keep only '+draftKeep,'bad');return;}
-        draftPicks.push(idx);el.classList.add('sel');sFlip();
+      const canGive=isCoop()&&duelAlive();
+      if(i>=0){
+        if(canGive&&!draftGive[idx]){
+          draftGive[idx]=1; el.classList.add('gift'); sFlip();   /* keep -> give */
+        }else{
+          draftPicks.splice(i,1); delete draftGive[idx];
+          el.classList.remove('sel','gift');                     /* -> unpicked */
+        }
+      }else{
+        if(draftPicks.length>=draftKeep){toast('You may take only '+draftKeep,'bad');return;}
+        draftPicks.push(idx); el.classList.add('sel'); sFlip();
       }
       updateDraftHint();
     };
@@ -2538,7 +2701,10 @@ function updateDraftHint(){
     $('packDone').disabled=true; $('packDone').textContent='Reveal them all';
     return;
   }
-  $('packHint').innerHTML='Choose <b>'+draftKeep+'</b> to keep — <b>'+draftPicks.length+'/'+draftKeep+'</b> selected. The rest are lost.';
+  const giving=Object.keys(draftGive).length;
+  $('packHint').innerHTML='Choose <b>'+draftKeep+'</b> — <b>'+draftPicks.length+'/'+draftKeep+'</b> selected'
+    +(isCoop()&&duelAlive()?(giving?(' · <b class="giftx">'+giving+' to give away</b> (click again to toggle)'):' · click a picked card again to <b class="giftx">give it to your partner</b>'):'')
+    +'. The rest are lost.';
   $('packDone').disabled=draftPicks.length!==draftKeep;
   $('packDone').textContent=draftPicks.length===draftKeep?('Take '+draftKeep):('Select '+(draftKeep-draftPicks.length)+' more');
 }
@@ -2548,10 +2714,18 @@ function finishDraft(){
   for(const idx of draftPicks){
     const el=els.find(e=>+e.dataset.idx===idx);
     if(!el) continue;
-    const r=gainCard(el.dataset.card);
+    const id=el.dataset.card, c=CARD_BY_ID[id];
+    if(draftGive[idx]&&isCoop()&&duelAlive()){
+      meta.coll[id]=(meta.coll[id]||0)+1;
+      duelSend({t:'card',id});
+      got.push('🤝 '+c.i+' '+c.n+' → '+opp.name);
+      oppFeed('🤝 you gave them '+c.i+' '+c.n);
+      continue;
+    }
+    const r=gainCard(id);
     got.push(r.msg);
   }
-  draftPicks=[];
+  draftPicks=[]; draftGive={};
   ovClose('ovPack');
   if(got.length) toast(got.join('<br>'),'good');
   renderShop(); renderGame(); saveAll();
@@ -2634,6 +2808,14 @@ function giftCard(idx){
 }
 function receiveCard(id){
   const c=CARD_BY_ID[id]; if(!c||!run||run.over) return;
+  if(isCoop()){
+    const r=autoPlay(id);
+    meta.coll[id]=(meta.coll[id]||0)+1;
+    toast('🤝 '+(opp?opp.name:'Partner')+' sent you '+c.i+' '+c.n+' — '+r,'good');
+    oppFeed('🤝 sent you '+c.i+' '+c.n);
+    sCoin(); saveAll(); renderGame();
+    return;
+  }
   if(run.storage.length>=storageCap()){
     run.cash+=RARS[c.r].sell;
     toast('🤝 '+(opp?opp.name:'Partner')+' sent '+c.i+' '+c.n+' — bag full, sold for '+fmt(RARS[c.r].sell),'bad');
@@ -2689,6 +2871,10 @@ function renderGame(){
   const free=run.freeSpins>0;
   $('moonBan').classList.toggle('on',free);
   $('machineBox').classList.toggle('bloodmoon',free);
+  const hunted=!!(isCoop()&&run.boss);
+  $('machineBox').classList.toggle('hunted',hunted);
+  document.body.classList.toggle('hunted',hunted);
+  $('reelHl').style.display=run.duel?'':'none';
   if(free){$('moonN').textContent=run.freeSpins;$('moonM').textContent=(2*(1+eff.winMult)*streakMultOf(run.streak,eff)).toFixed(1);$('moonB').textContent=(run.freeBet||run.bet);}
   const waiting=run.duel&&duelWaiting();
   if(run.duel) wasWaiting=waiting; /* renderGame is the source of truth for the gate UI */
@@ -2718,7 +2904,7 @@ function renderGame(){
     mc.querySelector('.mi').textContent=PHASES[Math.min(4,Math.floor(mr*4.999))];
     $('moonTxt').textContent='Blood Moon '+Math.round(mr*100)+'%';
   }
-  const floor=-due;
+  const floor=eff.noDebt>0?0:-due;
   const shownBet=free?(run.freeBet||run.bet):run.bet;
   let bh='';
   for(const b of BETS){
@@ -2788,6 +2974,8 @@ function renderGame(){
   if(run.duel&&opp) renderOpp();
 }
 function renderStorage(){
+  $('storagePanel').style.display=isCoop()?'none':'';
+  if(isCoop()) return;
   const cap=storageCap();
   $('stCt').textContent=run.storage.length+'/'+cap;
   let h='';
@@ -2808,15 +2996,17 @@ function renderPaytable(eff){
   for(const s of SYMLIST){tot+=wt[s];totb+=wb[s];}
   const bet=run?run.bet:10;
   $('ptBet').textContent='at $'+bet+' bet';
-  let h='<div class="ptrow hdr"><div></div><div class="pv">×3</div><div class="pv">×4</div><div class="pv">×5</div><div class="pc">odds</div></div>';
+  const hunting=isCoop();
+  let h='<div class="ptrow'+(hunting?' hunt':'')+' hdr"><div></div><div class="pv">×3</div><div class="pv">×4</div><div class="pv">×5</div>'+(hunting?'<div class="pv dmgc">🗡️</div>':'')+'<div class="pc">odds</div></div>';
   const marksNow=activeMarks(eff);
   for(const s of PAYSYMS){
     const pm=payMult(eff,s), pb=payMult(base,s);
     const ch=(wt[s]/tot*100), chb=(wb[s]/totb*100);
     const cls=pm>pb+0.001?' up':(pm<pb-0.001?' dn':'');
     const ccls=ch>chb+0.05?' up':(ch<chb-0.05?' dn':'');
-    h+='<div class="ptrow'+(marksNow.indexOf(s)>=0?' marked':'')+'"><div class="ic">'+symHTML(s)+(marksNow.indexOf(s)>=0?'<span class="mkdot">🔻</span>':'')+'</div>';
+    h+='<div class="ptrow'+(hunting?' hunt':'')+(marksNow.indexOf(s)>=0?' marked':'')+'"><div class="ic">'+symHTML(s)+(marksNow.indexOf(s)>=0?'<span class="mkdot">🔻</span>':'')+'</div>';
     for(let k=0;k<3;k++) h+='<div class="pv'+cls+'">'+fmt(SYM[s].pay[k]*bet*pm)+'</div>';
+    if(hunting) h+='<div class="pv dmgc">'+Math.round(SYM[s].pay[0]*pm*DMG_K).toLocaleString('en-US')+'</div>';
     h+='<div class="pc'+ccls+'">'+ch.toFixed(1)+'%</div></div>';
   }
   $('ptRows').innerHTML=h;
@@ -3278,11 +3468,19 @@ function onDuelMsg(m){
       }
       break;
     /* ---- shared quarry ---- */
+    case 'win':
+      if(run&&!run.over&&typeof m.amt==='number'){
+        pushHighlight({amt:m.amt,syms:m.syms||'',tag:m.tag,them:true});
+        oppFeed('💰 won '+fmtC(m.amt)+(m.tag?(' · '+m.tag):''));
+        addFloat((opp?opp.name:'partner')+' +'+fmtC(m.amt),'bad',1);
+      }
+      break;
     case 'card':
       if(isCoop()) receiveCard(m.id);
       break;
     case 'scythe':
       if(isCoop()&&run&&!run.over&&!run.boss){
+        splatter(4);
         run.scythes=(run.scythes||0)+(m.k||0);
         if(run.scythes>=scytheNeed(run.bossNum||1)) summonBoss();
         else renderGame();
