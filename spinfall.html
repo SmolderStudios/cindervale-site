@@ -213,6 +213,41 @@ input{font-family:inherit}
 #oppCards .acard{width:30px;height:30px;font-size:15px;border-radius:6px}
 #oppFeed{margin-top:8px;font-size:11.5px;color:#8a7a80;line-height:1.6;min-height:34px;border-top:1px solid #2a161e;padding-top:6px}
 #oppFeed .hexline{color:#ff5b6e;font-weight:700}
+/* meters (desperation / underdog / grudge) */
+#meterRow{display:flex;flex-direction:column;gap:5px;margin-top:9px}
+#meterRow:empty{display:none}
+.meter{display:flex;align-items:center;gap:8px;font-size:11px}
+.meter .mn{width:96px;flex:0 0 96px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;font-size:10px}
+.meter .mbar{flex:1;height:7px;border-radius:4px;background:#1a0e13;border:1px solid #2a161e;overflow:hidden}
+.meter .mfill{height:100%;border-radius:3px;transition:width .3s}
+.meter .mv{width:74px;flex:0 0 74px;text-align:right;color:#8a7a80;font-variant-numeric:tabular-nums}
+.meter.desp .mn{color:#ff9c54}
+.meter.desp .mfill{background:linear-gradient(90deg,#7c3a12,#ff9c54)}
+.meter.under .mn{color:#5bc9d8}
+.meter.under .mfill{background:linear-gradient(90deg,#12525c,#5bc9d8)}
+.meter.grudge .mn{color:#b45cf0}
+.meter.grudge .mfill{background:linear-gradient(90deg,#4a1a6e,#d18aff)}
+/* rite picker */
+#riteCards{display:flex;gap:12px;justify-content:center;margin:18px 0 4px;flex-wrap:wrap}
+.ritec{
+  width:172px;min-height:186px;border-radius:13px;background:linear-gradient(180deg,#1d1016,#120a0e);
+  border:2px solid var(--tc,#3d222c);padding:14px 11px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:7px;
+  transition:transform .1s, box-shadow .15s, border-color .15s;
+}
+.ritec:hover{transform:translateY(-4px);box-shadow:0 8px 24px color-mix(in srgb,var(--tc) 40%,transparent);border-color:var(--tc)}
+.ritec .ic{font-size:38px;line-height:1}
+.ritec .nm{font-weight:800;font-size:14px;color:#e8e0d0;line-height:1.2}
+.ritec .ds{font-size:12px;color:#b0a396;line-height:1.4}
+.ritec .tr{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:900;color:var(--tc);margin-top:auto}
+.ritec.t0{--tc:#6fd784}
+.ritec.t1{--tc:#ffae2e}
+/* lead indicator */
+#oppLead{margin-top:9px;font-size:12.5px;font-weight:800;text-align:center;border-radius:8px;padding:5px}
+#oppLead.ahead{background:#0f2a16;color:#6fd784;border:1px solid #2e6b41}
+#oppLead.behind{background:#2c0f16;color:#ff6b80;border:1px solid #7a2333}
+#oppLead.even{background:#1a0e13;color:#8a7a80;border:1px solid #2a161e}
+#oppLead:empty{display:none}
 /* debuff row */
 #debuffRow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .debuff{
@@ -400,7 +435,12 @@ input{font-family:inherit}
           <span>Hot streak: <span id="streakV">—</span></span>
           <span class="dim" id="spinCt">Spin 0</span>
         </div>
+        <div id="meterRow"></div>
         <div id="floats"></div>
+      </div>
+      <div class="activebox">
+        <div class="lbl"><span>Rites Taken</span><span class="dim" id="riteCt"></span></div>
+        <div class="arow" id="riteRow"></div>
       </div>
       <div class="activebox">
         <div class="lbl"><span>Active Relics</span><span class="dim" id="relicCt"></span></div>
@@ -430,6 +470,7 @@ input{font-family:inherit}
           <div class="lbl">Cards they played</div>
           <div id="oppCards"><span class="none dim" style="font-size:11px">nothing yet</span></div>
         </div>
+        <div id="oppLead"></div>
         <div id="oppFeed"></div>
         <div style="display:flex;gap:8px;margin-top:10px">
           <button class="btn sm" id="oppSend" style="flex:1">💸 Send $50</button>
@@ -525,6 +566,15 @@ input{font-family:inherit}
   </div>
 </div>
 
+<!-- ============ RITE OVERLAY ============ -->
+<div id="ovRite" class="ov">
+  <div class="ovbox" style="max-width:600px;text-align:center">
+    <h2>🕯️ Rite of the Toll</h2>
+    <div class="sub">You paid Death. Something in the dark pays you back — <b>choose one</b>.</div>
+    <div id="riteCards"></div>
+  </div>
+</div>
+
 <!-- ============ PACK OVERLAY ============ -->
 <div id="ovPack" class="ov">
   <div class="ovbox" style="text-align:center">
@@ -569,10 +619,13 @@ input{font-family:inherit}
         </div>
       </li>
       <li><b>The Reaper's Toll.</b> Every 10 spins Death demands cash — and the price always rises. <b>Only the Toll can kill you:</b> going broke mid-round puts you in <b>debt</b> (red cash) — the House lends you spins down to the size of your next Toll. If the Toll arrives and you can't pay, the run ends.</li>
+      <li><b>Rites.</b> Every Toll you survive, the dark pays you back: pick <b>1 of 3 Rites</b> — run-permanent buffs, many of which bend the actual spawn odds on the reels. Watch the paytable percentages move as you take them.</li>
+      <li><b>Desperation.</b> The lower your cash falls (and into debt), the luckier the reels get — up to <b>+45% payouts</b> plus more wilds, gold and moons. Losing makes you dangerous.</li>
+      <li><b>Underdog & Grudge (duels).</b> Falling behind grants <b>Underdog</b> (up to +30% payouts and more wilds). Every hex you eat and every Toll you spend behind fills the <b>Grudge</b> meter — at 100 it forces a free Hex into your hand. The leader never gets to coast.</li>
       <li><b>In duels, mercy exists.</b> Your opponent's panel has <b>💸 Send $50</b> and you have <b>🙏 Beg</b> — a rich rival can bail you out of debt to keep the duel going.</li>
       <li><b>The Night Market.</b> After each Toll, buy <b>card packs</b>. Cards go to your <b>storage</b> — play them when YOU choose:
         <span class="kchip relic">Relic</span> <b>PERMANENT</b> once played · <span class="kchip charm">Charm</span> <b>ONE USE</b>, temporary boost · <span class="kchip hex">Hex</span> <b>ONE USE</b>, strikes your duel opponent. Playing a duplicate Relic upgrades it (max Lv3). Unwanted cards sell for cash.</li>
-      <li><b>👁️ The Eye</b> is wild — it becomes anything. <b>🌕 3+ Moons</b> anywhere = <b>Blood Moon</b> free spins, wins ×2 — <b>your bet locks</b> at the amount that triggered it. <b>🪙 Cursed Gold</b> pays instantly. <b>🕸️ Cobwebs</b> pay nothing.</li>
+      <li><b>👁️ The Eye</b> is wild — it becomes anything. <b>🌕 3+ Moons</b> anywhere = <b>Blood Moon</b> free spins, wins ×2 — <b>your bet locks</b> at the amount that triggered it, and more Moons during it pay cash instead of extending it. <b>🪙 Cursed Gold</b> pays instantly. <b>🕸️ Cobwebs</b> pay nothing.</li>
       <li><b>🔥 The Hellpot</b> grows with every bet. Line up <b>6·6·6</b> to claim it all.</li>
       <li><b>Hot streak:</b> consecutive winning spins boost payouts. A dead spin resets it.</li>
       <li><b>Duels:</b> invite a friend by lobby code. You each fight your own reels — last one alive wins. Hexes sabotage them; their panel shows every card they play. <b>Tolls are checkpoints:</b> after paying yours, the Reaper holds you until your opponent pays theirs — you march to the grave in step.</li>
@@ -610,7 +663,7 @@ input{font-family:inherit}
 <div id="jpFlash"><div class="t">🔥 666 🔥<br><span id="jpAmt"></span></div></div>
 <div id="toasts"></div>
 <div id="tip"></div>
-<div class="ver">DEADSPIN v2.2.0 · spinfall</div>
+<div class="ver">DEADSPIN v2.3.0 · spinfall</div>
 
 <script>
 'use strict';
@@ -648,7 +701,7 @@ const LINES=[
   [10,6,2,8,14],    /* Λ */
 ];
 const LINE_COLORS=['#ffd76b','#ff5b6e','#6fd784','#5bc9d8','#b45cf0'];
-const TOLL_EVERY=10;
+const TOLL_EVERY=12;
 const MIN_BET=5;
 const BETS=[5,10,25,50,100];
 const RAT_PAIR=0.4;      /* left pair of rats pays this x bet */
@@ -732,6 +785,45 @@ const KIND_LABEL={relic:'Relic',charm:'Charm',hex:'Hex'};
 const USE_TAG={relic:'♾️ PERMANENT once played',charm:'1️⃣ ONE USE — consumed when played',hex:'1️⃣ ONE USE — strikes your duel opponent'};
 const USE_SHORT={relic:'PERMANENT',charm:'ONE USE',hex:'ONE USE'};
 
+/* ============ [DATA] RITES ============ */
+/* Roguelike boon: after every Reaper's Toll you pick 1 of 3. Run-permanent,
+   free, and they stack — this is the ramp that keeps a long run climbing.
+   t:0 = base tier, t:1 = greater tier (weighted in as tolls escalate).
+   symW entries move actual reel spawn odds (visible live in the paytable). */
+const RITES=[
+  /* --- spawn-odds rites (base) --- */
+  {id:'rat_nest',   n:'Rat Nest',       i:'🐀',t:0,d:'Rats spawn far more often (+3)',       eff:{symW:{rat:3}}},
+  {id:'bat_roost',  n:'Bat Roost',      i:'🦇',t:0,d:'Bats spawn far more often (+3)',       eff:{symW:{bat:3}}},
+  {id:'web_burn',   n:'Burn the Webs',  i:'🔥',t:0,d:'Cobwebs spawn less often (−3)',        eff:{webW:-3}},
+  {id:'gold_vein',  n:'Gold Vein',      i:'🪙',t:0,d:'Cursed Gold spawns more often (+1.5)', eff:{goldW:1.5}},
+  {id:'spider_nest',n:'Spider Nest',    i:'🕷️',t:0,d:'Spiders spawn more often (+2)',        eff:{symW:{spider:2}}},
+  {id:'wax_works',  n:'Wax Works',      i:'🕯️',t:0,d:'Candles spawn more often (+2)',        eff:{symW:{candle:2}}},
+  {id:'undertaker', n:"Undertaker's Cut",i:'⚰️',t:0,d:'Coffins spawn more often (+1.5)',     eff:{symW:{coffin:1.5}}},
+  /* --- spawn-odds rites (greater) --- */
+  {id:'open_eye',   n:'The Eye Opens',  i:'👁️',t:1,d:'The Eye (wild) spawns more often (+1.2)',eff:{wildW:1.2}},
+  {id:'moonrise',   n:'Moonrise',       i:'🌕',t:1,d:'Moons spawn more often (+1.2)',        eff:{moonW:1.2}},
+  {id:'haunting',   n:'Haunting',       i:'👻',t:1,d:'Ghosts spawn more often (+1.2)',       eff:{symW:{ghost:1.2}}},
+  {id:'ossuary',    n:'Ossuary',        i:'💀',t:1,d:'Skulls spawn more often (+0.9)',       eff:{symW:{skull:0.9}}},
+  {id:'sixth_hour', n:'The Sixth Hour', i:'6', t:1,d:'Sixes spawn more often (+0.7)',        eff:{sixW:0.7}},
+  {id:'great_purge',n:'Great Purge',    i:'🧹',t:1,d:'Cobwebs spawn far less often (−6)',    eff:{webW:-6}},
+  /* --- payout / economy rites --- */
+  {id:'blood_rite', n:'Blood Rite',     i:'🩸',t:0,d:'All line payouts +10%',                eff:{payAll:.10}},
+  {id:'fervor',     n:'Fervor',         i:'⚡',t:0,d:'Hot streak grows +4% per win',          eff:{streakStep:.04}},
+  {id:'tithe',      n:'Tithe',          i:'🔥',t:0,d:'The Hellpot grows +6% of every bet',    eff:{potPct:.06}},
+  {id:'alms',       n:'Alms',           i:'🥀',t:0,d:'Dead spins refund 10% of your bet',     eff:{betRefund:.10}},
+  {id:'ferry_fare', n:"Ferryman's Fare",i:'⛵',t:0,d:'Cursed Gold pays +15% of your bet',     eff:{coinVal:.15}},
+  {id:'grave_deal', n:'Gravedigger Deal',i:'⛏️',t:1,d:"Reaper's Tolls are 8% smaller",        eff:{tollReduce:.08}},
+  {id:'long_night', n:'Longer Night',   i:'🌙',t:1,d:'+2 free spins per Blood Moon',          eff:{moonSpins:2}},
+  {id:'great_rite', n:'Greater Rite',   i:'👑',t:1,d:'All line payouts +20%',                 eff:{payAll:.20}},
+  {id:'leech',      n:'Leech',          i:'🧛',t:1,d:'Gain $3 every spin, win or lose',       eff:{drip:3}},
+  /* --- instant rites (resolve once, not passive) --- */
+  {id:'debt_pardon',n:'Debt Pardon',    i:'📜',t:0,d:'Clear your debt and gain $60',          instant:'pardon'},
+  {id:'deep_bag',   n:'Deep Bag',       i:'🎒',t:0,d:'+3 card storage slots (permanent)',     eff:{slots:3}},
+  {id:'gift_charm', n:'Offering',       i:'🔮',t:0,d:'Gain 2 random Charms right now',        instant:'charms'},
+  {id:'war_chest',  n:'War Chest',      i:'💰',t:1,d:'Gain cash equal to your next Toll',     instant:'warchest'},
+];
+const RITE_BY_ID={}; RITES.forEach(r=>RITE_BY_ID[r.id]=r);
+
 /* ============ [DATA] PACKS ============ */
 /* odds: [common,uncommon,rare,epic,legendary] sum 100 */
 const PACKS=[
@@ -781,7 +873,12 @@ function loadAll(){
           Object.assign(meta,s.meta);
           meta.up=s.meta.up||{}; meta.coll=s.meta.coll||{};
           meta.stats=Object.assign(freshMeta().stats,s.meta.stats||{});
-          if(s.run && !s.run.over && s.run.storage) run=s.run;
+          if(s.run && !s.run.over && s.run.storage){
+            run=s.run;
+            /* forward-guard fields added after a save was written */
+            run.rites=run.rites||[]; run.grudge=run.grudge||0;
+            if(run.freeBet===undefined) run.freeBet=null;
+          }
         }else{
           /* v1 Spinfall save: keep the currency + lifetime stats, new card world */
           meta.tokens=s.meta.tokens||0;
@@ -800,15 +897,41 @@ function saveAll(){
 }
 
 /* ============ [EFFECTS] ============ */
-function baseEff(){return {pay:{},payAll:0,winMult:0,wildW:0,moonW:0,sixW:0,webW:0,coinVal:0,
+function baseEff(){return {pay:{},symW:{},payAll:0,winMult:0,wildW:0,moonW:0,sixW:0,webW:0,goldW:0,coinVal:0,
   betRefund:0,packDisc:0,streakStep:0,streakCap:0,interest:0,interestCap:0,tollReduce:0,
-  moonSpins:0,moonNeed:0,wildCol:0,potPct:0,drip:0,sixPair:0,ghoul:0,
+  moonSpins:0,moonNeed:0,wildCol:0,potPct:0,drip:0,sixPair:0,ghoul:0,slots:0,
   blackout:0,freezeReel:0,moonBlock:0};}
 function mergeEff(t,s){
   for(const k in s){
-    if(k==='pay'){for(const p in s.pay) t.pay[p]=(t.pay[p]||0)+s.pay[p];}
+    if(k==='pay'||k==='symW'){for(const p in s[k]) t[k][p]=(t[k][p]||0)+s[k][p];}
     else t[k]=(t[k]||0)+s[k];
   }
+}
+/* ---- Desperation: the House pities the doomed. Scales as cash falls toward
+   (and past) zero relative to the next Toll. Pure comeback pressure — keeps a
+   losing run alive instead of spiralling. Never applies to the RTP sim. ---- */
+function desperation(){
+  if(!run||run.over) return 0;
+  /* floor the reference so Desperation still has meaning in the early rounds,
+     when the Toll itself is only worth a few spins */
+  const t=Math.max(60,tollBase(run.cutNum));
+  const ratio=run.cash/t;
+  if(ratio>=2.5) return 0;
+  return Math.max(0,Math.min(1,(2.5-ratio)/3.5));
+}
+/* ---- Underdog: duel-only. Scales with how far behind the opponent you are. ---- */
+function underdog(){
+  if(!run||run.over||!run.duel||!opp||!opp.alive||typeof opp.cash!=='number') return 0;
+  const t=Math.max(1,tollBase(run.cutNum));
+  const gap=(opp.cash-run.cash)/t;
+  if(gap<=0.5) return 0;
+  return Math.max(0,Math.min(1,(gap-0.5)/4));
+}
+function comebackEff(e){
+  const d=desperation();
+  if(d>0) mergeEff(e,{payAll:.45*d,wildW:1.6*d,goldW:1.2*d,moonW:.8*d});
+  const u=underdog();
+  if(u>0) mergeEff(e,{payAll:.30*u,wildW:1.0*u,streakStep:.03*u});
 }
 function EFF(){
   const e=baseEff();
@@ -816,22 +939,32 @@ function EFF(){
   mergeEff(e,{payAll:.04*(up.highroller||0), wildW:.4*(up.loaded_dice||0),
     packDisc:.06*(up.haggler||0), potPct:.04*(up.hellpot_boost||0), moonSpins:(up.blood_moon||0)});
   if(run){
+    for(const id of (run.rites||[])){const r=RITE_BY_ID[id]; if(r&&r.eff) mergeEff(e,r.eff);}
     for(const id in run.relics){const c=CARD_BY_ID[id]; if(c&&c.eff) mergeEff(e,c.eff(run.relics[id]));}
     for(const ch of run.charms){const c=CARD_BY_ID[ch.id]; if(c&&c.ceff) mergeEff(e,c.ceff);}
     for(const db of run.debuffs){if(db.eff) mergeEff(e,db.eff);}
+    comebackEff(e);
   }
   return e;
 }
-function storageCap(){return STORAGE_CAP+2*((meta.up.deep_pockets)||0);}
+function storageCap(){return STORAGE_CAP+2*((meta.up.deep_pockets)||0)+(run?EFF_SLOTS():0);}
+/* slots come from rites only — resolved without a full EFF() pass (avoids recursion
+   through storageCap → EFF → …) */
+function EFF_SLOTS(){
+  let n=0;
+  for(const id of (run.rites||[])){const r=RITE_BY_ID[id]; if(r&&r.eff&&r.eff.slots) n+=r.eff.slots;}
+  return n;
+}
 
 /* ============ [ENGINE] pure spin functions ============ */
 function weightTable(eff){
   const w={};
-  for(const s of SYMLIST) w[s]=SYM[s].w;
+  for(const s of SYMLIST) w[s]=Math.max(0,SYM[s].w+((eff.symW&&eff.symW[s])||0));
   w.eye=Math.max(0,w.eye+eff.wildW);
   w.moon=Math.max(0,w.moon+eff.moonW);
   w.six=Math.max(0,w.six+eff.sixW);
   w.web=Math.max(0,w.web+eff.webW);
+  w.gold=Math.max(0,w.gold+eff.goldW);
   return w;
 }
 function rollSym(w,total){
@@ -848,7 +981,12 @@ function rollGrid(eff){
   if(eff.freezeReel>0){g[4]='web';g[9]='web';g[14]='web';}
   return g;
 }
-function payMult(eff,sym){return (1+eff.payAll)*(1+(eff.pay[sym]||0));}
+/* Global payout scalar. DEADSPIN is a roguelike, not a casino: the reels are
+   slightly generous (RTP just over 1) and the escalating Reaper's Toll is the
+   real house edge. A sub-1 RTP made the median run die at Toll 3 no matter how
+   well it was played, because no amount of skill outran the drain. Tune here. */
+const PAYSCALE=1.26;
+function payMult(eff,sym){return PAYSCALE*(1+eff.payAll)*(1+(eff.pay[sym]||0));}
 function lineWin(syms,eff,bet){
   let wl=0; for(const s of syms){if(s==='eye')wl++;else break;}
   let target=null,len=0;
@@ -898,13 +1036,27 @@ function streakMultOf(streak,eff){
   const step=0.05+eff.streakStep, cap=0.5+eff.streakCap;
   return 1+Math.min(streak*step,cap);
 }
+/* Toll curve. Deliberately gentle for the first few rounds: a run needs to
+   bank 3-4 Rites before its economy turns positive, so the early Tolls are a
+   ramp, not a wall. Late Tolls still climb quadratically and end every run. */
 function tollBase(n){
   const g=1-0.1*((meta.up&&meta.up.grace)||0);
-  return Math.max(10,Math.round(35+(26*(n-1)+8*(n-1)*(n-1))*g));
+  return Math.max(10,Math.round(18+(10*(n-1)+3*(n-1)*(n-1))*g));
 }
-function tollAmount(n,eff){
-  let amt=tollBase(n)*(1-eff.tollReduce);
-  amt=amt*run.tollMods.mult+run.tollMods.add;
+/* The Reaper's share: he takes a growing cut of whatever you have HOARDED
+   above a protected floor. This is the anti-runaway valve — a struggling
+   player pays only the flat base, while a player sitting on a fortune pays
+   for the privilege. It is what stops a snowballed run (or duel leader)
+   from becoming immortal. */
+const TOLL_SAFE=300;
+function tollTax(n,cash){
+  const rate=Math.min(0.78,0.075*n);
+  return Math.max(0,(cash||0)-TOLL_SAFE)*rate;
+}
+function tollAmount(n,eff,cashOverride){
+  const cash=(cashOverride!==undefined)?cashOverride:(run?run.cash:0);
+  let amt=(tollBase(n)+tollTax(n,cash))*(1-eff.tollReduce);
+  if(run) amt=amt*run.tollMods.mult+run.tollMods.add;
   return Math.max(0,Math.round(amt));
 }
 
@@ -1031,10 +1183,10 @@ document.addEventListener('click',e=>{
 
 /* ============ [RUN LIFECYCLE] ============ */
 function startRun(duel){
-  const startCash=125+25*((meta.up.bankroll)||0);
+  const startCash=200+25*((meta.up.bankroll)||0);
   run={cash:startCash,bet:10,spins:0,sinceCut:0,cutNum:1,pot:POT_SEED,streak:0,
     freeSpins:0,over:false,relics:{},relicOrder:[],charms:[],debuffs:[],storage:[],
-    tollMods:{mult:1,add:0,skip:0},shop:null,inShop:false,
+    tollMods:{mult:1,add:0,skip:0},shop:null,inShop:false,rites:[],grudge:0,
     peak:startCash,bigWin:0,jackpots:0,cutsPaid:0,newCards:0,usedWind:false,
     rerollsUsed:0,ghoulCt:0,duel:!!duel,played:[]};
   meta.stats.runs++;
@@ -1197,11 +1349,22 @@ function applyResult(grid,res,free,eff){
   /* blood moon */
   const need=Math.max(2,MOON_NEED-eff.moonNeed);
   if(res.scatters>=need){
-    const add=MOON_SPINS+eff.moonSpins;
-    run.freeSpins+=add;
-    if(!run.freeBet) run.freeBet=run.bet; /* bet locks at the amount that triggered it */
-    toast('🌕 BLOOD MOON — '+add+' free spins, wins ×2','good');
-    sMoon();
+    if(free){
+      /* A Blood Moon cannot extend itself. Moon-stacked builds used to retrigger
+         faster than the pool drained, so free spins never ended, the Toll counter
+         never advanced (it only ticks on paid spins) and the run became immortal.
+         Moons during the feature pay cash instead. */
+      const bonus=res.betUsed*2;
+      run.cash+=bonus;
+      addFloat('🌕 +'+fmt(bonus),'',slot++);
+      sCoin();
+    }else{
+      const add=MOON_SPINS+eff.moonSpins;
+      run.freeSpins+=add;
+      if(!run.freeBet) run.freeBet=run.bet; /* bet locks at the amount that triggered it */
+      toast('🌕 BLOOD MOON — '+add+' free spins, wins ×2','good');
+      sMoon();
+    }
   }
   /* tick temporary effects */
   run.charms=run.charms.filter(ch=>{ch.left--;return ch.left>0;});
@@ -1252,7 +1415,95 @@ function tollPaid(due,broke){
   saveAll();
   renderGame();
   if(run.duel) sendState();
+  /* falling behind in a duel stokes the Grudge */
+  if(run.duel&&opp&&opp.alive&&typeof opp.cash==='number'&&opp.cash>run.cash+tollBase(run.cutNum)) addGrudge(25);
+  offerRites();
+}
+
+/* ============ [RITES] roguelike post-Toll boon ============ */
+function rollRites(n){
+  /* Each Rite may be sworn ONCE. Repeatable rites let "+20% payouts" stack
+     without limit, which outran the Toll curve entirely and made late runs
+     immortal. Instant rites (they leave nothing behind) may recur. */
+  const taken=new Set(run.rites||[]);
+  const greaterChance=Math.min(.62,.10*run.cutNum);
+  const pool=RITES.filter(r=>r.instant?true:!taken.has(r.id));
+  const out=[];
+  let guard=0;
+  while(out.length<(n||3)&&guard++<400){
+    const wantGreater=Math.random()<greaterChance;
+    let cand=pool.filter(r=>(r.t===1)===wantGreater&&!out.some(o=>o.id===r.id));
+    if(!cand.length) cand=pool.filter(r=>!out.some(o=>o.id===r.id));
+    if(!cand.length) break;
+    out.push(cand[Math.floor(Math.random()*cand.length)]);
+  }
+  return out;
+}
+function offerRites(){
+  const picks=rollRites(3);
+  if(!picks.length){openShop();return;}
+  const wrap=$('riteCards');
+  wrap.innerHTML='';
+  for(const r of picks){
+    const el=document.createElement('div');
+    el.className='ritec t'+r.t;
+    el.innerHTML='<div class="ic">'+(r.id==='sixth_hour'?'<span class="s6">6</span>':r.i)+'</div>'
+      +'<div class="nm">'+r.n+'</div><div class="ds">'+r.d+'</div>'
+      +'<div class="tr">'+(r.t===1?'Greater Rite':'Rite')+'</div>';
+    el.onclick=()=>takeRite(r.id);
+    wrap.appendChild(el);
+  }
+  ovOpen('ovRite');
+  sMoon();
+}
+function takeRite(id){
+  const r=RITE_BY_ID[id]; if(!r) return;
+  ovClose('ovRite');
+  if(r.instant==='pardon'){
+    if(run.cash<0) run.cash=0;
+    run.cash+=60;
+    toast('📜 Debt Pardon — slate wiped, +'+fmt(60),'good');
+  }else if(r.instant==='charms'){
+    const pool=CARDS.filter(c=>c.kind==='charm');
+    let got=0;
+    for(let i=0;i<2;i++){
+      if(run.storage.length>=storageCap()) break;
+      const c=pool[Math.floor(Math.random()*pool.length)];
+      gainCard(c.id); got++;
+    }
+    toast('🔮 Offering — '+(got?got+' charm'+(got>1?'s':'')+' to storage':'storage was full'),got?'good':'bad');
+  }else if(r.instant==='warchest'){
+    const amt=tollAmount(run.cutNum,EFF());
+    run.cash+=amt;
+    toast('💰 War Chest — +'+fmt(amt),'good');
+  }else{
+    if(!run.rites.includes(id)) run.rites.push(id);
+    toast(r.i+' '+r.n+' — rite sworn','good');
+  }
+  sBuy();
+  saveAll(); renderGame();
+  if(run.duel) sendState();
   openShop();
+}
+/* ============ [GRUDGE] duel catch-up: pain becomes hexes ============ */
+function addGrudge(n){
+  if(!run||!run.duel||run.over) return;
+  run.grudge=(run.grudge||0)+n;
+  while(run.grudge>=100){
+    run.grudge-=100;
+    const pool=CARDS.filter(c=>c.kind==='hex');
+    const c=pool[Math.floor(Math.random()*pool.length)];
+    if(run.storage.length<storageCap()){
+      run.storage.push(c.id);
+      meta.coll[c.id]=(meta.coll[c.id]||0)+1;
+      toast('😡 GRUDGE BOILS OVER — '+c.i+' '+c.n+' forced into your hand','hexed');
+    }else{
+      run.cash+=RARS[c.r].sell;
+      toast('😡 Grudge boils over — storage full, sold for '+fmt(RARS[c.r].sell),'hexed');
+    }
+    sHex();
+  }
+  renderGame();
 }
 
 /* ============ [SHOP] ============ */
@@ -1450,6 +1701,7 @@ function buildGridCells(){
 }
 function renderGame(){
   if(!run) return;
+  if(window.__nodraw) return; /* balance-sim hook: skip all DOM work */
   const eff=EFF();
   $('cashV').textContent=fmt(run.cash);
   $('cashK').textContent=run.cash<0?'⚠ IN DEBT':'Cash';
@@ -1489,6 +1741,21 @@ function renderGame(){
   document.querySelectorAll('.betb').forEach(el=>el.onclick=()=>{
     if(anim||run.freeSpins>0)return; run.bet=+el.dataset.bet; renderGame(); saveAll();
   });
+  /* meters: desperation / underdog / grudge */
+  const dsp=desperation(), und=underdog();
+  let mh='';
+  if(dsp>0) mh+='<div class="meter desp"><span class="mn">Desperation</span><span class="mbar"><span class="mfill" style="width:'+(dsp*100).toFixed(0)+'%"></span></span><span class="mv">+'+Math.round(dsp*45)+'% pay</span></div>';
+  if(und>0) mh+='<div class="meter under"><span class="mn">Underdog</span><span class="mbar"><span class="mfill" style="width:'+(und*100).toFixed(0)+'%"></span></span><span class="mv">+'+Math.round(und*30)+'% pay</span></div>';
+  if(run.duel) mh+='<div class="meter grudge"><span class="mn">Grudge</span><span class="mbar"><span class="mfill" style="width:'+Math.min(100,run.grudge||0)+'%"></span></span><span class="mv">'+Math.round(run.grudge||0)+'/100</span></div>';
+  $('meterRow').innerHTML=mh;
+  /* rites taken */
+  let rih='';
+  for(const id of (run.rites||[])){
+    const r=RITE_BY_ID[id]; if(!r) continue;
+    rih+='<div class="acard r'+(r.t===1?4:1)+'" title="'+r.n+' — '+r.d+'">'+(r.id==='sixth_hour'?'<span class="s6">6</span>':r.i)+'</div>';
+  }
+  $('riteRow').innerHTML=rih||'<span class="none">none yet — survive a Toll to earn one</span>';
+  $('riteCt').textContent=(run.rites||[]).length?(run.rites.length+' taken'):'';
   /* active relics */
   let rh='';
   for(const id of run.relicOrder){
@@ -1517,6 +1784,9 @@ function renderGame(){
   $('debuffRow').innerHTML=dh;
   renderStorage();
   renderPaytable(eff);
+  /* the lead/gap readout depends on OUR cash too, so refresh it on every render
+     rather than only when an opponent message lands */
+  if(run.duel&&opp) renderOpp();
 }
 function renderStorage(){
   const cap=storageCap();
@@ -1561,8 +1831,13 @@ function renderPaytable(eff){
   sp+='<div class="row"><span class="i">🕸️</span><span><b>Cobwebs</b> pay nothing · '+webCh.toFixed(1)+'%</span></div>';
   sp+='<div class="row"><span class="i">🔥</span><span><b>6·6·6</b> on a line claims the Hellpot: <b style="color:#ffae2e">'+fmt(run?run.pot:POT_SEED)+'</b></span></div>';
   if(run){
-    sp+='<div class="row"><span class="i">💀</span><span>Tolls ahead: <b>'+fmt(tollAmount(run.cutNum,eff))+'</b>, then ~'+fmt(Math.round(tollBase(run.cutNum+1)*(1-eff.tollReduce)))+', ~'+fmt(Math.round(tollBase(run.cutNum+2)*(1-eff.tollReduce)))+'</span></div>';
+    sp+='<div class="row"><span class="i">💀</span><span>Tolls ahead: <b>'+fmt(tollAmount(run.cutNum,eff))+'</b>, then ~'+fmt(tollAmount(run.cutNum+1,eff))+', ~'+fmt(tollAmount(run.cutNum+2,eff))+'</span></div>';
+    const tax=Math.round(tollTax(run.cutNum,run.cash)*(1-eff.tollReduce));
+    if(tax>0) sp+='<div class="row"><span class="i">🩸</span><span><b style="color:#ff5b6e">'+fmt(tax)+'</b> of that Toll is the Reaper\'s share of your hoard ('+Math.round(Math.min(30,3.5*run.cutNum))+'% above '+fmt(TOLL_SAFE)+') — wealth is not safety.</span></div>';
     if(run.cash<0) sp+='<div class="row"><span class="i">🩸</span><span><b style="color:#ff5b6e">You are '+fmt(Math.abs(run.cash))+' in debt.</b> The House lends down to −(next Toll). Only the Toll can kill you.</span></div>';
+    const dsp=desperation(), und=underdog();
+    if(dsp>0) sp+='<div class="row"><span class="i">🔥</span><span><b style="color:#ff9c54">Desperation '+Math.round(dsp*100)+'%</b> — the lower your cash, the luckier the reels (payouts, wilds, gold, moons above)</span></div>';
+    if(und>0) sp+='<div class="row"><span class="i">⚔️</span><span><b style="color:#5bc9d8">Underdog '+Math.round(und*100)+'%</b> — you are behind, so the dark favours you</span></div>';
     if(run.streak>0) sp+='<div class="row"><span class="i">🔥</span><span>Streak ×'+streakMultOf(run.streak,eff).toFixed(2)+' applies to line wins</span></div>';
   }
   $('ptSpec').innerHTML=sp;
@@ -1704,6 +1979,14 @@ function renderOpp(){
     h+='<div class="acard r'+c.r+'" data-tipcard="'+id+'">'+c.i+'</div>';
   }
   $('oppCards').innerHTML=h||'<span class="none dim" style="font-size:11px">nothing yet</span>';
+  const lead=$('oppLead');
+  if(run&&!run.over&&typeof opp.cash==='number'){
+    const diff=run.cash-opp.cash;
+    const t=Math.max(1,tollBase(run.cutNum));
+    if(Math.abs(diff)<t*0.25){lead.className='even';lead.textContent='⚖️ Neck and neck';}
+    else if(diff>0){lead.className='ahead';lead.textContent='▲ You lead by '+fmt(diff);}
+    else{lead.className='behind';lead.textContent='▼ Behind by '+fmt(-diff);}
+  }else lead.textContent='';
   $('oppFeed').innerHTML=opp.feed.map(f=>'<div class="'+(f.cls||'')+'">'+f.msg+'</div>').join('');
 }
 
@@ -1727,6 +2010,7 @@ function applyHex(id){
   const hx=c.hx, who=opp?opp.name:'Opponent';
   sHex();
   oppFeed('☠️ hexed you: '+c.n,'hexline');
+  addGrudge(35);
   switch(hx.type){
     case 'cash':
       run.cash=Math.max(0,run.cash-hx.amt);
@@ -1851,8 +2135,8 @@ function onDuelMsg(m){
       if(g!==wasWaiting){
         wasWaiting=g;
         if(!g&&run&&!run.over){toast('⚔️ '+opp.name+' paid their Toll — spin on','good');sMoon();}
-        if(run&&!run.over) renderGame();
       }
+      if(run&&!run.over) renderGame(); /* opponent cash drives Underdog + lead */
       break;}
     case 'played':{
       if(!opp) opp=freshOpp();
