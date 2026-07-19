@@ -69,8 +69,8 @@ input{font-family:inherit}
 .rpanel{width:330px;flex:0 0 330px;display:flex;flex-direction:column;gap:12px}
 @media (max-width:1330px){.gwrap{flex-wrap:wrap}.lpanel{order:2}.ccol{order:1}.rpanel{order:3}}
 /* ============ HUD ============ */
-.hud{display:grid;grid-template-columns:1.2fr 1fr 1.2fr;gap:8px;margin-bottom:10px}
-.hud.duel{grid-template-columns:.85fr 1.15fr 1fr 1.2fr}
+.hud{display:grid;grid-template-columns:1.15fr .7fr .9fr 1.15fr;gap:7px;margin-bottom:10px}
+.hud.duel{grid-template-columns:.7fr 1fr .65fr .8fr 1.05fr}
 .hud .panel{padding:8px 6px;text-align:center}
 .hud .v{font-size:20px;font-weight:800}
 .hud .k{font-size:10px;color:#8a7a80;text-transform:uppercase;letter-spacing:1px}
@@ -216,6 +216,42 @@ input{font-family:inherit}
 #oppCards .acard{width:30px;height:30px;font-size:15px;border-radius:6px}
 #oppFeed{margin-top:8px;font-size:11.5px;color:#8a7a80;line-height:1.6;min-height:34px;border-top:1px solid #2a161e;padding-top:6px}
 #oppFeed .hexline{color:#ff5b6e;font-weight:700}
+/* market: wide rows instead of one long column */
+#shopPacks,#shopSingles{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:8px}
+#shopAltar{display:grid;grid-template-columns:repeat(auto-fit,minmax(184px,1fr));gap:7px}
+.atile{
+  background:#1a0e13;border:1px solid #2a161e;border-radius:10px;padding:9px 10px;cursor:pointer;
+  display:flex;flex-direction:column;gap:3px;transition:border-color .12s,transform .08s,background .12s;
+}
+.atile:hover{border-color:#7a3242;transform:translateY(-2px)}
+.atile.owned{border-color:#4a2a34;background:#20101a}
+.atile.poor{opacity:.45;cursor:default}
+.atile.poor:hover{transform:none;border-color:#2a161e}
+.atile .ah{display:flex;align-items:center;gap:6px}
+.atile .ai{font-size:19px;line-height:1}
+.atile .an{font-size:12.5px;font-weight:800;color:#e8e0d0;flex:1;line-height:1.15}
+.atile .an .mk{font-size:10px}
+.atile .aown{font-size:11px;font-weight:900;color:#6fd784;background:#12281a;border:1px solid #2e6b41;border-radius:6px;padding:0 5px}
+.atile .ad{font-size:11px;color:#8a7a80;line-height:1.3}
+.atile .anow{font-size:11px;font-weight:800;color:#6fd784}
+.atile .anow.dim{color:#4a3a40;font-weight:400}
+.atile .acost{font-size:13px;font-weight:900;color:#ff5b6e;margin-top:2px}
+/* marked symbols */
+.ptrow.marked{background:rgba(255,59,82,.09);border-radius:7px}
+.ptrow .mkdot{font-size:9px;margin-left:1px;vertical-align:top}
+/* boss damage feedback */
+.bbar{position:relative}
+.bghost{position:absolute;left:0;top:0;height:100%;background:#ffd76b;opacity:.35;border-radius:5px;transition:width .55s ease-out .18s}
+.bfill{position:relative;z-index:1}
+.bdmg{display:flex;justify-content:space-between;font-size:11px;color:#8a7a80;margin-top:5px;font-variant-numeric:tabular-nums}
+.bdmg b{color:#ffd76b}
+#bossHitFx{position:relative;height:0}
+.bhit{
+  position:absolute;right:6px;top:-30px;font-weight:900;font-size:16px;color:#ffd76b;
+  text-shadow:0 0 10px rgba(255,215,107,.7),0 2px 3px #000;animation:bhitUp 1s ease-out forwards;white-space:nowrap;
+}
+.bhit.theirs{color:#7ea8ff;text-shadow:0 0 10px rgba(126,168,255,.7),0 2px 3px #000;right:auto;left:6px}
+@keyframes bhitUp{0%{opacity:0;transform:translateY(6px)}15%{opacity:1}100%{opacity:0;transform:translateY(-22px)}}
 /* autospin + turbo */
 .autocol{display:flex;flex-direction:column;gap:5px;justify-content:center;align-items:stretch}
 .autocol .lbl{font-size:10px;color:#8a7a80;text-align:center;text-transform:uppercase;letter-spacing:1px}
@@ -289,10 +325,8 @@ input{font-family:inherit}
 .bstrip .bnums b{color:#d8cfc0}
 .bstrip .bnums .ghoul{color:#6fd784}
 /* keep the paytable readable while shopping/drafting on wide screens */
-@media (min-width:1330px){
-  #ovShop,#ovPack{justify-content:flex-start;padding-left:404px}
-  #ovShop,#ovPack{backdrop-filter:none;background:rgba(4,2,4,.55)}
-}
+#ovShop .ovbox{max-width:1180px}
+#ovPack .ovbox{max-width:760px}
 /* ambient atmosphere layer */
 #fx{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 #fx.off{display:none}
@@ -422,6 +456,9 @@ input{font-family:inherit}
 #oppLead.behind{background:#2c0f16;color:#ff6b80;border:1px solid #7a2333}
 #oppLead.even{background:#1a0e13;color:#8a7a80;border:1px solid #2a161e}
 #oppLead:empty{display:none}
+#oppMarks{margin-top:8px;font-size:12px;color:#d8cfc0}
+#oppMarks:empty{display:none}
+#oppMarks b{color:#ff5b6e}
 /* debuff row */
 #debuffRow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .debuff{
@@ -596,12 +633,15 @@ input{font-family:inherit}
       <div class="hud" id="hudRow">
         <div class="panel" id="hpBox" style="display:none"><div class="v" id="hpV">♥♥♥♥♥</div><div class="k">Your Blood</div></div>
         <div class="panel"><div class="v blood" id="cashV">$0</div><div class="k" id="cashK">Cash</div></div>
+        <div class="panel"><div class="v blood" id="bloodV">0</div><div class="k">🩸 Blood</div></div>
         <div class="panel"><div class="v" style="color:#ffae2e" id="potV">$0</div><div class="k">🔥 Hellpot</div></div>
         <div class="panel" id="tollBox"><div class="v bone" id="tollV">$0</div><div class="k" id="tollK">Reaper's Toll in 10</div></div>
       </div>
       <div class="panel bosspanel" id="bossPanel" style="display:none">
         <div class="bhead"><span class="bic" id="bossIc">⚰️</span><span class="bnm" id="bossName">—</span><span class="bsp" id="bossSpins"></span></div>
-        <div class="bbar"><div class="bfill" id="bossFill"></div></div>
+        <div class="bbar"><div class="bghost" id="bossGhost"></div><div class="bfill" id="bossFill"></div></div>
+        <div id="bossHitFx"></div>
+        <div class="bdmg"><span id="bossDmgMine">you 0</span><span id="bossDmgTheirs">partner 0</span></div>
         <div class="bnums"><span id="bossHp">—</span><span id="bossDmgHint" class="dim"></span></div>
       </div>
       <div class="panel scypanel" id="scyPanel" style="display:none">
@@ -674,6 +714,7 @@ input{font-family:inherit}
           <div class="lbl">Cards they played</div>
           <div id="oppCards"><span class="none dim" style="font-size:11px">nothing yet</span></div>
         </div>
+        <div id="oppMarks"></div>
         <div id="oppLead"></div>
         <div id="oppFeed"></div>
         <div id="sendRow">
@@ -823,6 +864,7 @@ input{font-family:inherit}
     <div id="actNote"></div>
     <div id="actBtns">
       <button class="btn bld" id="actPlay">Play</button>
+      <button class="btn" id="actGift" style="display:none">🤝 Give</button>
       <button class="btn" id="actSell">Sell</button>
       <button class="btn" id="actClose">Close</button>
     </div>
@@ -852,6 +894,8 @@ input{font-family:inherit}
       <li><b>In duels, mercy exists.</b> Your opponent's panel has <b>💸 Send $50</b> and you have <b>🙏 Beg</b> — a rich rival can bail you out of debt to keep the duel going.</li>
       <li><b>The Night Market.</b> After each Toll, buy <b>card drafts</b> — you are shown several cards and <b>choose which to keep</b>, so you can build toward what you already have. Cards go to your <b>storage</b> — play them when YOU choose:
         <span class="kchip relic">Relic</span> <b>PERMANENT</b> once played · <span class="kchip charm">Charm</span> <b>ONE USE</b>, temporary boost · <span class="kchip hex">Hex</span> <b>ONE USE</b>, strikes your duel opponent. Playing a duplicate Relic upgrades it, <b>up to Lv5</b>. Unwanted cards sell for cash.</li>
+      <li><b>🩸 Blood &amp; the Altar.</b> A few symbols are <b>🔻 marked</b> each run (shown in the paytable). Only a winning <b>line</b> of a marked symbol bleeds <b>Blood</b> — the Altar's only currency, so it rewards committing to a symbol rather than betting big. One mark moves at every Toll. Altar offerings are infinite and climb in price; each tile shows what you own and what it currently totals, including direct <b>reel weight</b> buys.</li>
+      <li><b>🤝 Helping each other (co-op).</b> Give cards straight to your partner from any card's popover, send them cash, and watch their panel: their marks, their Blood, their reels, every card they play and every blow they land on the boss.</li>
       <li><b>Playing faster.</b> <b>AUTO</b> spins for you (10 / 50 / ∞) and <b>pauses itself</b> for the market, a Rite or a duel checkpoint, then carries on once you are done. <b>⚡</b> is turbo reels. Keys: <b>Space</b> spin · <b>A</b> autospin · <b>T</b> turbo · <b>1–8</b> bet · <b>Esc</b> close / stop.</li>
       <li><b>Trials.</b> Long-term goals that persist across every run and pay Souls once — check them from the menu for something to chase after the basics stop scaring you.</li>
       <li><b>👁️ The Eye</b> is wild — it becomes anything. <b>🌕 Moons charge the Blood Moon meter</b> (watch the phase next to your streak): every Moon on screen pushes it up, and at full you get free spins with wins ×2 and <b>your bet locked</b> — then the meter empties and starts again. <b>🪙 Cursed Gold</b> pays instantly. <b>🕸️ Cobwebs</b> pay nothing.</li>
@@ -892,7 +936,7 @@ input{font-family:inherit}
 <div id="jpFlash"><div class="t">🔥 666 🔥<br><span id="jpAmt"></span></div></div>
 <div id="toasts"></div>
 <div id="tip"></div>
-<div class="ver">DEADSPIN v2.8.0 · spinfall</div>
+<div class="ver">DEADSPIN v2.9.0 · spinfall</div>
 
 <script>
 'use strict';
@@ -1004,6 +1048,10 @@ const CARDS=[
 {id:'iron_will',n:'Iron Will',i:'🛡️',r:2,kind:'charm',dur:0,d:()=>"Your next Reaper's Toll is 40% smaller",f:'Death respects stubbornness.',instant:'tollDown'},
 {id:'sixth_sense',n:'Sixth Sense',i:'🎱',r:3,kind:'charm',dur:5,d:()=>'For 5 spins: Sixes appear far more often (+3)',f:'It always says 6.',ceff:{sixW:3}},
 {id:'ghost_walk',n:'Ghost Walk',i:'🌫️',r:4,kind:'charm',dur:0,d:()=>"Skip your next Reaper's Toll entirely",f:'He cannot collect what he cannot see.',instant:'tollSkip'},
+/* ---- RELICS: blood ---- */
+{id:'bloodletter',n:'Bloodletter',i:'🩸',r:1,kind:'relic',mx:5,d:l=>`Marked symbols bleed +${Math.round(30*l)}% Blood`,f:'A clean cut wastes nothing.',eff:l=>({bloodGain:.30*l})},
+{id:'crimson_mark',n:'Crimson Mark',i:'🔻',r:2,kind:'relic',mx:3,d:l=>`+${l} marked symbol${l>1?'s':''} this run`,f:'It chooses. You obey.',eff:l=>({marks:l})},
+{id:'hemophage',n:'Hemophage',i:'🦟',r:3,kind:'relic',mx:5,d:l=>`Every winning line bleeds ${(0.2*l).toFixed(1)} Blood, marked or not`,f:'It is not fussy.',eff:l=>({bloodAny:.2*l})},
 /* ---- HEXES (duel only, consumed on play) ---- */
 /* Hexes are PERCENTAGE based so they still bite in a million-dollar endgame.
    Flat amounts stopped mattering the moment bets passed $250. */
@@ -1078,22 +1126,47 @@ const PACKS=[
 ];
 const SINGLE_ODDS=[32,30,21,12,5];
 
+/* ============ [DATA] BLOOD ============ */
+/* A second currency that cash cannot buy. Each run marks a few symbols; you
+   only bleed Blood when a WINNING LINE is made of a marked symbol. So Blood
+   rewards committing to a symbol rather than spinning at random — and in co-op
+   two hunters can deliberately chase different marks and pool the result. */
+const BLOOD_PER=6;        /* Blood for a 3-line of the commonest symbol */
+const MARKS_BASE=3;       /* marked symbols at the start of a run */
+/* Rare symbols land lines far less often, so they bleed proportionally more.
+   Without this, a run that marked 6/skull/ghost earned ~9x less Blood than one
+   that marked rat/bat/spider — the same build, ruined by the draw. */
+function bloodValue(sym){
+  const w=SYM[sym]?SYM[sym].w:13;
+  return Math.max(1,Math.round(BLOOD_PER*Math.pow(13/w,1.9)));
+}
+function bloodFor(len,sym){return Math.max(1,len-2)*bloodValue(sym);}
+
 /* ============ [DATA] THE ALTAR ============ */
 /* An INFINITE, geometrically-priced money sink at every Night Market. This is
    the endgame: once cards run dry, cash still buys power, and the price climbs
    forever so no pile is ever "enough". Every symbol family has an offering, so
    no single build is the only way to scale. */
+/* The Altar is bought with BLOOD, never cash — so it rewards how you spin, not
+   how much you bet. Infinitely repeatable with a climbing price. `wt` entries
+   are reel-weight buys, which is the most direct way to steer your own build. */
 const ALTAR=[
-  {id:'alt_pay', n:'Offer Blood',    i:'🩸',d:'+8% all line payouts',        base:200,mult:1.72,eff:{payAll:.08}},
-  {id:'alt_eye', n:'Feed the Eye',   i:'👁️',d:'+0.6 Eye (wild) weight',      base:240,mult:1.75,eff:{wildW:.6}},
-  {id:'alt_moon',n:'Moonblood',      i:'🌕',d:'Blood Moon charges 14% faster',base:210,mult:1.70,eff:{moonFill:.14}},
-  {id:'alt_pot', n:'Stoke the Hellpot',i:'🔥',d:'Hellpot grows +10% of bets', base:180,mult:1.66,eff:{potPct:.10}},
-  {id:'alt_web', n:'Sweep the Webs', i:'🧹',d:'−1.2 Cobweb weight',          base:170,mult:1.70,eff:{webW:-1.2}},
-  {id:'alt_six', n:'Court the Six',  i:'6', d:'+0.35 Six weight',            base:260,mult:1.78,eff:{sixW:.35}},
-  {id:'alt_streak',n:'Whet the Fang',i:'🦷',d:'Hot streak +4%/win, cap +30%', base:190,mult:1.68,eff:{streakStep:.04,streakCap:.30}},
+  {id:'alt_pay',  n:'Offer Blood',      i:'🩸',d:'+7% all line payouts',          base:5, mult:1.42,eff:{payAll:.07}},
+  {id:'alt_bleed',n:'Deeper Cuts',      i:'🗡️',d:'+25% Blood from marked lines',  base:4, mult:1.40,eff:{bloodGain:.25}},
+  {id:'alt_eye',  n:'Feed the Eye',     i:'👁️',d:'+0.5 Eye (wild) weight',        base:6, mult:1.46,eff:{wildW:.5}},
+  {id:'alt_web',  n:'Sweep the Webs',   i:'🧹',d:'−1.0 Cobweb weight',            base:5, mult:1.44,eff:{webW:-1.0}},
+  {id:'alt_moon', n:'Moonblood',        i:'🌕',d:'Blood Moon charges 12% faster', base:5, mult:1.42,eff:{moonFill:.12}},
+  {id:'alt_pot',  n:'Stoke the Hellpot',i:'🔥',d:'Hellpot grows +10% of bets',    base:4, mult:1.40,eff:{potPct:.10}},
+  {id:'alt_six',  n:'Court the Six',    i:'6', d:'+0.30 Six weight',              base:8, mult:1.50,eff:{sixW:.30}},
+  {id:'alt_streak',n:'Whet the Fang',   i:'🦷',d:'Hot streak +4%/win, cap +30%',  base:5, mult:1.42,eff:{streakStep:.04,streakCap:.30}},
+  {id:'alt_gold', n:'Gild the Reels',   i:'🪙',d:'+0.8 Cursed Gold weight',       base:4, mult:1.40,eff:{goldW:.8}},
+  {id:'alt_toll', n:'Bribe the Reaper', i:'📜',d:"Reaper's Tolls −4%",            base:7, mult:1.48,eff:{tollReduce:.04}},
 ];
 const ALTAR_BY_ID={}; ALTAR.forEach(a=>ALTAR_BY_ID[a.id]=a);
-function altarCost(a,owned){return Math.round(a.base*Math.pow(a.mult,owned||0));}
+function altarCost(a,owned){return Math.max(1,Math.round(a.base*Math.pow(a.mult,owned||0)));}
+/* per-symbol weight buys, so any archetype can steer its own reels */
+const ALTAR_SYMS=['rat','bat','spider','candle','coffin','ghost','skull'];
+function altarSymCost(owned){return Math.max(1,Math.round(4*Math.pow(1.44,owned||0)));}
 
 /* ============ [DATA] CO-OP: THE HUNT ============ */
 /* Two players, own reels, own Tolls — but a shared quarry. Scythes 🗡️ land on
@@ -1207,6 +1280,9 @@ function loadAll(){
             if(run.scythes===undefined) run.scythes=0;
             if(run.bossNum===undefined) run.bossNum=1;
             if(run.boss===undefined) run.boss=null;
+            if(!run.altarSym) run.altarSym={};
+            if(run.blood===undefined) run.blood=0;
+            if(!run.marks||!run.marks.length) run.marks=rollMarks(MARKS_BASE);
           }
         }else{
           /* v1 Spinfall save: keep the currency + lifetime stats, new card world */
@@ -1228,7 +1304,7 @@ function saveAll(){
 /* ============ [EFFECTS] ============ */
 function baseEff(){return {pay:{},symW:{},payAll:0,winMult:0,wildW:0,moonW:0,sixW:0,webW:0,goldW:0,coinVal:0,
   betRefund:0,packDisc:0,streakStep:0,streakCap:0,interest:0,interestCap:0,tollReduce:0,
-  moonSpins:0,moonFill:0,wildCol:0,potPct:0,drip:0,sixPair:0,ghoul:0,slots:0,
+  moonSpins:0,moonFill:0,wildCol:0,potPct:0,drip:0,sixPair:0,ghoul:0,slots:0,bloodGain:0,bloodAny:0,marks:0,
   blackout:0,freezeReel:0,moonBlock:0};}
 function mergeEff(t,s){
   for(const k in s){
@@ -1276,6 +1352,10 @@ function EFF(){
       const a=ALTAR_BY_ID[id]; const n=run.altar[id];
       if(a&&n) for(let k=0;k<n;k++) mergeEff(e,a.eff);
     }
+    for(const s in (run.altarSym||{})){
+      const n=run.altarSym[s];
+      if(n) mergeEff(e,{symW:{[s]:0.8*n}});
+    }
     for(const id of (run.rites||[])){const r=RITE_BY_ID[id]; if(r&&r.eff) mergeEff(e,r.eff);}
     for(const id in run.relics){const c=CARD_BY_ID[id]; if(c&&c.eff) mergeEff(e,c.eff(run.relics[id]));}
     for(const ch of run.charms){const c=CARD_BY_ID[ch.id]; if(c&&c.ceff) mergeEff(e,c.ceff);}
@@ -1294,6 +1374,28 @@ function EFF_SLOTS(){
 }
 
 /* ============ [ENGINE] pure spin functions ============ */
+/* ============ [BLOOD] marked symbols ============ */
+/* A run marks a handful of paying symbols. Only a winning LINE of a marked
+   symbol bleeds Blood, so Blood is a reward for committing to a symbol rather
+   than for spinning a lot — and in co-op the two of you get different marks,
+   which is the whole reason to talk to each other about builds. */
+function rollMarks(n){
+  const pool=PAYSYMS.slice();
+  const out=[];
+  while(out.length<n&&pool.length) out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+  return out;
+}
+function activeMarks(eff){
+  if(!run) return [];
+  const extra=Math.max(0,Math.round((eff||EFF()).marks||0));
+  if(!extra) return run.marks||[];
+  const have=(run.marks||[]).slice();
+  /* extra marks are deterministic for the run: walk PAYSYMS in order */
+  for(const s of PAYSYMS){ if(have.length>=(run.marks||[]).length+extra) break; if(!have.includes(s)) have.push(s); }
+  return have;
+}
+function isMarked(sym,eff){return activeMarks(eff).includes(sym);}
+
 /* co-op predicates: `duel` means "networked"; pvp means "fighting each other" */
 function isCoop(){return !!(run&&run.duel&&run.coop);}
 function isPvP(){return !!(run&&run.duel&&!run.coop);}
@@ -1369,10 +1471,13 @@ function evalSpin(grid,bet,eff,ctx){
   }
   /* Damage is the payout MULTIPLE (not the cash), so wounds come from your
      build rather than your bet — a focused symbol hits for what it is worth. */
-  res.dmg=0;
+  res.dmg=0; res.blood=0;
+  const marks=ctx.marks||[];
   for(const l of res.lines){
     if(l.pair||l.len<3) continue;   /* pairs are cash-only, never wounds */
     res.dmg+=SYM[l.sym].pay[Math.min(2,l.len-3)]*payMult(eff,l.sym)*DMG_K;
+    if(marks.indexOf(l.sym)>=0) res.blood+=bloodFor(l.len,l.sym)*(1+eff.bloodGain);
+    if(eff.bloodAny>0) res.blood+=eff.bloodAny;
   }
   if(eff.moonBlock>0) res.scatters=0;
   res.lineWin=res.lines.reduce((t,l)=>t+l.amt,0);
@@ -1409,7 +1514,7 @@ window.__simRTP=function(n,bet){
   const eff=baseEff(); let wagered=0,won=0,hits=0,scat=0,jack=0;
   for(let i=0;i<n;i++){
     const g=rollGrid(eff);
-    const r=evalSpin(g,bet,eff,{streakMult:1,free:false});
+    const r=evalSpin(g,bet,eff,{streakMult:1,free:false,marks:[]});
     wagered+=bet; won+=r.total;
     if(r.total>0)hits++;
     scat+=r.scatters;
@@ -1608,7 +1713,7 @@ function startRun(duel,coop){
   const startCash=200+(duel?0:25*((meta.up.bankroll)||0));
   run={cash:startCash,bet:10,spins:0,sinceCut:0,cutNum:1,pot:POT_SEED,streak:0,
     freeSpins:0,over:false,relics:{},relicOrder:[],charms:[],debuffs:[],storage:[],
-    tollMods:{mult:1,add:0,skip:0},shop:null,inShop:false,rites:[],grudge:0,moonCharge:0,pawned:0,roundReady:true,altar:{},hp:DUEL_HP,roundCash:{},coop:!!coop,scythes:0,bossNum:1,boss:null,bossKills:0,
+    tollMods:{mult:1,add:0,skip:0},shop:null,inShop:false,rites:[],grudge:0,moonCharge:0,pawned:0,roundReady:true,altar:{},altarSym:{},blood:0,marks:rollMarks(MARKS_BASE),bloodEarned:0,hp:DUEL_HP,roundCash:{},coop:!!coop,scythes:0,bossNum:1,boss:null,bossKills:0,
     peak:startCash,bigWin:0,jackpots:0,cutsPaid:0,newCards:0,usedWind:false,
     rerollsUsed:0,ghoulCt:0,duel:!!duel,played:[]};
   meta.stats.runs++;
@@ -1730,7 +1835,7 @@ function spin(){
   const betUsed=free?(run.freeBet||run.bet):run.bet;
   const streakMult=streakMultOf(run.streak,eff);
   const grid=rollGrid(eff);
-  const res=evalSpin(grid,betUsed,eff,{streakMult,free});
+  const res=evalSpin(grid,betUsed,eff,{streakMult,free,marks:activeMarks(eff)});
   res.betUsed=betUsed;
   if(run.duel) duelSend({t:'grid',g:grid,w:res.total>0});
   animateReels(grid,()=>applyResult(grid,res,free,eff));
@@ -1774,6 +1879,12 @@ function applyResult(grid,res,free,eff){
     }
     sLose();
   }
+  if(res.blood>0){
+    const b=res.blood;
+    run.blood=(run.blood||0)+b;
+    run.bloodEarned=(run.bloodEarned||0)+b;
+    addFloat('🩸 +'+(b<10?b.toFixed(1):Math.round(b)),'bad',slot++);
+  }
   if(eff.drip>0) run.cash+=eff.drip;
   if(eff.ghoul>0){
     run.ghoulCt=(run.ghoulCt||0)+1;
@@ -1816,6 +1927,7 @@ function applyResult(grid,res,free,eff){
       if(res.dmg>0){
         const dmg=Math.round(res.dmg);
         run.boss.hp-=dmg;
+        bossHit(dmg,false);
         addFloat('🗡️ '+Math.round(dmg).toLocaleString('en-US'),'big',slot++);
         duelSend({t:'dmg',n:run.boss.n,amt:dmg});
       }
@@ -1850,6 +1962,16 @@ function doToll(){
   if(run.tollMods.skip>0){
     run.tollMods={mult:1,add:0,skip:0};
     run.cutsPaid++; run.cutNum++; run.sinceCut=0;
+  /* the marks drift: one is replaced each Toll, so a build has to keep adapting */
+  if(run.marks&&run.marks.length){
+    const drop=Math.floor(Math.random()*run.marks.length);
+    const fresh=PAYSYMS.filter(s=>!run.marks.includes(s));
+    if(fresh.length){
+      const was=run.marks[drop];
+      run.marks[drop]=fresh[Math.floor(Math.random()*fresh.length)];
+      toast('🔻 The mark moves: '+SYM[was].e+' → '+SYM[run.marks[drop]].e);
+    }
+  }
     toast('🌫️ Ghost Walk — the Reaper passed you by','good');
     saveAll(); renderGame();
     if(run.duel) sendState();
@@ -1984,6 +2106,9 @@ function renderHunt(){
     spEl.classList.toggle('low',run.boss.spins<=5);
     const pctv=Math.max(0,Math.min(100,run.boss.hp/run.boss.max*100));
     $('bossFill').style.width=pctv+'%';
+    $('bossGhost').style.width=pctv+'%';
+    $('bossDmgMine').innerHTML='you <b>'+Math.round(run.boss.mine||0).toLocaleString('en-US')+'</b>';
+    $('bossDmgTheirs').innerHTML='partner <b>'+Math.round(run.boss.theirs||0).toLocaleString('en-US')+'</b>';
     $('bossHp').innerHTML='<b>'+Math.max(0,Math.round(run.boss.hp)).toLocaleString('en-US')+'</b> / '+run.boss.max.toLocaleString('en-US');
     const eff=EFF();
     const best=PAYSYMS.map(s=>({s,d:SYM[s].pay[0]*payMult(eff,s)*DMG_K}))
@@ -1998,11 +2123,21 @@ function renderHunt(){
     $('scyNext').textContent=bossOf(run.bossNum||1).name+' · '+bossMaxHp(run.bossNum||1).toLocaleString('en-US')+' HP';
   }
 }
+function bossHit(amt,theirs){
+  if(!run||!run.boss) return;
+  if(theirs) run.boss.theirs=(run.boss.theirs||0)+amt; else run.boss.mine=(run.boss.mine||0)+amt;
+  const fx=$('bossHitFx'); if(!fx) return;
+  const el=document.createElement('div');
+  el.className='bhit'+(theirs?' theirs':'');
+  el.textContent=(theirs?'partner ':'')+'−'+Math.round(amt).toLocaleString('en-US');
+  fx.appendChild(el);
+  setTimeout(()=>el.remove(),1000);
+}
 function summonBoss(silent){
   const n=run.bossNum||1;
   const b=bossOf(n);
   run.scythes=0;
-  run.boss={n,hp:bossMaxHp(n),max:bossMaxHp(n),spins:BOSS_SPINS,name:b.name,icon:b.icon};
+  run.boss={n,hp:bossMaxHp(n),max:bossMaxHp(n),spins:BOSS_SPINS,name:b.name,icon:b.icon,mine:0,theirs:0};
   if(!silent){
     toast('🗡️ '+b.icon+' <b>'+b.name+'</b> RISES — '+BOSS_SPINS+' spins to bring it down','hexed');
     sHex();
@@ -2152,10 +2287,12 @@ function addGrudge(n){
 function storageFree(){return storageCap()-run.storage.length;}
 function describeAltar(a,n){
   const k=Object.keys(a.eff)[0], v=a.eff[k]*n;
-  if(k==='payAll') return '+'+Math.round(v*100)+'% payouts';
-  if(k==='moonFill') return '+'+Math.round(v*100)+'% moon';
-  if(k==='potPct') return '+'+Math.round(v*100)+'% pot';
-  if(k==='streakStep') return '+'+Math.round(v*100)+'%/win';
+  if(k==='payAll')     return '+'+Math.round(v*100)+'% payouts';
+  if(k==='bloodGain')  return '+'+Math.round(v*100)+'% Blood';
+  if(k==='moonFill')   return '+'+Math.round(v*100)+'% moon charge';
+  if(k==='potPct')     return '+'+Math.round(v*100)+'% Hellpot';
+  if(k==='streakStep') return '+'+Math.round(v*100)+'%/win streak';
+  if(k==='tollReduce') return '−'+Math.round(v*100)+'% Tolls';
   return (v>0?'+':'')+v.toFixed(1)+' weight';
 }
 function rollShop(){
@@ -2219,26 +2356,56 @@ function renderShop(){
       +'<button class="buyb" data-single="'+i+'" '+((run.cash<sg.cost||noRoom)?'disabled':'')+'>'+(noRoom?'FULL':fmt(sg.cost))+'</button></div>';
   }
   $('shopSingles').innerHTML=h;
-  /* The Altar — infinite, geometrically priced. Late game, this is where the
-     money goes; every offering can be bought again at a steeper price. */
+  /* The Altar — paid in BLOOD, infinite, climbing price. Every tile states what
+     you already own and what it currently totals, so you can see the stack. */
+  const aeff=EFF();
   let ah='';
   for(const a of ALTAR){
     const owned=(run.altar&&run.altar[a.id])||0;
     const cost=altarCost(a,owned);
-    ah+='<div class="shoprow altar"><div class="ic">'+(a.id==='alt_six'?'<span class="s6">6</span>':a.i)+'</div>'
-      +'<div class="grow"><div class="nm">'+a.n+(owned?' <span class="ghoul" style="font-size:11px">×'+owned+'</span>':'')+'</div>'
-      +'<div class="ds">'+a.d+(owned?' <span class="dim">(now '+describeAltar(a,owned)+')</span>':'')+'</div></div>'
-      +'<button class="buyb" data-altar="'+a.id+'" '+(run.cash<cost?'disabled':'')+'>'+fmt(cost)+'</button></div>';
+    const afford=(run.blood||0)>=cost;
+    ah+='<div class="atile'+(owned?' owned':'')+(afford?'':' poor')+'" data-altar="'+a.id+'">'
+      +'<div class="ah"><span class="ai">'+(a.id==='alt_six'?'<span class="s6">6</span>':a.i)+'</span>'
+      +'<span class="an">'+a.n+'</span>'
+      +(owned?('<span class="aown">×'+owned+'</span>'):'')+'</div>'
+      +'<div class="ad">'+a.d+'</div>'
+      +(owned?('<div class="anow">now '+describeAltar(a,owned)+'</div>'):'<div class="anow dim">not bought yet</div>')
+      +'<div class="acost">🩸 '+cost+'</div></div>';
+  }
+  /* per-symbol reel weight, the most direct build steering there is */
+  for(const s of ALTAR_SYMS){
+    const owned=(run.altarSym&&run.altarSym[s])||0;
+    const cost=altarSymCost(owned);
+    const afford=(run.blood||0)>=cost;
+    const marked=isMarked(s,aeff);
+    ah+='<div class="atile wt'+(owned?' owned':'')+(afford?'':' poor')+'" data-altarsym="'+s+'">'
+      +'<div class="ah"><span class="ai">'+symHTML(s)+'</span>'
+      +'<span class="an">'+SYM[s].name+' weight'+(marked?' <span class="mk">🔻</span>':'')+'</span>'
+      +(owned?('<span class="aown">×'+owned+'</span>'):'')+'</div>'
+      +'<div class="ad">+0.8 spawn weight</div>'
+      +'<div class="anow'+(owned?'':' dim')+'">'+(owned?('now +'+(0.8*owned).toFixed(1)+' weight'):'not bought yet')+'</div>'
+      +'<div class="acost">🩸 '+cost+'</div></div>';
   }
   $('shopAltar').innerHTML=ah;
-  document.querySelectorAll('#shopAltar .buyb').forEach(b=>b.onclick=()=>{
-    const a=ALTAR_BY_ID[b.dataset.altar];
+  document.querySelectorAll('#shopAltar .atile[data-altar]').forEach(el=>el.onclick=()=>{
+    const a=ALTAR_BY_ID[el.dataset.altar];
     const owned=(run.altar&&run.altar[a.id])||0;
     const cost=altarCost(a,owned);
-    if(run.cash<cost) return;
-    run.cash-=cost;
+    if((run.blood||0)<cost){toast('Not enough Blood — win lines of a 🔻 marked symbol','bad');return;}
+    run.blood-=cost;
     run.altar[a.id]=owned+1;
-    sBuy(); toast(a.i+' '+a.n+' ×'+(owned+1),'good');
+    sBuy(); toast('🩸 '+a.i+' '+a.n+' ×'+(owned+1)+' — '+describeAltar(a,owned+1),'good');
+    renderShop(); renderGame(); saveAll();
+    if(run.duel) sendState();
+  });
+  document.querySelectorAll('#shopAltar .atile[data-altarsym]').forEach(el=>el.onclick=()=>{
+    const s=el.dataset.altarsym;
+    const owned=(run.altarSym&&run.altarSym[s])||0;
+    const cost=altarSymCost(owned);
+    if((run.blood||0)<cost){toast('Not enough Blood — win lines of a 🔻 marked symbol','bad');return;}
+    run.blood-=cost;
+    run.altarSym[s]=owned+1;
+    sBuy(); toast('🩸 '+SYM[s].e+' '+SYM[s].name+' weight +'+(0.8*(owned+1)).toFixed(1),'good');
     renderShop(); renderGame(); saveAll();
     if(run.duel) sendState();
   });
@@ -2408,6 +2575,12 @@ function openAct(idx){
   $('actPlay').disabled=!chk.ok;
   $('actNote').textContent=chk.ok?(c.kind==='relic'&&run.relics[id]?('Upgrades your active relic to Lv'+lv):''):chk.why;
   $('actSell').textContent='Sell '+fmt(RARS[c.r].sell);
+  const g=$('actGift');
+  if(isCoop()&&duelAlive()){
+    g.style.display='';
+    g.textContent='🤝 Give to '+(opp?opp.name:'partner');
+    g.disabled=false;
+  }else g.style.display='none';
   ovOpen('ovAct');
 }
 function canPlay(c){
@@ -2447,6 +2620,32 @@ function playCard(idx){
   if(run.inShop) renderShop();
   if(run.duel) sendState();
 }
+function giftCard(idx){
+  const id=run.storage[idx]; if(!id) return;
+  if(!isCoop()||!duelAlive()){toast('Nobody to give it to','bad');return;}
+  const c=CARD_BY_ID[id];
+  run.storage.splice(idx,1);
+  duelSend({t:'card',id});
+  toast('🤝 Gave '+c.i+' '+c.n+' to '+opp.name,'good');
+  oppFeed('🤝 you gave them '+c.i+' '+c.n);
+  sBuy(); saveAll(); renderGame();
+  if(run.inShop) renderShop();
+  sendState();
+}
+function receiveCard(id){
+  const c=CARD_BY_ID[id]; if(!c||!run||run.over) return;
+  if(run.storage.length>=storageCap()){
+    run.cash+=RARS[c.r].sell;
+    toast('🤝 '+(opp?opp.name:'Partner')+' sent '+c.i+' '+c.n+' — bag full, sold for '+fmt(RARS[c.r].sell),'bad');
+  }else{
+    run.storage.push(id);
+    meta.coll[id]=(meta.coll[id]||0)+1;
+    toast('🤝 '+(opp?opp.name:'Partner')+' sent you '+c.i+' '+c.n,'good');
+  }
+  oppFeed('🤝 sent you '+c.i+' '+c.n);
+  sCoin(); saveAll(); renderGame();
+  if(run.inShop) renderShop();
+}
 function sellCard(idx){
   const id=run.storage[idx]; if(!id) return;
   const c=CARD_BY_ID[id];
@@ -2474,6 +2673,7 @@ function renderGame(){
   if(!run) return;
   if(window.__nodraw) return; /* balance-sim hook: skip all DOM work */
   const eff=EFF();
+  $('bloodV').textContent=Math.floor(run.blood||0);
   $('cashV').textContent=fmtC(run.cash);
   $('cashK').textContent=run.cash<0?'⚠ IN DEBT':'Cash';
   $('hpBox').style.display=run.duel?'':'none';
@@ -2609,12 +2809,13 @@ function renderPaytable(eff){
   const bet=run?run.bet:10;
   $('ptBet').textContent='at $'+bet+' bet';
   let h='<div class="ptrow hdr"><div></div><div class="pv">×3</div><div class="pv">×4</div><div class="pv">×5</div><div class="pc">odds</div></div>';
+  const marksNow=activeMarks(eff);
   for(const s of PAYSYMS){
     const pm=payMult(eff,s), pb=payMult(base,s);
     const ch=(wt[s]/tot*100), chb=(wb[s]/totb*100);
     const cls=pm>pb+0.001?' up':(pm<pb-0.001?' dn':'');
     const ccls=ch>chb+0.05?' up':(ch<chb-0.05?' dn':'');
-    h+='<div class="ptrow"><div class="ic">'+symHTML(s)+'</div>';
+    h+='<div class="ptrow'+(marksNow.indexOf(s)>=0?' marked':'')+'"><div class="ic">'+symHTML(s)+(marksNow.indexOf(s)>=0?'<span class="mkdot">🔻</span>':'')+'</div>';
     for(let k=0;k<3;k++) h+='<div class="pv'+cls+'">'+fmt(SYM[s].pay[k]*bet*pm)+'</div>';
     h+='<div class="pc'+ccls+'">'+ch.toFixed(1)+'%</div></div>';
   }
@@ -2652,6 +2853,7 @@ function renderPaytable(eff){
   sp+='<div class="row"><span class="i">👁️</span><span>wild — becomes any symbol</span></div>';
   sp+='<div class="row"><span class="i">🪙</span><span>pays '+fmt(cv)+' instantly · 🕸️ pays nothing</span></div>';
   sp+='<div class="row"><span class="i">🔥</span><span><b>6·6·6</b> claims the Hellpot: <b style="color:#ffae2e">'+fmt(run?run.pot:POT_SEED)+'</b></span></div>';
+  sp+='<div class="row"><span class="i">🔻</span><span><b>Marked:</b> '+(marksNow.map(s=>symHTML(s)+'<b style="color:#ff5b6e">'+Math.round(bloodValue(s)*(1+eff.bloodGain))+'</b>').join(' ')||'none')+' — only these bleed <b style="color:#ff5b6e">Blood</b> on a winning line (Altar currency)</span></div>';
   if(run){
     sp+='<div class="row"><span class="i">💀</span><span>Tolls ahead: <b>'+fmt(tollAmount(run.cutNum,eff))+'</b>, then ~'+fmt(tollAmount(run.cutNum+1,eff))+', ~'+fmt(tollAmount(run.cutNum+2,eff))+'</span></div>';
     sp+='<div class="row"><span class="i">📈</span><span>Each Toll is <b>'+Math.round((TOLL_GROWTH-1)*100)+'% steeper</b> than the last, forever. It never looks at your cash — only how long you have lasted.</span></div>';
@@ -2816,7 +3018,8 @@ function sendState(){
   duelSend({t:'state',cash:Math.round(run.cash),spins:run.spins,
     tollIn:TOLL_EVERY-run.sinceCut,tollDue:tollAmount(run.cutNum,eff),
     streak:run.streak,free:run.freeSpins,alive:!run.over,
-    cutNum:run.cutNum,inShop:!!run.inShop,ready:!!run.roundReady});
+    cutNum:run.cutNum,inShop:!!run.inShop,ready:!!run.roundReady,
+    blood:Math.floor(run.blood||0),marks:activeMarks(),coop:!!run.coop});
 }
 function oppFeed(msg,cls){
   if(!opp)return;
@@ -2847,6 +3050,13 @@ function renderOpp(){
   else
     $('oppToll').textContent=opp.tollDue?fmt(opp.tollDue)+' in '+opp.tollIn:'—';
   $('oppStreak').textContent=(opp.streak||0)+(opp.free>0?' · 🌕'+opp.free:'');
+  const mk=$('oppMarks');
+  if(mk){
+    if(isCoop()&&opp.marks&&opp.marks.length)
+      mk.innerHTML='<span class="dim">their marks</span> '+opp.marks.map(s=>SYM[s]?symHTML(s):'').join(' ')
+        +' <span class="dim">· 🩸</span> <b>'+(opp.blood||0)+'</b>';
+    else mk.innerHTML='';
+  }
   let h='';
   for(const id of opp.played.slice(-14)){
     const c=CARD_BY_ID[id]; if(!c)continue;
@@ -3021,6 +3231,7 @@ function onDuelMsg(m){
       opp.cash=m.cash; opp.spins=m.spins; opp.tollIn=m.tollIn; opp.tollDue=m.tollDue;
       opp.streak=m.streak; opp.free=m.free;
       opp.cutNum=m.cutNum||1; opp.inShop=!!m.inShop; opp.ready=(m.ready!==false);
+      opp.blood=m.blood; opp.marks=m.marks||[];
       if(m.alive===false&&opp.alive){opp.alive=false;}
       renderOpp();
       const g=duelWaiting();
@@ -3067,6 +3278,9 @@ function onDuelMsg(m){
       }
       break;
     /* ---- shared quarry ---- */
+    case 'card':
+      if(isCoop()) receiveCard(m.id);
+      break;
     case 'scythe':
       if(isCoop()&&run&&!run.over&&!run.boss){
         run.scythes=(run.scythes||0)+(m.k||0);
@@ -3080,6 +3294,7 @@ function onDuelMsg(m){
     case 'dmg':
       if(isCoop()&&run&&!run.over&&run.boss&&run.boss.n===m.n){
         run.boss.hp-=(m.amt||0);
+        bossHit(m.amt||0,true);
         oppFeed('🗡️ they struck for '+Math.round(m.amt||0).toLocaleString('en-US'));
         if(run.boss.hp<=0) bossSlain(); else renderGame();
       }
@@ -3187,6 +3402,7 @@ function wire(){
   $('mFx').onclick=()=>{meta.fx=meta.fx?0:1;saveAll();buildFx();renderMenu();};
   $('actPlay').onclick=()=>{ovClose('ovAct');playCard(actIdx);};
   $('actSell').onclick=()=>{ovClose('ovAct');sellCard(actIdx);};
+  $('actGift').onclick=()=>{ovClose('ovAct');giftCard(actIdx);};
   $('actClose').onclick=()=>ovClose('ovAct');
   $('dNew').onclick=()=>startRun(false);
   $('dUp').onclick=()=>{renderUps();show('scrUp');};
