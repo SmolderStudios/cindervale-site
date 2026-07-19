@@ -811,6 +811,40 @@ body.flat #floor{display:none}
   background:radial-gradient(50% 60% at 50% 100%, rgba(224,60,90,.16), rgba(224,60,90,.05) 45%, rgba(0,0,0,0) 72%);
 }
 body.flat #lightpool{display:none}
+/* ============ ROOM MODE (WebGL) ============ */
+/* Opt-in and fully separable: a fullscreen canvas plus a thin HUD. When it is
+   on the flat board hides, but every overlay (market, Rites, drafts) still
+   renders on top exactly as before, so nothing had to be rebuilt in 3D. */
+#roomCanvas{position:fixed;inset:0;z-index:1;display:none;background:#0a0509}
+body.roomon #roomCanvas{display:block}
+body.roomon .gwrap{display:none}
+body.roomon #castle,body.roomon #floor,body.roomon #lightpool,body.roomon #fx,body.roomon #lightning{display:none}
+#roomUI{display:none}
+body.roomon #roomUI{display:block}
+#roomHud{
+  position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:30;
+  display:flex;align-items:center;gap:9px;padding:8px 14px;border-radius:12px;
+  background:rgba(12,6,10,.82);border:1px solid #3d222c;backdrop-filter:blur(6px);
+  font-size:13px;color:#d8cfc0;
+}
+#roomHud .rk{font-size:10px;color:#8a7a80;text-transform:uppercase;letter-spacing:1px}
+#roomHud b{font-weight:800;margin-right:6px}
+#roomHud .btn{margin-left:6px;padding:5px 10px;font-size:11px}
+#roomCross{
+  position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:30;
+  color:rgba(255,220,225,.55);font-size:19px;pointer-events:none;text-shadow:0 0 6px rgba(0,0,0,.8);
+}
+#roomHint{
+  display:none;position:fixed;left:50%;bottom:16vh;transform:translateX(-50%);z-index:30;
+  padding:9px 16px;border-radius:11px;background:rgba(12,6,10,.85);border:1px solid #7a3242;
+  color:#ffe4e8;font-size:14px;font-weight:700;pointer-events:none;
+  box-shadow:0 0 24px rgba(224,27,60,.25);
+}
+#roomLock{
+  position:fixed;left:50%;bottom:6vh;transform:translateX(-50%);z-index:30;
+  padding:8px 15px;border-radius:11px;background:rgba(12,6,10,.8);border:1px solid #3d222c;
+  color:#b0a396;font-size:12.5px;pointer-events:none;
+}
 /* ============ HELP TABS ============ */
 .helptabs{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 4px;border-bottom:1px solid #2a161e;padding-bottom:9px}
 .htab{
@@ -1062,6 +1096,20 @@ input[type=range].uiscale::-moz-range-thumb{
   <div class="layer fore" id="cFore"></div>
   <div class="haze"></div>
 </div>
+<canvas id="roomCanvas"></canvas>
+<div id="roomUI">
+  <div id="roomHud">
+    <span class="rk">Cash</span><b id="rCash">$0</b>
+    <span class="rk">Floor</span><b id="rFloor">1</b>
+    <span class="rk">Toll</span><b id="rToll">$0</b>
+    <span class="rk">in</span><b id="rIn">12</b>
+    <span class="rk">Bet</span><b id="rBet">$10</b>
+    <button class="btn sm" id="roomLeave">🚪 Leave</button>
+  </div>
+  <div id="roomCross">+</div>
+  <div id="roomHint">Press <b>E</b> to spin</div>
+  <div id="roomLock">Click to look around · <b>WASD</b> walk · <b>Esc</b> release</div>
+</div>
 <div id="floor"></div>
 <div id="lightpool"></div>
 <div id="lightning"></div>
@@ -1087,6 +1135,7 @@ input[type=range].uiscale::-moz-range-thumb{
       <button class="btn" id="mHelp">❔ &nbsp;How to Play</button>
       <button class="btn" id="mFx">🦇 &nbsp;Atmosphere: On</button>
       <button class="btn" id="m3d">🎰 &nbsp;3D Cabinet: On</button>
+      <button class="btn" id="mRoom">🚪 &nbsp;Room Mode: Off <span class="dim" style="font-size:11px">(experimental)</span></button>
       <div class="uirow">
         <span class="vi" id="uiReset" title="Reset to 100%">🔍</span>
         <span class="vl">UI size</span>
@@ -1432,6 +1481,7 @@ input[type=range].uiscale::-moz-range-thumb{
       <li><b>Hot streak.</b> Consecutive winning spins boost payouts. A dead spin resets it.</li>
       <li><b>Playing faster.</b> <b>AUTO</b> spins for you (10 / 50 / ∞) and <b>pauses itself</b> for the market, a Rite or a duel checkpoint, then carries on once you are done. <b>⚡</b> is turbo reels.</li>
       <li><b>Keys:</b> <b>Space</b> spin · <b>A</b> autospin · <b>T</b> turbo · <b>1–0</b> and <b>-</b> bet · <b>Esc</b> close / stop.</li>
+      <li><b>🚪 Room Mode (experimental).</b> Turn it on from the menu during a run and the game becomes a real 3D room you can walk around: <b>WASD</b> to move, mouse to look, <b>Shift</b> to run. The cabinet stands in the middle with working reel drums, and the paytable hangs on the wall. Walk up to the machine and press <b>E</b> to spin. <b>Esc</b> or the Leave button puts you back on the flat board. It downloads a 3D library the first time you switch it on — if that fails, the game simply stays flat.</li>
       <li><b>🎰 The cabinet.</b> The machine is a real 3D object — curved reel drums behind glass, a lit marquee, a floor under it. If you prefer the flat board, <b>3D Cabinet</b> on the menu turns it off in one click.</li>
       <li><b>Too big or too small?</b> There is a <b>UI size</b> slider on the menu — it scales the whole game, so you can fit it all on one screen or make it readable from the sofa.</li>
     </ul>
@@ -1535,7 +1585,7 @@ input[type=range].uiscale::-moz-range-thumb{
 </div></div>
 <div id="toasts"></div>
 <div id="tip"></div>
-<div class="ver">DEADSPIN v3.7.1</div>
+<div class="ver">DEADSPIN v3.8.0</div>
 
 <script>
 'use strict';
@@ -2199,7 +2249,7 @@ const DUEL_WS='wss://'+DUEL_HOST;
 /* ============ [STATE] ============ */
 var meta=null, run=null, anim=false;
 
-function freshMeta(){return {v:2,tokens:0,up:{},coll:{},snd:1,vol:0.7,uiScale:1,fx:1,d3:1,turbo:0,name:'',trials:{},
+function freshMeta(){return {v:2,tokens:0,up:{},coll:{},snd:1,vol:0.7,uiScale:1,fx:1,d3:1,room:0,turbo:0,name:'',trials:{},
   sigils:0,sig:{},deepest:0,descent:0,wins:0,
   stats:{runs:0,spins:0,jackpots:0,bestCash:0,bestSpins:0,bestCuts:0,totalWon:0,duelWins:0,duelLosses:0,
     moons:0,maxRelicLv:0,mostRites:0,debtTolls:0,soulsEarned:0,deadHands:0,escapes:0}};}
@@ -2221,6 +2271,7 @@ function loadAll(){
           if(meta.vol===undefined) meta.vol=meta.snd?0.7:0;
           if(meta.uiScale===undefined) meta.uiScale=1;
           if(meta.d3===undefined) meta.d3=1;
+          if(meta.room===undefined) meta.room=0;
           /* the Descent arrived after v3.4 — seed it for existing saves */
           if(meta.sigils===undefined) meta.sigils=0;
           if(!meta.sig) meta.sig={};
@@ -2880,7 +2931,7 @@ function show(scr){
   document.querySelectorAll('.scr').forEach(el=>el.classList.remove('on'));
   $(scr).classList.add('on');
 }
-function ovOpen(id){$(id).classList.add('on');}
+function ovOpen(id){ if(typeof Room!=='undefined'&&Room.active()) Room.release(); $(id).classList.add('on'); }
 function ovClose(id){$(id).classList.remove('on');}
 
 /* ============ [TOOLTIP] ============ */
@@ -4595,6 +4646,15 @@ function renderGame(){
   /* the lead/gap readout depends on OUR cash too, so refresh it on every render
      rather than only when an opponent message lands */
   if(run.duel&&opp) renderOpp();
+  renderRoomHud(eff,due,left);
+}
+function renderRoomHud(eff,due,left){
+  if(typeof Room==='undefined'||!Room.active()||!run) return;
+  $('rCash').textContent=fmtC(run.cash);
+  $('rFloor').textContent=run.cutNum+(run.duel?'':('/'+FINAL_FLOOR));
+  $('rToll').textContent=fmtC(due);
+  $('rIn').textContent=left;
+  $('rBet').textContent='$'+run.bet;
 }
 function renderStorage(){
   $('storagePanel').style.display=isCoop()?'none':'';
@@ -4721,6 +4781,11 @@ function stoppedDepth(grid,upto){
 }
 function animateReels(grid,done){
   anim=true; renderGame();
+  /* Room Mode drives real drums instead of the DOM board. Same grid, same
+     callback, so payout and Toll logic never learn which one ran. */
+  if(typeof Room!=='undefined'&&Room.active()&&!window.__fast){
+    if(Room.spin(grid,()=>{anim=false;done();renderGame();})) return;
+  }
   const cells=[]; for(let i=0;i<CELLS;i++)cells.push($('c'+i));
   cells.forEach(c=>{c.classList.remove('hit','stopb','tense');c.classList.add('spinning');});
   const mb=$('machineBox');
@@ -4806,6 +4871,7 @@ function renderMenu(){
   $('mResume').style.display=(run&&!run.over&&!run.duel)?'block':'none';
   $('mFx').textContent=meta.fx?'🦇  Atmosphere: On':'🌑  Atmosphere: Off';
   $('m3d').textContent=meta.d3?'🎰  3D Cabinet: On':'🎴  3D Cabinet: Off';
+  $('mRoom').innerHTML=(meta.room?'🚪  Room Mode: On':'🚪  Room Mode: Off')+' <span class="dim" style="font-size:11px">(experimental)</span>';
   renderVol();
 }
 /* ============ [UI SCALE] ============ */
@@ -4923,6 +4989,409 @@ function confirmBox(title,desc,cb){
   confCb=cb;
   ovOpen('ovConfirm');
 }
+
+/* =====================================================
+   [ROOM] DEADSPIN in three dimensions
+   -----------------------------------------------------
+   A real WebGL room you can walk around, with the cabinet standing in it and
+   the paytable hung on the wall. Deliberately built as a SEPARATE, OPT-IN
+   layer: it reads game state and drives the reels, but no existing system
+   knows it exists. If three.js fails to load, if WebGL is missing, or if
+   anything in here throws, the game silently stays exactly as it was.
+
+   three.js is fetched only when the player first turns Room Mode on, so the
+   2D game never pays for a library it is not using and never depends on a CDN
+   being reachable.
+   ===================================================== */
+var Room=(function(){
+  const CDN='https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js';
+  const N_FACES=12;            /* symbols around each reel drum */
+  const CELL=0.30;             /* face height/width in world units */
+  const REEL_GAP=0.335;
+  const EYE=1.62;              /* camera height */
+  const ROOM_W=13, ROOM_D=15, ROOM_H=4.6;
+  const MOVE=3.1, RUN=5.4;
+
+  let T=null, ok=false, loading=false, on=false, failed=false;
+  let scene,cam,rend,canvas,raf=0,last=0;
+  let reels=[],texCache={},payCanvas=null,payTex=null;
+  let cabinet=null,marquee=null,potLight=null;
+  let yaw=0,pitch=0,px=0,pz=4.2,vy=0;
+  const keys={};
+  let locked=false,nearMachine=false,spinHint=null;
+  let pendingStop=null;
+
+  /* ---------- symbol art -> texture ----------
+     The SVGs already exist and are the game's identity, so they are rasterised
+     rather than redrawn. Each gets a dark tile behind it so a reel face reads
+     as a physical plate. */
+  function symTexture(sym){
+    if(texCache[sym]) return texCache[sym];
+    const S=256;
+    const c=document.createElement('canvas'); c.width=c.height=S;
+    const x=c.getContext('2d');
+    const g=x.createLinearGradient(0,0,0,S);
+    g.addColorStop(0,'#1b1016'); g.addColorStop(1,'#0c060a');
+    x.fillStyle=g; x.fillRect(0,0,S,S);
+    x.strokeStyle='#2f1a24'; x.lineWidth=6; x.strokeRect(3,3,S-6,S-6);
+    const tex=new T.CanvasTexture(c);
+    tex.colorSpace=T.SRGBColorSpace||undefined;
+    /* Image() cannot rasterise an SVG without intrinsic dimensions */
+    /* Rasterising the SVG is best-effort. If Blob/objectURL/Image are missing or
+       throw, the face keeps its plain plate rather than taking the whole room
+       down with it — one texture is not worth losing the scene over. */
+    const markup=(SYMSVG[sym]||'').replace('<svg ','<svg width="256" height="256" ');
+    if(markup){
+      try{
+        const img=new Image();
+        const url=URL.createObjectURL(new Blob([markup],{type:'image/svg+xml'}));
+        img.onload=()=>{ try{x.drawImage(img,30,30,S-60,S-60); tex.needsUpdate=true;}catch(e){} try{URL.revokeObjectURL(url);}catch(e){} };
+        img.onerror=()=>{ try{URL.revokeObjectURL(url);}catch(e){} };
+        img.src=url;
+      }catch(e){
+        /* no blob support — label the plate so a reel is still readable */
+        try{ x.fillStyle='#8a7a80'; x.font='600 40px sans-serif'; x.textAlign='center';
+             x.fillText((SYM[sym]&&SYM[sym].name||sym).slice(0,7),S/2,S/2+14); tex.needsUpdate=true; }catch(e2){}
+      }
+    }
+    texCache[sym]=tex;
+    return tex;
+  }
+
+  /* ---------- the paytable, drawn onto the wall ---------- */
+  function drawPaytable(){
+    if(!payCanvas) return;
+    const W=1024,H=768,x=payCanvas.getContext('2d');
+    x.fillStyle='#120a10'; x.fillRect(0,0,W,H);
+    x.strokeStyle='#4a2a34'; x.lineWidth=10; x.strokeRect(5,5,W-10,H-10);
+    x.fillStyle='#e8e0d0'; x.font='700 44px Segoe UI, sans-serif'; x.textAlign='center';
+    x.fillText('PAYTABLE',W/2,64);
+    let eff,wt,tot=0;
+    try{ eff=EFF(); wt=weightTable(eff); for(const s of SYMLIST) tot+=wt[s]; }catch(e){ return; }
+    const bet=(typeof run!=='undefined'&&run)?run.bet:10;
+    x.font='600 26px Segoe UI, sans-serif'; x.textAlign='left';
+    x.fillStyle='#8a7a80';
+    x.fillText('at $'+bet+' a spin',60,104);
+    x.textAlign='right'; x.fillText('x3        x4        x5      odds',W-60,104);
+    let y=150;
+    for(const s of PAYSYMS){
+      const pm=payMult(eff,s,[]);
+      x.textAlign='left';
+      x.fillStyle='#d8cfc0'; x.font='700 30px Segoe UI, sans-serif';
+      x.fillText(SYM[s].name,150,y+8);
+      /* the symbol art itself */
+      const t=texCache[s];
+      if(t&&t.image){ try{x.drawImage(t.image,60,y-26,64,64);}catch(e){} }
+      x.textAlign='right'; x.font='600 26px Segoe UI, sans-serif';
+      x.fillStyle='#b0a396';
+      const cols=[W-330,W-190,W-60];
+      for(let k=0;k<3;k++) x.fillText(fmt(SYM[s].pay[k]*bet*pm),cols[k],y+8);
+      x.fillStyle='#6a5a60'; x.font='500 22px Segoe UI, sans-serif';
+      x.fillText((wt[s]/tot*100).toFixed(1)+'%',W-60,y+34);
+      y+=68;
+    }
+    x.textAlign='center'; x.fillStyle='#ffae2e'; x.font='700 30px Segoe UI, sans-serif';
+    try{ x.fillText('6 6 6  claims the Hellpot  '+fmtC(Math.max(run.pot,potFloor())),W/2,H-40); }catch(e){}
+    if(payTex) payTex.needsUpdate=true;
+  }
+
+  /* ---------- build the world ---------- */
+  function wall(w,h,color,x0,y0,z0,ry){
+    const m=new T.Mesh(new T.PlaneGeometry(w,h),
+      new T.MeshStandardMaterial({color:color,roughness:.95,metalness:.02}));
+    m.position.set(x0,y0,z0); if(ry) m.rotation.y=ry;
+    scene.add(m); return m;
+  }
+  function buildRoom(){
+    scene=new T.Scene();
+    scene.fog=new T.FogExp2(0x0a0509,0.055);
+    /* floor */
+    const fc=document.createElement('canvas'); fc.width=fc.height=512;
+    const fx=fc.getContext('2d');
+    fx.fillStyle='#150d12'; fx.fillRect(0,0,512,512);
+    fx.strokeStyle='#241620'; fx.lineWidth=6;
+    for(let i=0;i<=4;i++){ fx.beginPath();fx.moveTo(i*128,0);fx.lineTo(i*128,512);fx.stroke();
+                           fx.beginPath();fx.moveTo(0,i*128);fx.lineTo(512,i*128);fx.stroke(); }
+    const ft=new T.CanvasTexture(fc); ft.wrapS=ft.wrapT=T.RepeatWrapping; ft.repeat.set(6,7);
+    const floor=new T.Mesh(new T.PlaneGeometry(ROOM_W,ROOM_D),
+      new T.MeshStandardMaterial({map:ft,roughness:.9}));
+    floor.rotation.x=-Math.PI/2; scene.add(floor);
+    const ceil=new T.Mesh(new T.PlaneGeometry(ROOM_W,ROOM_D),
+      new T.MeshStandardMaterial({color:0x0a0509,roughness:1}));
+    ceil.rotation.x=Math.PI/2; ceil.position.y=ROOM_H; scene.add(ceil);
+    wall(ROOM_W,ROOM_H,0x1a1018,0,ROOM_H/2,-ROOM_D/2);
+    wall(ROOM_W,ROOM_H,0x160d15,0,ROOM_H/2,ROOM_D/2,Math.PI);
+    wall(ROOM_D,ROOM_H,0x180f16,-ROOM_W/2,ROOM_H/2,0,Math.PI/2);
+    wall(ROOM_D,ROOM_H,0x180f16,ROOM_W/2,ROOM_H/2,0,-Math.PI/2);
+    /* light */
+    scene.add(new T.AmbientLight(0x442028,0.55));
+    potLight=new T.PointLight(0xff4a5e,2.6,11,2);
+    potLight.position.set(0,2.5,-3.1); scene.add(potLight);
+    const warm=new T.PointLight(0xffb070,0.7,14,2);
+    warm.position.set(0,3.4,3); scene.add(warm);
+    /* the paytable, hung on the left wall */
+    payCanvas=document.createElement('canvas'); payCanvas.width=1024; payCanvas.height=768;
+    payTex=new T.CanvasTexture(payCanvas);
+    const board=new T.Mesh(new T.PlaneGeometry(3.0,2.25),
+      new T.MeshBasicMaterial({map:payTex}));
+    board.position.set(-ROOM_W/2+0.06,2.0,-1.4); board.rotation.y=Math.PI/2;
+    scene.add(board);
+    const boardLight=new T.PointLight(0xffd9a0,1.1,6,2);
+    boardLight.position.set(-ROOM_W/2+1.2,3.0,-1.4); scene.add(boardLight);
+    buildCabinet();
+    drawPaytable();
+  }
+  function buildCabinet(){
+    cabinet=new T.Group();
+    const dark=new T.MeshStandardMaterial({color:0x24141c,roughness:.55,metalness:.35});
+    const trim=new T.MeshStandardMaterial({color:0x5e2030,roughness:.4,metalness:.6});
+    const body=new T.Mesh(new T.BoxGeometry(2.1,1.55,0.95),dark);
+    body.position.y=1.05; cabinet.add(body);
+    const base=new T.Mesh(new T.BoxGeometry(2.25,0.55,1.05),dark);
+    base.position.y=0.27; cabinet.add(base);
+    const deck=new T.Mesh(new T.BoxGeometry(2.0,0.12,0.55),trim);
+    deck.position.set(0,0.86,0.52); deck.rotation.x=-0.32; cabinet.add(deck);
+    /* the marquee glows — it is the room's second light source */
+    const marMat=new T.MeshStandardMaterial({color:0x2a1119,emissive:0xe01b3c,emissiveIntensity:1.15,roughness:.4});
+    marquee=new T.Mesh(new T.BoxGeometry(2.2,0.42,0.30),marMat);
+    marquee.position.set(0,2.02,0.05); marquee.rotation.x=-0.16; cabinet.add(marquee);
+    const marLight=new T.PointLight(0xe01b3c,1.5,5,2);
+    marLight.position.set(0,2.1,0.7); cabinet.add(marLight);
+    /* the reel well, recessed into the body */
+    const well=new T.Mesh(new T.BoxGeometry(1.85,1.05,0.10),
+      new T.MeshStandardMaterial({color:0x050305,roughness:1}));
+    well.position.set(0,1.25,0.44); cabinet.add(well);
+    /* five drums */
+    const startX=-2*REEL_GAP;
+    for(let c=0;c<COLS;c++){
+      const g=new T.Group();
+      g.position.set(startX+c*REEL_GAP,1.25,0.52);
+      const R=(CELL*N_FACES)/(2*Math.PI);
+      const faces=[];
+      for(let i=0;i<N_FACES;i++){
+        const a=i*(2*Math.PI/N_FACES);
+        const p=new T.Mesh(new T.PlaneGeometry(CELL,CELL),
+          new T.MeshStandardMaterial({map:symTexture('web'),roughness:.7,emissive:0x120a10,emissiveIntensity:.5}));
+        p.position.set(0,R*Math.cos(a),R*Math.sin(a));
+        p.rotation.x=-a;
+        g.add(p); faces.push(p);
+      }
+      cabinet.add(g);
+      reels.push({group:g,faces,R,spin:0,speed:0,target:null,stopAt:0});
+    }
+    /* glass over the well */
+    const glass=new T.Mesh(new T.PlaneGeometry(1.85,1.05),
+      new T.MeshPhysicalMaterial({color:0xffffff,transparent:true,opacity:.06,roughness:.08,metalness:0,transmission:.6}));
+    glass.position.set(0,1.25,0.62); cabinet.add(glass);
+    cabinet.position.set(0,0,-3.2);
+    scene.add(cabinet);
+  }
+
+  /* ---------- reels ---------- */
+  function faceIndexAt(reel,rot){
+    /* which face is currently front-and-centre */
+    const step=2*Math.PI/N_FACES;
+    return ((Math.round(-rot/step)%N_FACES)+N_FACES)%N_FACES;
+  }
+  function paintReel(r,syms){
+    /* syms = [top,mid,bot] for the three faces that will be visible */
+    const step=2*Math.PI/N_FACES;
+    const mid=faceIndexAt(r,r.stopAt);
+    const top=(mid+1)%N_FACES, bot=(mid-1+N_FACES)%N_FACES;
+    r.faces[top].material.map=symTexture(syms[0]);
+    r.faces[mid].material.map=symTexture(syms[1]);
+    r.faces[bot].material.map=symTexture(syms[2]);
+    [top,mid,bot].forEach(i=>{r.faces[i].material.needsUpdate=true;});
+  }
+  function scatterReel(r){
+    for(const f of r.faces){
+      f.material.map=symTexture(SYMLIST[Math.floor(Math.random()*SYMLIST.length)]);
+      f.material.needsUpdate=true;
+    }
+  }
+  /* Drives the 3D drums from the same grid the 2D board uses. Resolves when the
+     last reel has settled, so the caller's payout logic is unchanged. */
+  function spinReels(grid,done){
+    const step=2*Math.PI/N_FACES;
+    const turbo=(typeof meta!=='undefined'&&meta.turbo);
+    reels.forEach((r,c)=>{
+      scatterReel(r);
+      r.speed=15+c*1.1;
+      r.target=[grid[c],grid[COLS+c],grid[2*COLS+c]];
+      /* land a whole number of faces away, later for each reel to the right */
+      const extra=N_FACES*(3+c)+Math.floor(Math.random()*N_FACES);
+      r.stopAt=r.spin-extra*step;
+      r.stopAt=Math.round(r.stopAt/step)*step;
+      r.stopTime=(turbo?260:520)+c*(turbo?110:230);
+      r.t=0; r.from=r.spin; r.settled=false;
+    });
+    pendingStop={done,started:performance.now(),n:0};
+  }
+  function tickReels(dt,now){
+    if(!pendingStop) return;
+    let allDone=true;
+    for(const r of reels){
+      if(r.settled) continue;
+      allDone=false;
+      r.t+=dt*1000;
+      const k=Math.min(1,r.t/r.stopTime);
+      /* ease out so the drum decelerates into its stop */
+      const e=1-Math.pow(1-k,3);
+      r.spin=r.from+(r.stopAt-r.from)*e;
+      r.group.rotation.x=r.spin;
+      if(k>=1){
+        r.spin=r.stopAt; r.group.rotation.x=r.spin;
+        paintReel(r,r.target);
+        r.settled=true;
+        try{sStop();}catch(e){}
+      }else if(Math.random()<0.35){ scatterReel(r); }
+    }
+    if(allDone&&pendingStop){
+      const d=pendingStop.done; pendingStop=null;
+      try{d&&d();}catch(e){}
+      drawPaytable();
+    }
+  }
+
+  /* ---------- controls ---------- */
+  function onKey(e,down){
+    if(!on) return;
+    const k=e.key.toLowerCase();
+    if(['w','a','s','d','shift',' '].includes(k)||k.startsWith('arrow')) keys[k]=down;
+    if(down&&k==='e'&&nearMachine) trySpin();
+  }
+  function trySpin(){
+    if(typeof spin!=='function') return;
+    if(typeof anim!=='undefined'&&anim) return;
+    spin();
+  }
+  function onMove(e){
+    if(!locked) return;
+    yaw-=e.movementX*0.0022;
+    pitch-=e.movementY*0.0022;
+    pitch=Math.max(-1.2,Math.min(1.2,pitch));
+  }
+  function lockNow(){ if(canvas&&canvas.requestPointerLock) canvas.requestPointerLock(); }
+  function onLockChange(){
+    locked=(document.pointerLockElement===canvas);
+    const hint=$('roomLock');
+    if(hint) hint.style.display=locked?'none':'';
+  }
+
+  /* ---------- loop ---------- */
+  function step(now){
+    raf=requestAnimationFrame(step);
+    const dt=Math.min(0.05,(now-last)/1000||0); last=now;
+    /* movement */
+    let fx=0,fz=0;
+    if(keys['w']||keys['arrowup'])fz+=1;
+    if(keys['s']||keys['arrowdown'])fz-=1;
+    if(keys['a']||keys['arrowleft'])fx-=1;
+    if(keys['d']||keys['arrowright'])fx+=1;
+    const sp=(keys['shift']?RUN:MOVE)*dt;
+    if(fx||fz){
+      const l=Math.hypot(fx,fz); fx/=l; fz/=l;
+      const nx=px+(Math.sin(yaw)*fz+Math.cos(yaw)*fx)*sp;
+      const nz=pz+(Math.cos(yaw)*fz-Math.sin(yaw)*fx)*sp;
+      /* walls */
+      const m=0.55;
+      let ax=Math.max(-ROOM_W/2+m,Math.min(ROOM_W/2-m,nx));
+      let az=Math.max(-ROOM_D/2+m,Math.min(ROOM_D/2-m,nz));
+      /* and the cabinet itself is solid */
+      if(Math.abs(ax)<1.5&&az<-2.2&&az>-4.4){
+        if(pz>=-2.2) az=Math.max(az,-2.2); else az=Math.min(az,-4.4);
+      }
+      px=ax; pz=az;
+    }
+    cam.position.set(px,EYE+Math.sin(now*0.004)*(fx||fz?0.018:0.004),pz);
+    cam.rotation.set(pitch,yaw,0,'YXZ');
+    /* am I at the machine? */
+    const d=Math.hypot(px-cabinet.position.x,pz-(cabinet.position.z+0.9));
+    const was=nearMachine;
+    nearMachine=d<2.0;
+    if(nearMachine!==was&&spinHint) spinHint.style.display=nearMachine?'':'none';
+    if(potLight){
+      let pulse=1;
+      try{ pulse=(run&&run.freeSpins>0)?1.9:1; }catch(e){}
+      potLight.intensity=2.4*pulse+Math.sin(now*0.003)*0.18;
+    }
+    if(marquee) marquee.material.emissiveIntensity=1.0+Math.sin(now*0.0026)*0.28;
+    tickReels(dt,now);
+    rend.render(scene,cam);
+  }
+
+  /* ---------- lifecycle ---------- */
+  function loadThree(cb){
+    if(window.THREE){ T=window.THREE; cb(true); return; }
+    if(loading) return;
+    loading=true;
+    const s=document.createElement('script');
+    s.src=CDN; s.async=true;
+    const t=setTimeout(()=>{ loading=false; cb(false); },12000);
+    s.onload=()=>{ clearTimeout(t); loading=false; T=window.THREE; cb(!!T); };
+    s.onerror=()=>{ clearTimeout(t); loading=false; cb(false); };
+    document.head.appendChild(s);
+  }
+  function build(){
+    canvas=$('roomCanvas');
+    rend=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
+    rend.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+    resize();
+    cam=new T.PerspectiveCamera(72,window.innerWidth/window.innerHeight,0.1,60);
+    buildRoom();
+    spinHint=$('roomHint');
+    document.addEventListener('pointerlockchange',onLockChange);
+    document.addEventListener('mousemove',onMove);
+    window.addEventListener('keydown',e=>onKey(e,true));
+    window.addEventListener('keyup',e=>onKey(e,false));
+    window.addEventListener('resize',resize);
+    canvas.addEventListener('click',()=>{ if(!locked) lockNow(); else if(nearMachine) trySpin(); });
+    ok=true;
+  }
+  function resize(){
+    if(!rend) return;
+    rend.setSize(window.innerWidth,window.innerHeight,false);
+    if(cam){ cam.aspect=window.innerWidth/window.innerHeight; cam.updateProjectionMatrix(); }
+  }
+  function enable(){
+    if(failed) return false;
+    if(!window.WebGLRenderingContext){ toast('This browser has no WebGL — Room Mode needs it','bad'); failed=true; return false; }
+    toast('🚪 Opening the room…');
+    loadThree(good=>{
+      if(!good){ failed=true; meta.room=0; saveAll(); renderMenu(); toast('Could not load the 3D library — staying flat','bad'); return; }
+      try{
+        if(!ok) build();
+        on=true;
+        document.body.classList.add('roomon');
+        last=performance.now();
+        if(!raf) raf=requestAnimationFrame(step);
+        drawPaytable();
+        toast('WASD to walk · mouse to look · E at the machine to spin · Esc to leave','good');
+      }catch(e){
+        failed=true; on=false; meta.room=0;
+        document.body.classList.remove('roomon');
+        console.warn('room failed',e);
+        toast('Room Mode failed to start — staying flat','bad');
+        saveAll(); renderMenu();
+      }
+    });
+    return true;
+  }
+  function disable(){
+    on=false;
+    document.body.classList.remove('roomon');
+    if(document.pointerLockElement===canvas&&document.exitPointerLock) document.exitPointerLock();
+    if(raf){cancelAnimationFrame(raf);raf=0;}
+  }
+  return {
+    active(){return on&&ok;},
+    enable, disable,
+    spin(grid,done){ if(!on||!ok) return false; spinReels(grid,done); return true; },
+    sync(){ if(on&&ok) drawPaytable(); },
+    release(){ if(locked&&document.exitPointerLock) document.exitPointerLock(); },
+    failed(){return failed;}
+  };
+})();
 
 /* ============ [DUEL: state] ============ */
 var ws=null, opp=null, duelActive=false, pendingCode='', wasWaiting=false;
@@ -5439,6 +5908,16 @@ function wire(){
   $('trialBack').onclick=()=>{renderMenu();show('scrMenu');};
   $('mFx').onclick=()=>{meta.fx=meta.fx?0:1;saveAll();buildFx();buildCastle();renderMenu();};
   $('m3d').onclick=()=>{meta.d3=meta.d3?0:1;saveAll();apply3D();renderMenu();sFlip();};
+  $('mRoom').onclick=()=>{
+    if(meta.room){ meta.room=0; Room.disable(); }
+    else{
+      if(!run||run.over){ toast('Start a run first — the room is where you play it','bad'); return; }
+      meta.room=1; Room.enable();
+      show('scrGame');
+    }
+    saveAll(); renderMenu(); sFlip();
+  };
+  $('roomLeave').onclick=()=>{ meta.room=0; Room.disable(); saveAll(); renderMenu(); show('scrGame'); };
   $('actPlay').onclick=()=>{ovClose('ovAct');playCard(actIdx);};
   $('actSell').onclick=()=>{ovClose('ovAct');sellCard(actIdx);};
   $('actGift').onclick=()=>{ovClose('ovAct');giftCard(actIdx);};
@@ -5526,6 +6005,9 @@ function wire(){
       /* only dismiss overlays that do not owe the player a decision */
       for(const id of ['ovConfirm','ovAct','ovCard','ovHelp']){
         if($(id).classList.contains('on')){ ovClose(id); e.preventDefault(); return; }
+      }
+      if(typeof Room!=='undefined'&&Room.active()&&document.pointerLockElement===null){
+        meta.room=0; Room.disable(); saveAll(); renderMenu(); e.preventDefault(); return;
       }
       if(autoLeft>0){ stopAuto(); toast('Autospin stopped'); e.preventDefault(); }
       return;
