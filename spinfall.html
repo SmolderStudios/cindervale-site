@@ -381,17 +381,17 @@ input{font-family:inherit}
     <!-- CENTER: machine -->
     <div class="ccol">
       <div class="hud">
-        <div class="panel"><div class="v blood" id="cashV">$0</div><div class="k">Cash</div></div>
+        <div class="panel"><div class="v blood" id="cashV">$0</div><div class="k" id="cashK">Cash</div></div>
         <div class="panel"><div class="v" style="color:#ffae2e" id="potV">$0</div><div class="k">🔥 Hellpot</div></div>
         <div class="panel" id="tollBox"><div class="v bone" id="tollV">$0</div><div class="k" id="tollK">Reaper's Toll in 10</div></div>
       </div>
       <div class="machine" id="machineBox">
-        <div id="moonBan">🌕 BLOOD MOON — <span id="moonN">0</span> FREE SPINS · WINS ×<span id="moonM">2</span> 🌕</div>
+        <div id="moonBan">🌕 BLOOD MOON — <span id="moonN">0</span> FREE SPINS · WINS ×<span id="moonM">2</span> · BET LOCKED $<span id="moonB">10</span> 🌕</div>
         <div id="waitBan">⏳ THE REAPER HOLDS YOU — <span id="waitWho"></span></div>
         <div id="grid"></div>
         <div class="ctrls">
           <div class="betcol">
-            <div class="lbl">Bet</div>
+            <div class="lbl" id="betLbl">Bet</div>
             <div id="betRow"></div>
           </div>
           <button id="spinBtn">SPIN</button>
@@ -431,6 +431,10 @@ input{font-family:inherit}
           <div id="oppCards"><span class="none dim" style="font-size:11px">nothing yet</span></div>
         </div>
         <div id="oppFeed"></div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn sm" id="oppSend" style="flex:1">💸 Send $50</button>
+          <button class="btn sm" id="oppBeg" style="flex:1">🙏 Beg</button>
+        </div>
       </div>
       <div class="panel">
         <div class="rp-h">🧳 Card Storage <span class="dim" id="stCt"></span></div>
@@ -537,6 +541,7 @@ input{font-family:inherit}
     <div id="actIc"></div>
     <div id="actNm"></div>
     <div id="actRr" style="font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:800;margin-top:3px"></div>
+    <div id="actUse" style="font-size:10px;letter-spacing:1.5px;font-weight:900;margin-top:6px;color:#b8a8d8"></div>
     <div id="actDs"></div>
     <div id="actFl"></div>
     <div id="actNote"></div>
@@ -563,10 +568,11 @@ input{font-family:inherit}
           <span><i style="background:#b45cf0"></i>Λ shape</span>
         </div>
       </li>
-      <li><b>The Reaper's Toll.</b> Every 10 spins Death demands cash — and the price always rises. Can't pay? The run ends. Broke? Same.</li>
+      <li><b>The Reaper's Toll.</b> Every 10 spins Death demands cash — and the price always rises. <b>Only the Toll can kill you:</b> going broke mid-round puts you in <b>debt</b> (red cash) — the House lends you spins down to the size of your next Toll. If the Toll arrives and you can't pay, the run ends.</li>
+      <li><b>In duels, mercy exists.</b> Your opponent's panel has <b>💸 Send $50</b> and you have <b>🙏 Beg</b> — a rich rival can bail you out of debt to keep the duel going.</li>
       <li><b>The Night Market.</b> After each Toll, buy <b>card packs</b>. Cards go to your <b>storage</b> — play them when YOU choose:
-        <span class="kchip relic">Relic</span> permanent passive · <span class="kchip charm">Charm</span> temporary boost · <span class="kchip hex">Hex</span> strikes your duel opponent. Playing a duplicate Relic upgrades it (max Lv3). Unwanted cards sell for cash.</li>
-      <li><b>👁️ The Eye</b> is wild — it becomes anything. <b>🌕 3+ Moons</b> anywhere = <b>Blood Moon</b> free spins, wins ×2. <b>🪙 Cursed Gold</b> pays instantly. <b>🕸️ Cobwebs</b> pay nothing.</li>
+        <span class="kchip relic">Relic</span> <b>PERMANENT</b> once played · <span class="kchip charm">Charm</span> <b>ONE USE</b>, temporary boost · <span class="kchip hex">Hex</span> <b>ONE USE</b>, strikes your duel opponent. Playing a duplicate Relic upgrades it (max Lv3). Unwanted cards sell for cash.</li>
+      <li><b>👁️ The Eye</b> is wild — it becomes anything. <b>🌕 3+ Moons</b> anywhere = <b>Blood Moon</b> free spins, wins ×2 — <b>your bet locks</b> at the amount that triggered it. <b>🪙 Cursed Gold</b> pays instantly. <b>🕸️ Cobwebs</b> pay nothing.</li>
       <li><b>🔥 The Hellpot</b> grows with every bet. Line up <b>6·6·6</b> to claim it all.</li>
       <li><b>Hot streak:</b> consecutive winning spins boost payouts. A dead spin resets it.</li>
       <li><b>Duels:</b> invite a friend by lobby code. You each fight your own reels — last one alive wins. Hexes sabotage them; their panel shows every card they play. <b>Tolls are checkpoints:</b> after paying yours, the Reaper holds you until your opponent pays theirs — you march to the grave in step.</li>
@@ -604,7 +610,7 @@ input{font-family:inherit}
 <div id="jpFlash"><div class="t">🔥 666 🔥<br><span id="jpAmt"></span></div></div>
 <div id="toasts"></div>
 <div id="tip"></div>
-<div class="ver">DEADSPIN v2.1.0 · spinfall</div>
+<div class="ver">DEADSPIN v2.2.0 · spinfall</div>
 
 <script>
 'use strict';
@@ -723,6 +729,8 @@ const CARDS=[
 ];
 var CARD_BY_ID={}; CARDS.forEach(c=>CARD_BY_ID[c.id]=c);
 const KIND_LABEL={relic:'Relic',charm:'Charm',hex:'Hex'};
+const USE_TAG={relic:'♾️ PERMANENT once played',charm:'1️⃣ ONE USE — consumed when played',hex:'1️⃣ ONE USE — strikes your duel opponent'};
+const USE_SHORT={relic:'PERMANENT',charm:'ONE USE',hex:'ONE USE'};
 
 /* ============ [DATA] PACKS ============ */
 /* odds: [common,uncommon,rare,epic,legendary] sum 100 */
@@ -952,7 +960,7 @@ const sMoon =()=>[698,880,1047,1397].forEach((f,i)=>beep(f,.16,i*.07,'sine',.1))
 const sHex  =()=>{beep(311,.3,0,'sawtooth',.09);beep(233,.35,.15,'sawtooth',.09);beep(155,.5,.3,'sawtooth',.1);};
 
 /* ============ [UI HELPERS] ============ */
-function fmt(n){return '$'+Math.round(n).toLocaleString('en-US');}
+function fmt(n){n=Math.round(n);return n<0?('−$'+Math.abs(n).toLocaleString('en-US')):('$'+n.toLocaleString('en-US'));}
 function toast(msg,cls){
   const t=document.createElement('div');
   t.className='toast'+(cls?' '+cls:''); t.innerHTML=msg;
@@ -987,9 +995,9 @@ function tipHTML(c,extra){
   if(c.f) h+='<div class="t-f">“'+c.f+'”</div>';
   const pulls=meta.coll[c.id]||0;
   let m=[];
-  if(c.kind==='hex') m.push('Duel card — strikes your opponent');
-  if(c.kind==='relic') m.push('Permanent · dupes upgrade to Lv3');
-  if(c.kind==='charm') m.push('One use');
+  if(c.kind==='relic') m.push('♾️ PERMANENT once played · dupes upgrade to Lv3');
+  if(c.kind==='charm') m.push('1️⃣ ONE USE — consumed when played');
+  if(c.kind==='hex') m.push('1️⃣ ONE USE — strikes your duel opponent');
   m.push(pulls?('Pulled '+pulls+'× all-time'):'Never pulled');
   h+='<div class="t-m">'+m.join(' · ')+'</div>';
   return h;
@@ -1107,10 +1115,20 @@ function spin(){
   const eff=EFF();
   const free=run.freeSpins>0;
   if(!free){
-    if(run.cash<run.bet){
-      const affordable=BETS.filter(b=>b<=run.cash);
+    run.freeBet=null;
+    /* debt: only the Toll can kill you — the House lends down to −(next Toll) */
+    const floor=-tollAmount(run.cutNum,eff);
+    if(run.cash-run.bet<floor){
+      const affordable=BETS.filter(b=>run.cash-b>=floor);
       if(affordable.length){run.bet=affordable[affordable.length-1];}
-      else{endRun('You went broke. The reels only take cash.');return;}
+      else if(run.duel){
+        toast("The House won't lend more — 🙏 beg "+(opp?opp.name:'your rival')+" for mercy, or abandon",'bad');
+        return;
+      }else{
+        toast('The Reaper loses patience with debtors…','bad');
+        doToll();
+        return;
+      }
     }
     run.cash-=run.bet;
     run.pot+=run.bet*(POT_BASE+eff.potPct);
@@ -1119,9 +1137,11 @@ function spin(){
     run.freeSpins--;
   }
   run.spins++; meta.stats.spins++;
+  const betUsed=free?(run.freeBet||run.bet):run.bet;
   const streakMult=streakMultOf(run.streak,eff);
   const grid=rollGrid(eff);
-  const res=evalSpin(grid,run.bet,eff,{streakMult,free});
+  const res=evalSpin(grid,betUsed,eff,{streakMult,free});
+  res.betUsed=betUsed;
   animateReels(grid,()=>applyResult(grid,res,free,eff));
   renderGame();
 }
@@ -1150,9 +1170,9 @@ function applyResult(grid,res,free,eff){
     run.streak++;
     meta.stats.totalWon+=total;
     run.bigWin=Math.max(run.bigWin,total);
-    addFloat('+'+fmt(total),total>=run.bet*8?'big':'',slot++);
+    addFloat('+'+fmt(total),total>=res.betUsed*8?'big':'',slot++);
     if(res.mult>1.01) addFloat('×'+res.mult.toFixed(2),'bad',slot++);
-    if(!res.jackpot){ if(total>=run.bet*8) sBigWin(); else sWin(total); }
+    if(!res.jackpot){ if(total>=res.betUsed*8) sBigWin(); else sWin(total); }
     if(res.coinWin>0) sCoin();
   }else{
     run.streak=0;
@@ -1168,7 +1188,7 @@ function applyResult(grid,res,free,eff){
     run.ghoulCt=(run.ghoulCt||0)+1;
     if(run.ghoulCt>=10){
       run.ghoulCt=0;
-      const g=Math.round(run.bet*eff.ghoul);
+      const g=Math.round(res.betUsed*eff.ghoul);
       run.cash+=g;
       addFloat('🧟 +'+fmt(g),'',slot++);
       sCoin();
@@ -1179,6 +1199,7 @@ function applyResult(grid,res,free,eff){
   if(res.scatters>=need){
     const add=MOON_SPINS+eff.moonSpins;
     run.freeSpins+=add;
+    if(!run.freeBet) run.freeBet=run.bet; /* bet locks at the amount that triggered it */
     toast('🌕 BLOOD MOON — '+add+' free spins, wins ×2','good');
     sMoon();
   }
@@ -1189,10 +1210,6 @@ function applyResult(grid,res,free,eff){
   if(run.duel) sendState();
   if(run.sinceCut>=TOLL_EVERY&&run.freeSpins<=0){
     doToll();
-    return;
-  }
-  if(run.cash<MIN_BET&&run.freeSpins<=0){
-    endRun('You went broke. The reels only take cash.');
     return;
   }
   saveAll();
@@ -1235,7 +1252,6 @@ function tollPaid(due,broke){
   saveAll();
   renderGame();
   if(run.duel) sendState();
-  if(broke&&run.cash<MIN_BET){ endRun('Second Wind bought a breath, but the cash was gone.'); return; }
   openShop();
 }
 
@@ -1284,7 +1300,7 @@ function renderShop(){
   for(let i=0;i<run.shop.singles.length;i++){
     const sg=run.shop.singles[i], c=CARD_BY_ID[sg.id];
     const noRoom=storageFree()<1;
-    h+='<div class="shoprow r'+c.r+'" data-tipcard="'+c.id+'"><div class="ic">'+c.i+'</div><div class="grow"><div class="nm">'+c.n+' <span class="kchip '+c.kind+'">'+KIND_LABEL[c.kind]+'</span> <span class="rtxt" style="font-size:10px">'+RARS[c.r].n+'</span></div>'
+    h+='<div class="shoprow r'+c.r+'" data-tipcard="'+c.id+'"><div class="ic">'+c.i+'</div><div class="grow"><div class="nm">'+c.n+' <span class="kchip '+c.kind+'">'+KIND_LABEL[c.kind]+'</span> <span class="rtxt" style="font-size:10px">'+RARS[c.r].n+'</span> <span class="dim" style="font-size:9px;font-weight:800">'+USE_SHORT[c.kind]+'</span></div>'
       +'<div class="ds">'+c.d(1)+'</div></div>'
       +'<button class="buyb" data-single="'+i+'" '+((run.cash<sg.cost||noRoom)?'disabled':'')+'>'+(noRoom?'FULL':fmt(sg.cost))+'</button></div>';
   }
@@ -1339,7 +1355,7 @@ function openPack(pack,freebie){
     el.innerHTML='<div class="inner"><div class="pface pback"></div>'
       +'<div class="pface pfront" data-tipcard="'+card.id+'"><div class="ic">'+card.i+'</div><div class="nm">'+card.n+'</div>'
       +'<div class="rr">'+RARS[card.r].n+'</div>'
-      +'<div class="tag">'+(got.new?'NEW!':'')+' <span class="kchip '+card.kind+'">'+KIND_LABEL[card.kind]+'</span></div></div></div>';
+      +'<div class="tag">'+(got.new?'NEW! ':'')+'<span class="kchip '+card.kind+'">'+KIND_LABEL[card.kind]+'</span><br><span style="color:#8a7a80;font-size:9px;font-weight:800;letter-spacing:.5px">'+USE_SHORT[card.kind]+'</span></div></div></div>';
     el.onclick=()=>{
       if(Date.now()-packOpenedAt<250)return;
       if(el.classList.contains('flip'))return;
@@ -1365,6 +1381,7 @@ function openAct(idx){
   $('actNm').textContent=c.n;
   $('actRr').innerHTML=RARS[c.r].n+' · <span class="kchip '+c.kind+'">'+KIND_LABEL[c.kind]+'</span>';
   $('actRr').style.color=RARS[c.r].c;
+  $('actUse').textContent=USE_TAG[c.kind];
   const lv=c.kind==='relic'?Math.min((run.relics[id]||0)+1,c.mx):1;
   $('actDs').textContent=c.d(lv);
   $('actFl').textContent=c.f?'“'+c.f+'”':'';
@@ -1435,6 +1452,7 @@ function renderGame(){
   if(!run) return;
   const eff=EFF();
   $('cashV').textContent=fmt(run.cash);
+  $('cashK').textContent=run.cash<0?'⚠ IN DEBT':'Cash';
   $('potV').textContent=fmt(run.pot);
   const due=tollAmount(run.cutNum,eff);
   const left=TOLL_EVERY-run.sinceCut;
@@ -1445,7 +1463,7 @@ function renderGame(){
   const free=run.freeSpins>0;
   $('moonBan').classList.toggle('on',free);
   $('machineBox').classList.toggle('bloodmoon',free);
-  if(free){$('moonN').textContent=run.freeSpins;$('moonM').textContent=(2*(1+eff.winMult)*streakMultOf(run.streak,eff)).toFixed(1);}
+  if(free){$('moonN').textContent=run.freeSpins;$('moonM').textContent=(2*(1+eff.winMult)*streakMultOf(run.streak,eff)).toFixed(1);$('moonB').textContent=(run.freeBet||run.bet);}
   const waiting=run.duel&&duelWaiting();
   if(run.duel) wasWaiting=waiting; /* renderGame is the source of truth for the gate UI */
   $('waitBan').classList.toggle('on',waiting);
@@ -1460,13 +1478,16 @@ function renderGame(){
   sb.disabled=anim||waiting;
   const sm=streakMultOf(run.streak,eff);
   $('streakV').textContent=run.streak>0?(run.streak+' 🔥 ×'+sm.toFixed(2)):'—';
+  const floor=-due;
+  const shownBet=free?(run.freeBet||run.bet):run.bet;
   let bh='';
   for(const b of BETS){
-    bh+='<button class="betb'+(run.bet===b?' on':'')+'" data-bet="'+b+'" '+(b>run.cash&&!free?'disabled':'')+'>$'+b+'</button>';
+    bh+='<button class="betb'+(shownBet===b?' on':'')+'" data-bet="'+b+'" '+((free||run.cash-b<floor)?'disabled':'')+'>$'+b+'</button>';
   }
   $('betRow').innerHTML=bh;
+  $('betLbl').textContent=free?'Bet 🔒':'Bet';
   document.querySelectorAll('.betb').forEach(el=>el.onclick=()=>{
-    if(anim)return; run.bet=+el.dataset.bet; renderGame(); saveAll();
+    if(anim||run.freeSpins>0)return; run.bet=+el.dataset.bet; renderGame(); saveAll();
   });
   /* active relics */
   let rh='';
@@ -1541,6 +1562,7 @@ function renderPaytable(eff){
   sp+='<div class="row"><span class="i">🔥</span><span><b>6·6·6</b> on a line claims the Hellpot: <b style="color:#ffae2e">'+fmt(run?run.pot:POT_SEED)+'</b></span></div>';
   if(run){
     sp+='<div class="row"><span class="i">💀</span><span>Tolls ahead: <b>'+fmt(tollAmount(run.cutNum,eff))+'</b>, then ~'+fmt(Math.round(tollBase(run.cutNum+1)*(1-eff.tollReduce)))+', ~'+fmt(Math.round(tollBase(run.cutNum+2)*(1-eff.tollReduce)))+'</span></div>';
+    if(run.cash<0) sp+='<div class="row"><span class="i">🩸</span><span><b style="color:#ff5b6e">You are '+fmt(Math.abs(run.cash))+' in debt.</b> The House lends down to −(next Toll). Only the Toll can kill you.</span></div>';
     if(run.streak>0) sp+='<div class="row"><span class="i">🔥</span><span>Streak ×'+streakMultOf(run.streak,eff).toFixed(2)+' applies to line wins</span></div>';
   }
   $('ptSpec').innerHTML=sp;
@@ -1715,7 +1737,7 @@ function applyHex(id){
       toast('☠️ '+who+' cast '+c.n+' — streak shattered, −'+fmt(hx.amt),'hexed');
       break;
     case 'steal':{
-      const amt=Math.min(hx.max,Math.round(run.cash*hx.pct));
+      const amt=Math.max(0,Math.min(hx.max,Math.round(run.cash*hx.pct)));
       run.cash=Math.max(0,run.cash-amt);
       duelSend({t:'hexAck',id,amt});
       toast('☠️ '+who+' robbed your grave — −'+fmt(amt),'hexed');
@@ -1737,9 +1759,6 @@ function applyHex(id){
       break;
   }
   saveAll(); renderGame(); sendState();
-  if(run.cash<MIN_BET&&run.freeSpins<=0&&!run.inShop){
-    endRun('A hex from '+who+' bled you dry.');
-  }
 }
 
 /* ============ [DUEL: connection] ============ */
@@ -1860,6 +1879,19 @@ function onDuelMsg(m){
         endRun('Your opponent fell first. The House applauds.',{won:true});
       }
       break;
+    case 'give':
+      if(run&&!run.over&&typeof m.amt==='number'&&m.amt>0&&m.amt<=1000){
+        run.cash+=m.amt;
+        toast('💸 '+(opp?opp.name:'Opponent')+' sent you '+fmt(m.amt),'good');
+        oppFeed('💸 sent you '+fmt(m.amt));
+        sCoin(); saveAll(); renderGame(); sendState();
+      }
+      break;
+    case 'beg':
+      toast('🙏 '+(opp?opp.name:'Opponent')+' begs for mercy — 💸 Send $50 is in their panel','hexed');
+      oppFeed('🙏 begs you for mercy','hexline');
+      sMoon();
+      break;
     case 'rematchReq':
       $('rematchStatus').textContent=(opp?opp.name:'Opponent')+' wants a rematch…';
       break;
@@ -1914,7 +1946,6 @@ function wire(){
   $('shopDone').onclick=()=>{
     run.inShop=false; ovClose('ovShop'); saveAll(); renderGame();
     if(run.duel) sendState();
-    if(run.cash<MIN_BET&&run.freeSpins<=0) endRun('You spent it all at the Night Market.');
   };
   $('shopReroll').onclick=()=>{
     if(run.cash<run.shop.rerollCost) return;
@@ -1941,6 +1972,25 @@ function wire(){
     joinRoom(code);
   };
   $('codeIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('lobbyJoin').click();});
+  /* duel mercy */
+  let lastBeg=0;
+  $('oppSend').onclick=()=>{
+    if(!run||!run.duel||run.over||!duelAlive())return;
+    if(run.cash<50){toast("You can't spare $50 right now",'bad');return;}
+    run.cash-=50;
+    duelSend({t:'give',amt:50});
+    toast('💸 Sent $50 to '+opp.name,'good');
+    oppFeed('💸 you sent them $50');
+    sCoin(); saveAll(); renderGame(); sendState();
+  };
+  $('oppBeg').onclick=()=>{
+    if(!run||!run.duel||run.over||!duelAlive())return;
+    const now=Date.now();
+    if(now-lastBeg<10000){toast('You already begged — let it land','bad');return;}
+    lastBeg=now;
+    duelSend({t:'beg'});
+    toast('🙏 You beg '+opp.name+' for mercy…');
+  };
   /* duel end */
   $('duelRematch').onclick=()=>{
     duelSend({t:'rematch'});
