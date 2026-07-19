@@ -167,7 +167,11 @@ input{font-family:inherit}
 .ptab{position:relative}
 .ptab h3{font-size:13px;letter-spacing:2px;color:#e8e0d0;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline}
 .ptab h3 .dim{font-size:10px;letter-spacing:0}
-.ptrow{display:grid;grid-template-columns:34px 1fr 1fr 1fr 44px;gap:3px;align-items:center;padding:3.5px 4px;border-radius:7px;font-size:12px}
+.ptrow{display:grid;grid-template-columns:30px 1fr 1fr 1fr 34px 40px;gap:3px;align-items:center;padding:3.5px 4px;border-radius:7px;font-size:12px}
+.ptrow .lvc{text-align:right;font-size:10.5px;color:#4a3a40;font-variant-numeric:tabular-nums}
+.ptrow .lvc.on{color:#6fd784;font-weight:800}
+.ptrow .lvc.max{color:#ffae2e;font-weight:800}
+.ptrow.hdr .lvc{color:#6a5a60}
 .ptrow:nth-child(even){background:rgba(255,255,255,.02)}
 .ptrow .ic{font-size:19px;text-align:center}
 .ptrow .pv{text-align:right;color:#b0a396;font-variant-numeric:tabular-nums}
@@ -255,7 +259,7 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 .pcard.gift::after{content:'🤝';background:#7ea8ff}
 .giftx{color:#7ea8ff}
 /* damage column while hunting */
-.ptrow.hunt{grid-template-columns:30px 1fr 1fr 1fr 52px 40px}
+.ptrow.hunt{grid-template-columns:28px 1fr 1fr 1fr 48px 32px 38px}
 .ptrow .dmgc{color:#ffd76b;font-weight:700}
 .ptrow.hdr .dmgc{color:#6a5a60}
 /* market: wide rows instead of one long column */
@@ -994,7 +998,7 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 <div id="jpFlash"><div class="t">🔥 666 🔥<br><span id="jpAmt"></span></div></div>
 <div id="toasts"></div>
 <div id="tip"></div>
-<div class="ver">DEADSPIN v3.1.0 · spinfall</div>
+<div class="ver">DEADSPIN v3.2.0 · spinfall</div>
 
 <script>
 'use strict';
@@ -1067,23 +1071,23 @@ const CARDS=[
 /* Relics cap at Lv5 (was Lv3) with smaller steps: a longer ladder to climb,
    and a slightly lower ceiling than the old 3-level values. */
 /* ---- RELICS: common ---- */
-{id:'rat_king',n:'Rat King',i:'🐀',r:0,kind:'relic',mx:5,d:l=>`Rats pay +${Math.round(28*l)}%`,f:'He remembers every crumb.',eff:l=>({pay:{rat:.28*l}})},
-{id:'bat_swarm',n:'Bat Swarm',i:'🦇',r:0,kind:'relic',mx:5,d:l=>`Bats pay +${Math.round(28*l)}%`,f:'The attic was never empty.',eff:l=>({pay:{bat:.28*l}})},
-{id:'spider_silk',n:'Spider Silk',i:'🕷️',r:0,kind:'relic',mx:5,d:l=>`Spiders pay +${Math.round(28*l)}%`,f:'Soft as a last breath.',eff:l=>({pay:{spider:.28*l}})},
-{id:'black_tallow',n:'Black Tallow',i:'🕯️',r:0,kind:'relic',mx:5,d:l=>`Candles pay +${Math.round(25*l)}%`,f:'Burns green. Smells of copper.',eff:l=>({pay:{candle:.25*l}})},
+{id:'rat_king',n:'Rat King',i:'🐀',r:0,kind:'relic',mx:12,d:l=>`Rats pay +${Math.round(15*l)}%`,f:'He remembers every crumb.',eff:l=>({pay:{rat:.15*l}})},
+{id:'bat_swarm',n:'Bat Swarm',i:'🦇',r:0,kind:'relic',mx:11,d:l=>`Bats pay +${Math.round(17*l)}%`,f:'The attic was never empty.',eff:l=>({pay:{bat:.17*l}})},
+{id:'spider_silk',n:'Spider Silk',i:'🕷️',r:0,kind:'relic',mx:10,d:l=>`Spiders pay +${Math.round(20*l)}%`,f:'Soft as a last breath.',eff:l=>({pay:{spider:.20*l}})},
+{id:'black_tallow',n:'Black Tallow',i:'🕯️',r:0,kind:'relic',mx:9,d:l=>`Candles pay +${Math.round(23*l)}%`,f:'Burns green. Smells of copper.',eff:l=>({pay:{candle:.23*l}})},
 {id:'grave_dirt',n:'Grave Dirt',i:'⚱️',r:0,kind:'relic',mx:5,d:l=>`Cobwebs appear less often (−${(1.1*l).toFixed(1)})`,f:'Fresh, from somewhere unmarked.',eff:l=>({webW:-1.1*l})},
 {id:'tomb_coin',n:'Tomb Coin',i:'🪙',r:0,kind:'relic',mx:5,d:l=>`Cursed Gold is worth +${Math.round(7*l)}% of your bet`,f:'Two for the ferryman.',eff:l=>({coinVal:.07*l})},
 {id:'small_mercy',n:'Small Mercy',i:'🥀',r:0,kind:'relic',mx:5,d:l=>`Dead spins refund ${Math.round(8*l)}% of your bet`,f:'Even the House pities.',eff:l=>({betRefund:.08*l})},
 /* ---- RELICS: uncommon ---- */
-{id:'coffin_nails',n:'Coffin Nails',i:'⚰️',r:1,kind:'relic',mx:5,d:l=>`Coffins pay +${Math.round(30*l)}%`,f:'Nine of them. Always nine.',eff:l=>({pay:{coffin:.30*l}})},
-{id:'ectoplasm',n:'Ectoplasm',i:'👻',r:1,kind:'relic',mx:5,d:l=>`Ghosts pay +${Math.round(28*l)}%`,f:'Still warm.',eff:l=>({pay:{ghost:.28*l}})},
+{id:'coffin_nails',n:'Coffin Nails',i:'⚰️',r:1,kind:'relic',mx:8,d:l=>`Coffins pay +${Math.round(26*l)}%`,f:'Nine of them. Always nine.',eff:l=>({pay:{coffin:.26*l}})},
+{id:'ectoplasm',n:'Ectoplasm',i:'👻',r:1,kind:'relic',mx:7,d:l=>`Ghosts pay +${Math.round(30*l)}%`,f:'Still warm.',eff:l=>({pay:{ghost:.30*l}})},
 {id:'witchs_eye',n:"Witch's Eye",i:'👁️',r:1,kind:'relic',mx:5,d:l=>`The Eye (wild) appears more often (+${(0.55*l).toFixed(2)})`,f:'It blinks when you lie.',eff:l=>({wildW:.55*l})},
 {id:'moonstone',n:'Moonstone',i:'🌑',r:1,kind:'relic',mx:5,d:l=>`Moons appear more often (+${(0.55*l).toFixed(2)})`,f:'It pulls at something in you.',eff:l=>({moonW:.55*l})},
 {id:'embalmers_tab',n:"Embalmer's Tab",i:'🧪',r:1,kind:'relic',mx:5,d:l=>`Night Market prices −${Math.round(4.5*l)}%`,f:'He gives discounts to regulars.',eff:l=>({packDisc:.045*l})},
 {id:'blood_pact',n:'Blood Pact',i:'🩸',r:1,kind:'relic',mx:5,d:l=>`Earn 5% interest at each Toll (max $${42*l})`,f:'Signed in the usual place.',eff:l=>({interest:.05,interestCap:42*l})},
 /* ---- RELICS: rare ---- */
-{id:'polished_skull',n:'Polished Skull',i:'💀',r:2,kind:'relic',mx:5,d:l=>`Skulls pay +${Math.round(33*l)}%`,f:'You can almost see your face.',eff:l=>({pay:{skull:.33*l}})},
-{id:'devils_digit',n:"Devil's Digit",i:'😈',r:2,kind:'relic',mx:5,d:l=>`Sixes pay +${Math.round(28*l)}%`,f:'It counts for him.',eff:l=>({pay:{six:.28*l}})},
+{id:'polished_skull',n:'Polished Skull',i:'💀',r:2,kind:'relic',mx:6,d:l=>`Skulls pay +${Math.round(34*l)}%`,f:'You can almost see your face.',eff:l=>({pay:{skull:.34*l}})},
+{id:'devils_digit',n:"Devil's Digit",i:'😈',r:2,kind:'relic',mx:5,d:l=>`Sixes pay +${Math.round(40*l)}%`,f:'It counts for him.',eff:l=>({pay:{six:.40*l}})},
 {id:'forged_ledger',n:'Forged Ledger',i:'📜',r:2,kind:'relic',mx:5,d:l=>`Reaper's Tolls are ${(5.5*l).toFixed(1)}% smaller`,f:'Death is bad at arithmetic.',eff:l=>({tollReduce:.055*l})},
 {id:'fang_of_greed',n:'Fang of Greed',i:'🦷',r:2,kind:'relic',mx:5,d:l=>`Hot streak grows +${(2.8*l).toFixed(1)}% per win, cap +${Math.round(28*l)}%`,f:'It grew back twice.',eff:l=>({streakStep:.028*l,streakCap:.28*l})},
 {id:'blood_chalice',n:'Blood Chalice',i:'🍷',r:2,kind:'relic',mx:5,d:l=>`+${l} free spin${l>1?'s':''} per Blood Moon`,f:'Never quite empty.',eff:l=>({moonSpins:l})},
@@ -1158,6 +1162,8 @@ const CARDS=[
 ];
 var CARD_BY_ID={}; CARDS.forEach(c=>CARD_BY_ID[c.id]=c);
 const KIND_LABEL={relic:'Relic',charm:'Charm',hex:'Hex',pact:'Pact'};
+/* which relic upgrades which symbol — drives the Lv badge in the paytable */
+const SYM_RELIC={rat:'rat_king',bat:'bat_swarm',spider:'spider_silk',candle:'black_tallow',coffin:'coffin_nails',ghost:'ectoplasm',skull:'polished_skull',six:'devils_digit'};
 const USE_TAG={relic:'♾️ PERMANENT once played',charm:'1️⃣ ONE USE — consumed when played',hex:'1️⃣ ONE USE — strikes your duel opponent',pact:'1️⃣ ONE USE — affects BOTH hunters'};
 const USE_SHORT={relic:'PERMANENT',charm:'ONE USE',hex:'ONE USE',pact:'BOTH HUNTERS'};
 
@@ -3078,7 +3084,7 @@ function renderPaytable(eff){
   const bet=run?run.bet:10;
   $('ptBet').textContent='at $'+bet+' bet';
   const hunting=isCoop();
-  let h='<div class="ptrow'+(hunting?' hunt':'')+' hdr"><div></div><div class="pv">×3</div><div class="pv">×4</div><div class="pv">×5</div>'+(hunting?'<div class="pv dmgc">🗡️</div>':'')+'<div class="pc">odds</div></div>';
+  let h='<div class="ptrow'+(hunting?' hunt':'')+' hdr"><div></div><div class="pv">×3</div><div class="pv">×4</div><div class="pv">×5</div>'+(hunting?'<div class="pv dmgc">🗡️</div>':'')+'<div class="lvc">lv</div><div class="pc">odds</div></div>';
   const marksNow=activeMarks(eff);
   for(const s of PAYSYMS){
     const pm=payMult(eff,s), pb=payMult(base,s);
@@ -3088,6 +3094,10 @@ function renderPaytable(eff){
     h+='<div class="ptrow'+(hunting?' hunt':'')+(marksNow.indexOf(s)>=0?' marked':'')+((typeof focusSym!=='undefined'&&focusSym===s)?' focus':'')+'" data-focus="'+s+'"><div class="ic">'+symHTML(s)+(marksNow.indexOf(s)>=0?'<span class="mkdot">🔻</span>':'')+'</div>';
     for(let k=0;k<3;k++) h+='<div class="pv'+cls+'">'+fmt(SYM[s].pay[k]*bet*pm)+'</div>';
     if(hunting) h+='<div class="pv dmgc">'+Math.round(SYM[s].pay[0]*pm*DMG_K).toLocaleString('en-US')+'</div>';
+    /* how far you have taken this symbol, and how far it can still go */
+    const rid=SYM_RELIC[s], rc=rid?CARD_BY_ID[rid]:null;
+    const lv=(run&&rc)?(run.relics[rid]||0):0;
+    h+='<div class="lvc'+(lv?(lv>=rc.mx?' max':' on'):'')+'">'+(rc?(lv?(lv+'/'+rc.mx):('–/'+rc.mx)):'')+'</div>';
     h+='<div class="pc'+ccls+'">'+ch.toFixed(1)+'%</div></div>';
   }
   $('ptRows').innerHTML=h;
