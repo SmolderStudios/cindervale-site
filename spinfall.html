@@ -216,6 +216,30 @@ input{font-family:inherit}
 #oppCards .acard{width:30px;height:30px;font-size:15px;border-radius:6px}
 #oppFeed{margin-top:8px;font-size:11.5px;color:#8a7a80;line-height:1.6;min-height:34px;border-top:1px solid #2a161e;padding-top:6px}
 #oppFeed .hexline{color:#ff5b6e;font-weight:700}
+/* autospin + turbo */
+.autocol{display:flex;flex-direction:column;gap:5px;justify-content:center;align-items:stretch}
+.autocol .lbl{font-size:10px;color:#8a7a80;text-align:center;text-transform:uppercase;letter-spacing:1px}
+.autob{
+  padding:9px 6px;min-width:62px;border-radius:9px;font-weight:800;font-size:13px;
+  background:#170b10;border:1px solid #3d222c;color:#b0a396;font-variant-numeric:tabular-nums;
+}
+.autob.on{background:#2c1a52;border-color:#b45cf0;color:#d18aff;box-shadow:0 0 14px rgba(180,92,240,.3)}
+.autob:hover{border-color:#7a3242}
+.turbob{
+  padding:6px;border-radius:9px;font-size:14px;background:#170b10;border:1px solid #3d222c;
+  color:#4a3a40;line-height:1;
+}
+.turbob.on{background:#3a2a08;border-color:#ffae2e;color:#ffd76b;box-shadow:0 0 12px rgba(255,174,46,.3)}
+/* run summary */
+#runInfo{padding:9px 12px}
+#runInfo .rl{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;color:#8a7a80}
+#runInfo .rl b{color:#d8cfc0;font-variant-numeric:tabular-nums}
+#runInfo .rt{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#6a5a60;font-weight:800;margin-bottom:5px}
+/* storage inside the market */
+#shopStorage{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-bottom:12px}
+#shopStorage .stc{aspect-ratio:.82;border-radius:7px}
+#shopStorage .stc .ic{font-size:17px}
+#shopStorage .stc .kd{font-size:6.5px}
 /* mode picker */
 #modePick{display:flex;flex-direction:column;gap:7px;margin-bottom:4px}
 .modeb{
@@ -594,6 +618,11 @@ input{font-family:inherit}
             <div id="betRow"></div>
           </div>
           <button id="spinBtn">SPIN</button>
+          <div class="autocol">
+            <div class="lbl">Auto</div>
+            <button class="autob" id="autoBtn">OFF</button>
+            <button class="turbob" id="turboBtn" title="Turbo reels">⚡</button>
+          </div>
         </div>
         <div class="streakrow">
           <span>Hot streak: <span id="streakV">—</span></span>
@@ -654,6 +683,7 @@ input{font-family:inherit}
           <button class="btn" id="oppBeg">🙏 Beg</button>
         </div>
       </div>
+      <div class="panel" id="runInfo"></div>
       <div class="panel">
         <div class="rp-h">🧳 Card Storage <span class="dim" id="stCt"></span></div>
         <div id="stGrid"></div>
@@ -744,6 +774,10 @@ input{font-family:inherit}
     <h2>🕯️ The Night Market</h2>
     <div class="sub">Toll paid. Spend it before Death does — <span class="blood" id="shopCash"></span> · storage <span id="shopSlots"></span></div>
     <div id="shopBuild"></div>
+    <div id="shopStoreWrap" style="display:none">
+      <div class="dim" style="font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 6px">🧳 Your storage <span style="text-transform:none;letter-spacing:0">— click to play or sell without leaving the market</span></div>
+      <div id="shopStorage"></div>
+    </div>
     <div id="shopPacks"></div>
     <div class="dim" style="font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:12px 0 6px">Single cards</div>
     <div id="shopSingles"></div>
@@ -818,6 +852,7 @@ input{font-family:inherit}
       <li><b>In duels, mercy exists.</b> Your opponent's panel has <b>💸 Send $50</b> and you have <b>🙏 Beg</b> — a rich rival can bail you out of debt to keep the duel going.</li>
       <li><b>The Night Market.</b> After each Toll, buy <b>card drafts</b> — you are shown several cards and <b>choose which to keep</b>, so you can build toward what you already have. Cards go to your <b>storage</b> — play them when YOU choose:
         <span class="kchip relic">Relic</span> <b>PERMANENT</b> once played · <span class="kchip charm">Charm</span> <b>ONE USE</b>, temporary boost · <span class="kchip hex">Hex</span> <b>ONE USE</b>, strikes your duel opponent. Playing a duplicate Relic upgrades it, <b>up to Lv5</b>. Unwanted cards sell for cash.</li>
+      <li><b>Playing faster.</b> <b>AUTO</b> spins for you (10 / 50 / ∞) and <b>pauses itself</b> for the market, a Rite or a duel checkpoint, then carries on once you are done. <b>⚡</b> is turbo reels. Keys: <b>Space</b> spin · <b>A</b> autospin · <b>T</b> turbo · <b>1–8</b> bet · <b>Esc</b> close / stop.</li>
       <li><b>Trials.</b> Long-term goals that persist across every run and pay Souls once — check them from the menu for something to chase after the basics stop scaring you.</li>
       <li><b>👁️ The Eye</b> is wild — it becomes anything. <b>🌕 Moons charge the Blood Moon meter</b> (watch the phase next to your streak): every Moon on screen pushes it up, and at full you get free spins with wins ×2 and <b>your bet locked</b> — then the meter empties and starts again. <b>🪙 Cursed Gold</b> pays instantly. <b>🕸️ Cobwebs</b> pay nothing.</li>
       <li><b>🔥 The Hellpot</b> grows with every bet. Line up <b>6·6·6</b> to claim it all.</li>
@@ -857,7 +892,7 @@ input{font-family:inherit}
 <div id="jpFlash"><div class="t">🔥 666 🔥<br><span id="jpAmt"></span></div></div>
 <div id="toasts"></div>
 <div id="tip"></div>
-<div class="ver">DEADSPIN v2.7.0 · spinfall</div>
+<div class="ver">DEADSPIN v2.8.0 · spinfall</div>
 
 <script>
 'use strict';
@@ -1142,7 +1177,7 @@ const DUEL_WS='wss://'+DUEL_HOST;
 /* ============ [STATE] ============ */
 var meta=null, run=null, anim=false;
 
-function freshMeta(){return {v:2,tokens:0,up:{},coll:{},snd:1,fx:1,name:'',trials:{},
+function freshMeta(){return {v:2,tokens:0,up:{},coll:{},snd:1,fx:1,turbo:0,name:'',trials:{},
   stats:{runs:0,spins:0,jackpots:0,bestCash:0,bestSpins:0,bestCuts:0,totalWon:0,duelWins:0,duelLosses:0,
     moons:0,maxRelicLv:0,mostRites:0,debtTolls:0,soulsEarned:0}};}
 
@@ -1157,6 +1192,7 @@ function loadAll(){
           Object.assign(meta,s.meta);
           meta.up=s.meta.up||{}; meta.coll=s.meta.coll||{}; meta.trials=s.meta.trials||{};
           if(meta.fx===undefined) meta.fx=1;
+          if(meta.turbo===undefined) meta.turbo=0;
           meta.stats=Object.assign(freshMeta().stats,s.meta.stats||{});
           if(s.run && !s.run.over && s.run.storage){
             run=s.run;
@@ -1419,6 +1455,55 @@ const sMoon =()=>[698,880,1047,1397].forEach((f,i)=>beep(f,.16,i*.07,'sine',.1))
 const sHex  =()=>{beep(311,.3,0,'sawtooth',.09);beep(233,.35,.15,'sawtooth',.09);beep(155,.5,.3,'sawtooth',.1);};
 
 /* ============ [UI HELPERS] ============ */
+/* ============ [AUTOSPIN] ============ */
+/* Hundreds of clicks per run was the single worst thing about playing this.
+   Autospin PAUSES (rather than cancels) for anything that needs you — the
+   market, a Rite, a duel checkpoint — and resumes itself once you are done. */
+var autoLeft=0, autoTimer=null;
+const AUTO_STEPS=[0,10,50,Infinity];
+function autoCycle(){
+  const i=AUTO_STEPS.indexOf(autoLeft);
+  autoLeft=(i>=0)?AUTO_STEPS[(i+1)%AUTO_STEPS.length]:0;
+  if(autoLeft>0) autoTick(); else stopAuto();
+  renderAuto();
+}
+function stopAuto(){
+  autoLeft=0;
+  if(autoTimer){clearTimeout(autoTimer);autoTimer=null;}
+  renderAuto();
+}
+/* something needs the player's attention — hold, but keep the counter */
+function autoBlocked(){
+  if(!run||run.over||anim) return true;
+  if(run.inShop) return true;
+  if(document.querySelector('#ovRite.on,#ovPack.on,#ovConfirm.on')) return true;
+  if(run.duel&&duelWaiting()) return true;
+  if(stuck()) return true;
+  return false;
+}
+function autoTick(){
+  if(autoTimer){clearTimeout(autoTimer);autoTimer=null;}
+  if(autoLeft<=0) return;
+  if(!run||run.over){stopAuto();return;}
+  if(autoBlocked()){
+    /* poll gently until the way is clear again */
+    autoTimer=setTimeout(autoTick,320);
+    return;
+  }
+  autoTimer=setTimeout(()=>{
+    autoTimer=null;
+    if(autoLeft<=0||autoBlocked()){ if(autoLeft>0) autoTick(); return; }
+    if(autoLeft!==Infinity) autoLeft--;
+    renderAuto();
+    spin();
+  },meta.turbo?90:200);
+}
+function renderAuto(){
+  const b=$('autoBtn'); if(!b) return;
+  b.classList.toggle('on',autoLeft>0);
+  b.textContent=autoLeft===Infinity?'∞':(autoLeft>0?String(autoLeft):'OFF');
+  const t=$('turboBtn'); if(t) t.classList.toggle('on',!!meta.turbo);
+}
 function hearts(n){
   n=Math.max(0,n|0);
   let h='';
@@ -1426,10 +1511,20 @@ function hearts(n){
   return h;
 }
 function fmt(n){n=Math.round(n);return n<0?('−$'+Math.abs(n).toLocaleString('en-US')):('$'+n.toLocaleString('en-US'));}
+/* compact form for the HUD once totals get long: $1.42M beats $1,423,905 */
+function fmtC(n){
+  const a=Math.abs(n), sign=n<0?'−':'';
+  if(a<100000) return fmt(n);
+  if(a<1e6)  return sign+'$'+(a/1e3).toFixed(0)+'k';
+  if(a<1e9)  return sign+'$'+(a/1e6).toFixed(a<1e7?2:1)+'M';
+  return sign+'$'+(a/1e9).toFixed(2)+'B';
+}
 function toast(msg,cls){
   const t=document.createElement('div');
   t.className='toast'+(cls?' '+cls:''); t.innerHTML=msg;
-  $('toasts').appendChild(t);
+  const box=$('toasts');
+  box.appendChild(t);
+  while(box.children.length>4) box.removeChild(box.firstChild);
   setTimeout(()=>t.remove(),3200);
 }
 function addFloat(txt,cls,slot){
@@ -1562,6 +1657,7 @@ function buildFx(){
 }
 function endRun(reason,opts){
   if(!run||run.over) return;
+  stopAuto();
   opts=opts||{};
   run.over=true;
   if(opts.won) run.duelWon=true;
@@ -1744,6 +1840,7 @@ function applyResult(grid,res,free,eff){
   }
   saveAll();
   renderGame();
+  if(autoLeft>0) autoTick();
 }
 
 /* ============ [REAPER'S TOLL] ============ */
@@ -2092,6 +2189,18 @@ function renderShop(){
   $('shopCash').textContent=fmt(run.cash);
   $('shopSlots').textContent=run.storage.length+'/'+storageCap();
   $('shopBuild').innerHTML=buildStripHTML();
+  /* Storage inside the market: a full bag used to be a dead end, because the
+     only way to sell was to close a market you could not reopen. */
+  $('shopStoreWrap').style.display=run.storage.length?'':'none';
+  if(run.storage.length){
+    let sh='';
+    run.storage.forEach((id,i)=>{
+      const c=CARD_BY_ID[id];
+      sh+='<div class="stc r'+c.r+'" data-tipcard="'+id+'" data-shopidx="'+i+'"><div class="ic">'+c.i+'</div><div class="kd">'+KIND_LABEL[c.kind]+'</div></div>';
+    });
+    $('shopStorage').innerHTML=sh;
+    document.querySelectorAll('#shopStorage .stc[data-shopidx]').forEach(el=>el.onclick=()=>openAct(+el.dataset.shopidx));
+  }
   let h='';
   for(const sp of run.shop.packs){
     const p=PACKS.find(x=>x.id===sp.id);
@@ -2335,6 +2444,7 @@ function playCard(idx){
   if(run.duel) duelSend({t:'played',id});
   sBuy();
   saveAll(); renderGame();
+  if(run.inShop) renderShop();
   if(run.duel) sendState();
 }
 function sellCard(idx){
@@ -2345,6 +2455,7 @@ function sellCard(idx){
   toast(c.i+' sold for '+fmt(RARS[c.r].sell));
   sCoin();
   saveAll(); renderGame();
+  if(run.inShop) renderShop();
   if(run.duel) sendState();
 }
 
@@ -2363,15 +2474,15 @@ function renderGame(){
   if(!run) return;
   if(window.__nodraw) return; /* balance-sim hook: skip all DOM work */
   const eff=EFF();
-  $('cashV').textContent=fmt(run.cash);
+  $('cashV').textContent=fmtC(run.cash);
   $('cashK').textContent=run.cash<0?'⚠ IN DEBT':'Cash';
   $('hpBox').style.display=run.duel?'':'none';
   $('hudRow').classList.toggle('duel',!!run.duel);
   if(run.duel) $('hpV').innerHTML=hearts(run.hp);
-  $('potV').textContent=fmt(run.pot);
+  $('potV').textContent=fmtC(run.pot);
   const due=tollAmount(run.cutNum,eff);
   const left=TOLL_EVERY-run.sinceCut;
-  $('tollV').textContent=fmt(due);
+  $('tollV').textContent=fmtC(due);
   $('tollK').textContent="Reaper's Toll in "+left;
   $('tollBox').classList.toggle('warn',left<=3||run.cash<due);
   $('spinCt').textContent='Spin '+run.spins;
@@ -2464,6 +2575,14 @@ function renderGame(){
   renderPaytable(eff);
   renderDeadEnd();
   renderHunt();
+  renderAuto();
+  $('runInfo').innerHTML='<div class="rt">This run</div>'
+    +'<div class="rl"><span>Spins</span><b>'+run.spins+'</b></div>'
+    +'<div class="rl"><span>Tolls survived</span><b>'+run.cutsPaid+'</b></div>'
+    +'<div class="rl"><span>Peak cash</span><b>'+fmtC(run.peak)+'</b></div>'
+    +'<div class="rl"><span>Biggest win</span><b>'+fmtC(run.bigWin)+'</b></div>'
+    +(isCoop()?('<div class="rl"><span>Bosses slain</span><b>'+(run.bossKills||0)+'</b></div>'):'')
+    +(run.jackpots?('<div class="rl"><span>Hellpots claimed</span><b>'+run.jackpots+'</b></div>'):'');
   /* the lead/gap readout depends on OUR cash too, so refresh it on every render
      rather than only when an opponent message lands */
   if(run.duel&&opp) renderOpp();
@@ -2565,8 +2684,9 @@ function animateReels(grid,done){
       }
     }
     sTick();
-  },70);
-  [380,580,780,980,1180].forEach((t,col)=>setTimeout(()=>{
+  },meta.turbo?36:70);
+  const stops=meta.turbo?[130,190,250,310,370]:[380,580,780,980,1180];
+  stops.forEach((t,col)=>setTimeout(()=>{
     stopped[col]=true;
     for(let row=0;row<ROWS;row++){
       const i=row*COLS+col;
@@ -3043,7 +3163,9 @@ function wire(){
   $('collBack').onclick=()=>{renderMenu();show('scrMenu');};
   $('upBack').onclick=()=>{renderMenu();show('scrMenu');};
   $('helpClose').onclick=()=>ovClose('ovHelp');
-  $('spinBtn').onclick=spin;
+  $('spinBtn').onclick=()=>{ if(autoLeft>0) stopAuto(); spin(); };
+  $('autoBtn').onclick=autoCycle;
+  $('turboBtn').onclick=()=>{ meta.turbo=meta.turbo?0:1; saveAll(); renderAuto(); toast(meta.turbo?'⚡ Turbo reels on':'Turbo reels off'); };
   $('gHelp').onclick=()=>ovOpen('ovHelp');
   $('gAbandon').onclick=()=>confirmBox('Abandon run?','The run ends and you collect its Souls.'+(run&&run.duel?' In a duel this means DEFEAT.':''),()=>endRun('You walked away from the table.'));
   $('shopDone').onclick=()=>{
@@ -3051,6 +3173,7 @@ function wire(){
     run.roundReady=true;
     if(run.duel) reportRound();
     ovClose('ovShop'); saveAll(); renderGame();
+    if(autoLeft>0) autoTick();
     if(run.duel){ sendState(); toast('✔ Ready — waiting for '+(opp?opp.name:'your rival'),'good'); }
   };
   $('shopReroll').onclick=()=>{
@@ -3117,8 +3240,23 @@ function wire(){
     renderMenu(); show('scrMenu');
   };
   window.addEventListener('keydown',e=>{
-    if(e.code==='Space'&&$('scrGame').classList.contains('on')&&!document.querySelector('.ov.on')){
-      e.preventDefault();spin();
+    const inGame=$('scrGame').classList.contains('on');
+    const anyOv=document.querySelector('.ov.on');
+    if(e.code==='Escape'){
+      /* only dismiss overlays that do not owe the player a decision */
+      for(const id of ['ovConfirm','ovAct','ovCard','ovHelp']){
+        if($(id).classList.contains('on')){ ovClose(id); e.preventDefault(); return; }
+      }
+      if(autoLeft>0){ stopAuto(); toast('Autospin stopped'); e.preventDefault(); }
+      return;
+    }
+    if(!inGame||anyOv) return;
+    if(e.code==='Space'){ e.preventDefault(); if(autoLeft>0) stopAuto(); spin(); }
+    else if(e.key==='a'||e.key==='A'){ e.preventDefault(); autoCycle(); }
+    else if(e.key==='t'||e.key==='T'){ e.preventDefault(); $('turboBtn').click(); }
+    else if(e.key>='1'&&e.key<='8'){
+      const b=BETS[+e.key-1];
+      if(b!==undefined&&run&&!run.over&&run.freeSpins<=0){ run.bet=b; renderGame(); saveAll(); }
     }
   });
 }
