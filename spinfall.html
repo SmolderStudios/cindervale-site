@@ -216,6 +216,30 @@ input{font-family:inherit}
 #oppCards .acard{width:30px;height:30px;font-size:15px;border-radius:6px}
 #oppFeed{margin-top:8px;font-size:11.5px;color:#8a7a80;line-height:1.6;min-height:34px;border-top:1px solid #2a161e;padding-top:6px}
 #oppFeed .hexline{color:#ff5b6e;font-weight:700}
+/* mode picker */
+#modePick{display:flex;flex-direction:column;gap:7px;margin-bottom:4px}
+.modeb{
+  text-align:left;padding:9px 11px;border-radius:10px;border:1px solid #3d222c;background:#170b10;
+  display:flex;flex-direction:column;gap:2px;transition:border-color .15s,background .15s;
+}
+.modeb b{font-size:14px;color:#d8cfc0}
+.modeb span{font-size:11.5px;color:#8a7a80;line-height:1.35}
+.modeb.on{border-color:#ff3b52;background:#241016;box-shadow:0 0 14px rgba(224,27,60,.18)}
+.modeb.on b{color:#ff5b6e}
+/* boss + summoning panels */
+.bosspanel{margin-bottom:10px;border-color:#7a1a2c;background:linear-gradient(180deg,#241016,#150b10);
+  box-shadow:0 0 26px rgba(224,27,60,.22);padding:11px 13px}
+.bosspanel .bhead{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.bosspanel .bic{font-size:26px;line-height:1}
+.bosspanel .bnm{font-weight:900;font-size:16px;letter-spacing:1px;color:#ff5b6e;flex:1;text-shadow:0 0 12px rgba(255,59,82,.45)}
+.bosspanel .bsp{font-size:12px;font-weight:800;color:#e8e0d0;background:#3a1018;border:1px solid #7a2333;border-radius:7px;padding:2px 8px;white-space:nowrap}
+.bosspanel .bsp.low{color:#ff8a9a;animation:banPulse .8s infinite alternate}
+.bbar{height:12px;border-radius:7px;background:#0d070a;border:1px solid #4a1a24;overflow:hidden}
+.bfill{height:100%;background:linear-gradient(90deg,#7c0e23,#ff3b52 70%,#ff9aa4);border-radius:5px;transition:width .35s}
+.bfill.sc{background:linear-gradient(90deg,#3a2a52,#b45cf0)}
+.bosspanel .bnums,.scypanel .bnums{display:flex;justify-content:space-between;font-size:11.5px;color:#b0a396;margin-top:6px;font-variant-numeric:tabular-nums}
+.bosspanel .bnums b,.scypanel .bnums b{color:#e8e0d0}
+.scypanel{margin-bottom:10px;border-color:#4a2a6e;padding:9px 13px}
 /* opponent live reels */
 #oppGrid{
   display:grid;grid-template-columns:repeat(5,1fr);gap:3px;background:#080407;
@@ -512,7 +536,7 @@ input{font-family:inherit}
     <div class="menu-btns">
       <button class="btn bld" id="mNew">▶ &nbsp;New Run</button>
       <button class="btn" id="mResume" style="display:none">↻ &nbsp;Resume Run</button>
-      <button class="btn" id="mDuel">⚔️ &nbsp;Duel a Friend</button>
+      <button class="btn" id="mDuel">⚔️ &nbsp;Play with a Friend</button>
       <button class="btn" id="mTrials">🎯 &nbsp;Trials <span class="dim" id="mTrialCt"></span></button>
       <button class="btn" id="mColl">🗃️ &nbsp;Collection <span class="dim" id="mCollCt"></span></button>
       <button class="btn" id="mUp">📖 &nbsp;Grimoire <span class="blood" id="mTok"></span></button>
@@ -550,6 +574,15 @@ input{font-family:inherit}
         <div class="panel"><div class="v blood" id="cashV">$0</div><div class="k" id="cashK">Cash</div></div>
         <div class="panel"><div class="v" style="color:#ffae2e" id="potV">$0</div><div class="k">🔥 Hellpot</div></div>
         <div class="panel" id="tollBox"><div class="v bone" id="tollV">$0</div><div class="k" id="tollK">Reaper's Toll in 10</div></div>
+      </div>
+      <div class="panel bosspanel" id="bossPanel" style="display:none">
+        <div class="bhead"><span class="bic" id="bossIc">⚰️</span><span class="bnm" id="bossName">—</span><span class="bsp" id="bossSpins"></span></div>
+        <div class="bbar"><div class="bfill" id="bossFill"></div></div>
+        <div class="bnums"><span id="bossHp">—</span><span id="bossDmgHint" class="dim"></span></div>
+      </div>
+      <div class="panel scypanel" id="scyPanel" style="display:none">
+        <div class="bnums" style="margin:0"><span>🗡️ Summoning <b id="scyN">0/9</b></span><span class="dim" id="scyNext"></span></div>
+        <div class="bbar" style="margin-top:6px"><div class="bfill sc" id="scyFill"></div></div>
       </div>
       <div class="machine" id="machineBox">
         <div id="moonBan">🌕 BLOOD MOON — <span id="moonN">0</span> FREE SPINS · WINS ×<span id="moonM">2</span> · BET LOCKED $<span id="moonB">10</span> 🌕</div>
@@ -654,7 +687,7 @@ input{font-family:inherit}
 
 <!-- ============ LOBBY ============ -->
 <div id="scrLobby" class="scr">
-  <div class="backrow" style="max-width:430px"><button class="btn sm" id="lobbyBack">← Back</button><span class="dim">Duel a Friend</span></div>
+  <div class="backrow" style="max-width:430px"><button class="btn sm" id="lobbyBack">← Back</button><span class="dim">Duel · Co-op</span></div>
   <div id="lobbyBox">
     <div id="lobbyMain">
       <div class="panel">
@@ -663,8 +696,11 @@ input{font-family:inherit}
       </div>
       <div class="panel">
         <div class="rp-h">Create a lobby</div>
-        <div class="dim" style="font-size:12.5px;margin-bottom:10px">Get a 4-letter code, send it to your victim.</div>
-        <button class="btn bld" id="lobbyCreate">🕯️ Create Lobby</button>
+        <div id="modePick">
+          <button class="modeb on" data-mode="duel"><b>⚔️ Duel</b><span>Fight each other. Hexes, wounds, one winner.</span></button>
+          <button class="modeb" data-mode="coop"><b>🗡️ The Hunt</b><span>Co-op. Own reels, shared bosses, shared fate.</span></button>
+        </div>
+        <button class="btn bld" id="lobbyCreate" style="margin-top:10px">🕯️ Create Lobby</button>
       </div>
       <div class="panel">
         <div class="rp-h">Join a lobby</div>
@@ -778,6 +814,7 @@ input{font-family:inherit}
       <li><b>Rites.</b> Every Toll you survive, the dark pays you back: pick <b>1 of 3 Rites</b> — run-permanent buffs, many of which bend the actual spawn odds on the reels. Watch the paytable percentages move as you take them.</li>
       <li><b>Desperation.</b> The lower your cash falls (and into debt), the luckier the reels get — up to <b>+45% payouts</b> plus more wilds, gold and moons. Losing makes you dangerous.</li>
       <li><b>Underdog & Grudge (duels).</b> Falling behind grants <b>Underdog</b> (up to +30% payouts and more wilds). Every hex you eat and every Toll you spend behind fills the <b>Grudge</b> meter — at 100 it forces a free Hex into your hand. The leader never gets to coast.</li>
+      <li><b>🗡️ Co-op: The Hunt.</b> Same lobby, pick <b>The Hunt</b> instead of Duel. You each spin your own reels and pay your own Tolls, but <b>Scythes</b> landing on either player's reels fill a shared Summoning meter. At full, a <b>boss</b> rises for both of you with a shared timer. Your winning lines <b>wound it</b> — and the wound is your payout multiple for that symbol, so whatever you have stacked is what you hit with: a rat-focused build genuinely mauls it with rats. Kill it for cash and a trophy card; the next one is far stronger, forever. Let it escape and it feeds on your cash. <b>Shared fate:</b> if either of you falls, the hunt ends — so keep your partner solvent with 💸.</li>
       <li><b>In duels, mercy exists.</b> Your opponent's panel has <b>💸 Send $50</b> and you have <b>🙏 Beg</b> — a rich rival can bail you out of debt to keep the duel going.</li>
       <li><b>The Night Market.</b> After each Toll, buy <b>card drafts</b> — you are shown several cards and <b>choose which to keep</b>, so you can build toward what you already have. Cards go to your <b>storage</b> — play them when YOU choose:
         <span class="kchip relic">Relic</span> <b>PERMANENT</b> once played · <span class="kchip charm">Charm</span> <b>ONE USE</b>, temporary boost · <span class="kchip hex">Hex</span> <b>ONE USE</b>, strikes your duel opponent. Playing a duplicate Relic upgrades it, <b>up to Lv5</b>. Unwanted cards sell for cash.</li>
@@ -820,7 +857,7 @@ input{font-family:inherit}
 <div id="jpFlash"><div class="t">🔥 666 🔥<br><span id="jpAmt"></span></div></div>
 <div id="toasts"></div>
 <div id="tip"></div>
-<div class="ver">DEADSPIN v2.6.0 · spinfall</div>
+<div class="ver">DEADSPIN v2.7.0 · spinfall</div>
 
 <script>
 'use strict';
@@ -846,6 +883,7 @@ const SYM={
   moon:  {e:'🌕',name:'Moon',       w:2.2, pay:null},  /* charges the Blood Moon meter */
   gold:  {e:'🪙',name:'Cursed Gold',w:4,   pay:null},  /* instant coin */
   web:   {e:'🕸️',name:'Cobweb',     w:14,  pay:null},  /* dud */
+  scythe:{e:'🗡️',name:'Scythe',     w:0,   pay:null},  /* co-op only: summons bosses */
 };
 const SYMLIST=Object.keys(SYM);
 const PAYSYMS=SYMLIST.filter(s=>SYM[s].pay);
@@ -1022,6 +1060,32 @@ const ALTAR=[
 const ALTAR_BY_ID={}; ALTAR.forEach(a=>ALTAR_BY_ID[a.id]=a);
 function altarCost(a,owned){return Math.round(a.base*Math.pow(a.mult,owned||0));}
 
+/* ============ [DATA] CO-OP: THE HUNT ============ */
+/* Two players, own reels, own Tolls — but a shared quarry. Scythes 🗡️ land on
+   either player's reels and fill a shared Summoning meter; at full, a boss
+   rises. Your spins wound it, and the wound is computed from YOUR build: a line
+   pays damage equal to its payout multiple times your multiplier for that
+   symbol. So a rat-stacked player genuinely hits like a truck with rats, and
+   every archetype is a valid damage build. */
+const SCYTHE_W=1.6;          /* scythe reel weight while hunting (co-op only) */
+const DMG_K=30;              /* payout multiple → damage */
+const BOSS_SPINS=22;         /* spins each hunter gets before it flees */
+function scytheNeed(n){return Math.min(24,Math.round(8+1.5*(n-1)));}
+function bossMaxHp(n){return Math.round(900*Math.pow(1.45,n-1));}
+function bossLoot(n){return Math.round(260*Math.pow(1.55,n-1));}
+const BOSSES=[
+  {n:'The Gravewarden',   i:'⚰️'},
+  {n:'The Bellringer',    i:'🔔'},
+  {n:'Mother of Webs',    i:'🕷️'},
+  {n:'The Pale Choir',    i:'👻'},
+  {n:'Ossuary King',      i:'💀'},
+  {n:'The Long Hunger',   i:'🧛'},
+  {n:'Herald of the Six', i:'6'},
+  {n:'The Reaper Himself',i:'🗡️'},
+];
+function bossOf(n){const b=BOSSES[(n-1)%BOSSES.length];const tier=Math.floor((n-1)/BOSSES.length);
+  return {name:b.n+(tier?' '+'IVXLC'.slice(0,0)+'· rank '+(tier+1):''),icon:b.i};}
+
 /* ============ [DATA] DUEL ============ */
 /* Duels are decided by HP, not attrition: at every Toll checkpoint whoever is
    poorer takes a wound. Guarantees a finish however rich both players get. */
@@ -1047,6 +1111,9 @@ const TRIALS=[
   {id:'duel5',   n:'Nemesis',             i:'💀',rw:80, d:'Win 5 duels',                       p:m=>[m.stats.duelWins||0,5]},
   {id:'comeback',n:'From the Grave',      i:'🧟',rw:70, d:'Pay a Toll while you were in debt', p:m=>[m.stats.debtTolls||0,1]},
   {id:'souls500',n:'Soul Broker',         i:'👻',rw:100,d:'Earn 500 Souls in total',           p:m=>[m.stats.soulsEarned||0,500]},
+  {id:'boss1',   n:'First Quarry',        i:'🗡️',rw:30, d:'Slay a boss on a co-op Hunt',        p:m=>[m.stats.bossKills||0,1]},
+  {id:'boss5',   n:'Trophy Hunter',       i:'⚰️',rw:75, d:'Slay the 5th boss in one Hunt',      p:m=>[m.stats.bestBoss||0,5]},
+  {id:'boss10',  n:'The Long Hunt',       i:'💀',rw:160,d:'Slay the 10th boss in one Hunt',     p:m=>[m.stats.bestBoss||0,10]},
 ];
 
 /* ============ [DATA] GRIMOIRE (meta upgrades, paid in Souls) ============ */
@@ -1101,6 +1168,9 @@ function loadAll(){
             if(!run.altar) run.altar={};
             if(run.hp===undefined) run.hp=DUEL_HP;
             if(!run.roundCash) run.roundCash={};
+            if(run.scythes===undefined) run.scythes=0;
+            if(run.bossNum===undefined) run.bossNum=1;
+            if(run.boss===undefined) run.boss=null;
           }
         }else{
           /* v1 Spinfall save: keep the currency + lifetime stats, new card world */
@@ -1144,7 +1214,7 @@ function desperation(){
 }
 /* ---- Underdog: duel-only. Scales with how far behind the opponent you are. ---- */
 function underdog(){
-  if(!run||run.over||!run.duel||!opp||!opp.alive||typeof opp.cash!=='number') return 0;
+  if(!run||run.over||!isPvP()||!opp||!opp.alive||typeof opp.cash!=='number') return 0;
   const t=Math.max(1,tollBase(run.cutNum));
   const gap=(opp.cash-run.cash)/t;
   if(gap<=0.5) return 0;
@@ -1188,9 +1258,14 @@ function EFF_SLOTS(){
 }
 
 /* ============ [ENGINE] pure spin functions ============ */
+/* co-op predicates: `duel` means "networked"; pvp means "fighting each other" */
+function isCoop(){return !!(run&&run.duel&&run.coop);}
+function isPvP(){return !!(run&&run.duel&&!run.coop);}
 function weightTable(eff){
   const w={};
   for(const s of SYMLIST) w[s]=Math.max(0,SYM[s].w+((eff.symW&&eff.symW[s])||0));
+  /* Scythes only exist on a hunt, and only while no boss is up */
+  w.scythe=(isCoop()&&run&&!run.boss)?SCYTHE_W:0;
   w.eye=Math.max(0,w.eye+eff.wildW);
   w.moon=Math.max(0,w.moon+eff.moonW);
   w.six=Math.max(0,w.six+eff.sixW);
@@ -1247,13 +1322,21 @@ function evalSpin(grid,bet,eff,ctx){
     const syms=LINES[li].map(i=>grid[i]);
     const w=lineWin(syms,eff,bet);
     if(w){
-      res.lines.push({li,sym:w.sym,len:w.len,amt:w.amt});
+      res.lines.push({li,sym:w.sym,len:w.len,amt:w.amt,pair:!!w.pair});
       if(w.sym==='six'&&w.len>=3) res.jackpot=true;
     }
   }
   for(const s of grid){
     if(s==='gold') res.coinWin+=(COIN_VAL+eff.coinVal)*bet;
     else if(s==='moon') res.scatters++;
+    else if(s==='scythe') res.scythes=(res.scythes||0)+1;
+  }
+  /* Damage is the payout MULTIPLE (not the cash), so wounds come from your
+     build rather than your bet — a focused symbol hits for what it is worth. */
+  res.dmg=0;
+  for(const l of res.lines){
+    if(l.pair||l.len<3) continue;   /* pairs are cash-only, never wounds */
+    res.dmg+=SYM[l.sym].pay[Math.min(2,l.len-3)]*payMult(eff,l.sym)*DMG_K;
   }
   if(eff.moonBlock>0) res.scatters=0;
   res.lineWin=res.lines.reduce((t,l)=>t+l.amt,0);
@@ -1426,11 +1509,11 @@ document.addEventListener('click',e=>{
 });
 
 /* ============ [RUN LIFECYCLE] ============ */
-function startRun(duel){
+function startRun(duel,coop){
   const startCash=200+(duel?0:25*((meta.up.bankroll)||0));
   run={cash:startCash,bet:10,spins:0,sinceCut:0,cutNum:1,pot:POT_SEED,streak:0,
     freeSpins:0,over:false,relics:{},relicOrder:[],charms:[],debuffs:[],storage:[],
-    tollMods:{mult:1,add:0,skip:0},shop:null,inShop:false,rites:[],grudge:0,moonCharge:0,pawned:0,roundReady:true,altar:{},hp:DUEL_HP,roundCash:{},
+    tollMods:{mult:1,add:0,skip:0},shop:null,inShop:false,rites:[],grudge:0,moonCharge:0,pawned:0,roundReady:true,altar:{},hp:DUEL_HP,roundCash:{},coop:!!coop,scythes:0,bossNum:1,boss:null,bossKills:0,
     peak:startCash,bigWin:0,jackpots:0,cutsPaid:0,newCards:0,usedWind:false,
     rerollsUsed:0,ghoulCt:0,duel:!!duel,played:[]};
   meta.stats.runs++;
@@ -1631,6 +1714,25 @@ function applyResult(grid,res,free,eff){
     addFloat('🌕 +'+fmt(bonus),'',slot++);
     sCoin();
   }
+  /* ---- the hunt ---- */
+  if(isCoop()){
+    if(run.boss){
+      if(res.dmg>0){
+        const dmg=Math.round(res.dmg);
+        run.boss.hp-=dmg;
+        addFloat('🗡️ '+Math.round(dmg).toLocaleString('en-US'),'big',slot++);
+        duelSend({t:'dmg',n:run.boss.n,amt:dmg});
+      }
+      run.boss.spins--;
+      if(run.boss.hp<=0) bossSlain();
+      else if(run.boss.spins<=0) bossEscaped();
+    }else if(res.scythes>0){
+      run.scythes=(run.scythes||0)+res.scythes;
+      addFloat('🗡️ ×'+res.scythes,'bad',slot++);
+      duelSend({t:'scythe',k:res.scythes});
+      if(run.scythes>=scytheNeed(run.bossNum||1)) summonBoss();
+    }
+  }
   /* tick temporary effects */
   run.charms=run.charms.filter(ch=>{ch.left--;return ch.left>0;});
   run.debuffs=run.debuffs.filter(db=>{db.left--;return db.left>0;});
@@ -1771,6 +1873,80 @@ function takeRite(id){
   if(run.duel) sendState();
   openShop();
 }
+/* ============ [THE HUNT] co-op bosses ============ */
+function renderHunt(){
+  const bp=$('bossPanel'), sp=$('scyPanel');
+  if(!isCoop()){ bp.style.display='none'; sp.style.display='none'; return; }
+  if(run.boss){
+    sp.style.display='none';
+    bp.style.display='';
+    $('bossIc').innerHTML=run.boss.icon==='6'?'<span class="s6">6</span>':run.boss.icon;
+    $('bossName').textContent=run.boss.name;
+    const spEl=$('bossSpins');
+    spEl.textContent=run.boss.spins+' spins left';
+    spEl.classList.toggle('low',run.boss.spins<=5);
+    const pctv=Math.max(0,Math.min(100,run.boss.hp/run.boss.max*100));
+    $('bossFill').style.width=pctv+'%';
+    $('bossHp').innerHTML='<b>'+Math.max(0,Math.round(run.boss.hp)).toLocaleString('en-US')+'</b> / '+run.boss.max.toLocaleString('en-US');
+    const eff=EFF();
+    const best=PAYSYMS.map(s=>({s,d:SYM[s].pay[0]*payMult(eff,s)*DMG_K}))
+      .sort((a,b)=>b.d-a.d)[0];
+    $('bossDmgHint').innerHTML='your best 3-line: '+symHTML(best.s)+' ~'+Math.round(best.d).toLocaleString('en-US');
+  }else{
+    bp.style.display='none';
+    sp.style.display='';
+    const need=scytheNeed(run.bossNum||1);
+    $('scyN').textContent=(run.scythes||0)+'/'+need;
+    $('scyFill').style.width=Math.min(100,(run.scythes||0)/need*100)+'%';
+    $('scyNext').textContent=bossOf(run.bossNum||1).name+' · '+bossMaxHp(run.bossNum||1).toLocaleString('en-US')+' HP';
+  }
+}
+function summonBoss(silent){
+  const n=run.bossNum||1;
+  const b=bossOf(n);
+  run.scythes=0;
+  run.boss={n,hp:bossMaxHp(n),max:bossMaxHp(n),spins:BOSS_SPINS,name:b.name,icon:b.icon};
+  if(!silent){
+    toast('🗡️ '+b.icon+' <b>'+b.name+'</b> RISES — '+BOSS_SPINS+' spins to bring it down','hexed');
+    sHex();
+  }
+  saveAll(); renderGame();
+}
+function bossSlain(){
+  const n=run.boss.n;
+  const loot=bossLoot(n);
+  run.cash+=loot;
+  run.bossNum=n+1;
+  run.bossKills=(run.bossKills||0)+1;
+  meta.stats.bossKills=(meta.stats.bossKills||0)+1;
+  meta.stats.bestBoss=Math.max(meta.stats.bestBoss||0,n);
+  run.boss=null;
+  toast('☠️ <b>'+bossOf(n).name+' FALLS</b> — +'+fmt(loot)+' and the next rises stronger','good');
+  sJack();
+  /* the kill also pays a card into storage if there is room */
+  if(run.storage.length<storageCap()){
+    const pool=CARDS.filter(c=>c.kind!=='hex'&&c.r>=1);
+    const card=pool[Math.floor(Math.random()*pool.length)];
+    gainCard(card.id);
+    toast('🎁 Trophy: '+card.i+' '+card.n,'good');
+  }
+  checkTrials();
+  saveAll(); renderGame();
+  if(run.duel) sendState();
+}
+function bossEscaped(broadcast){
+  const n=run.boss.n;
+  if(broadcast!==false) duelSend({t:'bossgone',n});
+  const toll=Math.round(Math.max(0,run.cash)*0.35);
+  run.cash-=toll;
+  run.boss=null;
+  run.scythes=0;
+  toast('🩸 '+bossOf(n).name+' escaped and fed — you lose '+fmt(toll),'bad');
+  sToll();
+  saveAll(); renderGame();
+  if(run.duel) sendState();
+}
+
 /* ============ [DEAD END] out of credit — never just sit there ============ */
 function stuck(){
   if(!run||run.over||run.inShop||anim||run.freeSpins>0) return false;
@@ -1856,7 +2032,7 @@ function renderTrials(){
 
 /* ============ [GRUDGE] duel catch-up: pain becomes hexes ============ */
 function addGrudge(n){
-  if(!run||!run.duel||run.over) return;
+  if(!run||!isPvP()||run.over) return;
   run.grudge=(run.grudge||0)+n;
   while(run.grudge>=100){
     run.grudge-=100;
@@ -1888,7 +2064,7 @@ function describeAltar(a,n){
 function rollShop(){
   const eff=EFF();
   const scale=(1+0.13*Math.max(0,run.cutNum-2))*Math.max(0,1-eff.packDisc);
-  const pool=CARDS.filter(c=>run.duel||c.kind!=='hex');
+  const pool=CARDS.filter(c=>isPvP()||c.kind!=='hex');
   const singles=[];
   for(let i=0;i<2;i++){
     let r=Math.random()*100, rar=0;
@@ -1996,7 +2172,7 @@ function openPack(pack,freebie){
   for(let i=0;i<show;i++){
     let r=Math.random()*100,rar=0;
     for(let j=0;j<5;j++){r-=pack.odds[j];if(r<0){rar=j;break;}}
-    const pool=CARDS.filter(c=>c.r===rar&&(run.duel||c.kind!=='hex'));
+    const pool=CARDS.filter(c=>c.r===rar&&(isPvP()||c.kind!=='hex'));
     pulls.push(pool[Math.floor(Math.random()*pool.length)]);
   }
   draftPicks=[]; draftKeep=Math.min(keep,Math.max(0,storageCap()-run.storage.length));
@@ -2132,7 +2308,7 @@ function canPlay(c){
   }
   if(c.kind==='charm') return {ok:true};
   /* hex */
-  if(!run.duel) return {ok:false,why:'Hexes only work in duels. Sell it, or save it for one.'};
+  if(!isPvP()) return {ok:false,why:'Hexes only strike a rival. On a hunt they are worthless — sell it.'};
   if(!duelAlive()) return {ok:false,why:'No living opponent to hex.'};
   if(c.hx.type==='copy'&&!opp.relicsSeen.length) return {ok:false,why:'Your opponent has not played a relic yet.'};
   return {ok:true};
@@ -2287,6 +2463,7 @@ function renderGame(){
   renderStorage();
   renderPaytable(eff);
   renderDeadEnd();
+  renderHunt();
   /* the lead/gap readout depends on OUR cash too, so refresh it on every render
      rather than only when an opponent message lands */
   if(run.duel&&opp) renderOpp();
@@ -2467,6 +2644,7 @@ function confirmBox(title,desc,cb){
 /* ============ [DUEL: state] ============ */
 var ws=null, opp=null, duelActive=false, pendingCode='', wasWaiting=false;
 var reconnectTries=0; const RECONNECT_MAX=4;
+var isHost=false, lobbyMode='duel';
 function duelAlive(){return !!(ws&&ws.readyState===1&&opp&&opp.alive);}
 /* Toll checkpoint gate. You cannot spin the next round until BOTH players have
    finished their Toll business (Rite + Night Market) and pressed Ready. */
@@ -2485,13 +2663,13 @@ function freshOpp(name){return {name:name||'…',cash:0,spins:0,tollIn:'—',tol
    guarantees a duel actually ends instead of running forever. Each client only
    ever damages ITSELF from the same pair of numbers, so both stay in sync. */
 function reportRound(){
-  if(!run||!run.duel) return;
+  if(!run||!isPvP()) return;
   run.roundCash[run.cutNum]=Math.round(run.cash);
   duelSend({t:'round',n:run.cutNum,cash:Math.round(run.cash)});
   resolveRound(run.cutNum);
 }
 function resolveRound(n){
-  if(!run||!run.duel||run.over||!opp) return;
+  if(!run||!isPvP()||run.over||!opp) return;
   if(run.resolved&&run.resolved[n]) return;
   const mine=run.roundCash[n], theirs=opp.roundCash[n];
   if(mine===undefined||theirs===undefined) return;
@@ -2680,6 +2858,7 @@ function joinRoom(code,silent){
 }
 async function createLobby(){
   saveName();
+  isHost=true;
   lobbyStatus('Summoning');
   try{
     const r=await fetch(DUEL_HTTP+'/create');
@@ -2705,6 +2884,7 @@ function onDuelMsg(m){
     case 'roster': break;
     case 'start':{
       if(duelActive&&run&&!run.over) break; /* rejoin, not a new match */
+      if(isHost) duelSend({t:'mode',mode:lobbyMode});
       const name=(meta.name||'Player').slice(0,14);
       const other=(m.names||[]).find(n=>n!==name)||(m.names||[])[0]||'Opponent';
       opp=freshOpp(other);
@@ -2712,8 +2892,8 @@ function onDuelMsg(m){
       wasWaiting=false;
       ovClose('ovDuelEnd');
       if(run&&!run.over&&!run.duel) endRunSilent();
-      startRun(true);
-      toast('⚔️ Duel started vs '+other,'good');
+      startRun(true,lobbyMode==='coop');
+      toast(lobbyMode==='coop'?('🗡️ The Hunt begins with '+other):('⚔️ Duel started vs '+other),'good');
       sendState();
       break;}
     case 'state':{
@@ -2756,6 +2936,34 @@ function onDuelMsg(m){
       }
       renderOpp();
       break;}
+    case 'mode':
+      if(m.mode&&m.mode!==lobbyMode){
+        lobbyMode=m.mode;
+        if(run&&!run.over&&run.duel){
+          run.coop=(m.mode==='coop');
+          toast(run.coop?'🗡️ Co-op: The Hunt':'⚔️ Duel','good');
+          renderGame();
+        }
+      }
+      break;
+    /* ---- shared quarry ---- */
+    case 'scythe':
+      if(isCoop()&&run&&!run.over&&!run.boss){
+        run.scythes=(run.scythes||0)+(m.k||0);
+        if(run.scythes>=scytheNeed(run.bossNum||1)) summonBoss();
+        else renderGame();
+      }
+      break;
+    case 'bossgone':
+      if(isCoop()&&run&&!run.over&&run.boss&&run.boss.n===m.n) bossEscaped(false);
+      break;
+    case 'dmg':
+      if(isCoop()&&run&&!run.over&&run.boss&&run.boss.n===m.n){
+        run.boss.hp-=(m.amt||0);
+        oppFeed('🗡️ they struck for '+Math.round(m.amt||0).toLocaleString('en-US'));
+        if(run.boss.hp<=0) bossSlain(); else renderGame();
+      }
+      break;
     case 'hex': applyHex(m.id); break;
     case 'hexAck':{
       const c=CARD_BY_ID[m.id];
@@ -2768,7 +2976,8 @@ function onDuelMsg(m){
     case 'death':
       if(opp){opp.alive=false;renderOpp();}
       if(run&&!run.over&&duelActive){
-        endRun('Your opponent fell first. The House applauds.',{won:true});
+        if(isCoop()) endRun((opp?opp.name:'Your partner')+' fell — the hunt dies with them.');
+        else endRun('Your opponent fell first. The House applauds.',{won:true});
       }
       break;
     case 'give':
@@ -2790,7 +2999,8 @@ function onDuelMsg(m){
     case 'gone':
       if(duelActive&&run&&!run.over){
         if(opp){opp.alive=false;renderOpp();}
-        endRun('Your opponent fled the table.',{won:true});
+        if(isCoop()) endRun('Your partner left the hunt.');
+        else endRun('Your opponent fled the table.',{won:true});
         $('rematchStatus').textContent='Opponent disconnected.';
         $('duelRematch').disabled=true;
       }else if($('scrLobby').classList.contains('on')){
@@ -2805,8 +3015,9 @@ function onDuelMsg(m){
 function showDuelEnd(won,reason,souls){
   duelActive=false;
   const t=$('duelEndT');
-  t.textContent=won?'VICTORY':'DEFEAT';
-  t.className=won?'win':'lose';
+  const coop=run&&run.coop;
+  t.textContent=coop?('THE HUNT ENDS'):(won?'VICTORY':'DEFEAT');
+  t.className=coop?'lose':(won?'win':'lose');
   $('duelEndD').innerHTML=reason+'<br><span class="blood" style="font-weight:800">+'+souls+' 👻 Souls</span>';
   $('duelRematch').disabled=!(ws&&ws.readyState===1);
   $('rematchStatus').textContent='';
@@ -2862,9 +3073,14 @@ function wire(){
   /* lobby */
   $('lobbyBack').onclick=()=>{closeWs();renderMenu();show('scrMenu');};
   $('lobbyCancel').onclick=()=>{closeWs();showLobbyMain();};
+  document.querySelectorAll('#modePick .modeb').forEach(b=>b.onclick=()=>{
+    lobbyMode=b.dataset.mode;
+    document.querySelectorAll('#modePick .modeb').forEach(x=>x.classList.toggle('on',x===b));
+  });
   $('lobbyCreate').onclick=createLobby;
   $('lobbyJoin').onclick=()=>{
     saveName();
+    isHost=false;
     const code=$('codeIn').value.trim().toUpperCase();
     if(code.length!==4){toast('Codes are 4 letters','bad');return;}
     joinRoom(code);
