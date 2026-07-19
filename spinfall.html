@@ -220,6 +220,32 @@ input{font-family:inherit}
 #oppCards .acard{width:30px;height:30px;font-size:15px;border-radius:6px}
 #oppFeed{margin-top:8px;font-size:11.5px;color:#8a7a80;line-height:1.6;min-height:34px;border-top:1px solid #2a161e;padding-top:6px}
 #oppFeed .hexline{color:#ff5b6e;font-weight:700}
+/* corner badges: what this spin actually gave you */
+#cornerFx{position:absolute;top:8px;right:10px;z-index:7;pointer-events:none;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.cfx{
+  font-size:14px;font-weight:900;padding:3px 9px;border-radius:9px;white-space:nowrap;
+  animation:cfxIn .28s ease-out, cfxOut .4s 1s forwards;
+}
+.cfx.blood{background:#2c0f16;color:#ff5b6e;border:1px solid #7a2333;box-shadow:0 0 14px rgba(255,59,82,.3)}
+.cfx.clover{background:#0f2a16;color:#6fd784;border:1px solid #2e6b41;box-shadow:0 0 14px rgba(111,215,132,.3)}
+@keyframes cfxIn{from{opacity:0;transform:translateX(14px) scale(.8)}to{opacity:1}}
+@keyframes cfxOut{to{opacity:0;transform:translateX(10px)}}
+/* the Death Roll */
+#deathRoll{display:none;position:fixed;inset:0;z-index:59;pointer-events:none;align-items:center;justify-content:center}
+#deathRoll.on{display:flex;animation:drFade 1.9s forwards}
+#deathRoll::before{content:'';position:absolute;inset:0;background:radial-gradient(circle,rgba(140,8,26,.55),rgba(6,2,4,.9) 70%)}
+#deathRoll .dr-in{position:relative;text-align:center;animation:biPop .55s cubic-bezier(.2,1.4,.4,1)}
+#deathRoll .dr-t{font-size:34px;font-weight:900;letter-spacing:6px;color:#ff3b52;text-shadow:0 0 30px rgba(255,59,82,.9),0 3px 8px #000}
+#deathRoll .dr-amt{font-size:52px;font-weight:900;color:#fff;text-shadow:0 0 24px rgba(255,59,82,.8),0 3px 8px #000;margin-top:4px}
+#deathRoll .dr-s{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#ff8a9a;margin-top:8px}
+@keyframes drFade{0%{opacity:0}8%{opacity:1}75%{opacity:1}100%{opacity:0}}
+/* market cash sinks */
+.sinkrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.sinkb{text-align:left;padding:10px 12px;display:flex;flex-direction:column;gap:3px;background:linear-gradient(180deg,#2a1016,#170b10);border-color:#7a2333}
+.sinkb b{font-size:14px;color:#ff5b6e}
+.sinkb span{font-size:11.5px;color:#8a7a80;line-height:1.35;font-weight:400}
+.sinkb span b{color:#6fd784;font-size:11.5px}
+.sinkb:hover{border-color:#ff3b52}
 /* boss arrival takeover */
 #bossIntro{display:none;position:fixed;inset:0;z-index:58;pointer-events:none;align-items:center;justify-content:center}
 #bossIntro.on{display:flex;animation:biFade 2.4s forwards}
@@ -729,6 +755,7 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
           <div class="db" id="deadBtns"></div>
         </div>
         <div id="floats"></div>
+        <div id="cornerFx"></div>
       </div>
       <div class="activebox">
         <div class="lbl"><span>Rites Taken</span><span class="dim" id="riteCt"></span></div>
@@ -882,6 +909,7 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
     <div id="shopSingles"></div>
     <div class="dim" style="font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:12px 0 6px">🩸 The Altar <span style="text-transform:none;letter-spacing:0">— buy again and again, the price always climbs</span></div>
     <div id="shopAltar"></div>
+    <div id="shopSinks"></div>
     <div style="display:flex;gap:10px;margin-top:14px">
       <button class="btn" id="shopReroll">🎲 Reroll</button>
       <button class="btn bld" id="shopDone">✔ Ready</button>
@@ -995,10 +1023,11 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 
 <div id="bossIntro"><div class="bi-in"><div class="bi-sub">something answers the scythes</div><div class="bi-ic" id="biIc">⚰️</div><div class="bi-nm" id="biNm">—</div><div class="bi-hp" id="biHp"></div></div></div>
 <div id="splat"></div>
+<div id="deathRoll"><div class="dr-in"><div class="dr-t">THE DEATH ROLL</div><div class="dr-amt">—</div><div class="dr-s">he always takes his share</div></div></div>
 <div id="jpFlash"><div class="t">🔥 666 🔥<br><span id="jpAmt"></span></div></div>
 <div id="toasts"></div>
 <div id="tip"></div>
-<div class="ver">DEADSPIN v3.2.0 · spinfall</div>
+<div class="ver">DEADSPIN v3.3.0 · spinfall</div>
 
 <script>
 'use strict';
@@ -1023,6 +1052,7 @@ const SYM={
   eye:   {e:'👁️',name:'The Eye',    w:2.5, pay:null},  /* WILD */
   moon:  {e:'🌕',name:'Moon',       w:2.2, pay:null},  /* charges the Blood Moon meter */
   gold:  {e:'🪙',name:'Cursed Gold',w:4,   pay:null},  /* instant coin */
+  clover:{e:'🍀',name:'Black Clover',w:1.8, pay:null},  /* each one multiplies the spin */
   web:   {e:'🕸️',name:'Cobweb',     w:14,  pay:null},  /* dud */
   scythe:{e:'🗡️',name:'Scythe',     w:0,   pay:null},  /* co-op only: summons bosses */
 };
@@ -1052,6 +1082,11 @@ const MOON_SPINS=5;
 const MOON_DRIFT=0.011;   /* per paid spin */
 const MOON_PER=0.055;     /* per Moon symbol on screen */
 const STORAGE_CAP=12;
+/* The Death Roll: rare, brutal, and the price of greed. Risk cards buy power
+   by making it likelier, so a strong build is never a free lunch. */
+const DEATH_ROLL=0.0035;   /* per paid spin */
+const DEATH_BITE=0.32;     /* share of cash it takes */
+const CLOVER_MULT=0.5;     /* each 🍀 on screen adds this to line wins */
 
 /* ============ [DATA] RARITIES ============ */
 const RARS=[
@@ -1071,23 +1106,23 @@ const CARDS=[
 /* Relics cap at Lv5 (was Lv3) with smaller steps: a longer ladder to climb,
    and a slightly lower ceiling than the old 3-level values. */
 /* ---- RELICS: common ---- */
-{id:'rat_king',n:'Rat King',i:'🐀',r:0,kind:'relic',mx:12,d:l=>`Rats pay +${Math.round(15*l)}%`,f:'He remembers every crumb.',eff:l=>({pay:{rat:.15*l}})},
-{id:'bat_swarm',n:'Bat Swarm',i:'🦇',r:0,kind:'relic',mx:11,d:l=>`Bats pay +${Math.round(17*l)}%`,f:'The attic was never empty.',eff:l=>({pay:{bat:.17*l}})},
-{id:'spider_silk',n:'Spider Silk',i:'🕷️',r:0,kind:'relic',mx:10,d:l=>`Spiders pay +${Math.round(20*l)}%`,f:'Soft as a last breath.',eff:l=>({pay:{spider:.20*l}})},
-{id:'black_tallow',n:'Black Tallow',i:'🕯️',r:0,kind:'relic',mx:9,d:l=>`Candles pay +${Math.round(23*l)}%`,f:'Burns green. Smells of copper.',eff:l=>({pay:{candle:.23*l}})},
+{id:'rat_king',n:'Rat King',i:'🐀',r:0,kind:'relic',mx:Infinity,d:l=>`Rats pay +${Math.round(15*l)}%`,f:'He remembers every crumb.',eff:l=>({pay:{rat:.15*l}})},
+{id:'bat_swarm',n:'Bat Swarm',i:'🦇',r:0,kind:'relic',mx:Infinity,d:l=>`Bats pay +${Math.round(17*l)}%`,f:'The attic was never empty.',eff:l=>({pay:{bat:.17*l}})},
+{id:'spider_silk',n:'Spider Silk',i:'🕷️',r:0,kind:'relic',mx:Infinity,d:l=>`Spiders pay +${Math.round(20*l)}%`,f:'Soft as a last breath.',eff:l=>({pay:{spider:.20*l}})},
+{id:'black_tallow',n:'Black Tallow',i:'🕯️',r:0,kind:'relic',mx:Infinity,d:l=>`Candles pay +${Math.round(23*l)}%`,f:'Burns green. Smells of copper.',eff:l=>({pay:{candle:.23*l}})},
 {id:'grave_dirt',n:'Grave Dirt',i:'⚱️',r:0,kind:'relic',mx:5,d:l=>`Cobwebs appear less often (−${(1.1*l).toFixed(1)})`,f:'Fresh, from somewhere unmarked.',eff:l=>({webW:-1.1*l})},
 {id:'tomb_coin',n:'Tomb Coin',i:'🪙',r:0,kind:'relic',mx:5,d:l=>`Cursed Gold is worth +${Math.round(7*l)}% of your bet`,f:'Two for the ferryman.',eff:l=>({coinVal:.07*l})},
 {id:'small_mercy',n:'Small Mercy',i:'🥀',r:0,kind:'relic',mx:5,d:l=>`Dead spins refund ${Math.round(8*l)}% of your bet`,f:'Even the House pities.',eff:l=>({betRefund:.08*l})},
 /* ---- RELICS: uncommon ---- */
-{id:'coffin_nails',n:'Coffin Nails',i:'⚰️',r:1,kind:'relic',mx:8,d:l=>`Coffins pay +${Math.round(26*l)}%`,f:'Nine of them. Always nine.',eff:l=>({pay:{coffin:.26*l}})},
-{id:'ectoplasm',n:'Ectoplasm',i:'👻',r:1,kind:'relic',mx:7,d:l=>`Ghosts pay +${Math.round(30*l)}%`,f:'Still warm.',eff:l=>({pay:{ghost:.30*l}})},
+{id:'coffin_nails',n:'Coffin Nails',i:'⚰️',r:1,kind:'relic',mx:Infinity,d:l=>`Coffins pay +${Math.round(26*l)}%`,f:'Nine of them. Always nine.',eff:l=>({pay:{coffin:.26*l}})},
+{id:'ectoplasm',n:'Ectoplasm',i:'👻',r:1,kind:'relic',mx:Infinity,d:l=>`Ghosts pay +${Math.round(30*l)}%`,f:'Still warm.',eff:l=>({pay:{ghost:.30*l}})},
 {id:'witchs_eye',n:"Witch's Eye",i:'👁️',r:1,kind:'relic',mx:5,d:l=>`The Eye (wild) appears more often (+${(0.55*l).toFixed(2)})`,f:'It blinks when you lie.',eff:l=>({wildW:.55*l})},
 {id:'moonstone',n:'Moonstone',i:'🌑',r:1,kind:'relic',mx:5,d:l=>`Moons appear more often (+${(0.55*l).toFixed(2)})`,f:'It pulls at something in you.',eff:l=>({moonW:.55*l})},
 {id:'embalmers_tab',n:"Embalmer's Tab",i:'🧪',r:1,kind:'relic',mx:5,d:l=>`Night Market prices −${Math.round(4.5*l)}%`,f:'He gives discounts to regulars.',eff:l=>({packDisc:.045*l})},
 {id:'blood_pact',n:'Blood Pact',i:'🩸',r:1,kind:'relic',mx:5,d:l=>`Earn 5% interest at each Toll (max $${42*l})`,f:'Signed in the usual place.',eff:l=>({interest:.05,interestCap:42*l})},
 /* ---- RELICS: rare ---- */
-{id:'polished_skull',n:'Polished Skull',i:'💀',r:2,kind:'relic',mx:6,d:l=>`Skulls pay +${Math.round(34*l)}%`,f:'You can almost see your face.',eff:l=>({pay:{skull:.34*l}})},
-{id:'devils_digit',n:"Devil's Digit",i:'😈',r:2,kind:'relic',mx:5,d:l=>`Sixes pay +${Math.round(40*l)}%`,f:'It counts for him.',eff:l=>({pay:{six:.40*l}})},
+{id:'polished_skull',n:'Polished Skull',i:'💀',r:2,kind:'relic',mx:Infinity,d:l=>`Skulls pay +${Math.round(34*l)}%`,f:'You can almost see your face.',eff:l=>({pay:{skull:.34*l}})},
+{id:'devils_digit',n:"Devil's Digit",i:'😈',r:2,kind:'relic',mx:Infinity,d:l=>`Sixes pay +${Math.round(40*l)}%`,f:'It counts for him.',eff:l=>({pay:{six:.40*l}})},
 {id:'forged_ledger',n:'Forged Ledger',i:'📜',r:2,kind:'relic',mx:5,d:l=>`Reaper's Tolls are ${(5.5*l).toFixed(1)}% smaller`,f:'Death is bad at arithmetic.',eff:l=>({tollReduce:.055*l})},
 {id:'fang_of_greed',n:'Fang of Greed',i:'🦷',r:2,kind:'relic',mx:5,d:l=>`Hot streak grows +${(2.8*l).toFixed(1)}% per win, cap +${Math.round(28*l)}%`,f:'It grew back twice.',eff:l=>({streakStep:.028*l,streakCap:.28*l})},
 {id:'blood_chalice',n:'Blood Chalice',i:'🍷',r:2,kind:'relic',mx:5,d:l=>`+${l} free spin${l>1?'s':''} per Blood Moon`,f:'Never quite empty.',eff:l=>({moonSpins:l})},
@@ -1110,6 +1145,13 @@ const CARDS=[
 {id:'iron_will',n:'Iron Will',i:'🛡️',r:2,kind:'charm',dur:0,d:()=>"Your next Reaper's Toll is 40% smaller",f:'Death respects stubbornness.',instant:'tollDown'},
 {id:'sixth_sense',n:'Sixth Sense',i:'🎱',r:3,kind:'charm',dur:5,d:()=>'For 5 spins: Sixes appear far more often (+3)',f:'It always says 6.',ceff:{sixW:3}},
 {id:'ghost_walk',n:'Ghost Walk',i:'🌫️',r:4,kind:'charm',dur:0,d:()=>"Skip your next Reaper's Toll entirely",f:'He cannot collect what he cannot see.',instant:'tollSkip'},
+/* ---- RELICS: luck & risk ---- */
+{id:'four_leaf',n:'Four-Leaf',i:'🍀',r:1,kind:'relic',mx:Infinity,d:l=>`Black Clovers spawn more often (+${(0.4*l).toFixed(1)})`,f:'Found in a grave, so it counts.',eff:l=>({cloverW:.4*l})},
+{id:'damned_luck',n:'Luck of the Damned',i:'☘️',r:2,kind:'relic',mx:Infinity,d:l=>`Each Clover multiplies the spin +${Math.round(25*l)}% more`,f:'It works. That is the problem.',eff:l=>({cloverMult:.25*l})},
+{id:'reckless_wager',n:'Reckless Wager',i:'🎲',r:2,kind:'relic',mx:5,d:l=>`All payouts +${Math.round(22*l)}%, but the Death Roll is ${(0.25*l).toFixed(2)}% likelier`,f:'Everyone dies. Few profit.',eff:l=>({payAll:.22*l,deathOdds:.0025*l})},
+{id:'devils_luck',n:"Devil's Luck",i:'😈',r:3,kind:'relic',mx:5,d:l=>`The Eye +${(0.7*l).toFixed(1)}, Clovers +${(0.3*l).toFixed(1)}, Death Roll +${(0.3*l).toFixed(2)}%`,f:'He is generous, and he collects.',eff:l=>({wildW:.7*l,cloverW:.3*l,deathOdds:.003*l})},
+{id:'hollow_bargain',n:'Hollow Bargain',i:'🕳️',r:3,kind:'relic',mx:5,d:l=>`Blood +${Math.round(45*l)}%, but the Death Roll is ${(0.35*l).toFixed(2)}% likelier`,f:'Sign here. And here.',eff:l=>({bloodGain:.45*l,deathOdds:.0035*l})},
+{id:'warding_salt',n:'Warding Salt',i:'🧂',r:2,kind:'relic',mx:5,d:l=>`The Death Roll is ${(0.3*l).toFixed(2)}% less likely`,f:'Pour it at the threshold.',eff:l=>({deathOdds:-.003*l})},
 /* ---- RELICS: keystones ----
    Build-defining, not stat-defining. Each one changes a RULE, so finding one
    is a reason to steer the whole run around it. All are mx:1 — they are a
@@ -1371,6 +1413,8 @@ function loadAll(){
             if(run.scythes===undefined) run.scythes=0;
             if(run.bossNum===undefined) run.bossNum=1;
             if(run.boss===undefined) run.boss=null;
+            if(run.stake===undefined) run.stake=0;
+            if(run.shopBuys===undefined) run.shopBuys=0;
             if(!run.altarSym) run.altarSym={};
             if(run.blood===undefined) run.blood=0;
             if(!run.marks||!run.marks.length) run.marks=rollMarks(MARKS_BASE);
@@ -1395,7 +1439,7 @@ function saveAll(){
 /* ============ [EFFECTS] ============ */
 function baseEff(){return {pay:{},symW:{},payAll:0,winMult:0,wildW:0,moonW:0,sixW:0,webW:0,goldW:0,coinVal:0,
   betRefund:0,packDisc:0,streakStep:0,streakCap:0,interest:0,interestCap:0,tollReduce:0,
-  moonSpins:0,moonFill:0,wildCol:0,potPct:0,drip:0,sixPair:0,ghoul:0,slots:0,bloodGain:0,bloodAny:0,marks:0,anyPair:0,webPay:0,mirror:0,onlyMiddle:0,noAltar:0,noDebt:0,bloodShop:0,tally:0,wake:0,noBlood:0,markPay:0,syncPay:0,deadPay:0,dmgMult:0,
+  moonSpins:0,moonFill:0,wildCol:0,potPct:0,drip:0,sixPair:0,ghoul:0,slots:0,bloodGain:0,bloodAny:0,marks:0,cloverW:0,cloverMult:0,deathOdds:0,anyPair:0,webPay:0,mirror:0,onlyMiddle:0,noAltar:0,noDebt:0,bloodShop:0,tally:0,wake:0,noBlood:0,markPay:0,syncPay:0,deadPay:0,dmgMult:0,
   blackout:0,freezeReel:0,moonBlock:0};}
 function mergeEff(t,s){
   for(const k in s){
@@ -1503,6 +1547,7 @@ function weightTable(eff){
   w.six=Math.max(0,w.six+eff.sixW);
   w.web=Math.max(0,w.web+eff.webW);
   w.gold=Math.max(0,w.gold+eff.goldW);
+  w.clover=Math.max(0,w.clover+eff.cloverW);
   return w;
 }
 function rollSym(w,total){
@@ -1575,6 +1620,7 @@ function evalSpin(grid,bet,eff,ctx){
     else if(s==='moon') res.scatters++;
     else if(s==='scythe') res.scythes=(res.scythes||0)+1;
     else if(s==='web'&&eff.webPay>0) res.coinWin+=eff.webPay*bet;
+    else if(s==='clover') res.clovers=(res.clovers||0)+1;
   }
   /* Damage is the payout MULTIPLE (not the cash), so wounds come from your
      build rather than your bet — a focused symbol hits for what it is worth. */
@@ -1590,7 +1636,8 @@ function evalSpin(grid,bet,eff,ctx){
   }
   if(eff.moonBlock>0) res.scatters=0;
   res.lineWin=res.lines.reduce((t,l)=>t+l.amt,0);
-  let mult=(ctx.streakMult||1)*(1+eff.winMult);
+  res.cloverMult=1+(res.clovers||0)*(CLOVER_MULT+eff.cloverMult);
+  let mult=(ctx.streakMult||1)*(1+eff.winMult)*res.cloverMult;
   if(ctx.free) mult*=2;
   res.total=res.lineWin*mult+res.coinWin;
   res.mult=mult;
@@ -1605,12 +1652,23 @@ function streakMultOf(streak,eff){
    totals back down. Instead it grows GEOMETRICALLY, so it is generous early,
    brutal late, and always eventually outruns a build (player power is bounded:
    relics cap at Lv5 and each Rite may be sworn once). */
-const TOLL_GROWTH=1.34;
-function tollBase(n){
-  const g=1-0.1*((meta.up&&meta.up.grace)||0);
-  const raw=20*Math.pow(TOLL_GROWTH,n-1)+6*(n-1);
-  return Math.max(10,Math.round(raw*g));
+const TOLL_GROWTH=1.26;
+const TOLL_A=2.2;            /* tolls per unit of stake at round 1 */
+/* the stake you actually play at: the largest bet since the last Toll */
+/* Sub-linear on purpose: raising your stake still earns more than it costs
+   (income is linear in bet, the Toll is bet^0.85), so climbing to big stakes is
+   rewarded — it just no longer leaves the Reaper asking $233 of a millionaire. */
+const TOLL_STAKE_POW=0.85;
+function tollStake(){
+  if(!run) return 10;
+  const s=Math.max(10,run.stake||run.bet||10);
+  return 10*Math.pow(s/10,TOLL_STAKE_POW);
 }
+function tollUnit(n){
+  const g=1-0.1*((meta.up&&meta.up.grace)||0);
+  return TOLL_A*Math.pow(TOLL_GROWTH,n-1)*g;
+}
+function tollBase(n){ return Math.max(10,Math.round(tollUnit(n)*tollStake())); }
 function tollAmount(n,eff){
   let amt=tollBase(n)*(1-eff.tollReduce);
   if(run) amt=amt*run.tollMods.mult+run.tollMods.add;
@@ -1731,7 +1789,22 @@ function fmtC(n){
   if(a<100000) return fmt(n);
   if(a<1e6)  return sign+'$'+(a/1e3).toFixed(0)+'k';
   if(a<1e9)  return sign+'$'+(a/1e6).toFixed(a<1e7?2:1)+'M';
-  return sign+'$'+(a/1e9).toFixed(2)+'B';
+  if(a<1e12) return sign+'$'+(a/1e9).toFixed(a<1e10?2:1)+'B';
+  if(a<1e15) return sign+'$'+(a/1e12).toFixed(2)+'T';
+  /* past a quadrillion, stop pretending and use exponents */
+  const e=Math.floor(Math.log10(a));
+  return sign+'$'+(a/Math.pow(10,e)).toFixed(2)+'e'+e;
+}
+/* plain-number sibling for Blood, damage and boss HP */
+function numC(n){
+  const a=Math.abs(n), sign=n<0?'−':'';
+  if(a<100000) return sign+Math.round(a).toLocaleString('en-US');
+  if(a<1e6)  return sign+(a/1e3).toFixed(0)+'k';
+  if(a<1e9)  return sign+(a/1e6).toFixed(a<1e7?2:1)+'M';
+  if(a<1e12) return sign+(a/1e9).toFixed(2)+'B';
+  if(a<1e15) return sign+(a/1e12).toFixed(2)+'T';
+  const e=Math.floor(Math.log10(a));
+  return sign+(a/Math.pow(10,e)).toFixed(2)+'e'+e;
 }
 function toast(msg,cls){
   const t=document.createElement('div');
@@ -1768,12 +1841,12 @@ function tipHTML(c,extra){
   h+='<div class="t-d">'+(c.dyn?c.dyn():c.d(lv))+(extra&&extra.lv&&c.kind==='relic'?' <span class="dim">(Lv'+extra.lv+')</span>':'')+'</div>';
   if(c.kind==='relic'&&run&&!run.over){
     const have=run.relics[c.id]||0;
-    h+='<div class="t-own">'+(have?('You hold <b>Lv'+have+'</b>'+(have<c.mx?(' → playing this makes it <b>Lv'+(have+1)+'</b>'):' — <b>mastered</b>')):'You do not hold this yet')+' <span class="dim">(max Lv'+c.mx+')</span></div>';
+    h+='<div class="t-own">'+(have?('You hold <b>Lv'+have+'</b>'+(have<c.mx?(' → playing this makes it <b>Lv'+(have+1)+'</b>'):' — <b>mastered</b>')):'You do not hold this yet')+' <span class="dim">('+(c.mx===Infinity?'no cap':'max Lv'+c.mx)+')</span></div>';
   }
   if(c.f) h+='<div class="t-f">“'+c.f+'”</div>';
   const pulls=meta.coll[c.id]||0;
   let m=[];
-  if(c.kind==='relic') m.push('♾️ PERMANENT once played · dupes upgrade to Lv'+c.mx);
+  if(c.kind==='relic') m.push('♾️ PERMANENT once played · dupes upgrade '+(c.mx===Infinity?'without limit':'to Lv'+c.mx));
   if(c.kind==='charm') m.push('1️⃣ ONE USE — consumed when played');
   if(c.kind==='hex') m.push('1️⃣ ONE USE — strikes your duel opponent');
   m.push(pulls?('Pulled '+pulls+'× all-time'):'Never pulled');
@@ -1822,7 +1895,7 @@ function startRun(duel,coop){
   const startCash=200+(duel?0:25*((meta.up.bankroll)||0));
   run={cash:startCash,bet:10,spins:0,sinceCut:0,cutNum:1,pot:POT_SEED,streak:0,
     freeSpins:0,over:false,relics:{},relicOrder:[],charms:[],debuffs:[],storage:[],
-    tollMods:{mult:1,add:0,skip:0},shop:null,inShop:false,rites:[],grudge:0,moonCharge:0,pawned:0,roundReady:true,altar:{},altarSym:{},blood:0,marks:rollMarks(MARKS_BASE),bloodEarned:0,hp:DUEL_HP,roundCash:{},coop:!!coop,scythes:0,bossNum:1,boss:null,bossKills:0,
+    tollMods:{mult:1,add:0,skip:0},shop:null,inShop:false,rites:[],grudge:0,moonCharge:0,pawned:0,roundReady:true,stake:0,shopBuys:0,altar:{},altarSym:{},blood:0,tributes:0,bribes:0,marks:rollMarks(MARKS_BASE),bloodEarned:0,hp:DUEL_HP,roundCash:{},coop:!!coop,scythes:0,bossNum:1,boss:null,bossKills:0,
     peak:startCash,bigWin:0,jackpots:0,cutsPaid:0,newCards:0,usedWind:false,
     rerollsUsed:0,ghoulCt:0,duel:!!duel,played:[]};
   meta.stats.runs++;
@@ -1934,6 +2007,7 @@ function spin(){
       if(affordable.length){run.bet=affordable[affordable.length-1];}
       else{ renderGame(); return; } /* dead end — the panel offers the way out */
     }
+    run.stake=Math.max(run.stake||0,run.bet);
     run.tallyN=(run.tallyN||0)+1;
     const tallyFree=eff.tally>0&&run.tallyN%eff.tally===0;
     if(tallyFree){ addFloat('🧮 free spin','bad',0); }
@@ -1995,6 +2069,7 @@ function applyResult(grid,res,free,eff){
       if(run.duel) duelSend({t:'win',amt:Math.round(total),syms,tag:res.jackpot?'HELLPOT':null});
     }
     if(res.mult>1.01) addFloat('×'+res.mult.toFixed(2),'bad',slot++);
+    if(res.clovers>0) flashCorner('clover','🍀 ×'+res.cloverMult.toFixed(2));
     if(!res.jackpot){ if(total>=res.betUsed*8) sBigWin(); else sWin(total); }
     if(res.coinWin>0) sCoin();
   }else{
@@ -2008,12 +2083,21 @@ function applyResult(grid,res,free,eff){
     sLose();
   }
   if(res.blood>0){
+    flashCorner('blood','🩸 +'+(res.blood<10?res.blood.toFixed(1):Math.round(res.blood)));
     const b=res.blood;
     run.blood=(run.blood||0)+b;
     run.bloodEarned=(run.bloodEarned||0)+b;
     addFloat('🩸 +'+(b<10?b.toFixed(1):Math.round(b)),'bad',slot++);
   }
   if(eff.drip>0) run.cash+=eff.drip;
+  /* the Death Roll — rare, and it takes a real bite */
+  if(!free&&run.cash>0&&Math.random()<Math.max(0,DEATH_ROLL+eff.deathOdds)){
+    const bite=Math.round(run.cash*DEATH_BITE);
+    run.cash-=bite;
+    run.deathRolls=(run.deathRolls||0)+1;
+    meta.stats.deathRolls=(meta.stats.deathRolls||0)+1;
+    deathRollFx(bite);
+  }
   if(total>0&&eff.wake>0&&Math.random()<eff.wake&&!run.over){ run.freeSpins++; toast('🕯️ The Wake — one more, free'); }
   if(eff.ghoul>0){
     run.ghoulCt=(run.ghoulCt||0)+1;
@@ -2057,7 +2141,7 @@ function applyResult(grid,res,free,eff){
         const dmg=Math.round(res.dmg);
         run.boss.hp-=dmg;
         bossHit(dmg,false);
-        addFloat('🗡️ '+Math.round(dmg).toLocaleString('en-US'),'big',slot++);
+        addFloat('🗡️ '+numC(dmg),'big',slot++);
         duelSend({t:'dmg',n:run.boss.n,amt:dmg});
       }
       run.boss.spins--;
@@ -2091,7 +2175,7 @@ function doToll(){
   if(run.duel){run.roundReady=false;sendState();}
   if(run.tollMods.skip>0){
     run.tollMods={mult:1,add:0,skip:0};
-    run.cutsPaid++; run.cutNum++; run.sinceCut=0;
+    run.cutsPaid++; run.cutNum++; run.sinceCut=0; run.stake=0;
   /* the marks drift: one is replaced each Toll, so a build has to keep adapting */
   if(run.marks&&run.marks.length){
     const drop=Math.floor(Math.random()*run.marks.length);
@@ -2237,13 +2321,13 @@ function renderHunt(){
     const pctv=Math.max(0,Math.min(100,run.boss.hp/run.boss.max*100));
     $('bossFill').style.width=pctv+'%';
     $('bossGhost').style.width=pctv+'%';
-    $('bossDmgMine').innerHTML='you <b>'+Math.round(run.boss.mine||0).toLocaleString('en-US')+'</b>';
-    $('bossDmgTheirs').innerHTML='partner <b>'+Math.round(run.boss.theirs||0).toLocaleString('en-US')+'</b>';
-    $('bossHp').innerHTML='<b>'+Math.max(0,Math.round(run.boss.hp)).toLocaleString('en-US')+'</b> / '+run.boss.max.toLocaleString('en-US');
+    $('bossDmgMine').innerHTML='you <b>'+numC(run.boss.mine||0)+'</b>';
+    $('bossDmgTheirs').innerHTML='partner <b>'+numC(run.boss.theirs||0)+'</b>';
+    $('bossHp').innerHTML='<b>'+numC(Math.max(0,run.boss.hp))+'</b> / '+numC(run.boss.max);
     const eff=EFF();
     const best=PAYSYMS.map(s=>({s,d:SYM[s].pay[0]*payMult(eff,s)*DMG_K}))
       .sort((a,b)=>b.d-a.d)[0];
-    $('bossDmgHint').innerHTML='your best 3-line: '+symHTML(best.s)+' ~'+Math.round(best.d).toLocaleString('en-US');
+    $('bossDmgHint').innerHTML='your best 3-line: '+symHTML(best.s)+' ~'+numC(best.d);
   }else{
     bp.style.display='none';
     sp.style.display='';
@@ -2252,6 +2336,27 @@ function renderHunt(){
     $('scyFill').style.width=Math.min(100,(run.scythes||0)/need*100)+'%';
     $('scyNext').textContent=bossOf(run.bossNum||1).name+' · '+bossMaxHp(run.bossNum||1).toLocaleString('en-US')+' HP';
   }
+}
+function deathRollFx(bite){
+  toast('☠️ <b>THE DEATH ROLL</b> — he takes '+fmtC(bite),'bad');
+  splatter(20);
+  if(meta.fx&&$('deathRoll')){
+    const el=$('deathRoll');
+    el.querySelector('.dr-amt').textContent='−'+fmtC(bite);
+    el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+    document.body.classList.remove('shake'); void document.body.offsetWidth;
+    document.body.classList.add('shake');
+    setTimeout(()=>document.body.classList.remove('shake'),700);
+  }
+  sHex();
+}
+function flashCorner(kind,txt){
+  const el=$('cornerFx'); if(!el) return;
+  const d=document.createElement('div');
+  d.className='cfx '+kind;
+  d.innerHTML=txt;
+  el.appendChild(d);
+  setTimeout(()=>d.remove(),1400);
 }
 function splatter(n){
   if(!meta.fx) return;
@@ -2477,7 +2582,9 @@ function describeAltar(a,n){
 }
 function rollShop(){
   const eff=EFF();
-  const scale=(1+0.13*Math.max(0,run.cutNum-2))*Math.max(0,1-eff.packDisc);
+  /* every purchase makes the next dearer — buying singles forever after one
+     big win was the loophole */
+  const scale=(1+0.13*Math.max(0,run.cutNum-2))*Math.pow(1.14,run.shopBuys||0)*Math.max(0,1-eff.packDisc);
   const pool=CARDS.filter(c=>(isPvP()||c.kind!=='hex')&&(isCoop()||c.kind!=='pact'));
   const singles=[];
   for(let i=0;i<2;i++){
@@ -2570,6 +2677,31 @@ function renderShop(){
   }
   if(aeff.noAltar>0) ah='<div class="dim" style="grid-column:1/-1;font-size:12px">⛓️ <b>Gravebound</b> — the Altar will not take your Blood. You traded that away.</div>';
   $('shopAltar').innerHTML=ah;
+  /* Two ways to spend a fortune: convert it to Blood, or buy off the Reaper.
+     Both climb steeply, so a 15-million pile still runs out of road. */
+  const trib=run.tributes||0;
+  const tribCost=Math.round(tollBase(run.cutNum)*6*Math.pow(1.55,trib));
+  const tribGain=20+5*trib;
+  const bribeCost=Math.round(tollAmount(run.cutNum,aeff)*4*Math.pow(1.4,run.bribes||0));
+  let sink='<div class="sinkrow"><button class="btn sinkb" id="tributeBtn"'+(run.cash<tribCost?' disabled':'')+'>'
+    +'<b>🩸 Tribute</b><span>Pour '+fmtC(tribCost)+' into the Altar for <b>'+tribGain+' Blood</b></span></button>'
+    +'<button class="btn sinkb" id="bribeBtn"'+((run.cash<bribeCost||run.tollMods.skip>0)?' disabled':'')+'>'
+    +'<b>💀 Buy him off</b><span>'+(run.tollMods.skip>0?'Your next Toll is already waived':'Pay '+fmtC(bribeCost)+' — your next Toll is waived')+'</span></button></div>';
+  $('shopSinks').innerHTML=sink;
+  const tb=$('tributeBtn');
+  if(tb) tb.onclick=()=>{
+    if(run.cash<tribCost) return;
+    run.cash-=tribCost; run.blood=(run.blood||0)+tribGain; run.tributes=trib+1;
+    toast('🩸 Tribute accepted — +'+tribGain+' Blood','good');
+    sBuy(); renderShop(); renderGame(); saveAll();
+  };
+  const bb=$('bribeBtn');
+  if(bb) bb.onclick=()=>{
+    if(run.cash<bribeCost||run.tollMods.skip>0) return;
+    run.cash-=bribeCost; run.tollMods.skip=1; run.bribes=(run.bribes||0)+1;
+    toast('💀 He looks the other way — your next Toll is waived','good');
+    sToll(); renderShop(); renderGame(); saveAll();
+  };
   document.querySelectorAll('#shopAltar .atile[data-altar]').forEach(el=>el.onclick=()=>{
     const a=ALTAR_BY_ID[el.dataset.altar];
     const owned=(run.altar&&run.altar[a.id])||0;
@@ -2600,6 +2732,7 @@ function renderShop(){
     if(!isCoop()&&storageFree()<1) return;
     if(bloodShop){ const bc=Math.ceil(sp.cost/12); if((run.blood||0)<bc) return; run.blood-=bc; }
     else { if(run.cash<sp.cost) return; run.cash-=sp.cost; }
+    run.shopBuys=(run.shopBuys||0)+1;
     sBuy();
     openPack(p);
     renderShop(); renderGame(); saveAll();
@@ -2941,7 +3074,7 @@ function renderGame(){
   if(!run) return;
   if(window.__nodraw) return; /* balance-sim hook: skip all DOM work */
   const eff=EFF();
-  $('bloodV').textContent=Math.floor(run.blood||0);
+  $('bloodV').textContent=numC(Math.floor(run.blood||0));
   $('cashV').textContent=fmtC(run.cash);
   $('cashK').textContent=run.cash<0?'⚠ IN DEBT':'Cash';
   $('hpBox').style.display=run.duel?'':'none';
@@ -3093,11 +3226,12 @@ function renderPaytable(eff){
     const ccls=ch>chb+0.05?' up':(ch<chb-0.05?' dn':'');
     h+='<div class="ptrow'+(hunting?' hunt':'')+(marksNow.indexOf(s)>=0?' marked':'')+((typeof focusSym!=='undefined'&&focusSym===s)?' focus':'')+'" data-focus="'+s+'"><div class="ic">'+symHTML(s)+(marksNow.indexOf(s)>=0?'<span class="mkdot">🔻</span>':'')+'</div>';
     for(let k=0;k<3;k++) h+='<div class="pv'+cls+'">'+fmt(SYM[s].pay[k]*bet*pm)+'</div>';
-    if(hunting) h+='<div class="pv dmgc">'+Math.round(SYM[s].pay[0]*pm*DMG_K).toLocaleString('en-US')+'</div>';
+    if(hunting) h+='<div class="pv dmgc">'+numC(SYM[s].pay[0]*pm*DMG_K)+'</div>';
     /* how far you have taken this symbol, and how far it can still go */
     const rid=SYM_RELIC[s], rc=rid?CARD_BY_ID[rid]:null;
     const lv=(run&&rc)?(run.relics[rid]||0):0;
-    h+='<div class="lvc'+(lv?(lv>=rc.mx?' max':' on'):'')+'">'+(rc?(lv?(lv+'/'+rc.mx):('–/'+rc.mx)):'')+'</div>';
+    const capTxt=rc?(rc.mx===Infinity?'∞':rc.mx):'';
+    h+='<div class="lvc'+(lv?(lv>=rc.mx?' max':' on'):'')+'">'+(rc?(lv?(lv+'/'+capTxt):('–/'+capTxt)):'')+'</div>';
     h+='<div class="pc'+ccls+'">'+ch.toFixed(1)+'%</div></div>';
   }
   $('ptRows').innerHTML=h;
