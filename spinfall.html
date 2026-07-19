@@ -461,8 +461,14 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 .trial.done .rw{color:#6fd784}
 .trial .pn{font-size:10.5px;color:#6a5a60;margin-top:3px}
 /* send amount buttons */
-#sendRow{display:flex;gap:6px;margin-top:10px}
-#sendRow .btn{flex:1;font-size:12px;padding:8px 4px;width:auto}
+#sendRow{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap}
+#sendRow .btn{flex:1 1 30%;font-size:12px;padding:8px 4px;width:auto;min-width:0}
+#helpRow{display:none;margin-top:6px}
+#helpRow.on{display:block}
+#helpRow .btn{font-size:12px;padding:8px;background:linear-gradient(180deg,#2a1830,#1a0e20);border-color:#6a3a8a;color:#d18aff}
+#helpRow .btn:hover{border-color:#b45cf0}
+.ptrow.focus{outline:1px dashed #6fd0ff;outline-offset:-1px;background:rgba(111,208,255,.08)}
+.ptrow .ic{cursor:pointer}
 /* meters (desperation / underdog / grudge) */
 #meterRow{display:flex;flex-direction:column;gap:5px;margin-top:9px}
 #meterRow:empty{display:none}
@@ -514,6 +520,7 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 .kchip.relic{background:#1a2438;color:#7ea8ff;border:1px solid #33507e}
 .kchip.charm{background:#12281a;color:#6fd784;border:1px solid #2e6b41}
 .kchip.hex{background:#2c0f16;color:#ff6b80;border:1px solid #7a2333}
+.kchip.pact{background:#12212c;color:#6fd0ff;border:1px solid #2a5a78}
 /* ============ TOOLTIP ============ */
 #tip{
   display:none;position:fixed;z-index:120;width:250px;background:#120a0e;border:1px solid var(--rc,#3d222c);
@@ -676,7 +683,7 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
         <div class="panel" id="hpBox" style="display:none"><div class="v" id="hpV">♥♥♥♥♥</div><div class="k">Your Blood</div></div>
         <div class="panel"><div class="v blood" id="cashV">$0</div><div class="k" id="cashK">Cash</div></div>
         <div class="panel"><div class="v blood" id="bloodV">0</div><div class="k">🩸 Blood</div></div>
-        <div class="panel"><div class="v" style="color:#ffae2e" id="potV">$0</div><div class="k">🔥 Hellpot</div></div>
+        <div class="panel"><div class="v" style="color:#ffae2e" id="potV">$0</div><div class="k" id="potK">🔥 Hellpot</div></div>
         <div class="panel" id="tollBox"><div class="v bone" id="tollV">$0</div><div class="k" id="tollK">Reaper's Toll in 10</div></div>
       </div>
       <div class="panel bosspanel" id="bossPanel" style="display:none">
@@ -763,7 +770,11 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
           <button class="btn" data-send="25">💸 $25</button>
           <button class="btn" data-send="50">💸 $50</button>
           <button class="btn" data-send="100">💸 $100</button>
+          <button class="btn" data-blood="25" id="sendBlood">🩸 25</button>
           <button class="btn" id="oppBeg">🙏 Beg</button>
+        </div>
+        <div id="helpRow">
+          <button class="btn" id="coverToll">💀 Cover their Toll</button>
         </div>
       </div>
       <div class="panel" id="runInfo"></div>
@@ -983,7 +994,7 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 <div id="jpFlash"><div class="t">🔥 666 🔥<br><span id="jpAmt"></span></div></div>
 <div id="toasts"></div>
 <div id="tip"></div>
-<div class="ver">DEADSPIN v3.0.0 · spinfall</div>
+<div class="ver">DEADSPIN v3.1.0 · spinfall</div>
 
 <script>
 'use strict';
@@ -1111,6 +1122,21 @@ const CARDS=[
 {id:'bloodletter',n:'Bloodletter',i:'🩸',r:1,kind:'relic',mx:5,d:l=>`Marked symbols bleed +${Math.round(30*l)}% Blood`,f:'A clean cut wastes nothing.',eff:l=>({bloodGain:.30*l})},
 {id:'crimson_mark',n:'Crimson Mark',i:'🔻',r:2,kind:'relic',mx:3,d:l=>`+${l} marked symbol${l>1?'s':''} this run`,f:'It chooses. You obey.',eff:l=>({marks:l})},
 {id:'hemophage',n:'Hemophage',i:'🦟',r:3,kind:'relic',mx:5,d:l=>`Every winning line bleeds ${(0.2*l).toFixed(1)} Blood, marked or not`,f:'It is not fussy.',eff:l=>({bloodAny:.2*l})},
+/* ---- MORE KEYSTONES ---- */
+{id:'the_tally',n:'The Tally',i:'🧮',r:3,kind:'relic',mx:1,d:()=>'Every 6th spin costs nothing',f:'He counts. He always counts.',eff:()=>({tally:6})},
+{id:'the_wake',n:'The Wake',i:'🕯️',r:4,kind:'relic',mx:1,d:()=>'Every win has an 18% chance to spin again, free',f:'They will not let you leave.',eff:()=>({wake:.18})},
+{id:'debt_collector',n:'Debt Collector',i:'🧾',r:4,kind:'relic',mx:1,d:()=>"Reaper's Tolls −45%, but you bleed no Blood",f:'He works for the other side now.',eff:()=>({tollReduce:.45,noBlood:1})},
+/* ---- MORE RELICS ---- */
+{id:'grave_whisper',n:'Grave Whisper',i:'🔻',r:2,kind:'relic',mx:5,d:l=>`Marked symbols pay +${Math.round(22*l)}% cash too`,f:'It tells you which to chase.',eff:l=>({markPay:.22*l})},
+{id:'cadaver_sync',n:'Cadaver Sync',i:'🫂',r:3,kind:'relic',mx:5,d:l=>`+${Math.round(20*l)}% payouts while your partner is in a Blood Moon`,f:'Two hearts, one arrhythmia.',eff:l=>({syncPay:.20*l})},
+{id:'gallows_humour',n:'Gallows Humour',i:'😅',r:1,kind:'charm',dur:8,d:()=>'For 8 spins: dead spins pay 0.4× your bet',f:'You have to laugh.',ceff:{deadPay:.4}},
+/* ---- PACTS (co-op only: they affect BOTH hunters) ---- */
+{id:'communion',n:'Communion',i:'🕯️',r:1,kind:'pact',d:()=>'BOTH hunters: +35% payouts for 8 spins',f:'Say it together.',pc:{kind:'buff',dur:8,eff:{payAll:.35}}},
+{id:'shared_veins',n:'Shared Veins',i:'🩸',r:1,kind:'pact',d:()=>'BOTH hunters gain 30 Blood',f:'One wound, two cups.',pc:{kind:'blood',amt:30}},
+{id:'twin_hunger',n:'Twin Hunger',i:'🌗',r:2,kind:'pact',d:()=>'BOTH hunters: Blood Moon meter +40%',f:'It pulls at you both.',pc:{kind:'moon',amt:.40}},
+{id:'bloodbond',n:'Bloodbond',i:'🫀',r:3,kind:'pact',d:()=>'BOTH hunters: +70% boss damage for 10 spins',f:'What one strikes, both strike.',pc:{kind:'buff',dur:10,eff:{dmgMult:.70}}},
+{id:'grave_tithe',n:'Grave Tithe',i:'⚱️',r:3,kind:'pact',d:()=>"BOTH hunters gain cash equal to one Reaper's Toll",f:'Split it before he notices.',pc:{kind:'cash'}},
+{id:'last_rites',n:'Last Rites',i:'✝️',r:4,kind:'pact',d:()=>'The hunted boss loses 8 more spins of life — for both of you',f:'Make it quick.',pc:{kind:'time',amt:8}},
 /* ---- HEXES (duel only, consumed on play) ---- */
 /* Hexes are PERCENTAGE based so they still bite in a million-dollar endgame.
    Flat amounts stopped mattering the moment bets passed $250. */
@@ -1131,9 +1157,9 @@ const CARDS=[
  },d:()=>"Copy your opponent's newest Relic for yourself",f:'It learned your face first.',hx:{type:'copy'}},
 ];
 var CARD_BY_ID={}; CARDS.forEach(c=>CARD_BY_ID[c.id]=c);
-const KIND_LABEL={relic:'Relic',charm:'Charm',hex:'Hex'};
-const USE_TAG={relic:'♾️ PERMANENT once played',charm:'1️⃣ ONE USE — consumed when played',hex:'1️⃣ ONE USE — strikes your duel opponent'};
-const USE_SHORT={relic:'PERMANENT',charm:'ONE USE',hex:'ONE USE'};
+const KIND_LABEL={relic:'Relic',charm:'Charm',hex:'Hex',pact:'Pact'};
+const USE_TAG={relic:'♾️ PERMANENT once played',charm:'1️⃣ ONE USE — consumed when played',hex:'1️⃣ ONE USE — strikes your duel opponent',pact:'1️⃣ ONE USE — affects BOTH hunters'};
+const USE_SHORT={relic:'PERMANENT',charm:'ONE USE',hex:'ONE USE',pact:'BOTH HUNTERS'};
 
 /* ============ [DATA] RITES ============ */
 /* Roguelike boon: after every Reaper's Toll you pick 1 of 3. Run-permanent,
@@ -1363,7 +1389,7 @@ function saveAll(){
 /* ============ [EFFECTS] ============ */
 function baseEff(){return {pay:{},symW:{},payAll:0,winMult:0,wildW:0,moonW:0,sixW:0,webW:0,goldW:0,coinVal:0,
   betRefund:0,packDisc:0,streakStep:0,streakCap:0,interest:0,interestCap:0,tollReduce:0,
-  moonSpins:0,moonFill:0,wildCol:0,potPct:0,drip:0,sixPair:0,ghoul:0,slots:0,bloodGain:0,bloodAny:0,marks:0,anyPair:0,webPay:0,mirror:0,onlyMiddle:0,noAltar:0,noDebt:0,bloodShop:0,
+  moonSpins:0,moonFill:0,wildCol:0,potPct:0,drip:0,sixPair:0,ghoul:0,slots:0,bloodGain:0,bloodAny:0,marks:0,anyPair:0,webPay:0,mirror:0,onlyMiddle:0,noAltar:0,noDebt:0,bloodShop:0,tally:0,wake:0,noBlood:0,markPay:0,syncPay:0,deadPay:0,dmgMult:0,
   blackout:0,freezeReel:0,moonBlock:0};}
 function mergeEff(t,s){
   for(const k in s){
@@ -1417,7 +1443,10 @@ function EFF(){
     }
     for(const id of (run.rites||[])){const r=RITE_BY_ID[id]; if(r&&r.eff) mergeEff(e,r.eff);}
     for(const id in run.relics){const c=CARD_BY_ID[id]; if(c&&c.eff) mergeEff(e,c.eff(run.relics[id]));}
-    for(const ch of run.charms){const c=CARD_BY_ID[ch.id]; if(c&&c.ceff) mergeEff(e,c.ceff);}
+    for(const ch of run.charms){
+      if(ch.eff){ mergeEff(e,ch.eff); continue; }   /* Pact buffs carry their own */
+      const c=CARD_BY_ID[ch.id]; if(c&&c.ceff) mergeEff(e,c.ceff);
+    }
     for(const db of run.debuffs){if(db.eff) mergeEff(e,db.eff);}
     comebackEff(e);
   }
@@ -1490,8 +1519,13 @@ function rollGrid(eff){
    real house edge. A sub-1 RTP made the median run die at Toll 3 no matter how
    well it was played, because no amount of skill outran the drain. Tune here. */
 const PAYSCALE=1.34;
-function payMult(eff,sym){return PAYSCALE*(1+eff.payAll)*(1+(eff.pay[sym]||0));}
-function lineWin(syms,eff,bet){
+function payMult(eff,sym,marks){
+  let m=1+eff.payAll;
+  if(eff.markPay>0&&marks&&marks.indexOf(sym)>=0) m+=eff.markPay;
+  if(eff.syncPay>0&&typeof opp!=='undefined'&&opp&&opp.free>0) m+=eff.syncPay;
+  return PAYSCALE*m*(1+(eff.pay[sym]||0));
+}
+function lineWin(syms,eff,bet,marks){
   let wl=0; for(const s of syms){if(s==='eye')wl++;else break;}
   let target=null,len=0;
   for(const s of syms){
@@ -1502,9 +1536,9 @@ function lineWin(syms,eff,bet){
   }
   let best=null;
   if(target&&SYM[target].pay&&len>=3)
-    best={sym:target,len,amt:SYM[target].pay[len-3]*bet*payMult(eff,target)};
+    best={sym:target,len,amt:SYM[target].pay[len-3]*bet*payMult(eff,target,marks)};
   if(wl>=3){
-    const amt=SYM.six.pay[wl-3]*bet*payMult(eff,'six');
+    const amt=SYM.six.pay[wl-3]*bet*payMult(eff,'six',marks);
     if(!best||amt>best.amt) best={sym:'six',len:wl,amt};
   }
   if(best) return best;
@@ -1519,10 +1553,11 @@ function lineWin(syms,eff,bet){
 /* ctx={streakMult,free} */
 function evalSpin(grid,bet,eff,ctx){
   const res={lines:[],coinWin:0,scatters:0,jackpot:false,lineWin:0,total:0};
+  const marks=ctx.marks||[];
   for(let li=0;li<LINES.length;li++){
     if(eff.onlyMiddle>0&&li!==1) continue;   /* the crown pays one row only */
     const syms=LINES[li].map(i=>grid[i]);
-    const w=lineWin(syms,eff,bet);
+    const w=lineWin(syms,eff,bet,marks);
     if(w&&eff.onlyMiddle>0) w.amt*=eff.onlyMiddle;
     if(w){
       res.lines.push({li,sym:w.sym,len:w.len,amt:w.amt,pair:!!w.pair});
@@ -1538,12 +1573,14 @@ function evalSpin(grid,bet,eff,ctx){
   /* Damage is the payout MULTIPLE (not the cash), so wounds come from your
      build rather than your bet — a focused symbol hits for what it is worth. */
   res.dmg=0; res.blood=0;
-  const marks=ctx.marks||[];
   for(const l of res.lines){
     if(l.pair||l.len<3) continue;   /* pairs are cash-only, never wounds */
-    res.dmg+=SYM[l.sym].pay[Math.min(2,l.len-3)]*payMult(eff,l.sym)*DMG_K;
+    res.dmg+=SYM[l.sym].pay[Math.min(2,l.len-3)]*payMult(eff,l.sym,marks)*DMG_K*(1+eff.dmgMult);
     if(marks.indexOf(l.sym)>=0) res.blood+=bloodFor(l.len,l.sym)*(1+eff.bloodGain);
     if(eff.bloodAny>0) res.blood+=eff.bloodAny;
+  }
+  if(eff.noBlood>0) res.blood=0;
+  {
   }
   if(eff.moonBlock>0) res.scatters=0;
   res.lineWin=res.lines.reduce((t,l)=>t+l.amt,0);
@@ -1891,8 +1928,14 @@ function spin(){
       if(affordable.length){run.bet=affordable[affordable.length-1];}
       else{ renderGame(); return; } /* dead end — the panel offers the way out */
     }
-    run.cash-=run.bet;
-    run.pot+=run.bet*(POT_BASE+eff.potPct);
+    run.tallyN=(run.tallyN||0)+1;
+    const tallyFree=eff.tally>0&&run.tallyN%eff.tally===0;
+    if(tallyFree){ addFloat('🧮 free spin','bad',0); }
+    else run.cash-=run.bet;
+    const potAdd=run.bet*(POT_BASE+eff.potPct);
+    run.pot+=potAdd;
+    /* on a hunt the Hellpot is SHARED: both hunters feed one pot */
+    if(isCoop()) duelSend({t:'pot',amt:potAdd});
     run.sinceCut++;
   }else{
     run.freeSpins--;
@@ -1920,6 +1963,12 @@ function applyResult(grid,res,free,eff){
   let jackWin=0;
   if(res.jackpot){
     jackWin=Math.round(run.pot);
+    if(isCoop()&&duelAlive()){
+      const share=Math.round(jackWin*0.4);
+      jackWin-=share;
+      duelSend({t:'potwin',amt:share});
+      toast('🔥 Shared Hellpot — '+fmt(share)+' to '+opp.name,'good');
+    }
     run.pot=POT_SEED;
     run.jackpots++; meta.stats.jackpots++;
     $('jpAmt').textContent=fmt(jackWin);
@@ -1944,6 +1993,7 @@ function applyResult(grid,res,free,eff){
     if(res.coinWin>0) sCoin();
   }else{
     run.streak=0;
+    if(eff.deadPay>0&&!free){ const dp=res.betUsed*eff.deadPay; run.cash+=dp; addFloat('😅 +'+fmt(dp),'bad',slot++); }
     if(eff.betRefund>0&&!free){
       const back=run.bet*eff.betRefund;
       run.cash+=back;
@@ -1958,6 +2008,7 @@ function applyResult(grid,res,free,eff){
     addFloat('🩸 +'+(b<10?b.toFixed(1):Math.round(b)),'bad',slot++);
   }
   if(eff.drip>0) run.cash+=eff.drip;
+  if(total>0&&eff.wake>0&&Math.random()<eff.wake&&!run.over){ run.freeSpins++; toast('🕯️ The Wake — one more, free'); }
   if(eff.ghoul>0){
     run.ghoulCt=(run.ghoulCt||0)+1;
     if(run.ghoulCt>=10){
@@ -2279,7 +2330,7 @@ function bossSlain(){
   sJack();
   /* the kill also pays a card into storage if there is room */
   if(run.storage.length<storageCap()){
-    const pool=CARDS.filter(c=>c.kind!=='hex'&&c.r>=1);
+    const pool=CARDS.filter(c=>c.kind!=='hex'&&c.kind!=='pact'&&c.r>=1);
     const card=pool[Math.floor(Math.random()*pool.length)];
     gainCard(card.id);
     toast('🎁 Trophy: '+card.i+' '+card.n,'good');
@@ -2421,7 +2472,7 @@ function describeAltar(a,n){
 function rollShop(){
   const eff=EFF();
   const scale=(1+0.13*Math.max(0,run.cutNum-2))*Math.max(0,1-eff.packDisc);
-  const pool=CARDS.filter(c=>isPvP()||c.kind!=='hex');
+  const pool=CARDS.filter(c=>(isPvP()||c.kind!=='hex')&&(isCoop()||c.kind!=='pact'));
   const singles=[];
   for(let i=0;i<2;i++){
     let r=Math.random()*100, rar=0;
@@ -2573,6 +2624,21 @@ function gainCard(id){
   return {new:isNew,msg:c.i+' '+c.n+(isNew?' — NEW! → storage':' → storage')};
 }
 /* used on hunts, and when a partner hands you something */
+/* A Pact resolves on BOTH hunters — swearing it fires it here and mirrors it. */
+function applyPact(id,fromPartner){
+  const c=CARD_BY_ID[id]; if(!c||!c.pc||!run||run.over) return;
+  const p=c.pc, who=fromPartner?((opp&&opp.name)||'Your partner'):'You';
+  switch(p.kind){
+    case 'buff': run.charms.push({id,left:p.dur,eff:p.eff}); break;
+    case 'blood': run.blood=(run.blood||0)+p.amt; break;
+    case 'moon': run.moonCharge=Math.min(1,(run.moonCharge||0)+p.amt); break;
+    case 'cash': run.cash+=tollAmount(run.cutNum,EFF()); break;
+    case 'time': if(run.boss) run.boss.spins+=p.amt; break;
+  }
+  toast('🤝 '+who+' swore <b>'+c.i+' '+c.n+'</b> — '+c.d(),'good');
+  if(fromPartner) oppFeed('🤝 swore '+c.i+' '+c.n);
+  sMoon(); saveAll(); renderGame();
+}
 function autoPlay(id){
   const c=CARD_BY_ID[id];
   if(c.kind==='relic'){
@@ -2583,6 +2649,12 @@ function autoPlay(id){
     run.played.push(id);
     if(run.duel) duelSend({t:'played',id});
     return 'active Lv'+run.relics[id];
+  }
+  if(c.kind==='pact'){
+    run.played.push(id);
+    if(run.duel){ duelSend({t:'played',id}); duelSend({t:'pact',id}); }
+    applyPact(id,false);
+    return 'sworn by both';
   }
   if(c.kind==='charm'){
     run.played.push(id);
@@ -2604,7 +2676,7 @@ function openPack(pack,freebie){
   for(let i=0;i<show;i++){
     let r=Math.random()*100,rar=0;
     for(let j=0;j<5;j++){r-=pack.odds[j];if(r<0){rar=j;break;}}
-    const pool=CARDS.filter(c=>c.r===rar&&(isPvP()||c.kind!=='hex'));
+    const pool=CARDS.filter(c=>c.r===rar&&(isPvP()||c.kind!=='hex')&&(isCoop()||c.kind!=='pact'));
     pulls.push(pool[Math.floor(Math.random()*pool.length)]);
   }
   draftPicks=[]; draftGive={}; draftKeep=isCoop()?keep:Math.min(keep,Math.max(0,storageCap()-run.storage.length));
@@ -2763,6 +2835,11 @@ function canPlay(c){
     return {ok:true};
   }
   if(c.kind==='charm') return {ok:true};
+  if(c.kind==='pact'){
+    if(!isCoop()) return {ok:false,why:'Pacts need a partner. Only on a Hunt.'};
+    if(!duelAlive()) return {ok:false,why:'No partner to swear it with.'};
+    return {ok:true};
+  }
   /* hex */
   if(!isPvP()) return {ok:false,why:'Hexes only strike a rival. On a hunt they are worthless — sell it.'};
   if(!duelAlive()) return {ok:false,why:'No living opponent to hex.'};
@@ -2781,6 +2858,9 @@ function playCard(idx){
     else run.relics[id]++;
     meta.stats.maxRelicLv=Math.max(meta.stats.maxRelicLv||0,run.relics[id]);
     toast(c.i+' '+c.n+(run.relics[id]>1?' → Lv'+run.relics[id]:' active'),'good');
+  }else if(c.kind==='pact'){
+    duelSend({t:'pact',id});
+    applyPact(id,false);
   }else if(c.kind==='charm'){
     if(c.instant==='tollDown'){run.tollMods.mult*=0.6;toast('🛡️ Iron Will — your next Toll is 40% smaller','good');}
     else if(c.instant==='tollSkip'){run.tollMods.skip=1;toast('🌫️ Ghost Walk — your next Toll will be skipped','good');}
@@ -2862,6 +2942,7 @@ function renderGame(){
   $('hudRow').classList.toggle('duel',!!run.duel);
   if(run.duel) $('hpV').innerHTML=hearts(run.hp);
   $('potV').textContent=fmtC(run.pot);
+  $('potK').textContent=isCoop()?'🔥 Shared Hellpot':'🔥 Hellpot';
   const due=tollAmount(run.cutNum,eff);
   const left=TOLL_EVERY-run.sinceCut;
   $('tollV').textContent=fmtC(due);
@@ -3004,12 +3085,20 @@ function renderPaytable(eff){
     const ch=(wt[s]/tot*100), chb=(wb[s]/totb*100);
     const cls=pm>pb+0.001?' up':(pm<pb-0.001?' dn':'');
     const ccls=ch>chb+0.05?' up':(ch<chb-0.05?' dn':'');
-    h+='<div class="ptrow'+(hunting?' hunt':'')+(marksNow.indexOf(s)>=0?' marked':'')+'"><div class="ic">'+symHTML(s)+(marksNow.indexOf(s)>=0?'<span class="mkdot">🔻</span>':'')+'</div>';
+    h+='<div class="ptrow'+(hunting?' hunt':'')+(marksNow.indexOf(s)>=0?' marked':'')+((typeof focusSym!=='undefined'&&focusSym===s)?' focus':'')+'" data-focus="'+s+'"><div class="ic">'+symHTML(s)+(marksNow.indexOf(s)>=0?'<span class="mkdot">🔻</span>':'')+'</div>';
     for(let k=0;k<3;k++) h+='<div class="pv'+cls+'">'+fmt(SYM[s].pay[k]*bet*pm)+'</div>';
     if(hunting) h+='<div class="pv dmgc">'+Math.round(SYM[s].pay[0]*pm*DMG_K).toLocaleString('en-US')+'</div>';
     h+='<div class="pc'+ccls+'">'+ch.toFixed(1)+'%</div></div>';
   }
   $('ptRows').innerHTML=h;
+  if(isCoop()){
+    document.querySelectorAll('#ptRows .ptrow[data-focus] .ic').forEach(el=>el.onclick=()=>{
+      const s=el.parentElement.dataset.focus;
+      if(!duelAlive()) return;
+      duelSend({t:'focus',sym:s});
+      toast('🎯 Asked '+opp.name+' to chase '+SYM[s].e+' '+SYM[s].name);
+    });
+  }
   /* which shapes pay — and that you only need the first 3 of them */
   const LNAMES=['Top','Middle','Bottom','V','Λ'];
   let lh='<div class="plnote">Match from the <b>LEFT</b>: <b>3</b>, 4 or 5 in a row all pay. The bright cells are the minimum.</div>';
@@ -3156,6 +3245,7 @@ function confirmBox(title,desc,cb){
 /* ============ [DUEL: state] ============ */
 var ws=null, opp=null, duelActive=false, pendingCode='', wasWaiting=false;
 var reconnectTries=0; const RECONNECT_MAX=4;
+var focusSym=null;
 var isHost=false, lobbyMode='duel';
 function duelAlive(){return !!(ws&&ws.readyState===1&&opp&&opp.alive);}
 /* Toll checkpoint gate. You cannot spin the next round until BOTH players have
@@ -3253,6 +3343,14 @@ function renderOpp(){
     h+='<div class="acard r'+c.r+'" data-tipcard="'+id+'">'+c.i+'</div>';
   }
   $('oppCards').innerHTML=h||'<span class="none dim" style="font-size:11px">nothing yet</span>';
+  const sb=$('sendBlood'); if(sb) sb.style.display=isCoop()?'':'none';
+  const hr=$('helpRow');
+  if(hr){
+    const due=opp.tollDue||0;
+    const short=isCoop()&&opp.alive&&due>0&&typeof opp.cash==='number'&&opp.cash<due;
+    hr.classList.toggle('on',!!short);
+    if(short) $('coverToll').textContent='💀 Cover their Toll ('+fmt(due)+')';
+  }
   const lead=$('oppLead');
   if(run&&!run.over&&typeof opp.cash==='number'){
     const diff=run.cash-opp.cash;
@@ -3475,6 +3573,37 @@ function onDuelMsg(m){
         addFloat((opp?opp.name:'partner')+' +'+fmtC(m.amt),'bad',1);
       }
       break;
+    case 'pact':
+      if(isCoop()) applyPact(m.id,true);
+      break;
+    case 'pot':
+      if(isCoop()&&run&&!run.over&&typeof m.amt==='number'){ run.pot+=m.amt; renderGame(); }
+      break;
+    case 'potwin':
+      if(isCoop()&&run&&!run.over&&typeof m.amt==='number'){
+        run.cash+=m.amt; run.pot=POT_SEED;
+        toast('🔥 '+(opp?opp.name:'Partner')+' hit the Shared Hellpot — your share: '+fmt(m.amt),'good');
+        pushHighlight({amt:m.amt,syms:'🔥',tag:'shared pot',them:true});
+        sJack(); saveAll(); renderGame();
+      }
+      break;
+    case 'blood':
+      if(isCoop()&&run&&!run.over&&typeof m.amt==='number'&&m.amt>0){
+        run.blood=(run.blood||0)+m.amt;
+        toast('🩸 '+(opp?opp.name:'Partner')+' sent you '+m.amt+' Blood','good');
+        oppFeed('🩸 sent you '+m.amt+' Blood');
+        sCoin(); saveAll(); renderGame();
+      }
+      break;
+    case 'focus':{
+      const c=SYM[m.sym];
+      if(c&&run&&!run.over){
+        focusSym=m.sym;
+        toast('🎯 '+(opp?opp.name:'Partner')+' asks you to chase '+c.e+' '+c.name,'hexed');
+        oppFeed('🎯 asks for '+c.e+' '+c.name);
+        renderGame();
+      }
+      break;}
     case 'card':
       if(isCoop()) receiveCard(m.id);
       break;
@@ -3625,6 +3754,27 @@ function wire(){
   $('codeIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('lobbyJoin').click();});
   /* duel mercy */
   let lastBeg=0;
+  document.querySelectorAll('#sendRow .btn[data-blood]').forEach(b=>b.onclick=()=>{
+    const amt=+b.dataset.blood;
+    if(!run||!isCoop()||run.over||!duelAlive())return;
+    if((run.blood||0)<amt){toast('Not enough Blood to share','bad');return;}
+    run.blood-=amt;
+    duelSend({t:'blood',amt});
+    toast('🩸 Sent '+amt+' Blood to '+opp.name,'good');
+    oppFeed('🩸 you sent them '+amt+' Blood');
+    sCoin(); saveAll(); renderGame();
+  });
+  $('coverToll').onclick=()=>{
+    if(!run||!isCoop()||run.over||!duelAlive())return;
+    const due=opp.tollDue||0;
+    if(due<=0){toast('They owe nothing right now','bad');return;}
+    if(run.cash<due){toast("You cannot cover "+fmt(due),'bad');return;}
+    run.cash-=due;
+    duelSend({t:'give',amt:due});
+    toast('💀 Covered '+opp.name+"'s Toll — "+fmt(due),'good');
+    oppFeed('💀 you covered their Toll');
+    sCoin(); saveAll(); renderGame(); sendState();
+  };
   document.querySelectorAll('#sendRow .btn[data-send]').forEach(b=>b.onclick=()=>{
     const amt=+b.dataset.send;
     if(!run||!run.duel||run.over||!duelAlive())return;

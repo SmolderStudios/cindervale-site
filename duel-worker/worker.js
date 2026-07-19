@@ -8,7 +8,7 @@ const CORS = {
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
 };
 const CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ'; // no I/L/O — unambiguous
-const RELAY = new Set(['state', 'hex', 'hexAck', 'played', 'death', 'give', 'beg', 'grid', 'round', 'hp', 'mode', 'scythe', 'dmg', 'bossgone', 'card', 'win']);
+const RELAY = new Set(['state', 'hex', 'hexAck', 'played', 'death', 'give', 'beg', 'grid', 'round', 'hp', 'mode', 'scythe', 'dmg', 'bossgone', 'card', 'win', 'pact', 'pot', 'potwin', 'blood', 'focus']);
 
 export class Room {
   constructor(state, env) {
