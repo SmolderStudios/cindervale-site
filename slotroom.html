@@ -54152,6 +54152,36 @@ function buildTextures() {
     }
   });
 
+  /* --- belly glass: the lit art panel under the reel window --- */
+  TEX.belly = makeTex(256, 128, (g, w, h) => {
+    g.fillStyle = '#12060a'; g.fillRect(0, 0, w, h);
+    const gl = g.createRadialGradient(w / 2, h / 2, 6, w / 2, h / 2, 130);
+    gl.addColorStop(0, 'rgba(180,30,26,.85)');
+    gl.addColorStop(0.55, 'rgba(90,12,14,.55)');
+    gl.addColorStop(1, 'rgba(10,4,6,.9)');
+    g.fillStyle = gl; g.fillRect(0, 0, w, h);
+    /* a skull sat in the middle of the glass */
+    g.save();
+    g.translate(w / 2, h / 2 + 6);
+    g.fillStyle = 'rgba(226,232,240,.92)';
+    g.beginPath(); g.ellipse(0, -6, 26, 24, 0, 0, 6.283); g.fill();
+    g.fillRect(-14, 12, 28, 14);
+    g.fillStyle = '#12060a';
+    g.beginPath(); g.arc(-10, -7, 7.5, 0, 6.283); g.fill();
+    g.beginPath(); g.arc(10, -7, 7.5, 0, 6.283); g.fill();
+    g.fillRect(-3, 4, 6, 7);
+    [-8, 0, 8].forEach(x => g.fillRect(x - 1.5, 12, 3, 14));
+    g.restore();
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = '900 21px "Arial Black", sans-serif';
+    g.fillStyle = '#ffc65a';
+    g.fillText('SLOTROOM', w / 2, 18);
+    g.font = '900 12px "Arial Black", sans-serif';
+    g.fillStyle = 'rgba(255,180,90,.75)';
+    g.fillText('PAY WHAT YOU OWE', w / 2, h - 14);
+    speckle(g, w, h, 16, true, false);
+  }, { smooth: true });
+
   /* --- hazard stripes on the pedestal crate --- */
   TEX.hazard = makeTex(32, 32, (g, w, h) => {
     g.fillStyle = '#1a1a1a'; g.fillRect(0, 0, w, h);
@@ -54211,8 +54241,11 @@ scene.fog    = new THREE.FogExp2(0x0e0705, 0.105);
 const camera = new THREE.PerspectiveCamera(72, 1, 0.05, 60);
 
 /* --- internal render resolution: this is what makes it chunky --- */
-const BASE_H = 264;
-let RW = 468, RH = BASE_H;
+/* Raised from 264. Enough to make the wall signs readable from across the
+   room without losing the crunch — the dither and noise below were also
+   eased slightly. Any higher and it stops looking like hardware. */
+const BASE_H = 312;
+let RW = 554, RH = BASE_H;
 
 const rtOpts = { magFilter: THREE.NearestFilter, minFilter: THREE.NearestFilter, generateMipmaps: false };
 const rtScene = new THREE.WebGLRenderTarget(RW, RH, { ...rtOpts, depthBuffer: true });
@@ -54308,12 +54341,12 @@ const compPass = makePass(`
 
     /* scanlines + dither on the LOW-RES grid, not the screen grid */
     vec2 px = uv * uRes;
-    c *= 1.0 - 0.055 * step(0.5, fract(px.y * 0.5));
-    c += (bayer(px) - 0.5) * 0.028;
+    c *= 1.0 - 0.042 * step(0.5, fract(px.y * 0.5));
+    c += (bayer(px) - 0.5) * 0.019;
 
     /* faint rolling interference */
     float n = fract(sin(dot(px, vec2(12.9898, 78.233)) + uTime * 3.0) * 43758.5453);
-    c += (n - 0.5) * 0.022;
+    c += (n - 0.5) * 0.014;
 
     gl_FragColor = vec4(c, 1.0);
   }`,
@@ -54448,19 +54481,13 @@ function buildRoom() {
   scene.add(crtScreen);
   blocker(w / 2 - 0.28, 1.45, 0.5, 0.6);
 
-  /* --- gold pedestal on a hazard crate --- */
-  box(0.5, 0.36, 0.5, lam({ map: TEX.hazard, color: 0xa89880 }), 1.75, 0.18, 1.15);
-  const disc = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.19, 0.22, 0.14, 10),
-    new THREE.MeshLambertMaterial({ color: 0xd9a021, emissive: 0x6b4a08, emissiveIntensity: 0.8 })
-  );
-  disc.position.set(1.75, 0.43, 1.15);
-  scene.add(disc);
-  blocker(1.75, 1.15, 0.6, 0.6);
-
-  /* --- crate / stool near the left wall --- */
-  box(0.46, 0.5, 0.46, lam({ map: TEX.wood, color: 0x8a7868 }), -1.85, 0.25, 1.15, 0.3);
-  blocker(-1.85, 1.15, 0.6, 0.6);
+  /* --- a stack of crates, pushed against the east wall and out of the way --- */
+  for (let i = 0; i < 3; i++) {
+    const cw = 0.52 - i * 0.05;
+    box(cw, 0.42, cw, lam({ map: TEX.wood, color: 0x8a7868 }),
+        w / 2 - 0.42, 0.21 + i * 0.42, 2.35 - i * 0.04, 0.2 + i * 0.35);
+  }
+  blocker(w / 2 - 0.42, 2.35, 0.62, 0.62);
 
   /* --- floor dressing: placed, not scattered. Things someone left
          behind, not confetti. --- */
@@ -54483,9 +54510,9 @@ function buildRoom() {
       lg.position.set(Math.cos(a) * 0.11, -0.18, Math.sin(a) * 0.11);
       st.add(lg);
     }
-    st.position.set(1.55, 0.19, 1.85); st.rotation.z = Math.PI / 2 - 0.15;
+    st.position.set(2.45, 0.19, 0.15); st.rotation.z = Math.PI / 2 - 0.15;
     scene.add(st);
-    blocker(1.55, 1.85, 0.45, 0.45);
+    blocker(2.45, 0.15, 0.45, 0.45);
     /* a crowbar left against the wall */
     const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.86, 6),
       lam({ map: TEX.metal, color: 0x6a6560 }));
@@ -54517,10 +54544,11 @@ function makeCrtTex() {
 function buildLamp() {
   const arm = lam({ map: TEX.metal, color: 0xd8b830 });
   const g = new THREE.Group();
-  const p1 = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.1, 6), arm);
-  p1.position.set(0, 0.55, 0); g.add(p1);
-  const p2 = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.75, 6), arm);
-  p2.position.set(-0.28, 1.18, 0); p2.rotation.z = 0.85; g.add(p2);
+  const p1 = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.62, 6), arm);
+  p1.rotation.z = Math.PI / 2;
+  p1.position.set(-0.31, 0, 0); g.add(p1);
+  const p2 = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.42, 6), arm);
+  p2.position.set(-0.60, -0.16, 0); p2.rotation.z = 0.42; g.add(p2);
 
   /* Deliberately NOT the lever's red-ball-with-yellow-rim treatment — a
      second one of those on the same wall reads as a second lever. */
@@ -54528,30 +54556,34 @@ function buildLamp() {
     new THREE.SphereGeometry(0.13, 7, 5),
     new THREE.MeshLambertMaterial({ color: 0xffb347, emissive: 0xff8c1a, emissiveIntensity: 1.2 })
   );
-  bulb.position.set(-0.56, 1.44, 0); g.add(bulb);
+  bulb.position.set(-0.74, -0.38, 0); g.add(bulb);
 
   /* dented shade over the top of it */
   const shade = new THREE.Mesh(
     new THREE.ConeGeometry(0.26, 0.22, 7, 1, true),
     new THREE.MeshLambertMaterial({ color: 0x3c3029, side: THREE.DoubleSide })
   );
-  shade.position.set(-0.56, 1.60, 0); g.add(shade);
+  shade.position.set(-0.74, -0.22, 0); g.add(shade);
 
   /* cage bars */
   const barMat = lam({ color: 0x2a221c });
   for (let i = 0; i < 4; i++) {
     const bar = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.30, 0.012), barMat);
     const a = (i / 4) * Math.PI * 2;
-    bar.position.set(-0.56 + Math.cos(a) * 0.13, 1.44, Math.sin(a) * 0.13);
+    bar.position.set(-0.74 + Math.cos(a) * 0.13, -0.38, Math.sin(a) * 0.13);
     g.add(bar);
   }
 
-  g.position.set(2.30, 0.9, -1.55);
+  /* bracketed to the wall rather than hovering in the middle of the room */
+  g.position.set(ROOM.w / 2 - 0.12, 1.62, -1.55);
+  g.rotation.y = -Math.PI / 2;
   scene.add(g);
-  blocker(2.30, -1.55, 0.3, 0.3);
+  /* the plate it bolts to */
+  box(0.10, 0.30, 0.24, lam({ map: TEX.metal, color: 0x6a5a48 }),
+      ROOM.w / 2 - 0.05, 1.62, -1.55);
 
-  const L = new THREE.PointLight(0xff6a1e, 13, 5.0, 2);
-  L.position.set(1.78, 2.28, -1.55);
+  const L = new THREE.PointLight(0xff6a1e, 14, 5.2, 2);
+  L.position.set(ROOM.w / 2 - 0.85, 1.28, -1.55);
   scene.add(L);
   horror.lampLight = L;
 }
@@ -54583,7 +54615,7 @@ function machineSpec(idx) {
     leverWorld: new THREE.Vector3(
       at.x + 1.5 * MACHINE_SCALE, at.y + 1.18 * MACHINE_SCALE, at.z + 0.2 * MACHINE_SCALE),
     screenAt: new THREE.Vector3(
-      at.x, at.y + 1.55 * MACHINE_SCALE, at.z + 0.55 * MACHINE_SCALE),
+      at.x, at.y + 1.70 * MACHINE_SCALE, at.z + 0.55 * MACHINE_SCALE),
   };
 }
 
@@ -54670,14 +54702,14 @@ function buildMachine(idx) {
   });
 
   /* recessed black face the reels sit inside */
-  mk(1.90, 1.55, 0.10, matDark, 0, 1.52, 0.47);
+  mk(1.90, 1.24, 0.10, matDark, 0, 1.70, 0.47);
 
   /* orange frame around the reel window */
   const frame = lam({ color: 0xd97a14, emissive: 0x3a1a00, emissiveIntensity: 0.5 });
-  mk(1.74, 0.07, 0.06, frame, 0, 2.15, 0.54);
-  mk(1.74, 0.07, 0.06, frame, 0, 0.94, 0.54);
-  mk(0.07, 1.28, 0.06, frame, -0.84, 1.55, 0.54);
-  mk(0.07, 1.28, 0.06, frame,  0.84, 1.55, 0.54);
+  mk(1.74, 0.07, 0.06, frame, 0, 2.30, 0.54);
+  mk(1.74, 0.07, 0.06, frame, 0, 1.10, 0.54);
+  mk(0.07, 1.27, 0.06, frame, -0.84, 1.70, 0.54);
+  mk(0.07, 1.27, 0.06, frame,  0.84, 1.70, 0.54);
 
   /* ---- reel screen ---- */
   const rc = document.createElement('canvas');
@@ -54689,9 +54721,9 @@ function buildMachine(idx) {
   m.reels.tex.generateMipmaps = false;
   m.reels.tex.colorSpace = THREE.SRGBColorSpace;
 
-  const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.62, 1.16),
+  const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.62, 1.10),
     new THREE.MeshBasicMaterial({ map: m.reels.tex }));
-  screen.position.set(0, 1.55, 0.55);
+  screen.position.set(0, 1.70, 0.55);
   g.add(screen);
 
   /* ---- win readout ---- */
@@ -54704,35 +54736,114 @@ function buildMachine(idx) {
   m.topTex.generateMipmaps = false;
   m.topTex.colorSpace = THREE.SRGBColorSpace;
 
-  mk(1.85, 0.40, 0.10, matDark, 0, 2.46, 0.47);
+  mk(1.85, 0.34, 0.10, matDark, 0, 2.58, 0.47);
   const topScreen = new THREE.Mesh(new THREE.PlaneGeometry(1.66, 0.30),
     new THREE.MeshBasicMaterial({ map: m.topTex }));
-  topScreen.position.set(0, 2.46, 0.55);
+  topScreen.position.set(0, 2.58, 0.55);
   g.add(topScreen);
   /* hood over the readout, with two bulbs under it */
-  const hood = mk(1.95, 0.06, 0.34, matBrass, 0, 2.70, 0.42);
+  const hood = mk(1.95, 0.06, 0.34, matBrass, 0, 2.80, 0.42);
   hood.rotation.x = 0.22;
   [-0.62, 0.62].forEach(x => {
     const b = new THREE.Mesh(new THREE.SphereGeometry(0.055, 6, 5),
       new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
-    b.position.set(x, 2.62, 0.50); g.add(b);
+    b.position.set(x, 2.72, 0.50); g.add(b);
   });
 
-  /* ---- coin slot and payout tray: the bits you actually touch ---- */
-  mk(0.34, 0.05, 0.05, matBrass, -0.55, 0.80, 0.53);
-  mk(0.30, 0.03, 0.03, matDark,  -0.55, 0.80, 0.56);
-  const trayLip = mk(0.86, 0.09, 0.26, matBrass, 0.35, 0.62, 0.56);
+  /* ---- control deck: the angled shelf you actually stand at ---- */
+  const deck = mk(2.16, 0.10, 0.56, matDark, 0, 0.62, 0.76);
+  deck.rotation.x = -0.40;
+  const deckTrim = mk(2.22, 0.05, 0.08, matBrass, 0, 0.52, 0.98);
+  deckTrim.rotation.x = -0.40;
+  /* underside so it doesn't read as a floating slab */
+  const deckUnder = mk(2.10, 0.26, 0.10, matCab, 0, 0.44, 0.84);
+  deckUnder.rotation.x = 0.32;
+
+  /* buttons — the row of lit plastic that says "slot machine" more than
+     anything else on the box */
+  const BTN = [
+    [-0.78, 0xd8261e], [-0.44, 0xd8261e], [-0.10, 0xe8a01a],
+    [ 0.24, 0x2ec46a], [ 0.62, 0x2ec46a], [ 0.96, 0xf2d21a],
+  ];
+  BTN.forEach(([bx, col], i) => {
+    const seat = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.115, 0.05, 10), matDark);
+    seat.rotation.x = Math.PI / 2 - 0.42;
+    seat.position.set(bx, 0.668, 0.815);
+    g.add(seat);
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.088, 0.088, 0.045, 10),
+      new THREE.MeshLambertMaterial({ color: col, emissive: col, emissiveIntensity: 0.30 }));
+    psx(cap.material);
+    cap.rotation.x = Math.PI / 2 - 0.42;
+    cap.position.set(bx, 0.681, 0.840);
+    g.add(cap);
+    if (i === 5) m.spinButton = cap;      /* pulses when a spin is available */
+  });
+
+  /* bill acceptor + card reader, right of the buttons */
+  mk(0.28, 0.34, 0.16, matDark,  1.40, 0.90, 0.60);
+  mk(0.20, 0.04, 0.04, matBrass, 1.40, 1.00, 0.69);
+  mk(0.15, 0.18, 0.05, lam({ color: 0x1b2430 }), 1.40, 0.86, 0.69);
+  mk(0.08, 0.03, 0.05, figMat(0x3fe08a, 0.9), 1.40, 0.78, 0.70);
+
+  /* coin slot and payout tray */
+  mk(0.28, 0.05, 0.05, matBrass, -1.40, 1.00, 0.60);
+  mk(0.24, 0.03, 0.03, matDark,  -1.40, 1.00, 0.63);
+  const trayLip = mk(0.74, 0.08, 0.22, matBrass, -0.02, 0.24, 0.70);
   trayLip.rotation.x = -0.18;
-  mk(0.80, 0.05, 0.22, matDark, 0.35, 0.60, 0.58);
+  mk(0.68, 0.05, 0.18, matDark, -0.02, 0.22, 0.72);
+
+  /* ---- belly glass ---- */
+  mk(1.70, 0.32, 0.06, matDark, 0, 0.92, 0.50);
+  const belly = new THREE.Mesh(new THREE.PlaneGeometry(1.58, 0.26),
+    new THREE.MeshBasicMaterial({ map: TEX.belly }));
+  belly.position.set(0, 0.92, 0.535);
+  g.add(belly);
+  [[-0.86, 0], [0.86, 0]].forEach(([bx]) =>
+    mk(0.05, 0.36, 0.05, matBrass, bx, 0.92, 0.53));
+
+  /* ---- speaker grilles either side of the readout ---- */
+  [-1, 1].forEach(sx => {
+    mk(0.30, 0.30, 0.06, matDark, sx * 1.00, 2.58, 0.50);
+    for (let i = 0; i < 5; i++) {
+      mk(0.24, 0.025, 0.03, matTrim, sx * 1.00, 2.47 + i * 0.055, 0.535);
+    }
+  });
+
+  /* ---- denomination plate ---- */
+  mk(0.62, 0.11, 0.04, matBrass, 0, 2.40, 0.55);
+  mk(0.54, 0.07, 0.02, lam({ color: 0x15100c }), 0, 2.40, 0.575);
+
+  /* ---- chrome trim down the front corners ---- */
+  [-1, 1].forEach(sx => {
+    mk(0.06, 1.90, 0.06, matTrim, sx * 1.12, 1.55, 0.52);
+    mk(0.10, 0.06, 0.10, matBrass, sx * 1.12, 0.60, 0.52);
+  });
+
+  /* ---- tower light on the crown ---- */
+  mk(0.16, 0.26, 0.16, matDark, 0.80, 3.16, 0);
+  const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 0.22, 8),
+    new THREE.MeshLambertMaterial({ color: 0xff5a2a, emissive: 0xff5a2a, emissiveIntensity: 0.55 }));
+  psx(tower.material);
+  tower.position.set(0.80, 3.38, 0);
+  g.add(tower);
+  m.tower = tower;
+  mk(0.13, 0.04, 0.13, matBrass, 0.80, 3.50, 0);
+
+  /* ---- footrest ---- */
+  const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.0, 8), matBrass);
+  rail.rotation.z = Math.PI / 2;
+  rail.position.set(0, 0.14, 0.86);
+  g.add(rail);
+  [-1, 1].forEach(sx => mk(0.08, 0.18, 0.08, matDark, sx * 0.92, 0.09, 0.86));
 
   /* ---- crown ---- */
-  mk(2.5, 0.14, 1.15, matBrass, 0, 2.86, 0);
-  mk(2.2, 0.06, 1.02, matTrim,  0, 2.95, 0);
+  mk(2.5, 0.14, 1.15, matBrass, 0, 2.96, 0);
+  mk(2.2, 0.06, 1.02, matTrim,  0, 3.05, 0);
   const gar = new THREE.Mesh(new THREE.IcosahedronGeometry(0.19, 0), matCab);
-  gar.position.set(0, 3.08, 0); gar.scale.set(1.5, 0.9, 1.0);
+  gar.position.set(0, 3.18, 0); gar.scale.set(1.5, 0.9, 1.0);
   g.add(gar);
   const horn = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.22, 5), matBrass);
-  horn.position.set(0.16, 3.20, 0); horn.rotation.z = -0.4; g.add(horn);
+  horn.position.set(0.16, 3.30, 0); horn.rotation.z = -0.4; g.add(horn);
   const horn2 = horn.clone(); horn2.position.x = -0.16; horn2.rotation.z = 0.4; g.add(horn2);
 
   /* ---- lever: mount plate, segmented shaft, collar, ball ---- */
@@ -55255,6 +55366,7 @@ addEventListener('keydown', e => {
   if (e.code === 'KeyQ') exitFocus();
   if (e.code === 'KeyR') rerollShop();
   if (e.code === 'KeyG') net.giveTo(25);
+  if (e.code === 'KeyF') { if (game.offering && game.paid) finishNight(); }
   if (e.code === 'KeyM') toast(AUDIO.toggleMute() ? 'SOUND OFF' : 'SOUND ON', 900);
 });
 addEventListener('keyup', e => { keys[e.code] = false; });
@@ -55265,6 +55377,7 @@ function interact() {
   if (focus.seated)                    { tryPull(); return; }
   if (aimedShopItem())                 { buyAimed(); return; }
   if (player.carrying && nearRack())   { placeCarried(); return; }
+  if (nearStairs())                    { fundStairs(); return; }
   if (nearFuse())                      { tryFuse(); return; }
   const nm = nearMachine();
   if (nm)                              { enterFocus(nm); return; }
@@ -55426,6 +55539,10 @@ function moveAxis(axis, amount) {
    picked against the simulation — expected score is ~153/round at 12 spins,
    so round 1 is comfortable and round 4+ needs luck. */
 const BASE_SPINS = 14;
+/* Sized against the simulation: ~11 coins/spin average, so 14 spins gross
+   ~154 and cost 42. That clears night 1 and 2 comfortably and goes negative
+   from night 3, which is where the charms are supposed to take over. */
+const SPIN_COST = 3;
 const roundQuota = n => Math.round(70 * Math.pow(1.30, n - 1));
 /* each player owes their own share, so the dealer's total take scales with
    the number of people in the room */
@@ -55452,7 +55569,16 @@ const game = {
   offering: false,          /* it is at the door, waiting to be paid */
   paid: false,              /* paid this night — the tray is out */
   collectT: 0,              /* seconds left to pay before it comes in */
+  stairFunded: 0,           /* coins sunk into the stairwell so far */
 };
+
+/* The stairwell. A hole in the floor you pay to dig, one step at a time —
+   a coin sink that competes with charms and with what you owe the collector.
+   Where it goes is the endgame, and the endgame is not built yet. */
+const STAIR_STEPS = 12;
+const STAIR_PER_STEP = 120;
+const STAIR_AT = new THREE.Vector3(2.25, 0, 1.55);
+const stairsBuilt = () => Math.min(STAIR_STEPS, Math.floor(game.stairFunded / STAIR_PER_STEP));
 
 /* ---------------------------------------------------------------- [S-13]
    Charms: passive upgrades handed through the door slot between nights.
@@ -55460,30 +55586,30 @@ const game = {
    here is the only edit needed. */
 
 const CHARMS = [
-  { id: 'waxseal',  name: 'WAX SEAL',      kind: 'PAYOUT', cost: 70,
+  { id: 'waxseal',  name: 'WAX SEAL',      kind: 'PAYOUT', cost: 50,
     desc: 'Candles pay double.', sym: { candle: 1.0 } },
-  { id: 'mothdust', name: 'MOTH DUST',     kind: 'PAYOUT', cost: 80,
+  { id: 'mothdust', name: 'MOTH DUST',     kind: 'PAYOUT', cost: 56,
     desc: 'Moths pay double.', sym: { moth: 1.0 } },
-  { id: 'bonemeal', name: 'BONE MEAL',     kind: 'PAYOUT', cost: 130,
+  { id: 'bonemeal', name: 'BONE MEAL',     kind: 'PAYOUT', cost: 90,
     desc: 'Skulls pay +150%.', sym: { skull: 1.5 } },
-  { id: 'sixthsense', name: 'SIXTH SENSE', kind: 'PATTERN', cost: 150,
+  { id: 'sixthsense', name: 'SIXTH SENSE', kind: 'PATTERN', cost: 105,
     desc: 'EYE and DIAG +4.0.', pat: { EYE: 4, DIAG: 4 } },
-  { id: 'longarm',  name: 'LONG ARM',      kind: 'PATTERN', cost: 160,
+  { id: 'longarm',  name: 'LONG ARM',      kind: 'PATTERN', cost: 112,
     desc: 'HOR-L and HOR-XL +2.0.', pat: { 'HOR-L': 2, 'HOR-XL': 2 } },
-  { id: 'greedcut', name: 'GREED',         kind: 'PAYOUT', cost: 140,
+  { id: 'greedcut', name: 'GREED',         kind: 'PAYOUT', cost: 98,
     desc: 'All wins +25%. Dread rises faster.', all: 0.25, dread: 0.5 },
-  { id: 'extraspin', name: 'ONE MORE',     kind: 'TEMPO', cost: 120,
+  { id: 'extraspin', name: 'ONE MORE',     kind: 'TEMPO', cost: 84,
     desc: '+3 spins every night.', spins: 3 },
-  { id: 'ironnerve', name: 'IRON NERVE',   kind: 'NERVE', cost: 90,
+  { id: 'ironnerve', name: 'IRON NERVE',   kind: 'NERVE', cost: 63,
     desc: 'Dread rises 40% slower.', dread: -0.4 },
-  { id: 'fusetape', name: 'FUSE TAPE',     kind: 'NERVE', cost: 110,
+  { id: 'fusetape', name: 'FUSE TAPE',     kind: 'NERVE', cost: 77,
     desc: 'The power never cuts again.', power: true },
-  { id: 'luckpurse', name: 'LUCK PURSE',   kind: 'PAYOUT', cost: 150,
+  { id: 'luckpurse', name: 'LUCK PURSE',   kind: 'PAYOUT', cost: 105,
     desc: 'Clovers pay triple, and land more often.',
     sym: { clover: 2.0 }, cloverWeight: 6 },
-  { id: 'wildclover', name: 'WILD CLOVER', kind: 'RARE', cost: 260,
+  { id: 'wildclover', name: 'WILD CLOVER', kind: 'RARE', cost: 182,
     desc: 'Clovers count as ANY symbol.', wild: true },
-  { id: 'deeppocket', name: 'DEEP POCKETS', kind: 'TEMPO', cost: 100,
+  { id: 'deeppocket', name: 'DEEP POCKETS', kind: 'TEMPO', cost: 70,
     desc: 'Start each night with 40 coins.', head: 40 },
 ];
 
@@ -55589,6 +55715,10 @@ function tryPull() {
   if (!horror.power) { toast('NO POWER — CHECK THE FUSEBOX', 2000); AUDIO.lose(); return; }
   if (game.runOver || game.settling) return;
   if (game.spins <= 0) { toast('NO SPINS LEFT'); paintTop('EMPTY', '#ff3d3d'); return; }
+  if (game.coins < SPIN_COST) {
+    toast('NOT EVEN ' + SPIN_COST + ' LEFT', 2000); AUDIO.lose(); return;
+  }
+  game.coins -= SPIN_COST;
   spin(myMachine);
 }
 
@@ -56074,18 +56204,58 @@ function rerollShop() {
   syncHUD();
 }
 
-function finishNight() {
-  closeShop();
-  if (net.connected && !net.everyonePaid()) {
-    toast('WAITING FOR THE OTHER ONE', 2200);
-    return;                              /* it will not open the door yet */
+/* The tribute: one charm on the house, offered after the collector leaves.
+   Straight compensation for the spins now costing money. */
+function offerFreeCharm() {
+  const pool = CHARMS.filter(c => !hasCharm(c.id));
+  if (!pool.length || !myMachine) { advanceAfterTribute(); return; }
+  const pick = [];
+  while (pick.length < Math.min(3, pool.length)) {
+    const c = pool[(Math.random() * pool.length) | 0];
+    if (!pick.includes(c)) pick.push(c);
   }
+  const host = document.getElementById('offerCards');
+  host.innerHTML = '';
+  pick.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.innerHTML = '<span class="k">' + c.kind + '</span>' +
+                   '<span class="n">' + c.name + '</span>' +
+                   '<span class="d">' + c.desc + '</span>' +
+                   '<span class="pick">TAKE — FREE</span>';
+    el.addEventListener('click', () => {
+      myMachine.charms.push(c.id);
+      spawnCharmToken(myMachine, c.id, myMachine.charms.length - 1);
+      AUDIO.win(140);
+      toast(c.name + ' — ON THE HOUSE', 2400);
+      hideOverlay('offer');
+      advanceAfterTribute();
+      syncHUD();
+    });
+    host.appendChild(el);
+  });
+  document.querySelector('#offer h2').textContent = 'IT LEAVES YOU SOMETHING';
+  document.querySelector('#offer .sub').innerHTML =
+    'One charm, no charge.<br>It goes on your machine.';
+  showOverlay('offer');
+}
+
+function advanceAfterTribute() {
   game.offering = false;
   game.paid = false;
   game.collectT = 0;
   horror.eyesT = 0;
   if (net.connected && net.host) net.send({ t: 'advance' });
   nextNight();
+}
+
+function finishNight() {
+  closeShop();
+  if (net.connected && !net.everyonePaid()) {
+    toast('WAITING FOR THE OTHER ONE', 2200);
+    return;                              /* it will not open the door yet */
+  }
+  offerFreeCharm();      /* it advances the night once you have picked */
 }
 
 function nextNight() {
@@ -56116,6 +56286,7 @@ function resetRun() {
   game.spins = BASE_SPINS;
   horror.dread = 0.2;
   horror.doorTries = 0;
+  /* stairFunded deliberately NOT reset — digging is the one thing that keeps */
   horror.eyesT = 0;
   horror.breakIn = 0;
   if (horror.door) { horror.door.rotation.y = Math.PI; horror.door.position.x = DOOR_AT.x; }
@@ -56594,28 +56765,28 @@ function buildHorror() {
     new THREE.MeshLambertMaterial({ map: TEX.metal, color: 0x9a8a70, side: THREE.DoubleSide })
   );
   psx(bucket.material);
-  bucket.position.set(-2.15, 0.12, -0.35);
+  bucket.position.set(-3.10, 0.12, -2.15);
   scene.add(bucket);
   const slop = new THREE.Mesh(
     new THREE.CircleGeometry(0.125, 9),
     new THREE.MeshBasicMaterial({ color: 0x1a0f08 })
   );
   slop.rotation.x = -Math.PI / 2;
-  slop.position.set(-2.15, 0.19, -0.35);
+  slop.position.set(-3.10, 0.19, -2.15);
   scene.add(slop);
 
   /* ---- mattress shoved into the corner ---- */
   const matt = box(0.78, 0.13, 1.5,
-    lam({ map: TEX.wall, color: 0x8e8272 }), -2.15, 0.07, 1.55, 0.06);
+    lam({ map: TEX.wall, color: 0x8e8272 }), -3.18, 0.07, 2.05, 0.06);
   matt.rotation.z = 0.02;
-  blocker(-2.15, 1.55, 0.9, 1.6);
+  blocker(-3.18, 2.05, 0.9, 1.6);
   /* stain on it */
   const ms = new THREE.Mesh(
     new THREE.PlaneGeometry(0.6, 0.9),
     new THREE.MeshBasicMaterial({ map: TEX.stain, transparent: true, opacity: 0.9, depthWrite: false })
   );
   ms.rotation.x = -Math.PI / 2;
-  ms.position.set(-2.12, 0.141, 1.5);
+  ms.position.set(-3.15, 0.141, 2.0);
   scene.add(ms);
 
   /* ---- fusebox: a real one, not a painted panel ---- */
@@ -56655,7 +56826,7 @@ function buildHorror() {
     new THREE.PlaneGeometry(1.05, 0.7),
     new THREE.MeshBasicMaterial({ map: TEX.tally, transparent: true, depthWrite: false })
   );
-  tally.position.set(-w / 2 + 0.025, 1.15, 1.62);
+  tally.position.set(-w / 2 + 0.025, 1.15, 2.35);
   tally.rotation.y = Math.PI / 2;
   scene.add(tally);
 
@@ -56711,6 +56882,253 @@ function buildHorror() {
     m.rotation.set(-Math.PI / 2, 0, rot);
     scene.add(m);
   });
+}
+
+/* ---- dressing for the bigger room. Everything here is placed against a
+        wall or in a corner, on purpose: the middle stays walkable, and
+        clutter you have to path around is what made the old room annoying. */
+function buildDressing() {
+  const w = ROOM.w, d = ROOM.d, h = ROOM.h;
+  const iron  = lam({ map: TEX.metal, color: 0x7e7a72 });
+  const dark  = lam({ map: TEX.metal, color: 0x4a463e });
+  const wood  = lam({ map: TEX.wood,  color: 0x7e6a52 });
+  const bone  = lam({ color: 0xc2b699 });
+
+  /* --- meat hooks on a ceiling rail, north-east --- */
+  const railZ = -1.15;
+  const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 2.4, 7), iron);
+  rail.rotation.z = Math.PI / 2;
+  rail.position.set(2.2, h - 0.30, railZ);
+  scene.add(rail);
+  [1.35, 2.05, 2.75].forEach((hx, i) => {
+    for (let k = 0; k < 3; k++) {
+      const link = new THREE.Mesh(new THREE.TorusGeometry(0.032, 0.010, 4, 7), iron);
+      link.position.set(hx, h - 0.38 - k * 0.062, railZ);
+      link.rotation.x = Math.PI / 2;
+      link.rotation.y = k % 2 ? Math.PI / 2 : 0;
+      scene.add(link);
+    }
+    const hook = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.016, 4, 8, Math.PI * 1.35), iron);
+    hook.position.set(hx, h - 0.66, railZ);
+    hook.rotation.z = 0.4 + i * 0.25;
+    scene.add(hook);
+  });
+
+  /* --- wall manacles, west wall --- */
+  [[-1.0, 1.35], [-1.0, 0.95]].forEach(([z, y], i) => {
+    box(0.10, 0.14, 0.10, dark, -w / 2 + 0.07, y, z);
+    const cuff = new THREE.Mesh(new THREE.TorusGeometry(0.065, 0.018, 4, 9), iron);
+    cuff.position.set(-w / 2 + 0.22, y - 0.14, z);
+    cuff.rotation.y = Math.PI / 2;
+    cuff.rotation.z = 0.5 - i * 0.2;
+    scene.add(cuff);
+    for (let k = 0; k < 3; k++) {
+      const link = new THREE.Mesh(new THREE.TorusGeometry(0.028, 0.009, 4, 7), iron);
+      link.position.set(-w / 2 + 0.13 + k * 0.03, y - 0.05 - k * 0.048, z);
+      link.rotation.x = Math.PI / 2;
+      link.rotation.y = k % 2 ? Math.PI / 2 : 0;
+      scene.add(link);
+    }
+  });
+
+  /* --- floor drain, dead centre-ish, with a dark stain around it --- */
+  const drain = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.03, 10), dark);
+  drain.position.set(-0.30, 0.012, 0.55);
+  scene.add(drain);
+  for (let i = 0; i < 4; i++) {
+    box(0.30, 0.012, 0.03, iron, -0.30, 0.03, 0.55 - 0.075 + i * 0.05);
+  }
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.022, 4, 12), iron);
+  ring.rotation.x = Math.PI / 2;
+  ring.position.set(-0.30, 0.02, 0.55);
+  scene.add(ring);
+
+  /* --- a gurney shoved against the west wall --- */
+  const gur = new THREE.Group();
+  gur.add(new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.06, 1.65),
+    lam({ map: TEX.metal, color: 0x8e8a80 })));
+  [[-0.26, -0.72], [0.26, -0.72], [-0.26, 0.72], [0.26, 0.72]].forEach(([ox, oz]) => {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.62, 6), iron);
+    leg.position.set(ox, -0.34, oz); gur.add(leg);
+    const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.045, 0.018, 4, 8), dark);
+    wheel.position.set(ox, -0.66, oz); wheel.rotation.y = Math.PI / 2; gur.add(wheel);
+  });
+  /* a strap left undone */
+  const strap = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.03, 0.09),
+    lam({ color: 0x5a4a3a }));
+  strap.position.set(0.02, 0.05, -0.30); strap.rotation.z = 0.06;
+  gur.add(strap);
+  gur.position.set(-w / 2 + 0.55, 0.70, -0.20);
+  gur.rotation.y = 0.12;
+  scene.add(gur);
+  blocker(-w / 2 + 0.55, -0.20, 0.8, 1.8);
+
+  /* --- candles burning on the floor in the north-west corner --- */
+  [[-2.75, -2.30], [-2.45, -2.55], [-2.95, -2.62]].forEach(([cx, cz], i) => {
+    const wax = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.16 + i * 0.05, 7),
+      lam({ color: 0xd8cbb0 }));
+    wax.position.set(cx, 0.08 + i * 0.025, cz);
+    scene.add(wax);
+    const fl = new THREE.Mesh(new THREE.ConeGeometry(0.022, 0.055, 6),
+      new THREE.MeshBasicMaterial({ color: 0xffc46a, fog: false }));
+    fl.position.set(cx, 0.20 + i * 0.05, cz);
+    scene.add(fl);
+  });
+  const candleLight = new THREE.PointLight(0xff9a3a, 3.2, 2.6, 2);
+  candleLight.position.set(-2.72, 0.35, -2.48);
+  scene.add(candleLight);
+
+  /* --- a pile of bones under the gurney end --- */
+  for (let i = 0; i < 7; i++) {
+    const b = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.16 + rand() * 0.12, 5), bone);
+    b.position.set(-w / 2 + 0.75 + (rand() - 0.5) * 0.5, 0.03 + rand() * 0.04,
+                   0.95 + (rand() - 0.5) * 0.5);
+    b.rotation.set(Math.PI / 2, rand() * 3, rand() * 3);
+    scene.add(b);
+  }
+  const skull = new THREE.Mesh(new THREE.SphereGeometry(0.075, 7, 6), bone);
+  skull.position.set(-w / 2 + 0.68, 0.07, 1.05);
+  scene.add(skull);
+
+  /* --- hanging plastic sheeting across the north-east corner --- */
+  /* Lambert picked up the machine glow and read as a lit wall. Basic +
+     very low opacity + no depth write keeps it as haze you can see through. */
+  const sheet = new THREE.Mesh(new THREE.PlaneGeometry(1.25, 1.55),
+    new THREE.MeshBasicMaterial({ color: 0x59604f, transparent: true,
+                                  opacity: 0.13, depthWrite: false,
+                                  side: THREE.DoubleSide }));
+  sheet.position.set(2.62, 1.35, -2.05);
+  sheet.rotation.y = -0.85;
+  scene.add(sheet);
+  const sheetRail = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.6, 6), iron);
+  sheetRail.rotation.set(0, -0.85, Math.PI / 2);
+  sheetRail.position.set(2.62, 2.20, -2.05);
+  scene.add(sheetRail);
+
+  /* --- a rusted radiator on the south wall --- */
+  for (let i = 0; i < 7; i++) {
+    box(0.075, 0.62, 0.16, lam({ map: TEX.metal, color: 0x8a6a4a }),
+        -2.55 + i * 0.085, 0.42, d / 2 - 0.16);
+  }
+  box(0.68, 0.06, 0.20, iron, -2.29, 0.75, d / 2 - 0.16);
+  box(0.68, 0.06, 0.20, iron, -2.29, 0.11, d / 2 - 0.16);
+  blocker(-2.29, d / 2 - 0.16, 0.8, 0.35);
+}
+
+/* ---- the stairwell ---- */
+const stairwell = { steps: [], sign: null, light: null };
+
+function buildStairs() {
+  const stone = lam({ map: TEX.wall, color: 0x8a8076 });
+  const rail  = lam({ map: TEX.metal, color: 0x6e6a62 });
+  const X = STAIR_AT.x, Z = STAIR_AT.z;
+
+  /* the pit: a black plane you cannot see the bottom of, ringed by kerbstones */
+  const hole = new THREE.Mesh(new THREE.PlaneGeometry(1.30, 1.30),
+    new THREE.MeshBasicMaterial({ color: 0x000000, fog: false }));
+  hole.rotation.x = -Math.PI / 2;
+  hole.position.set(X, 0.006, Z);
+  scene.add(hole);
+  [[-0.72, 0, 0.16, 1.60], [0.72, 0, 0.16, 1.60],
+   [0, -0.72, 1.60, 0.16], [0, 0.72, 1.60, 0.16]].forEach(([ox, oz, sw, sd]) => {
+    box(sw, 0.12, sd, stone, X + ox, 0.06, Z + oz);
+  });
+  blocker(X, Z, 1.5, 1.5);
+
+  /* the steps themselves — hidden until paid for */
+  for (let i = 0; i < STAIR_STEPS; i++) {
+    const st = box(1.14, 0.09, 0.16, stone, X, -0.06 - i * 0.15, Z - 0.50 + i * 0.09);
+    st.visible = false;
+    stairwell.steps.push(st);
+  }
+  /* a handrail down one side, grows with the steps */
+  for (let i = 0; i < 4; i++) {
+    const r = box(0.05, 0.05, 0.62, rail, X - 0.60, 0.10 - i * 0.42, Z - 0.30 + i * 0.26);
+    r.rotation.x = -0.55;
+    r.visible = false;
+    stairwell.steps.push(r);
+  }
+
+  /* the notice board you pay at */
+  box(0.09, 1.15, 0.09, lam({ map: TEX.wood, color: 0x7e6a52 }), X - 0.88, 0.57, Z);
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(0.66, 0.42),
+    new THREE.MeshBasicMaterial({ map: stairSignTex(), transparent: true }));
+  sign.position.set(X - 0.94, 1.20, Z);
+  sign.rotation.y = -Math.PI / 2;
+  scene.add(sign);
+  stairwell.sign = sign;
+  box(0.05, 0.52, 0.76, lam({ map: TEX.metal, color: 0x5e564c }), X - 0.90, 1.20, Z);
+  /* a lamp so you can read it */
+  const signLight = new THREE.PointLight(0xffc07a, 3.4, 2.2, 2);
+  signLight.position.set(X - 1.15, 1.55, Z);
+  scene.add(signLight);
+
+  stairwell.light = new THREE.PointLight(0x6ab0d8, 0, 2.4, 2);
+  stairwell.light.position.set(X, 0.35, Z);
+  scene.add(stairwell.light);
+
+  refreshStairs();
+}
+
+function stairSignTex() {
+  const built = stairsBuilt();
+  return makeTex(256, 160, (g, w, h) => {
+    g.fillStyle = '#0b0708'; g.fillRect(0, 0, w, h);
+    g.strokeStyle = '#c8a24a'; g.lineWidth = 4; g.strokeRect(3, 3, w - 6, h - 6);
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = '900 26px "Arial Black", sans-serif';
+    g.fillStyle = '#ffc65a';
+    g.fillText('THE STAIRS', w / 2, 30);
+    g.font = '900 20px "Arial Black", sans-serif';
+    g.fillStyle = '#e6dcc8';
+    g.fillText(built + ' / ' + STAIR_STEPS + ' CUT', w / 2, 68);
+    /* progress bar */
+    g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(24, 88, w - 48, 16);
+    g.fillStyle = '#c8a24a';
+    g.fillRect(24, 88, (w - 48) * (built / STAIR_STEPS), 16);
+    g.font = '900 15px "Arial Black", sans-serif';
+    g.fillStyle = '#a89880';
+    g.fillText(built >= STAIR_STEPS ? 'IT GOES DOWN' : '[ E ] PAY ' + STAIR_PER_STEP + ' FOR THE NEXT',
+               w / 2, 130);
+    speckle(g, w, h, 14, true, false);
+  }, { smooth: true });
+}
+
+function refreshStairs() {
+  const built = stairsBuilt();
+  stairwell.steps.forEach((st, i) => {
+    /* the last four entries are handrail sections, revealed in quarters */
+    st.visible = i < STAIR_STEPS ? i < built : built >= (i - STAIR_STEPS + 1) * 3;
+  });
+  if (stairwell.sign) {
+    stairwell.sign.material.map = stairSignTex();
+    stairwell.sign.material.needsUpdate = true;
+  }
+  if (stairwell.light) stairwell.light.intensity = built ? 0.6 + built * 0.22 : 0;
+}
+
+const _toStair = new THREE.Vector3();
+function nearStairs() {
+  _toStair.set(STAIR_AT.x - 0.94, 1.20, STAIR_AT.z);
+  if (player.pos.distanceTo(_toStair) > 1.7) return false;
+  const to = _toStair.clone().sub(player.pos).normalize();
+  const fwd = _fwd.set(0, 0, -1).applyEuler(camera.rotation);
+  return to.dot(fwd) > 0.45;
+}
+
+function fundStairs() {
+  if (stairsBuilt() >= STAIR_STEPS) { toast('IT ALREADY GOES DOWN', 2000); return; }
+  if (game.coins < STAIR_PER_STEP) {
+    toast('NEED ' + (STAIR_PER_STEP - game.coins) + ' MORE', 2000); AUDIO.lose(); return;
+  }
+  game.coins -= STAIR_PER_STEP;
+  game.stairFunded += STAIR_PER_STEP;
+  refreshStairs();
+  AUDIO.thud(); shakeCam(0.3);
+  const built = stairsBuilt();
+  toast(built >= STAIR_STEPS ? 'THE STAIRS ARE FINISHED' : 'STEP ' + built + ' CUT', 2400);
+  if (built >= STAIR_STEPS) { horror.dread = Math.min(1, horror.dread + 0.3); AUDIO.whisper(); }
+  syncHUD();
 }
 
 /* ---- door interaction ---- */
@@ -57337,28 +57755,73 @@ const net = {
 
 /* The other player. Deliberately NOT the watcher silhouette — a pale coat
    and a lamp, so a glimpse across a dark room reads as "them", not "it". */
+/* The other player, dressed like whoever was here before you: sackcloth, an
+   iron collar with a broken chain, and a shackle they never got out of. Still
+   carries a lamp — that stays the thing you spot first across a dark room. */
 function makeAvatar() {
   const g = new THREE.Group();
-  const coat = new THREE.MeshLambertMaterial({ color: 0x8a8f9c });
-  psx(coat);
-  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.40, 0.86, 0.24), coat);
+  const rag   = lam({ color: 0x8e8574 });
+  const dark  = lam({ color: 0x3a3c44 });
+  const iron  = lam({ map: TEX.metal, color: 0x8a8f96 });
+  const flesh = lam({ color: 0xa89a86 });
+
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.40, 0.84, 0.24), rag);
   torso.position.y = 1.04; g.add(torso);
-  const legs = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.62, 0.20),
-    lam({ color: 0x3a3c44 }));
-  legs.position.y = 0.31; g.add(legs);
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.145, 7, 6),
-    lam({ color: 0xa89a86 }));
-  head.position.y = 1.60; g.add(head);
+  /* tattered hem — three ragged tongues of cloth */
+  [-0.13, 0, 0.13].forEach((x, i) => {
+    const t = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.16 + i * 0.05, 0.24), rag);
+    t.position.set(x, 0.56 - i * 0.02, 0); g.add(t);
+  });
+  const legs = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.60, 0.20), dark);
+  legs.position.y = 0.30; g.add(legs);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.145, 7, 6), flesh);
+  head.position.y = 1.58; g.add(head);
+  /* sunken sockets */
+  [-0.055, 0.055].forEach(x => {
+    const e = new THREE.Mesh(new THREE.SphereGeometry(0.030, 5, 4),
+      new THREE.MeshBasicMaterial({ color: 0x0d0a08, fog: false }));
+    e.position.set(x, 1.60, 0.126); g.add(e);
+  });
   [-0.255, 0.255].forEach(x => {
-    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.76, 0.10), coat);
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.74, 0.10), rag);
     arm.position.set(x, 1.04, 0); g.add(arm);
   });
-  /* their lamp — the part you actually see first */
+
+  /* iron collar, and the chain that used to hold it to something */
+  const collar = new THREE.Mesh(new THREE.TorusGeometry(0.115, 0.030, 4, 10), iron);
+  collar.rotation.x = Math.PI / 2;
+  collar.position.y = 1.44; g.add(collar);
+  for (let i = 0; i < 5; i++) {
+    const link = new THREE.Mesh(new THREE.TorusGeometry(0.035, 0.011, 4, 7), iron);
+    link.position.set(0.02 + i * 0.012, 1.36 - i * 0.075, 0.10 + i * 0.02);
+    link.rotation.x = Math.PI / 2;
+    link.rotation.y = i % 2 ? Math.PI / 2 : 0;
+    g.add(link);
+  }
+
+  /* ankle shackle, chain, and the ball they drag behind them */
+  const cuff = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.024, 4, 9), iron);
+  cuff.rotation.x = Math.PI / 2;
+  cuff.position.set(-0.09, 0.10, 0); g.add(cuff);
+  for (let i = 0; i < 5; i++) {
+    const link = new THREE.Mesh(new THREE.TorusGeometry(0.030, 0.010, 4, 7), iron);
+    link.position.set(-0.11 - i * 0.055, 0.085, -0.05 - i * 0.055);
+    link.rotation.x = Math.PI / 2;
+    link.rotation.y = i % 2 ? Math.PI / 2 : 0;
+    g.add(link);
+  }
+  const ball = new THREE.Mesh(new THREE.SphereGeometry(0.115, 8, 7),
+    lam({ map: TEX.metal, color: 0x55585e }));
+  ball.position.set(-0.40, 0.10, -0.34); g.add(ball);
+
+  /* their lamp */
   const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.055, 6, 5),
     new THREE.MeshBasicMaterial({ color: 0xbfefff, fog: false }));
-  lamp.position.set(0.30, 1.06, 0.16); g.add(lamp);
+  lamp.position.set(0.30, 1.02, 0.16); g.add(lamp);
+  const bail = new THREE.Mesh(new THREE.TorusGeometry(0.055, 0.010, 4, 8), iron);
+  bail.position.set(0.30, 1.08, 0.16); g.add(bail);
   const light = new THREE.PointLight(0x8fd8ff, 3.4, 3.2, 2);
-  light.position.set(0.30, 1.06, 0.16); g.add(light);
+  light.position.set(0.30, 1.02, 0.16); g.add(light);
   return g;
 }
 
@@ -57422,13 +57885,20 @@ function updatePrompt() {
     const fm = focus.machine;
     if ((fm && fm.reels.spinning) || game.settling) label = '[ Q ] STAND UP';
     else if (!horror.power)              label = 'NO POWER     [ Q ] STAND UP';
-    else label = (game.spins > 0 ? '[ E ] PULL LEVER' : '[ E ] NO SPINS LEFT') +
+    else label = (game.spins > 0 ? '[ E ] PULL LEVER  (' + SPIN_COST + ')' : '[ E ] NO SPINS LEFT') +
                  '     [ Q ] STAND UP';
-  } else if (aimedShopItem()) {
-    label = '[ E ] TAKE IT' +
-            (game.clovers > 0 ? '     [ R ] REROLL TRAY (1 CLOVER)' : '');
+  } else if (shop.open) {
+    /* F always works, whether or not you are aimed at a figurine */
+    const it = aimedShopItem();
+    label = (it ? '[ E ] TAKE IT     ' : '') +
+            (game.clovers > 0 ? '[ R ] REROLL (1 CLOVER)     ' : '') +
+            '[ F ] SEND IT AWAY';
   } else if (player.carrying && nearRack()) {
     label = '[ E ] PLACE ' + charmById(player.carrying).name + ' HERE';
+  } else if (nearStairs()) {
+    label = stairsBuilt() >= STAIR_STEPS
+      ? 'THE STAIRS GO DOWN'
+      : '[ E ] CUT THE NEXT STEP — ' + STAIR_PER_STEP;
   } else if (nearFuse()) {
     label = '[ E ] RESTORE POWER';
   } else if (nearMachine()) {
@@ -57508,6 +57978,8 @@ function boot() {
   for (const mm of MACHINES) initReels(mm);
   assignMachines();
   buildHorror();
+  buildDressing();
+  buildStairs();
 
   scene.add(new THREE.AmbientLight(0x4a3122, 2.7));
 
@@ -57553,7 +58025,7 @@ function boot() {
                  cutPower, setPower, doorBang, windowKnock, escalate, jumpScare,
                  settleRound, resetRun, roundQuota, roundSpins, breakIn,
                  beginOffer, shop, payCollector, openShop, closeShop, charmFigure, buyAimed, rerollShop, finishNight, aimedShopItem, nextNight, buff, hasCharm,
-                 showOverlay, hideOverlay, togglePause, net,
+                 showOverlay, hideOverlay, togglePause, net, offerFreeCharm, advanceAfterTribute, nearStairs, fundStairs, stairsBuilt,
                  SYMBOLS, PATTERNS, CHARMS };
   animate();
 }
