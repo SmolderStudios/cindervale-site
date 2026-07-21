@@ -1,0 +1,9 @@
+name = "slotroom-assets"
+main = "worker.js"
+compatibility_date = "2024-09-23"
+workers_dev = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "slotroom-assets"
+database_id = "ec1ce34a-63bd-403c-b10a-c81df23b067d"
