@@ -287,6 +287,36 @@ const ASSETS = [
   { file:"dirtpile", name:"Dig site (dirt pile + hole)", group:"Environment", prio:"P2",
     spec:"≈1 m across · a mound beside a dark hole",
     prompt:"An escape dig clawed into a dungeon floor: a rough dark hole in the packed earth with a heap of loose dug-up dirt piled beside it and scattered clods around the edge. No tools, no signage — just disturbed damp ground. Dark-fantasy horror, hand-painted." },
+
+  /* ============ ROOM SHELL — the whole environment, model-driven ============
+     These build the room itself. Claude auto-scales, centres and orients every
+     piece on import, so just make the thing and drop the .glb in — no worrying
+     about size or which way it faces. Tiles should tile seamlessly (edges line
+     up) so a wall/floor can repeat across a bigger room. */
+  { file:"floor_tile", name:"Floor tile (modular)", group:"Room shell", prio:"P0",
+    spec:"tiles seamlessly · ~2×2 m square",
+    prompt:"A modular dungeon FLOOR tile that repeats seamlessly edge-to-edge: grimy cracked stone flagstones with dark mortar gaps, dirt, old bloodstains and a little moss. Flat, walkable, seen from above. Make the edges line up so copies tile into a big floor. Dark-fantasy horror, hand-painted." },
+  { file:"wall_tile", name:"Wall segment (modular)", group:"Room shell", prio:"P0",
+    spec:"tiles side-by-side & stacks · ~2 m wide × ~2.9 m tall",
+    prompt:"A modular dungeon WALL segment that repeats side-by-side and stacks: rough grimy stone blocks with mortar, damp streaks, cracks and a few loose bricks. Flat back (sits against nothing). Edges line up so copies form a long continuous wall. Dark-fantasy horror, hand-painted." },
+  { file:"ceiling_tile", name:"Ceiling tile (modular)", group:"Room shell", prio:"P1",
+    spec:"tiles seamlessly · ~2×2 m",
+    prompt:"A modular dungeon CEILING tile that repeats seamlessly: dark stone with heavy timber beams, sagging planks, cobwebs in the corners, water stains. Seen from below. Dark-fantasy horror, hand-painted." },
+  { file:"doorway", name:"Doorway / stone arch", group:"Room shell", prio:"P1",
+    spec:"frames the locked door · ~1.2 m wide × ~2.2 m tall",
+    prompt:"A carved stone DOORWAY / arch that frames the heavy dungeon door — worn blocky stone surround with a keystone at the top, chipped edges, iron reinforcements. Just the frame; the door itself is a separate model. Dark-fantasy horror, hand-painted." },
+  { file:"dig_wall", name:"Breakable wall (the dig-through spot)", group:"Room shell", prio:"P0",
+    spec:"a weak wall section you dig through · ~2 m",
+    prompt:"A cracked, WEAKENED section of dungeon wall clearly meant to be broken through: bulging loose stones, deep cracks, crumbling mortar, and a hint of dark earth showing behind it, like it could be dug open. Reads as 'this one's different — dig here.' Dark-fantasy horror, hand-painted." },
+  { file:"tunnel_hole", name:"Dug-through tunnel opening", group:"Room shell", prio:"P1",
+    spec:"the hole once the wall is broken · ~1.4 m",
+    prompt:"A rough dug-out HOLE / tunnel mouth smashed through a dungeon wall: broken jagged stone edges, raw earth and rubble around the rim, darkness leading through to a passage beyond. The opening revealed after the breakable wall is dug out. Dark-fantasy horror, hand-painted." },
+  { file:"staircase", name:"Descending staircase", group:"Room shell", prio:"P0",
+    spec:"stairs down to the next room · ~3–4 m run",
+    prompt:"A flight of grimy stone STAIRS descending into darkness toward another room: worn, chipped, uneven steps, a rusted iron handrail down one side, damp cracked stone walls hugging the stairwell, pitch black at the bottom. Modular/straight if possible. Dark-fantasy horror, hand-painted." },
+  { file:"pillar", name:"Support pillar", group:"Room shell", prio:"P2",
+    spec:"floor-to-ceiling · ~0.5 m thick × ~2.9 m",
+    prompt:"A dungeon support PILLAR / column, floor to ceiling: rough carved stone, cracked and chipped, bound with a rusted iron band or two, grime at the base. Dark-fantasy horror, hand-painted." },
 ];
 
 /* ---------------- state ---------------- */
@@ -329,7 +359,7 @@ async function syncReset(){
 
 let filter = "all";
 const board = document.getElementById("board");
-const GROUPS = ["Characters","Slot machine","Charm figurines","Environment"];
+const GROUPS = ["Characters","Slot machine","Charm figurines","Environment","Room shell"];
 
 function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
