@@ -92,6 +92,9 @@ button.btn.ghost{ background:transparent; }
 .card .spec{ font-family:var(--mono); font-size:11.5px; color:var(--muted); }
 .card .animreq{ font-size:12px; color:#e6b8ff; background:#2a1838; border:1px solid #4a2c66; border-radius:7px; padding:6px 9px; line-height:1.4; }
 .card .animreq b{ color:#f0d0ff; }
+.card .notes{ font-size:12px; color:#bfe0c8; background:#152418; border:1px solid #2c4a34; border-radius:7px; padding:6px 9px; line-height:1.4; }
+.card .notes b{ color:#d8f0de; }
+.card .promptlbl{ font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); margin-top:2px; }
 .animtag{ font-size:11px; color:#e6b8ff; background:#2a1838; border:1px solid #4a2c66; border-radius:5px; padding:1px 6px; white-space:nowrap; }
 .card .prompt{ font-size:13.5px; color:var(--text); background:#00000030; border:1px solid var(--line); border-radius:8px; padding:10px 11px; line-height:1.5; }
 .card .row{ display:flex; gap:8px; align-items:center; margin-top:auto; padding-top:4px; }
@@ -124,7 +127,8 @@ footer{ margin:50px 0 40px; color:var(--dim); font-size:12.5px; text-align:cente
   <section class="block">
     <p class="eyebrow">Read me first</p>
     <div class="lead">
-      <p>This is the running list of 3D models for <b>SLOTROOM</b> — a PS1/PSX-style horror slot-machine game (walk around a grimy room, play a cursed slot machine, survive the nights). Each card below is one model, with a ready-to-paste prompt, a size/poly target, and the exact filename to hand back.</p>
+      <p>This is the running list of 3D models for <b>SLOTROOM</b> — a PS1/PSX-style horror slot-machine game (walk around a grimy room, play a cursed slot machine, survive the nights). Each card is one model.</p>
+      <p><b>How to use a card:</b> copy its <b>prompt</b> → paste into <b>ChatGPT</b> (or any image AI) to make one clear <b>reference image</b> → send that image to <b>Troper</b>, who turns it into a 3D model (Tripo image-to-3D) and drops the <code>.glb</code> in the Drive folder under the filename shown. Anything that can't be shown in a picture (blank screen, "rig it", removable, size) is in the card's <b>notes</b> — pass that along as text.</p>
       <p><b>Click the status button</b> on a card to cycle it <span class="muted">Not started → Working on it → Delivered</span>. Status is <b>shared</b> — everyone looking at this page sees the same thing, and it updates within a few seconds (the badge up top shows when you're connected). Finished <code>.glb</code> files still go in the shared Drive folder.</p>
       <p>Start with the <span class="prio P0" style="padding:1px 6px">P0</span> cards — the characters and the slot machine are where real models help most. <span class="prio P1" style="padding:1px 6px">P1</span> charms are small collectible props. <span class="prio P2" style="padding:1px 6px">P2</span> are environment dressing — nice-to-have, the game already has placeholder versions.</p>
     </div>
@@ -178,14 +182,15 @@ footer{ margin:50px 0 40px; color:var(--dim); font-size:12.5px; text-align:cente
 </div>
 
 <script>
-/* ---- style cue appended to every single-asset copy — tuned for Tripo text-to-3D ---- */
-const SPEC_TAIL = "Style: low-poly PS1/PSX video-game asset, faceted, grimy hand-painted texture, dark-fantasy horror, single object, plain background.";
+/* ---- appended to every single-asset copy: turns the prompt into a clean
+        instruction for an image AI (ChatGPT) to make a reference image ---- */
+const SPEC_TAIL = "Make ONE clear reference image: a single object centered on a plain neutral background, even lighting, no text or watermark. Dark-fantasy horror style, detailed and readable enough to model a 3D version from.";
 
 const GLOBAL_SPEC = [
-  "SLOTROOM — 3D ASSETS (made in Tripo)",
-  "For each item: generate in Tripo (text-to-3D from the prompt, or image-to-3D from the reference image), export as .glb, name it exactly the filename given (lowercase), drop it in the shared Google Drive folder.",
-  "No Blender needed. Size, orientation, centering, the PS1 retro look, PBR/shiny maps and character animation are ALL handled automatically on import. Static characters are fine.",
-  "Style for every prompt: low-poly PS1/PSX game asset, faceted, grimy hand-painted texture, dark-fantasy horror, plain background.",
+  "SLOTROOM — ASSET PROMPTS (ChatGPT image -> Troper)",
+  "Workflow: copy an item's PROMPT and paste it into ChatGPT (or any image AI) to make ONE clear reference IMAGE, then send that image to Troper. He turns it into a 3D model (Tripo image-to-3D) and exports a .glb named exactly the filename given (lowercase) into the shared Drive folder.",
+  "The prompt describes the PICTURE. Anything you can't show in an image — leave a screen blank, keep it modular/removable, RIG IT, target size — is in the card's NOTES; pass that to Troper as text with the image.",
+  "On import Claude auto-handles size, orientation, centering and the PS1 retro crunch, so the reference should be a CLEAR, detailed, well-lit picture of the ONE object on a plain background — NOT a low-poly game render.",
   ""
 ].join("\n");
 
@@ -206,8 +211,9 @@ const ASSETS = [
 
   /* ============ P0 — SLOT MACHINE ============ */
   { file:"cabinet", name:"Slot machine cabinet", group:"Slot machine", prio:"P0",
-    spec:"≈2 m tall · leave the reel window + belly glass as flat blank panels",
-    prompt:"A tall battered arcade slot-machine cabinet, occult-horror theme: dark lacquered wood with tarnished brass trim, a hooded top marquee, a small tower warning-light on top, a three-wide reel window recessed behind scratched glass, a lit belly-glass panel below it, a control deck with round buttons, a coin slot, a payout tray at the bottom, speaker grilles, and a footrest at the base. Grimy, gothic, candle-lit. Hand-painted wood/brass texture with baked wear and grime. IMPORTANT: leave the reel window and the belly-glass as FLAT recessed panels — the game draws the spinning reels and screens onto them, so don't model reels or glass detail there." },
+    spec:"floor-standing · ~1.8–2 m tall · its own object (~same size as the storage cabinet)",
+    notes:"Leave the REEL WINDOW and the lit belly panel FLAT and BLANK — the game paints the moving reels/screens onto them. Floor-standing, no table. It's SEPARATE from the charm-storage cabinet, and a chair sits in front of it.",
+    prompt:"A tall battered arcade slot-machine cabinet, occult-horror theme: dark lacquered wood with tarnished brass trim, a hooded top marquee with a small warning light, a recessed reel window behind scratched glass, a lit belly panel below it, a control deck with round buttons, a coin slot, a payout tray at the bottom, speaker grilles, and a footrest at the base. Grimy, gothic, candle-lit. Hand-painted." },
   { file:"lever", name:"Slot lever / arm", group:"Slot machine", prio:"P0",
     spec:"≈50 cm · the side pull-arm",
     prompt:"A classic slot-machine side lever: a tarnished chrome-steel shaft with a round red-and-black knob on top, mounted on a riveted metal base plate with bolts and a collar. Worn greasy metal. Hand-painted metal with baked scratches." },
@@ -218,8 +224,9 @@ const ASSETS = [
     spec:"you sit on it at the machine · ~0.5–0.6 m tall",
     prompt:"A seat to sit on while playing the slot machine: a grimy low wooden stool, a battered iron chair, or a nailed-together bench — rickety, worn, dark-fantasy dungeon feel. Sturdy readable silhouette. Hand-painted." },
   { file:"symbol_board", name:"Symbol board frame (wall)", group:"Slot machine", prio:"P1",
-    spec:"ornate wall board · game paints the chart onto the flat face",
-    prompt:"An ornate wall-mounted BOARD/sign frame for a paytable: carved dark wood or tarnished brass surround around a big FLAT recessed panel. Leave the panel BLANK and unlit — the game paints the symbols + pays + odds onto it (like the machine screen). ~1.3 m wide × 1.8 m tall. Dark-fantasy horror, hand-painted." },
+    spec:"ornate wall board · ~1.3 m × 1.8 m",
+    notes:"Leave the middle panel FLAT and BLANK — the game paints the symbols/pays/odds chart onto it, like the machine screen.",
+    prompt:"An ornate wall-mounted board / sign for a paytable: a carved dark-wood or tarnished-brass surround around a big flat recessed centre panel. Grimy, dark-fantasy horror, hand-painted." },
   { file:"pattern_board", name:"Pattern board frame (wall)", group:"Slot machine", prio:"P1",
     spec:"matches the symbol board · game paints the pattern chart on it",
     prompt:"A second ornate wall BOARD/sign frame matching the symbol board, with a large FLAT blank recessed panel — the game draws the winning-pattern chart and line diagrams onto it. Carved wood / tarnished brass, ~1.3 m wide × 1.8 m tall. Dark-fantasy horror, hand-painted." },
@@ -307,14 +314,17 @@ const ASSETS = [
      walls, so just build the space and drop the .glb in. Leave the middle of the
      floor open — the game drops the machines, cabinet, dig spot etc. into it. */
   { file:"main_room", name:"Main room (whole shell, one model)", group:"Room shell", prio:"P0",
-    spec:"one model · ~9 × 8 m, ~2.9 m tall · centre floor left open",
-    prompt:"The whole main dungeon room as ONE model: grimy stone-block walls, a cracked flagstone floor, a dark timber-beam ceiling, roughly 9 m wide by 8 m deep and ~2.9 m tall. Dank, candle-lit, dark-fantasy horror. Keep the centre of the floor OPEN (machines and props get placed in). On ONE wall leave an obvious WEAK / different section where the player digs through — but model that breakable panel as a SEPARATE piece (see 'Breakable wall'); here just leave the recess/frame for it. Hand-painted." },
-  { file:"dig_wall", name:"Breakable wall panel", group:"Room shell", prio:"P0",
-    spec:"one model · plugs the weak spot · removable when dug",
-    prompt:"A single BREAKABLE wall panel that fills the weak spot in the main room's wall: cracked, bulging loose stones, crumbling mortar, dark earth showing behind — clearly 'dig here'. Its own model so digging can swap it out for the tunnel. Match the main room's stone. Dark-fantasy horror, hand-painted." },
-  { file:"beyond", name:"Beyond the wall — tunnel + stairs + 2nd room", group:"Room shell", prio:"P1",
-    spec:"one model · dug tunnel → staircase down → a second room",
-    prompt:"Everything behind the breakable wall as ONE connected model: a rough dug-out tunnel mouth (broken stone, raw earth, rubble) leading to a grimy stone STAIRCASE descending into darkness, opening into a SECOND dungeon room below — barer, older, colder and wetter than the first, foreboding. Keep floors walkable and open. Dark-fantasy horror, hand-painted." },
+    spec:"one model · ~9 × 8 m, ~2.9 m tall",
+    notes:"Model it fully ENCLOSED (4 walls + ceiling); leave the CENTRE floor open (machines/props get placed in). Two things are SEPARATE pieces, not baked in — just leave a spot for each: (1) a weak DIRT wall section = the escape dig ('Dirt wall'), (2) an old stone archway that's been bricked-up/sealed ('Sealed stairway').",
+    prompt:"The whole main dungeon room as one enclosed model: grimy stone-block walls, cracked flagstone floor, dark timber-beam ceiling, candle sconces on the walls, roughly 9 m wide by 8 m deep. Dank, candle-lit, dark-fantasy horror. One wall has a rough, crumbling DIRT-and-rubble section that looks diggable; another wall has an old stone archway that's been bricked up and sealed shut." },
+  { file:"dig_wall", name:"Dirt wall — the escape dig (main exit)", group:"Room shell", prio:"P0",
+    spec:"one model · fills the weak spot · removed as you dig",
+    notes:"SEPARATE / removable piece. The game crumbles it away and piles up rubble as you dig, then opens the way out. Match the main room's wall stone.",
+    prompt:"A section of dungeon wall collapsing into packed DIRT and rubble: bulging loose stones, deep cracks, crumbling mortar, dark earth pushing through, a few fallen rocks at the base — clearly the soft spot you'd dig through to escape. Dark-fantasy horror, hand-painted." },
+  { file:"sealed_stairway", name:"Sealed stairway (hidden, for later)", group:"Room shell", prio:"P2",
+    spec:"one model · a bricked-up stairway going down",
+    notes:"Not used yet — placed sealed/closed off, opened in a future update. The dirt wall is the exit for now.",
+    prompt:"A grimy stone STAIRWAY descending into darkness, but its top is BRICKED UP and boarded over — mismatched fresh stones and nailed planks sealing the way down, cobwebbed, long shut. Dark-fantasy horror, hand-painted." },
 ];
 
 /* ---------------- state ---------------- */
@@ -403,6 +413,8 @@ function cardEl(a){
       </div>
       <div class="spec">${esc(a.spec)}</div>
       ${a.anim ? `<div class="animreq">🎬 <b>needs animation</b> — ${esc(a.anim)}</div>` : ""}
+      ${a.notes ? `<div class="notes">📝 <b>tell Troper:</b> ${esc(a.notes)}</div>` : ""}
+      <div class="promptlbl">image prompt →</div>
       <div class="prompt">${esc(a.prompt)}</div>
       <div class="row">
         <div class="status s${st}">${STATUS_TXT[st]}</div>
@@ -419,9 +431,16 @@ function cardEl(a){
     state[a.file] = ns; save(); render();
     syncPush(a.file, ns);
   });
-  /* copy */
+  /* copy: the image prompt for ChatGPT, then the notes to hand Troper */
   c.querySelector(".copybtn").addEventListener("click", e=>{
-    const txt = `${a.name} (${a.file}.glb)\nSize: ${a.spec}\n\n${a.prompt}\n\n${SPEC_TAIL}`;
+    const txt =
+      `IMAGE PROMPT — paste into ChatGPT to make a reference image:\n` +
+      `${a.prompt} ${SPEC_TAIL}\n\n` +
+      `THEN SEND THE IMAGE TO TROPER. Tell him:\n` +
+      `- deliver as: ${a.file}.glb\n` +
+      `- size: ${a.spec}` +
+      (a.anim  ? `\n- animation: ${a.anim}` : ``) +
+      (a.notes ? `\n- ${a.notes}` : ``);
     copy(txt, e.target);
   });
   return c;
@@ -449,7 +468,10 @@ document.getElementById("copyAll").addEventListener("click", e=>{
   GROUPS.forEach(gp=>{
     out += `\n===== ${gp.toUpperCase()} =====\n`;
     ASSETS.filter(a=>a.group===gp).forEach(a=>{
-      out += `\n[${a.prio}] ${a.name}  ->  ${a.file}.glb\nSize: ${a.spec}\n${a.prompt}\n`;
+      out += `\n[${a.prio}] ${a.name}  ->  ${a.file}.glb\nSize: ${a.spec}\n`;
+      if (a.anim)  out += `Animation: ${a.anim}\n`;
+      if (a.notes) out += `Note: ${a.notes}\n`;
+      out += `Image prompt: ${a.prompt}\n`;
     });
   });
   copy(out, e.target);
