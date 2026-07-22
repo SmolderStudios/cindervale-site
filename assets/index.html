@@ -189,13 +189,13 @@ const GLOBAL_SPEC = [
 const ASSETS = [
   /* ============ P0 — CHARACTERS ============ */
   { file:"prisoner", name:"Prisoner (other player)", group:"Characters", prio:"P0",
-    spec:"≈1.75 m tall · humanoid · static is fine (I add the movement)",
+    spec:"≈1.75 m tall · humanoid · RIG IT + add an idle animation if you can (Tripo animate — the game plays it automatically); static also works",
     prompt:"A gaunt starving prisoner in filthy tattered sackcloth robes, barefoot, hollow-cheeked. A heavy rusted iron collar around the neck with a short broken chain hanging from it, and an iron shackle with a ball chained to one ankle. Hunched, weary posture. Grimy hand-painted skin and cloth with baked dirt and shadow. Neutral A-pose or relaxed standing pose." },
   { file:"watcher", name:"The Watcher", group:"Characters", prio:"P0",
-    spec:"≈2.1 m tall · humanoid · static is fine (I add the movement)",
+    spec:"≈2.1 m tall · humanoid · RIG IT + add an idle animation if you can (Tripo animate — the game plays it automatically); static also works",
     prompt:"A tall, unnaturally thin humanoid silhouette with elongated limbs and long hanging arms — a shadow given a body. Featureless charcoal-black skin that swallows light, with only faint hollow pits where the eyes should be. No clothing, no fine detail. Slightly stooped, ominous. Near-black matte texture with barely-visible surface texture." },
   { file:"collector", name:"The Collector", group:"Characters", prio:"P0",
-    spec:"≈1.95 m tall · humanoid · static is fine (I add the movement)",
+    spec:"≈1.95 m tall · humanoid · RIG IT + add an idle animation if you can (Tripo animate — the game plays it automatically); static also works",
     prompt:"A hulking executioner-warden in a heavy stained leather apron over dark clothes, thick gloves and heavy boots, wearing a riveted iron mask or hood that hides the face. A ring of iron keys and a short cleaver hang at the belt. Broad-shouldered, brutal, intimidating. Dark leather and rusted-iron hand-painted texture with baked grime." },
   { file:"peeker", name:"Peering face (window)", group:"Characters", prio:"P0",
     spec:"≈40 cm · just the head + shoulders",
@@ -288,35 +288,21 @@ const ASSETS = [
     spec:"≈1 m across · a mound beside a dark hole",
     prompt:"An escape dig clawed into a dungeon floor: a rough dark hole in the packed earth with a heap of loose dug-up dirt piled beside it and scattered clods around the edge. No tools, no signage — just disturbed damp ground. Dark-fantasy horror, hand-painted." },
 
-  /* ============ ROOM SHELL — the whole environment, model-driven ============
-     These build the room itself. Claude auto-scales, centres and orients every
-     piece on import, so just make the thing and drop the .glb in — no worrying
-     about size or which way it faces. Tiles should tile seamlessly (edges line
-     up) so a wall/floor can repeat across a bigger room. */
-  { file:"floor_tile", name:"Floor tile (modular)", group:"Room shell", prio:"P0",
-    spec:"tiles seamlessly · ~2×2 m square",
-    prompt:"A modular dungeon FLOOR tile that repeats seamlessly edge-to-edge: grimy cracked stone flagstones with dark mortar gaps, dirt, old bloodstains and a little moss. Flat, walkable, seen from above. Make the edges line up so copies tile into a big floor. Dark-fantasy horror, hand-painted." },
-  { file:"wall_tile", name:"Wall segment (modular)", group:"Room shell", prio:"P0",
-    spec:"tiles side-by-side & stacks · ~2 m wide × ~2.9 m tall",
-    prompt:"A modular dungeon WALL segment that repeats side-by-side and stacks: rough grimy stone blocks with mortar, damp streaks, cracks and a few loose bricks. Flat back (sits against nothing). Edges line up so copies form a long continuous wall. Dark-fantasy horror, hand-painted." },
-  { file:"ceiling_tile", name:"Ceiling tile (modular)", group:"Room shell", prio:"P1",
-    spec:"tiles seamlessly · ~2×2 m",
-    prompt:"A modular dungeon CEILING tile that repeats seamlessly: dark stone with heavy timber beams, sagging planks, cobwebs in the corners, water stains. Seen from below. Dark-fantasy horror, hand-painted." },
-  { file:"doorway", name:"Doorway / stone arch", group:"Room shell", prio:"P1",
-    spec:"frames the locked door · ~1.2 m wide × ~2.2 m tall",
-    prompt:"A carved stone DOORWAY / arch that frames the heavy dungeon door — worn blocky stone surround with a keystone at the top, chipped edges, iron reinforcements. Just the frame; the door itself is a separate model. Dark-fantasy horror, hand-painted." },
-  { file:"dig_wall", name:"Breakable wall (the dig-through spot)", group:"Room shell", prio:"P0",
-    spec:"a weak wall section you dig through · ~2 m",
-    prompt:"A cracked, WEAKENED section of dungeon wall clearly meant to be broken through: bulging loose stones, deep cracks, crumbling mortar, and a hint of dark earth showing behind it, like it could be dug open. Reads as 'this one's different — dig here.' Dark-fantasy horror, hand-painted." },
-  { file:"tunnel_hole", name:"Dug-through tunnel opening", group:"Room shell", prio:"P1",
-    spec:"the hole once the wall is broken · ~1.4 m",
-    prompt:"A rough dug-out HOLE / tunnel mouth smashed through a dungeon wall: broken jagged stone edges, raw earth and rubble around the rim, darkness leading through to a passage beyond. The opening revealed after the breakable wall is dug out. Dark-fantasy horror, hand-painted." },
-  { file:"staircase", name:"Descending staircase", group:"Room shell", prio:"P0",
-    spec:"stairs down to the next room · ~3–4 m run",
-    prompt:"A flight of grimy stone STAIRS descending into darkness toward another room: worn, chipped, uneven steps, a rusted iron handrail down one side, damp cracked stone walls hugging the stairwell, pitch black at the bottom. Modular/straight if possible. Dark-fantasy horror, hand-painted." },
-  { file:"pillar", name:"Support pillar", group:"Room shell", prio:"P2",
-    spec:"floor-to-ceiling · ~0.5 m thick × ~2.9 m",
-    prompt:"A dungeon support PILLAR / column, floor to ceiling: rough carved stone, cracked and chipped, bound with a rusted iron band or two, grime at the base. Dark-fantasy horror, hand-painted." },
+  /* ============ ROOM SHELL — whole rooms, one model each ============
+     Better to generate a WHOLE room as one model than a pile of tiles — Tripo
+     does whole objects/scenes well and there are no seams to line up. Claude
+     auto-scales, centres and orients each import and adds the invisible collision
+     walls, so just build the space and drop the .glb in. Leave the middle of the
+     floor open — the game drops the machines, cabinet, dig spot etc. into it. */
+  { file:"main_room", name:"Main room (whole shell, one model)", group:"Room shell", prio:"P0",
+    spec:"one model · ~9 × 8 m, ~2.9 m tall · centre floor left open",
+    prompt:"The whole main dungeon room as ONE model: grimy stone-block walls, a cracked flagstone floor, a dark timber-beam ceiling, roughly 9 m wide by 8 m deep and ~2.9 m tall. Dank, candle-lit, dark-fantasy horror. Keep the centre of the floor OPEN (machines and props get placed in). On ONE wall leave an obvious WEAK / different section where the player digs through — but model that breakable panel as a SEPARATE piece (see 'Breakable wall'); here just leave the recess/frame for it. Hand-painted." },
+  { file:"dig_wall", name:"Breakable wall panel", group:"Room shell", prio:"P0",
+    spec:"one model · plugs the weak spot · removable when dug",
+    prompt:"A single BREAKABLE wall panel that fills the weak spot in the main room's wall: cracked, bulging loose stones, crumbling mortar, dark earth showing behind — clearly 'dig here'. Its own model so digging can swap it out for the tunnel. Match the main room's stone. Dark-fantasy horror, hand-painted." },
+  { file:"beyond", name:"Beyond the wall — tunnel + stairs + 2nd room", group:"Room shell", prio:"P1",
+    spec:"one model · dug tunnel → staircase down → a second room",
+    prompt:"Everything behind the breakable wall as ONE connected model: a rough dug-out tunnel mouth (broken stone, raw earth, rubble) leading to a grimy stone STAIRCASE descending into darkness, opening into a SECOND dungeon room below — barer, older, colder and wetter than the first, foreboding. Keep floors walkable and open. Dark-fantasy horror, hand-painted." },
 ];
 
 /* ---------------- state ---------------- */
