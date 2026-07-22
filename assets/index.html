@@ -90,6 +90,9 @@ button.btn.ghost{ background:transparent; }
 .prio.P1{ background:#4a3410; color:#f0c772; border:1px solid #6a4a18; }
 .prio.P2{ background:#243414; color:#b7d07a; border:1px solid #38501e; }
 .card .spec{ font-family:var(--mono); font-size:11.5px; color:var(--muted); }
+.card .animreq{ font-size:12px; color:#e6b8ff; background:#2a1838; border:1px solid #4a2c66; border-radius:7px; padding:6px 9px; line-height:1.4; }
+.card .animreq b{ color:#f0d0ff; }
+.animtag{ font-size:11px; color:#e6b8ff; background:#2a1838; border:1px solid #4a2c66; border-radius:5px; padding:1px 6px; white-space:nowrap; }
 .card .prompt{ font-size:13.5px; color:var(--text); background:#00000030; border:1px solid var(--line); border-radius:8px; padding:10px 11px; line-height:1.5; }
 .card .row{ display:flex; gap:8px; align-items:center; margin-top:auto; padding-top:4px; }
 .status{ flex:1; text-align:center; font-size:12px; font-weight:700; letter-spacing:.04em; padding:8px; border-radius:8px; cursor:pointer; border:1px solid var(--line2); user-select:none; }
@@ -143,7 +146,7 @@ footer{ margin:50px 0 40px; color:var(--dim); font-size:12.5px; text-align:cente
       <li><b>Size, position &amp; facing</b> — auto-scaled to the right size, centered, and turned to face the room. Whatever scale/rotation Tripo spits out is fine.</li>
       <li><b>The retro PS1 look</b> — flat shading, crunchy low-res textures and the wobble are all added on the way in. Tripo's smooth, shiny, modern output is <i>expected</i>; it gets crushed into the style automatically.</li>
       <li><b>Shiny / PBR / normal maps</b> — ignored by the game, so it doesn't matter if Tripo bakes them in.</li>
-      <li><b>Animation</b> — the characters (prisoner, watcher, collector) can be handed over <b>completely still</b>; Claude adds the movement. If Tripo's one-click auto-rig is easy, an idle pose is a nice bonus — never required.</li>
+      <li><b>Animation IS wanted for the characters now</b> — anything with a <span class="animtag">🎬 needs animation</span> tag should come <b>rigged with animation clips</b> (Tripo's rig + animate). A bare rig with no clip is still frozen, so include at least an <b>idle</b> (and a <b>walk</b> on the prisoner). The game auto-plays them. Everything <i>without</i> the tag stays static — Claude animates those in code (doors, lever, etc.).</li>
     </ul>
 
     <h3>The only two things that actually matter for the model</h3>
@@ -189,16 +192,16 @@ const GLOBAL_SPEC = [
 const ASSETS = [
   /* ============ P0 — CHARACTERS ============ */
   { file:"prisoner", name:"Prisoner (other player)", group:"Characters", prio:"P0",
-    spec:"≈1.75 m tall · humanoid · RIG IT + add an idle animation if you can (Tripo animate — the game plays it automatically); static also works",
+    spec:"≈1.75 m tall · humanoid", anim:"rig + IDLE + WALK — it's the co-op player you see moving around",
     prompt:"A gaunt starving prisoner in filthy tattered sackcloth robes, barefoot, hollow-cheeked. A heavy rusted iron collar around the neck with a short broken chain hanging from it, and an iron shackle with a ball chained to one ankle. Hunched, weary posture. Grimy hand-painted skin and cloth with baked dirt and shadow. Neutral A-pose or relaxed standing pose." },
   { file:"watcher", name:"The Watcher", group:"Characters", prio:"P0",
-    spec:"≈2.1 m tall · humanoid · RIG IT + add an idle animation if you can (Tripo animate — the game plays it automatically); static also works",
+    spec:"≈2.1 m tall · humanoid", anim:"rig + a slow, creeping idle / sway",
     prompt:"A tall, unnaturally thin humanoid silhouette with elongated limbs and long hanging arms — a shadow given a body. Featureless charcoal-black skin that swallows light, with only faint hollow pits where the eyes should be. No clothing, no fine detail. Slightly stooped, ominous. Near-black matte texture with barely-visible surface texture." },
   { file:"collector", name:"The Collector", group:"Characters", prio:"P0",
-    spec:"≈1.95 m tall · humanoid · RIG IT + add an idle animation if you can (Tripo animate — the game plays it automatically); static also works",
+    spec:"≈1.95 m tall · humanoid", anim:"rig + a heavy, looming idle",
     prompt:"A hulking executioner-warden in a heavy stained leather apron over dark clothes, thick gloves and heavy boots, wearing a riveted iron mask or hood that hides the face. A ring of iron keys and a short cleaver hang at the belt. Broad-shouldered, brutal, intimidating. Dark leather and rusted-iron hand-painted texture with baked grime." },
   { file:"peeker", name:"Peering face (window)", group:"Characters", prio:"P0",
-    spec:"≈40 cm · just the head + shoulders",
+    spec:"≈40 cm · just the head + shoulders", anim:"rig + a subtle idle (blink / twitch) — optional",
     prompt:"Just a single gaunt human head and shoulders, leaning/pressing forward as if peering through a gap in boards — wide bloodshot staring eyes, sunken grimy face, matted greasy hair, mouth slightly open. Only the head and upper bust, no body below the chest. Clammy pale hand-painted skin with baked grime and deep eye shadows." },
 
   /* ============ P0 — SLOT MACHINE ============ */
@@ -399,6 +402,7 @@ function cardEl(a){
         <span class="prio ${a.prio}">${a.prio}</span>
       </div>
       <div class="spec">${esc(a.spec)}</div>
+      ${a.anim ? `<div class="animreq">🎬 <b>needs animation</b> — ${esc(a.anim)}</div>` : ""}
       <div class="prompt">${esc(a.prompt)}</div>
       <div class="row">
         <div class="status s${st}">${STATUS_TXT[st]}</div>
