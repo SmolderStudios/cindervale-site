@@ -1,0 +1,12 @@
+# Wrangler local state — machine-specific caches, not source
+.wrangler/
+**/.wrangler/
+.dev.vars
+
+# Node
+node_modules/
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
