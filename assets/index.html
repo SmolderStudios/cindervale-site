@@ -131,21 +131,23 @@ footer{ margin:50px 0 40px; color:var(--dim); font-size:12.5px; text-align:cente
     <p class="eyebrow">Read me first</p>
     <div class="lead">
       <p>This is the running list of 3D models for <b>SLOTROOM</b> — a PS1/PSX-style horror slot-machine game (walk around a grimy room, play a cursed slot machine, survive the nights). Each card is one model.</p>
-      <p><b>How to use a card:</b> copy its <b>prompt</b> → paste into <b>ChatGPT</b> (or any image AI) to make one clear <b>reference image</b> → send that image to <b>Troper</b>, who turns it into a 3D model (Tripo image-to-3D) and drops the <code>.glb</code> in the Drive folder under the filename shown. Anything that can't be shown in a picture (blank screen, "rig it", removable, size) is in the card's <b>notes</b> — pass that along as text.</p>
+      <p><b>How to use a card:</b> copy its <b>prompt</b> → paste into <b>ChatGPT</b> (or any image AI) → you get one clear <b>reference picture</b> → send <b>just that picture</b> to Troper, who runs it through Tripo image-to-3D and drops the <code>.glb</code> in the Drive folder under the filename shown.</p>
+      <p><b>Troper gets a picture and a filename — nothing else.</b> He isn't handed a list of rules to follow, so anything that matters has to be <i>visible in the picture itself</i>. That's what the card's <b>notes</b> are for: they're the checklist for <i>you</i>, before you send it. Look at what ChatGPT gave you and make sure it actually shows what the notes describe — a blank reel window, an empty shelf, the right proportions. If it doesn't, re-prompt until it does. <b>The only thing ever sent as words is animation</b> — cards that need it carry a <span class="animtag">🎬 needs animation</span> tag, and that gets passed on.</p>
       <p><b>Click the status button</b> on a card to cycle it <span class="muted">Not started → Working on it → Delivered</span>. Status is <b>shared</b> — everyone looking at this page sees the same thing, and it updates within a few seconds (the badge up top shows when you're connected). Finished <code>.glb</code> files still go in the shared Drive folder.</p>
       <p>Start with the <span class="prio P0" style="padding:1px 6px">P0</span> cards — the characters and the slot machine are where real models help most. <span class="prio P1" style="padding:1px 6px">P1</span> charms are small collectible props. <span class="prio P2" style="padding:1px 6px">P2</span> are environment dressing — nice-to-have, the game already has placeholder versions.</p>
     </div>
   </section>
 
   <div class="panel" id="specPanel">
-    <h2>How this works — Troper only does 4 things</h2>
-    <p class="muted" style="margin-top:0">These are made in <b>Tripo</b>, so no Blender skill needed. For each card:</p>
+    <h2>The whole pipeline, per card</h2>
+    <p class="muted" style="margin-top:0">Three steps on our side, one on his. No Blender anywhere.</p>
     <ul class="spec-list">
-      <li><b>1 · Generate it in Tripo</b> — paste the card's prompt into <b>text-to-3D</b>, or (usually better) drop the card's reference image into Tripo's <b>image-to-3D</b>.</li>
-      <li><b>2 · Export as <code>.glb</code></b> — that's the format the game loads. (GLB, not FBX or OBJ.)</li>
-      <li><b>3 · Name the file</b> exactly what the card says, lowercase — e.g. <code>prisoner.glb</code>.</li>
-      <li><b>4 · Drop it in the Drive folder</b> → <a id="folderLink" href="https://drive.google.com/drive/folders/15SYzI98xRehhKAURebuwkTZmr42H5k2_?usp=sharing" target="_blank" rel="noopener">shared Google Drive folder ↗</a>.</li>
+      <li><b>1 · Prompt → picture.</b> Copy the card's prompt, paste it into ChatGPT, get one clear reference picture of the one object.</li>
+      <li><b>2 · Check it against the notes.</b> This is the step that gets skipped and it's the only quality gate there is — Troper never sees the notes, so whatever the picture doesn't show, the model won't have.</li>
+      <li><b>3 · Send the picture</b> + the filename from the card. Add the <span class="animtag">🎬 needs animation</span> line if it has one; that's the one thing words are used for.</li>
+      <li><b>4 · Troper</b> runs it through <b>Tripo image-to-3D</b>, exports <code>.glb</code> under that exact lowercase filename, and drops it in the <a id="folderLink" href="https://drive.google.com/drive/folders/15SYzI98xRehhKAURebuwkTZmr42H5k2_?usp=sharing" target="_blank" rel="noopener">shared Drive folder ↗</a>.</li>
     </ul>
+    <p class="muted" style="margin:10px 0 0">The <b>Copy prompt</b> button on each card gives you the ChatGPT prompt and the picture checklist together, split so it's obvious which half goes where.</p>
 
     <h3>Don't worry about any of this — the game fixes it automatically on import</h3>
     <p class="muted" style="margin:0 0 10px">Troper does <b>not</b> need to touch these in Blender. Claude handles them in code when the model goes in:</p>
@@ -157,6 +159,7 @@ footer{ margin:50px 0 40px; color:var(--dim); font-size:12.5px; text-align:cente
     </ul>
 
     <h3 style="color:var(--trim-bright)">⚠ Everything delivered so far is STATIC — the animated characters need redoing</h3>
+    <p class="muted" style="margin:0 0 10px"><b>This section is the exception</b> — animation can't be shown in a still picture, so this is the one part of the board that does get forwarded to Troper as words, alongside the reference picture.</p>
     <p class="muted" style="margin:0 0 10px">Checked directly inside the files: <code>the collector.glb</code> and <code>the watcher.glb</code> both contain
       <b>0 animation clips and 0 skeletons</b>. They're plain frozen meshes. That's not a game bug — there is genuinely
       nothing in the file to play, which is why the collector stands in a T-pose instead of sitting or walking.
@@ -226,8 +229,8 @@ const SPEC_TAIL = "Make ONE clear reference image: a single object centered on a
 
 const GLOBAL_SPEC = [
   "SLOTROOM — ASSET PROMPTS (ChatGPT image -> Troper)",
-  "Workflow: copy an item's PROMPT and paste it into ChatGPT (or any image AI) to make ONE clear reference IMAGE, then send that image to Troper. He turns it into a 3D model (Tripo image-to-3D) and exports a .glb named exactly the filename given (lowercase) into the shared Drive folder.",
-  "The prompt describes the PICTURE. Anything you can't show in an image — leave a screen blank, keep it modular/removable, RIG IT, target size — is in the card's NOTES; pass that to Troper as text with the image.",
+  "Workflow: copy an item's PROMPT and paste it into ChatGPT (or any image AI) to make ONE clear reference PICTURE, then send that picture to Troper. He turns it into a 3D model (Tripo image-to-3D) and exports a .glb named exactly the filename given (lowercase) into the shared Drive folder.",
+  "TROPER GETS THE PICTURE AND THE FILENAME, NOTHING ELSE. He is not given the notes to follow, so anything that matters has to be visible in the picture. The NOTES on each card are a checklist for whoever makes the picture — look at what ChatGPT produced and re-prompt until it actually shows those things. The ONE exception is ANIMATION: it can't be shown in a still, so cards tagged 'needs animation' have that passed on as words.",
   "On import Claude auto-handles size, orientation, centering and the PS1 retro crunch, so the reference should be a CLEAR, detailed, well-lit picture of the ONE object on a plain background — NOT a low-poly game render.",
   ""
 ].join("\n");
@@ -671,7 +674,7 @@ function cardEl(a){
       <div class="spec">${esc(a.spec)}</div>
       ${a.anim ? `<div class="animreq">🎬 <b>needs animation</b> — ${esc(a.anim)}</div>` : ""}
       ${a.flat ? `<div class="flatreq">🖼 <b>this one is a PICTURE, not a model</b> — ${esc(a.flat)}</div>` : ""}
-      ${a.notes ? `<div class="notes">📝 <b>${a.flat ? "must be right" : "tell Troper"}:</b> ${esc(a.notes)}</div>` : ""}
+      ${a.notes ? `<div class="notes">📝 <b>${a.flat ? "must be right" : "check the picture shows this"}:</b> ${esc(a.notes)}</div>` : ""}
       <div class="promptlbl">${a.flat ? "what to draw →" : "image prompt →"}</div>
       <div class="prompt">${esc(a.prompt)}</div>
       <div class="row">
@@ -689,7 +692,9 @@ function cardEl(a){
     state[a.file] = ns; save(); render();
     syncPush(a.file, ns);
   });
-  /* copy: the image prompt for ChatGPT, then the notes to hand Troper */
+  /* copy: the ChatGPT prompt, then the picture checklist, then the one line
+     that actually goes to Troper — kept as three labelled steps so it's obvious
+     which half is ours and which half is his */
   c.querySelector(".copybtn").addEventListener("click", e=>{
     /* a 2D card's image IS the deliverable, so it gets no "then send it to
        Troper to model" tail — that instruction would just get it turned into
@@ -701,13 +706,18 @@ function cardEl(a){
         `- ${a.spec}\n` +
         `- ${a.flat}` +
         (a.notes ? `\n- ${a.notes}` : ``)
-      : `IMAGE PROMPT — paste into ChatGPT to make a reference image:\n` +
+      /* Troper is sent a picture and a filename, never a list of rules — so the
+         notes are split off as a checklist for whoever is making the picture,
+         not pasted on as instructions nobody will read. Animation is the one
+         exception: it can't be shown in a still, so it goes as words. */
+      : `STEP 1 — paste into ChatGPT to make the reference picture:\n` +
         `${a.prompt} ${SPEC_TAIL}\n\n` +
-        `THEN SEND THE IMAGE TO TROPER. Tell him:\n` +
-        `- deliver as: ${fileOf(a)}\n` +
-        `- size: ${a.spec}` +
-        (a.anim  ? `\n- animation: ${a.anim}` : ``) +
-        (a.notes ? `\n- ${a.notes}` : ``);
+        `STEP 2 — before sending it on, check the picture actually shows:\n` +
+        `- ${a.spec}` +
+        (a.notes ? `\n- ${a.notes}` : ``) +
+        `\n(Troper only ever gets the picture, so anything missing here is missing from the model.)\n\n` +
+        `STEP 3 — send Troper the picture, and: deliver as ${fileOf(a)}` +
+        (a.anim ? `\nALSO TELL HIM — animation: ${a.anim}` : ``);
     copy(txt, e.target);
   });
   return c;
