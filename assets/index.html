@@ -92,6 +92,9 @@ button.btn.ghost{ background:transparent; }
 .card .spec{ font-family:var(--mono); font-size:11.5px; color:var(--muted); }
 .card .animreq{ font-size:12px; color:#e6b8ff; background:#2a1838; border:1px solid #4a2c66; border-radius:7px; padding:6px 9px; line-height:1.4; }
 .card .animreq b{ color:#f0d0ff; }
+.card .flatreq{ font-size:12px; color:#ffd9a8; background:#37220f; border:1px solid #6a4520; border-radius:7px; padding:6px 9px; line-height:1.4; }
+.card .flatreq b{ color:#ffe9c8; }
+.flattag{ font-size:11px; color:#ffd9a8; background:#37220f; border:1px solid #6a4520; border-radius:5px; padding:1px 6px; white-space:nowrap; }
 .card .notes{ font-size:12px; color:#bfe0c8; background:#152418; border:1px solid #2c4a34; border-radius:7px; padding:6px 9px; line-height:1.4; }
 .card .notes b{ color:#d8f0de; }
 .card .promptlbl{ font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); margin-top:2px; }
@@ -171,6 +174,22 @@ footer{ margin:50px 0 40px; color:var(--dim); font-size:12.5px; text-align:cente
         That's collapsing down to just the dealer walking up — so <b>the collector is the priority</b>; the watcher's animation can wait.</li>
     </ul>
 
+    <h3 style="color:var(--trim-bright)">⚠ The one rule for anything with a NUMBER on it</h3>
+    <p class="muted" style="margin:0 0 10px">The two wall boards show what each symbol pays and how often it lands — and those numbers
+      <b>move during a run</b>. Buy a skull charm and skulls start paying more, and the wall has to say so, or the board is lying to the player.
+      The game does that by <b>repainting the boards from scratch every time a charm is fitted</b>.</p>
+    <p class="muted" style="margin:0 0 10px">Which means: <b>no number, percentage, symbol name or table row may be drawn into any image or baked onto any model.</b>
+      A board that arrives with <code>SKULL 110 4%</code> painted on it is frozen at those numbers forever, and the live text just gets drawn on top of it. Split it instead:</p>
+    <ul class="spec-list">
+      <li><b>Art we supply as a picture</b> — the frame, the border, the header strip, the 8 symbol icons. None of it ever changes.</li>
+      <li><b>Everything with a value</b> — the rows, names, pays, percentages, multipliers, the little payline grids — is drawn by the game, on top, live.</li>
+    </ul>
+    <p class="muted" style="margin:0 0 10px">Same reason the slot cabinet's reel window has to be blank. See it working:
+      <a href="paytable.html">the live paytable ↗</a> — tick a charm and watch both boards redraw.</p>
+    <p class="muted" style="margin:0 0 0"><b>Where files go:</b> pictures and models both land in the same
+      <a id="folderLink2" href="https://drive.google.com/drive/folders/15SYzI98xRehhKAURebuwkTZmr42H5k2_?usp=sharing" target="_blank" rel="noopener">shared Drive folder ↗</a>,
+      named exactly what the card says — <code>symbols.png</code>, <code>watcher.glb</code>, and so on.</p>
+
     <h3>The only two things that actually matter for the model</h3>
     <ul class="spec-list">
       <li><b>Make it the right thing</b> — match the card's description. If Tripo offers a lower-poly / cleaner option, take it; if not, whatever it gives is fine.</li>
@@ -213,7 +232,32 @@ const GLOBAL_SPEC = [
   ""
 ].join("\n");
 
+const FLAT_TAIL = "Pixel art, chunky visible pixels, dark-fantasy horror palette, crisp hard edges, no anti-aliasing, no blur, no drop shadow, no text or watermark.";
+
 const ASSETS = [
+  /* ---- 2D. These are NOT modelled — the file itself goes straight into the
+     game as a texture. The hard rule on all three is that no number, name or
+     row may be drawn in: every value on the boards is painted by code so it
+     can move when a charm is fitted, and anything baked in sits underneath
+     that forever. ---- */
+  { file:"symbols", ext:"png", name:"The 8 reel symbols (one sheet)", group:"2D art (drawings, not models)", prio:"P0",
+    spec:"one 1024×1024 PNG · 4 across, 2 down · 256 per cell · TRUE transparency",
+    flat:"Save the picture itself as symbols.png. Nobody models this — it goes into the game as-is.",
+    notes:"Order matters, left to right, top row then bottom: CANDLE, MOTH, EYE, SPIDER / COFFIN, CLOVER, SKULL, PENTAGRAM. Each one centred in its own 256×256 cell with a little breathing room, and the background must be REAL transparency (alpha) — not white, not a checkerboard pattern drawn in. These same 8 show up on the spinning reels AND down the side of the symbol board, so they have to still read at about the size of a fingernail.",
+    prompt:"A sheet of 8 spooky pixel-art icons on a fully transparent background, arranged in a neat 4-across by 2-down grid, evenly spaced, each icon centred in its own square cell. Top row: a lit dripping candle, a pale moth with spread wings, a slit-pupil yellow eye, a red widow spider. Bottom row: a purple coffin with a cross, a green four-leaf clover, a white human skull, a pink pentagram in a circle. Each icon a bold simple silhouette in one strong colour, readable when tiny." },
+
+  { file:"symbol_board_face", ext:"png", name:"Symbol board — frame & header only", group:"2D art (drawings, not models)", prio:"P0",
+    spec:"560 × 760 PNG · portrait · everything below the header left EMPTY",
+    flat:"Save the picture itself as symbol_board_face.png. It becomes the board's backdrop; the game draws the rows on top of it.",
+    notes:"DRAW: the outer frame/border, and one header strip across the top with the three words SYMBOL, PAYS and CHANCE — those three never change so they can be baked in. DRAW NOTHING ELSE. No symbols, no names, no numbers, no percentages, no row lines. The whole area under the header must be flat empty background, because the game paints all 8 rows onto it fresh every time a charm is fitted — that is what makes the pays and the odds on the wall actually track your run. Anything drawn down there ends up stuck underneath the live text forever.",
+    prompt:"A tall empty pixel-art sign board, portrait orientation, dark-fantasy horror: a thick ornate dark border frame with worn corners, and across the very top a weathered parchment-coloured header strip carrying only the three words SYMBOL, PAYS and CHANCE in a blocky pixel typeface. Everything below the header is plain flat near-black board, totally empty — no rows, no lines, no numbers, no pictures. Chunky pixels, grimy, candle-scorched." },
+
+  { file:"pattern_board_face", ext:"png", name:"Pattern board — frame & header only", group:"2D art (drawings, not models)", prio:"P0",
+    spec:"560 × 760 PNG · portrait · matches the symbol board · body left EMPTY",
+    flat:"Save the picture itself as pattern_board_face.png. Same job as the symbol board face, for the opposite wall.",
+    notes:"Same rules as symbol_board_face, and it should look like its twin — same size, same frame style, so the two read as a matching pair on opposite walls. Header carries only the two words PATTERN and MULTIPLIER. Nothing below it: the game draws all 10 payline rows, their little 5×3 grid diagrams and their multipliers on top, and those multipliers move when pattern charms are fitted.",
+    prompt:"A tall empty pixel-art sign board, portrait orientation, matching a companion board in size and style but with a slightly different carved border pattern: thick ornate dark frame, and across the top a weathered parchment-coloured header strip carrying only the two words PATTERN and MULTIPLIER in a blocky pixel typeface. Everything below is plain flat near-black board, completely empty. Chunky pixels, dark-fantasy horror, grimy." },
+
   { file:"prisoner", name:"Prisoner (other player)", group:"Characters", prio:"P0",
     spec:"≈1.75 m tall · humanoid",
     anim:"rig + IDLE + WALK — it's the co-op player you see moving around",
@@ -230,32 +274,31 @@ const ASSETS = [
     spec:"≈40 cm · just the head + shoulders",
     anim:"rig + a subtle idle (blink / twitch) — optional",
     prompt:"Just a single gaunt human head and shoulders, leaning/pressing forward as if peering through a gap in boards — wide bloodshot staring eyes, sunken grimy face, matted greasy hair, mouth slightly open. Only the head and upper bust, no body below the chest. Clammy pale hand-painted skin with baked grime and deep eye shadows." },
-  { file:"slotmachine", name:"Slot machine (the big cabinet)", group:"Slot machine", prio:"P0",
-    spec:"DELIVERED · floor-standing · ~2 m tall · you SIT at it",
-    notes:"DELIVERED & wired in. If you regenerate it: keep the REEL WINDOW a flat, BLANK, slightly-recessed rectangle about HALFWAY up the front, and the MARQUEE strip just above it also flat/blank — the game paints the live reels + readout straight onto those. Floor-standing, NO table; a stool sits in front and it's SEPARATE from the charm cabinet.",
-    prompt:"A tall ornate occult slot-machine cabinet you sit at: dark lacquered wood and tarnished brass, a hooded top marquee, a big recessed RECTANGULAR reel window in the middle of the face, a lit lower panel, a control deck with round buttons, coin slot and payout tray, gothic skull and eye carvings, candle-lit and grimy. Leave the reel window and marquee flat and blank. Hand-painted." },
+  { file:"slotmachine", name:"Slot machine (small, sits on a table)", group:"Slot machine", prio:"P0",
+    spec:"REDO — smaller now · ~80 cm tall · stands ON a table, not on the floor",
+    notes:"THIS REPLACES THE TALL ONE ALREADY DELIVERED — the machine is being shrunk to a bar-top unit that sits on a table, so it needs remaking at the new proportions: roughly 80 cm tall, 55 cm wide, chunky and deep rather than tall and thin. NO legs, NO plinth, NO stand — it ends in a flat base that rests on a tabletop. Still keep the REEL WINDOW a flat, BLANK, slightly-recessed rectangle in the middle of the front, and the MARQUEE strip just above it flat and blank too — the game paints the live reels and the win readout straight onto those, so anything drawn there gets buried. The charm cabinet and chest are gone; charms live on a separate shelf now.",
+    prompt:"A small ornate occult BAR-TOP slot machine that sits on a table, seen from the front: chunky and compact, wider and deeper than it is tall, dark lacquered wood with tarnished brass corners, a low hooded marquee strip across the top, a big recessed RECTANGULAR reel window filling the middle of the face, a small control deck with round buttons and a coin slot below it, gothic skull and eye carvings, candle-lit and grimy. Flat bottom, no legs and no stand. Leave the reel window and the marquee strip completely flat and blank. Hand-painted." },
+
+  { file:"table", name:"Table (the machine sits on it)", group:"Slot machine", prio:"P0",
+    spec:"~1.2 m wide × 75 cm tall · machine sits on top, you sit at it",
+    notes:"This is what the slot machine now stands on, and you pull up a seat to it. Needs a clear flat top big enough for the machine plus a bit of elbow room — don't clutter the top with props, the game puts things there. Normal table height so the reel window lands about eye level when you're sat down.",
+    prompt:"A heavy old wooden table in a dungeon gambling den, seen from the front: thick scarred plank top, sturdy square legs with iron bracing, dark stained wood, water rings and burn marks, grimy and worn. Clear empty tabletop, nothing on it. Dark-fantasy horror, hand-painted." },
   { file:"slotlever", name:"Slot lever / arm", group:"Slot machine", prio:"P1",
     spec:"≈50 cm · side pull-arm · OPTIONAL",
     notes:"OPTIONAL — the game already has a working animated lever built in. A slotlever.glb can replace it on the machine's right side (it's one fused mesh so it can't be animated part-way; keep the mount plate small).",
     prompt:"A classic slot-machine side lever: a tarnished chrome-steel shaft with a round red-and-black knob on top, mounted on a riveted metal base plate with bolts and a collar. Worn greasy metal. Hand-painted metal with baked scratches." },
-  { file:"cabinet_nodrawer", name:"Charm cabinet (open shelves)", group:"Slot machine", prio:"P0",
-    spec:"DELIVERED · ~1.7 m tall · stands beside the machine",
-    notes:"DELIVERED & wired — the CHARM CABINET that stands next to the machine; charms you collect display on its open shelves. Keep the shelves OPEN.",
-    prompt:"A tall gothic open-shelf display cabinet / hutch: dark lacquered wood with tarnished brass edging and a carved skull crown on top, three or four open shelves for little figurines to sit on, grimy and candle-lit. Dark-fantasy horror, hand-painted." },
-  { file:"cabinet_drawer", name:"Charm chest (locked)", group:"Slot machine", prio:"P0",
-    spec:"DELIVERED · ~0.6 m tall chest · sits by the cabinet",
-    notes:"DELIVERED & wired — the KEY-LOCKED charm chest that sits in front of the cabinet (a future update opens it with a key to store charms + unlock more charm slots). Keep the keyhole and a lid.",
-    prompt:"A heavy iron-banded wooden treasure chest with a domed lid, big riveted straps, a round drop-ring handle on the front and a metal keyhole escutcheon, worn dark wood. Dark-fantasy dungeon, hand-painted with baked grime." },
   { file:"chain_drum", name:"Ankle-chain winch drum", group:"Slot machine", prio:"P1",
     spec:"≈45 cm · bolted at the machine base",
-    notes:"Just the DRUM/spool the chain feeds off — the actual chain and ankle cuff dragging to the player are generated by the game, DON'T model those. Sits low at the foot of the machine.",
+    notes:"Just the DRUM/spool the chain feeds off — the actual chain and ankle cuff dragging to the player are generated by the game, DON'T model those. Bolts to the FLOOR under the table now that the machine sits on one, so it reads from ground level.",
     prompt:"A heavy horizontal iron cable-winch drum/spool on a riveted bracket bolted to the floor, a thick chain wound around the barrel, big end flanges and a ratchet gear on one side, rusty and greasy. Dark-fantasy dungeon, hand-painted." },
-  { file:"rack", name:"Charm rack / shelf", group:"Slot machine", prio:"P0",
-    spec:"about as WIDE as the machine · holds a lot of charms",
-    prompt:"A grimy wooden shelf / rack for the charm figurines you collect — make it roughly as WIDE as the slot-machine cabinet with a couple of levels, so a good row of little figurines can sit on it. Weathered dark plank shelving with black iron brackets, rusty nails and hooks. Dark-fantasy horror, hand-painted." },
+  { file:"rack", name:"Charm shelves", group:"Slot machine", prio:"P0",
+    spec:"~1.2 m wide, 2–3 open levels · holds a LOT of little figurines",
+    notes:"This is now the ONLY place charms go — it replaces the tall charm cabinet and the locked chest, both of which are cut. It stands next to the table the machine sits on. Keep every level OPEN and the shelf boards CLEAR and flat, no doors, no clutter, no ornaments sat on them — the game stands the collected figurines on those boards itself, and by late in a run there are twenty-odd of them, so shelf space matters more than decoration.",
+    prompt:"A grimy wooden shelf unit for displaying small figurines, seen from the front: two or three wide OPEN shelf levels, completely empty, weathered dark plank boards on black iron brackets with rusty nails and hooks, no doors and no drawers, wider than it is tall. Dark-fantasy horror dungeon, hand-painted." },
   { file:"seat", name:"Seat / stool (to play)", group:"Slot machine", prio:"P1",
-    spec:"you sit on it at the machine · ~0.5–0.6 m tall",
-    prompt:"A seat to sit on while playing the slot machine: a grimy low wooden stool, a battered iron chair, or a nailed-together bench — rickety, worn, dark-fantasy dungeon feel. Sturdy readable silhouette. Hand-painted." },
+    spec:"you sit on it AT THE TABLE · ~45–50 cm seat height",
+    notes:"Normal chair height, not a tall bar stool — the machine sits on a table now, so you pull up to it like a card table.",
+    prompt:"A seat to sit on at a table in a dungeon gambling den: a grimy wooden chair or a low nailed-together stool, rickety and worn, dark stained wood with iron nails. Sturdy readable silhouette, normal chair height. Dark-fantasy horror, hand-painted." },
   { file:"symbol_board", name:"Symbol board frame (wall)", group:"Slot machine", prio:"P1",
     spec:"empty frame · centre opening 3 wide : 4 tall · game scales it to ~1.5 × 1.9 m",
     notes:"IT IS AN EMPTY FRAME, NOT A SIGN — the game paints the chart onto it, live. Three things have to be right or it won't work: (1) the middle stays COMPLETELY BLANK — no writing, numbers, symbols, lines or grid, because the chart is repainted every time a charm is fitted and anything baked into the middle shows through underneath it; (2) the blank centre must be 3 wide to 4 tall (a hair taller than that is fine) — don't worry about real-world size, the game scales the whole thing, but that SHAPE has to be right or the chart comes out stretched; (3) RECESS the centre behind the front of the frame — a good visible step back, not flush — or the painted panel floats in front of the woodwork instead of sitting inside it. It hangs flat on a wall, so flat back, fairly shallow, and only the front is ever seen. All the carving goes on the surround. See exactly what lands on it at cindervaleidle.com/assets/paytable.html",
@@ -578,7 +621,10 @@ async function syncReset(){
 
 let filter = "all";
 const board = document.getElementById("board");
-const GROUPS = ["Characters","Slot machine","Charm figurines","Environment","Room shell"];
+const GROUPS = ["2D art (drawings, not models)","Characters","Slot machine","Charm figurines","Environment","Room shell"];
+
+/* 2D cards are delivered as .png, everything else as .glb */
+const fileOf = a => a.file + "." + (a.ext || "glb");
 
 function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
@@ -619,13 +665,14 @@ function cardEl(a){
     </div>
     <div class="body">
       <div class="hd">
-        <div><h3>${esc(a.name)}</h3><div class="file">${esc(a.file)}.glb</div></div>
+        <div><h3>${esc(a.name)}</h3><div class="file">${esc(fileOf(a))}</div></div>
         <span class="prio ${a.prio}">${a.prio}</span>
       </div>
       <div class="spec">${esc(a.spec)}</div>
       ${a.anim ? `<div class="animreq">🎬 <b>needs animation</b> — ${esc(a.anim)}</div>` : ""}
-      ${a.notes ? `<div class="notes">📝 <b>tell Troper:</b> ${esc(a.notes)}</div>` : ""}
-      <div class="promptlbl">image prompt →</div>
+      ${a.flat ? `<div class="flatreq">🖼 <b>this one is a PICTURE, not a model</b> — ${esc(a.flat)}</div>` : ""}
+      ${a.notes ? `<div class="notes">📝 <b>${a.flat ? "must be right" : "tell Troper"}:</b> ${esc(a.notes)}</div>` : ""}
+      <div class="promptlbl">${a.flat ? "what to draw →" : "image prompt →"}</div>
       <div class="prompt">${esc(a.prompt)}</div>
       <div class="row">
         <div class="status s${st}">${STATUS_TXT[st]}</div>
@@ -644,14 +691,23 @@ function cardEl(a){
   });
   /* copy: the image prompt for ChatGPT, then the notes to hand Troper */
   c.querySelector(".copybtn").addEventListener("click", e=>{
-    const txt =
-      `IMAGE PROMPT — paste into ChatGPT to make a reference image:\n` +
-      `${a.prompt} ${SPEC_TAIL}\n\n` +
-      `THEN SEND THE IMAGE TO TROPER. Tell him:\n` +
-      `- deliver as: ${a.file}.glb\n` +
-      `- size: ${a.spec}` +
-      (a.anim  ? `\n- animation: ${a.anim}` : ``) +
-      (a.notes ? `\n- ${a.notes}` : ``);
+    /* a 2D card's image IS the deliverable, so it gets no "then send it to
+       Troper to model" tail — that instruction would just get it turned into
+       a mesh nobody asked for */
+    const txt = a.flat
+      ? `IMAGE PROMPT — paste into ChatGPT. The picture it makes IS the asset:\n` +
+        `${a.prompt} ${FLAT_TAIL}\n\n` +
+        `SAVE IT AS: ${fileOf(a)}  (into the shared Drive folder)\n` +
+        `- ${a.spec}\n` +
+        `- ${a.flat}` +
+        (a.notes ? `\n- ${a.notes}` : ``)
+      : `IMAGE PROMPT — paste into ChatGPT to make a reference image:\n` +
+        `${a.prompt} ${SPEC_TAIL}\n\n` +
+        `THEN SEND THE IMAGE TO TROPER. Tell him:\n` +
+        `- deliver as: ${fileOf(a)}\n` +
+        `- size: ${a.spec}` +
+        (a.anim  ? `\n- animation: ${a.anim}` : ``) +
+        (a.notes ? `\n- ${a.notes}` : ``);
     copy(txt, e.target);
   });
   return c;
@@ -679,8 +735,9 @@ document.getElementById("copyAll").addEventListener("click", e=>{
   GROUPS.forEach(gp=>{
     out += `\n===== ${gp.toUpperCase()} =====\n`;
     ASSETS.filter(a=>a.group===gp).forEach(a=>{
-      out += `\n[${a.prio}] ${a.name}  ->  ${a.file}.glb\nSize: ${a.spec}\n`;
+      out += `\n[${a.prio}] ${a.name}  ->  ${fileOf(a)}\nSize: ${a.spec}\n`;
       if (a.anim)  out += `Animation: ${a.anim}\n`;
+      if (a.flat)  out += `PICTURE, NOT A MODEL: ${a.flat}\n`;
       if (a.notes) out += `Note: ${a.notes}\n`;
       out += `Image prompt: ${a.prompt}\n`;
     });
