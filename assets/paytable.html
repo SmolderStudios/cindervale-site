@@ -707,6 +707,10 @@ drawPatternBoard = (g, w, h) => {
     g.font = '900 30px "Arial Black", sans-serif';
     g.textBaseline = 'middle'; g.textAlign = 'center';
     g.fillText('PATTERN', 8 + SPLIT / 2, 8 + HDR / 2);
+    /* same trap as CHANCE on the symbol board: the longest word sits in the
+       narrowest column, and the panel got narrower when the boards were fitted
+       to the delivered frames. Shrink it rather than clip it. */
+    g.font = '900 24px "Arial Black", sans-serif';
     g.fillText('MULTIPLIER', 8 + SPLIT + (w - 16 - SPLIT) / 2, 8 + HDR / 2);
 
     PATTERNS.forEach((p, i) => {
