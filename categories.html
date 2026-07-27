@@ -1,0 +1,1073 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Categories — an anime deduction duel</title>
+<meta name="description" content="Two players, two secret categories. Probe with anime characters, read the yes/no answers, and name their rule before they name yours.">
+<style>
+:root{
+  --bg:#0b0d14; --panel:#141824; --panel2:#1c2130; --panel3:#242a3c;
+  --line:#2c334a; --text:#e9edf8; --dim:#8b94ad; --dim2:#5f6884;
+  --p1:#57d2ff; --p2:#ff6ec7; --yes:#4ade80; --no:#fb7185; --gold:#ffc857;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 700px at 78% -12%,#1d2a4d 0%,transparent 62%),
+    radial-gradient(900px 620px at 10% 108%,#3a1d3f 0%,transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--text);
+  font:15px/1.5 ui-sans-serif,system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  min-height:100vh;
+}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,textarea{font:inherit;color:inherit}
+h1,h2,h3,p{margin:0}
+.hide{display:none !important}
+
+/* ---------- shared chrome ---------- */
+.btn{
+  background:linear-gradient(180deg,var(--panel3),var(--panel2));
+  border:1px solid var(--line); border-radius:11px;
+  padding:12px 20px; font-weight:650; letter-spacing:.2px;
+  transition:transform .08s,border-color .15s,background .15s;
+}
+.btn:hover{border-color:#46507080;background:linear-gradient(180deg,#2b3348,#232939)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.big{padding:15px 28px;font-size:17px}
+.btn.prime{background:linear-gradient(180deg,#3f7fd6,#2f5fa8);border-color:#5a92e0}
+.btn.prime:hover{background:linear-gradient(180deg,#4a8ce4,#3568b6)}
+.btn.yes{background:linear-gradient(180deg,#2f9c5e,#217345);border-color:#48c07e;color:#eafff2}
+.btn.yes:hover{background:linear-gradient(180deg,#37b06c,#278350)}
+.btn.no{background:linear-gradient(180deg,#c04a5c,#8e3444);border-color:#e2697c;color:#fff0f2}
+.btn.no:hover{background:linear-gradient(180deg,#d4576a,#a03c4e)}
+.btn.ghost{background:none;border-color:var(--line);color:var(--dim)}
+.btn.ghost:hover{color:var(--text);border-color:#46507080}
+.btn.sm{padding:8px 14px;font-size:13px;border-radius:9px}
+.fld{
+  width:100%;background:#0c0f18;border:1px solid var(--line);
+  border-radius:11px;padding:13px 15px;outline:none;
+}
+.fld:focus{border-color:#4a6ea8;box-shadow:0 0 0 3px #3f7fd633}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r)}
+.p1{color:var(--p1)} .p2{color:var(--p2)}
+.eyebrow{font-size:11px;letter-spacing:2.4px;text-transform:uppercase;color:var(--dim2);font-weight:700}
+
+/* ---------- home ---------- */
+#home{max-width:840px;margin:0 auto;padding:min(9vh,74px) 20px 60px}
+.logo{text-align:center;margin-bottom:34px}
+.logo h1{
+  font-size:clamp(40px,9vw,74px);font-weight:850;letter-spacing:min(1.2vw,10px);
+  background:linear-gradient(100deg,var(--p1),#c6a3ff 46%,var(--p2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.logo p{color:var(--dim);margin-top:10px;font-size:16px}
+.hrow{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+.hbox{padding:22px}
+.hbox h3{font-size:15px;margin-bottom:4px}
+.hbox .sub{color:var(--dim2);font-size:13px;margin-bottom:14px}
+.joinrow{display:flex;gap:9px}
+#joinCode{text-transform:uppercase;letter-spacing:7px;font-weight:800;text-align:center;flex:1;min-width:0}
+#nameBox{padding:20px 22px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+#nameBox label{white-space:nowrap;font-weight:650}
+.err{color:var(--no);text-align:center;margin-top:16px;min-height:20px;font-size:14px}
+details.rules{margin-top:24px;padding:18px 22px}
+details.rules summary{cursor:pointer;font-weight:700;list-style:none}
+details.rules summary::-webkit-details-marker{display:none}
+details.rules summary::before{content:'▸ ';color:var(--dim2)}
+details.rules[open] summary::before{content:'▾ '}
+details.rules ol{color:var(--dim);margin:14px 0 0;padding-left:20px}
+details.rules li{margin:8px 0}
+details.rules b{color:var(--text)}
+
+/* ---------- game chrome ---------- */
+#game{max-width:1420px;margin:0 auto;padding:16px 18px 40px}
+.top{
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:12px 18px;margin-bottom:16px;
+}
+.top .brand{font-weight:850;letter-spacing:4px;font-size:14px;color:var(--dim)}
+.roomtag{display:flex;align-items:center;gap:9px;margin-left:auto}
+.roomtag .code{
+  font-weight:850;letter-spacing:5px;font-size:19px;color:var(--gold);
+  background:#0c0f18;border:1px solid var(--line);border-radius:9px;padding:5px 12px 5px 17px;
+}
+.vs{display:flex;align-items:center;gap:12px;font-weight:700}
+.pill{display:flex;align-items:center;gap:7px;background:#0c0f18;border:1px solid var(--line);border-radius:99px;padding:6px 14px}
+.pill.turn{border-color:currentColor;box-shadow:0 0 0 3px #ffffff0d}
+.dot{width:8px;height:8px;border-radius:99px;background:var(--no);flex:none}
+.dot.on{background:var(--yes);box-shadow:0 0 8px var(--yes)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:16px;align-items:start}
+.stage{padding:20px;min-height:440px}
+.side{display:flex;flex-direction:column;gap:14px;position:sticky;top:16px}
+
+/* ---------- stage states ---------- */
+.banner{text-align:center;padding:26px 18px}
+.banner h2{font-size:clamp(20px,2.6vw,28px);font-weight:800;margin-bottom:8px}
+.banner p{color:var(--dim);max-width:560px;margin:0 auto}
+.turnbar{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:13px 16px;border-radius:12px;background:var(--panel2);
+  border:1px solid var(--line);margin-bottom:16px;
+}
+.turnbar h2{font-size:16px;font-weight:750}
+.turnbar .spacer{margin-left:auto}
+.waitdots::after{content:'';animation:dots 1.4s steps(4,end) infinite}
+@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
+
+.focus{display:flex;gap:22px;align-items:center;padding:22px;border-radius:12px;
+  background:linear-gradient(160deg,#1e2434,#151926);border:1px solid var(--line)}
+.focus img{width:158px;height:222px;object-fit:cover;border-radius:11px;flex:none;
+  background:var(--panel3);border:1px solid var(--line)}
+.focus h3{font-size:clamp(21px,3vw,30px);font-weight:800;line-height:1.15}
+.focus .show{color:var(--dim);margin-top:5px}
+.focus .q{margin-top:16px;color:var(--dim);max-width:44ch}
+.focus .acts{display:flex;gap:11px;margin-top:16px;flex-wrap:wrap}
+
+/* ---------- character grid ---------- */
+.gridhead{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+#search{flex:1;min-width:190px}
+#count{color:var(--dim2);font-size:13px;white-space:nowrap}
+#grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(124px,1fr));
+  gap:11px;max-height:min(58vh,620px);overflow-y:auto;padding:3px 6px 3px 3px;
+}
+#grid::-webkit-scrollbar{width:10px}
+#grid::-webkit-scrollbar-thumb{background:var(--panel3);border-radius:9px}
+.cc{
+  display:flex;flex-direction:column;text-align:left;padding:0;overflow:hidden;
+  background:var(--panel2);border:1px solid var(--line);border-radius:12px;
+  transition:transform .1s,border-color .12s;position:relative;
+}
+.cc:hover{transform:translateY(-3px);border-color:#5a7ec0}
+.cc .ccimg{display:block;aspect-ratio:3/4;background:#0c0f18;overflow:hidden}
+.cc img{width:100%;height:100%;object-fit:cover;display:block}
+.cc .ccn{font-size:12.5px;font-weight:700;padding:8px 9px 0;line-height:1.25;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cc .cca{font-size:11px;color:var(--dim2);padding:3px 9px 9px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.cc.sel{border-color:var(--gold);box-shadow:0 0 0 3px #ffc85740}
+.cc.used{opacity:.42}
+.cc.used:hover{opacity:.75}
+.cc .ccb{position:absolute;top:7px;right:7px;width:24px;height:24px;border-radius:99px;
+  display:none;align-items:center;justify-content:center;font-size:14px;font-weight:900;
+  color:#0b0d14;border:2px solid #0b0d14}
+.cc.used .ccb{display:flex}
+.cc.mYes .ccb{background:var(--yes)} .cc.mYes .ccb::after{content:'✓'}
+.cc.mNo  .ccb{background:var(--no)}  .cc.mNo  .ccb::after{content:'✕'}
+.confirm{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:13px;
+  padding:13px 16px;border-radius:12px;background:#1a2133;border:1px solid var(--gold)}
+.confirm .who{font-weight:750}
+
+/* ---------- sidebar ---------- */
+.sec{padding:16px 17px}
+.sec h3{font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:var(--dim2);
+  margin-bottom:11px;font-weight:750}
+.mycat{font-size:17px;font-weight:750;line-height:1.35;word-break:break-word}
+.mycat.blur{filter:blur(7px);user-select:none}
+.buckets{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.bucket h4{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;font-weight:750;
+  margin:0 0 8px;display:flex;align-items:center;gap:6px}
+.bucket.y h4{color:var(--yes)} .bucket.n h4{color:var(--no)}
+.bucket h4 .n{background:#0c0f18;border-radius:99px;padding:1px 7px;font-size:11px;color:var(--dim)}
+.chips{display:flex;flex-direction:column;gap:5px;max-height:214px;overflow-y:auto}
+.chips::-webkit-scrollbar{width:7px}
+.chips::-webkit-scrollbar-thumb{background:var(--panel3);border-radius:9px}
+.chip{display:flex;align-items:center;gap:8px;background:#0f131e;border:1px solid var(--line);
+  border-radius:9px;padding:4px 8px 4px 4px}
+.chip img{width:26px;height:34px;object-fit:cover;border-radius:5px;flex:none;background:var(--panel3)}
+.chip span{font-size:12px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.empty{color:var(--dim2);font-size:12px;font-style:italic;padding:4px 2px}
+#log{display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto;margin-bottom:10px}
+#log .m{font-size:13px;line-height:1.35;word-break:break-word}
+#log .m b{color:var(--dim)}
+#log .m.own b{color:var(--p1)}
+.chatrow{display:flex;gap:8px}
+
+/* ---------- overlays ---------- */
+.veil{position:fixed;inset:0;background:#05070ccc;backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;padding:22px;z-index:50}
+.modal{max-width:520px;width:100%;padding:26px}
+.modal h2{font-size:22px;font-weight:800;margin-bottom:10px}
+.modal p{color:var(--dim);margin-bottom:8px}
+.quote{background:#0c0f18;border:1px solid var(--gold);border-radius:11px;padding:16px 18px;
+  font-size:19px;font-weight:750;margin:14px 0 18px;word-break:break-word}
+.modal .acts{display:flex;gap:11px;flex-wrap:wrap}
+.win{text-align:center;padding:34px 22px}
+.win .crown{font-size:46px}
+.win h2{font-size:clamp(24px,4vw,34px);font-weight:850;margin:8px 0 6px}
+.reveal{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin:22px 0}
+.reveal .r{padding:16px;border-radius:12px;background:#0f131e;border:1px solid var(--line);text-align:left}
+.reveal .r .who{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;font-weight:750;margin-bottom:7px}
+.reveal .r .cat{font-size:17px;font-weight:750;line-height:1.35;word-break:break-word}
+#conn{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:60;
+  background:#1a2133;border:1px solid var(--line);border-radius:99px;padding:9px 18px;
+  font-size:13px;box-shadow:0 8px 26px #0008}
+
+@media(max-width:1080px){
+  .layout{grid-template-columns:1fr}
+  .side{position:static}
+  .chips{max-height:none}
+}
+@media(max-width:620px){
+  .hrow{grid-template-columns:1fr}
+  .focus{flex-direction:column;text-align:center}
+  .focus .q{margin-inline:auto}
+  .focus .acts{justify-content:center}
+  .reveal{grid-template-columns:1fr}
+  #grid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ HOME ============ -->
+<div id="home">
+  <div class="logo">
+    <h1>CATEGORIES</h1>
+    <p>Two players. Two secret rules. Read them before they read you.</p>
+  </div>
+
+  <div class="card" id="nameBox">
+    <label for="nameIn">Your name</label>
+    <input id="nameIn" class="fld" maxlength="14" placeholder="who are you?" autocomplete="off">
+  </div>
+
+  <div class="hrow">
+    <div class="card hbox">
+      <h3>Start a room</h3>
+      <div class="sub">You'll get a code to send your opponent.</div>
+      <button class="btn prime big" id="btnCreate" style="width:100%">Create room</button>
+    </div>
+    <div class="card hbox">
+      <h3>Join a room</h3>
+      <div class="sub">Got a 4-letter code? Drop it in.</div>
+      <div class="joinrow">
+        <input id="joinCode" class="fld" maxlength="4" placeholder="CODE" autocomplete="off">
+        <button class="btn big" id="btnJoin">Join</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="err" id="homeErr"></div>
+
+  <details class="rules card">
+    <summary>How to play</summary>
+    <ol>
+      <li>You each invent a <b>secret category</b> and type it in — "has white hair", "is a villain", "carries a sword", "from a sports anime". Your opponent never sees it.</li>
+      <li>On your turn you <b>probe</b>: pick any anime character and send them over. Your opponent answers <b>yes</b> or <b>no</b> — does that character fit <b>their</b> category?</li>
+      <li>Every answer you collect sorts into two columns: <b>FITS</b> and <b>DOESN'T</b>. That's your evidence board for cracking their rule.</li>
+      <li>Instead of probing, you can spend your turn to <b>call it</b> — type out what you think their category is. They rule on whether you nailed it.</li>
+      <li>Guess right and you win. Guess wrong and you've burned your turn. <b>First correct call takes it.</b></li>
+    </ol>
+  </details>
+</div>
+
+<!-- ============ GAME ============ -->
+<div id="game" class="hide">
+  <div class="top card">
+    <div class="brand">CATEGORIES</div>
+    <div class="vs" id="vs"></div>
+    <div class="roomtag">
+      <span class="code" id="roomCode"></span>
+      <button class="btn sm ghost" id="btnInvite">Copy invite</button>
+      <button class="btn sm ghost" id="btnQuit">Leave</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <section class="stage card" id="stage">
+      <div id="stageMsg"></div>
+      <!-- built once and kept in the DOM so scroll position + search survive turns -->
+      <div id="pickUI" class="hide">
+        <div class="turnbar"><h2>Your turn — probe or call it</h2><div class="spacer"></div>
+          <button class="btn sm" id="btnGuess">Call their category</button></div>
+        <div class="gridhead">
+          <input id="search" class="fld" placeholder="search characters or a series…" autocomplete="off">
+          <span id="count"></span></div>
+        <div id="grid"></div>
+        <div id="confirmSlot"></div>
+      </div>
+    </section>
+    <aside class="side">
+      <div class="card sec">
+        <h3>Your secret category</h3>
+        <div class="mycat" id="myCat">—</div>
+        <button class="btn sm ghost" id="btnBlur" style="margin-top:11px">Hide it</button>
+      </div>
+      <div class="card sec" id="evMine">
+        <h3>Your read on <span id="evOpp">them</span></h3>
+        <div class="buckets" id="bMine"></div>
+      </div>
+      <div class="card sec" id="evTheirs">
+        <h3>What they've asked you</h3>
+        <div class="buckets" id="bTheirs"></div>
+      </div>
+      <div class="card sec">
+        <h3>Table talk</h3>
+        <div id="log"></div>
+        <div class="chatrow">
+          <input id="chatIn" class="fld" maxlength="140" placeholder="say something…" autocomplete="off">
+          <button class="btn sm" id="btnChat">Send</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div id="veil" class="veil hide"><div class="card modal" id="modal"></div></div>
+<div id="conn" class="hide"></div>
+
+<script>
+'use strict';
+
+/* ---------------------------------------------------------------- roster
+   [ name, anime, portrait file ] — the 300 most-favourited anime characters
+   on AniList. Portraits stream from AniList's CDN, so the grid needs a live
+   connection. To refresh or resize the roster, run `node scripts/fetch-roster.js`
+   (optionally with a count) — it rewrites the array below in place. */
+const CHARS = [
+["Ai Hayasaka","Kaguya-sama: Love is War","b121104-7TYRl3EEsDYU.png"],
+["Ai Hoshino","OSHI NO KO","b172759-cccVhJ2fQA92.png"],
+["Aira Shiratori","DAN DA DAN","b245466-rd5I5mchZ3bv.png"],
+["Ais Wallenstein","Is It Wrong to Try to Pick Up Girls in a Dungeon?","b87655-7QjpIyyZuqyp.png"],
+["Akame","Akame ga Kill!","b63351-0WmsDENpiscp.png"],
+["Akane Kurokawa","OSHI NO KO","b203384-YuSppFDMw2wn.png"],
+["Akeno Himejima","High School DxD","b51347-YMb9fndAriXd.png"],
+["Aki Hayakawa","Chainsaw Man","b137081-TSrUR3mUJL6r.png"],
+["Albedo","Overlord","b89122-Gj7MBs7F5cMJ.png"],
+["Alphonse Elric","Fullmetal Alchemist: Brotherhood","b12-tCKu8yK5kFL5.jpg"],
+["Alucard","Hellsing Ultimate","n601-CVySkaFQgsPW.jpg"],
+["Anya Forger","SPY x FAMILY","b138100-4Li0tWRCa5bQ.png"],
+["Aoi Toudou","JUJUTSU KAISEN","b137975-6TH7PiLWJaqy.png"],
+["Aqua","KONOSUBA -God's blessing on this wonderful world!","b89362-ibkc0eoECaW1.png"],
+["Aquamarine Hoshino","OSHI NO KO","b183885-HOmw8CqcJdv3.jpg"],
+["Arataka Reigen","Mob Psycho 100","b89334-OPj1hCzvrt7X.png"],
+["Armin Arlert","Attack on Titan","b46494-g7xYYuBtYPnO.png"],
+["Artoria Pendragon","Fate/Zero","b497-Yg5pNmC8kxzs.png"],
+["Ash Lynx","BANANA FISH","b13580-1J7PwIB8kTpu.png"],
+["Askeladd","Vinland Saga","b13020-ZdiYlNmpRUNS.png"],
+["Asta","Black Clover","b123285-tKijiuQErDS0.png"],
+["Asuka Langley Souryuu","Neon Genesis Evangelion","b94-d631a3Z2KPvd.png"],
+["Asuna Yuuki","Sword Art Online","b36828-j5ib0adAzGMx.png"],
+["Ban","The Seven Deadly Sins","b77605-NrjhQwZwgJ3l.png"],
+["Benimaru Shinmon","Fire Force","b130848-AuuIm6GR8ody.jpg"],
+["Bruno Bucciarati","JoJo's Bizarre Adventure: Golden Wind","b13045-TIpIF82cMkG9.png"],
+["C.C.","Code Geass: Lelouch of the Rebellion","b1111-UhmlFtRFrnWa.png"],
+["Chifuyu Matsuno","Tokyo Revengers","b145344-q4BqRljEBYNc.png"],
+["Chika Fujiwara","Kaguya-sama: Love is War","b121103-UGLxT8utLPnq.png"],
+["Chisato Nishikigi","Lycoris Recoil","b260329-ejhEdFfXhs53.jpg"],
+["Chizuru Ichinose","Rent-a-Girlfriend","b128106-zSTsuULvz6PX.png"],
+["Chousou","JUJUTSU KAISEN","b157116-2jYQf3y8NeTZ.png"],
+["Chrollo Lucilfer","Hunter x Hunter (2011)","b58-USOmsz3nursi.jpg"],
+["Chuuya Nakahara","Bungo Stray Dogs","b89853-06qMPkrGlgP1.png"],
+["Cid Kagenou","The Eminence in Shadow","b136837-3WR22FYet8Hv.jpg"],
+["Dabi","My Hero Academia Season 2","b126378-RFSljq5koy5U.png"],
+["Darkness","KONOSUBA -God's blessing on this wonderful world!","b89363-mm21Ll4NegUD.png"],
+["Death the Kid","Soul Eater","b8455-0Ztel4ew5bNd.png"],
+["Deishuu Kaiki","Nisemonogatari","b53641-F3GYG0k2xCBj.png"],
+["Denji","Chainsaw Man","b130102-FO1VHNnEnLlB.png"],
+["Dio Brando","JoJo's Bizarre Adventure (TV)","b4004-w0OtWuvjhftG.png"],
+["Echidna","Re:ZERO -Starting Life in Another World- Season 2","b129330-ZUtYw4n7N0uH.png"],
+["Edward Elric","Fullmetal Alchemist: Brotherhood","b11-TA5Nuk7EDUZG.jpg"],
+["Eijirou Kirishima","My Hero Academia","b89243-QLmUyyZk5K2l.png"],
+["Eikichi Onizuka","GTO: Great Teacher Onizuka","b434-Q0K9e4HukawA.png"],
+["Elaina","Wandering Witch: The Journey of Elaina","b125736-LIaof9PjXvH3.png"],
+["Emilia","Re:ZERO -Starting Life in Another World-","b88572-IzTwXEHSobRs.jpg"],
+["Emma","The Promised Neverland","b121725-LQciVJOjnMVh.png"],
+["Eren Yeager","Attack on Titan","b40882-dsj7IP943WFF.jpg"],
+["Eris Boreas Greyrat","Mushoku Tensei: Jobless Reincarnation","b88349-5dsNUah3oBj8.png"],
+["Erwin Smith","Attack on Titan","b46496-Mu86MENd5wNB.png"],
+["Erza Scarlet","Fairy Tail","b5189-GR1xdok9SFsN.jpg"],
+["Esdeath","Akame ga Kill!","b65239-2S3t2vSyUew9.png"],
+["Faye Valentine","Cowboy Bebop","b2-0Iszg6Izgt4p.png"],
+["Fern","Frieren: Beyond Journey’s End","b183965-uGFohBjlFoTp.png"],
+["Frieren","Frieren: Beyond Journey’s End","b176754-PCnpqIOkjhFk.png"],
+["Gaara","Naruto","b1662-4E5J0LX9jZKZ.png"],
+["Gabi Braun","Attack on Titan Final Season","b125659-O37MZQWibV7g.png"],
+["Garou","One-Punch Man","b89277-xBGb4B5YISXg.png"],
+["Genos","One-Punch Man","b73979-tVi9maPID881.jpg"],
+["Gilgamesh","Fate/Zero","b2514-hnE6LEdqm7Su.png"],
+["Gintoki Sakata","Gintama","b672-cP5VPriN67xJ.png"],
+["Giorno Giovanna","JoJo's Bizarre Adventure: Golden Wind","b10529-AloL8jjZwjsg.png"],
+["Giyuu Tomioka","Demon Slayer: Kimetsu no Yaiba","b130050-qsLThJs5VIbz.png"],
+["Gokuu Son","Dragon Ball Z","246-wsRRr6z1kii8.png"],
+["Gon Freecss","Hunter x Hunter (2011)","b30-lyFExKyDhefc.jpg"],
+["Griffith","Berserk","b424-Jfrsf8I7zBps.png"],
+["Guts","Berserk","b422-XTaiTuvRohsV.png"],
+["Gyro Zeppeli","STEEL BALL RUN JoJo's Bizarre Adventure 1st STAGE","b11772-p7MO37Mk0f5g.png"],
+["Hachiman Hikigaya","My Teen Romantic Comedy SNAFU","b67065-Dhec6tE2yWA9.png"],
+["Hak Son","Yona of the Dawn","b43815-WRbln8jA1mPk.jpg"],
+["Hanako","Toilet-bound Hanako-kun","b128651-GaZImkP2Of1R.png"],
+["Hange Zoe","Attack on Titan","b71121-7R7CnQd3lHgt.png"],
+["Himiko Toga","My Hero Academia Season 2","b125619-iQxQoGHJvjRJ.png"],
+["Hina Chouno","Blue Box","b218648-kXxXy8lPkeGV.png"],
+["Hinata Hyuuga","Naruto","b1555-Q41GLTV3FvYF.png"],
+["Hisoka Morow","Hunter x Hunter (2011)","b31-FZckOuu7L1un.png"],
+["Hitagi Senjougahara","Bakemonogatari","b22037-sY7GWSKYr2Nl.jpg"],
+["Hitori Gotou","BOCCHI THE ROCK!","b257562-Ru35NYPfsqhY.png"],
+["Holo","Eromanga Sensei","b7373-1BH0gELuZmHD.jpg"],
+["Homura Akemi","Puella Magi Madoka Magica","b38005-T3NR8p2f021x.jpg"],
+["Houtarou Oreki","Hyouka","b55131-ypodHQCyHbzD.png"],
+["Howl","Howl‘s Moving Castle","b507-g9yz1GTLtPla.jpg"],
+["Hyakkimaru","Dororo","b14864-MMntDWi2EkyR.png"],
+["Ichigo","DARLING in the FRANXX","b124382-bSBkjtYjJQtr.png"],
+["Ichigo Kurosaki","Bleach","b5-a7bkJgjhhigE.png"],
+["Inosuke Hashibira","Demon Slayer: Kimetsu no Yaiba","n129130-SJC0Kn1DU39E.jpg"],
+["Iris","Fire Force","n130716-5564jUgQxK9a.png"],
+["Itachi Uchiha","Naruto","b14-9Kb1E5oel1ke.png"],
+["Itsuki Nakano","The Quintessential Quintuplets","b126375-dEe9IyQ9By09.png"],
+["Izuku Midoriya","My Hero Academia","b89028-8w1I9o1ISHMg.png"],
+["Izumi Miyamura","Horimiya","b66173-g8eU1LGWPB8O.png"],
+["Jean Kirstein","Attack on Titan","b46498-ritqAj9FW6jX.png"],
+["Jin-U Seong","Solo Leveling","b129928-BCEjVaP0AQSw.png"],
+["Jiraiya","Naruto","b2423-RO5MyoXSA9OL.png"],
+["Johan Liebert","Monster","b719-y984mDWyGf5n.jpg"],
+["Johnny Joestar","STEEL BALL RUN JoJo's Bizarre Adventure 1st STAGE","b19492-gvMnKxhUhT9V.jpg"],
+["Jolyne Kuujou","JoJo's Bizarre Adventure: STONE OCEAN","b11222-Se9QoJHDSeYY.png"],
+["Joseph Joestar","JoJo's Bizarre Adventure (TV)","b6356-RImEfUfHpC58.png"],
+["Jousuke Higashikata","JoJo's Bizarre Adventure: Diamond is Unbreakable","b13085-CkmgXL7SSLxL.jpg"],
+["Joutarou Kuujou","JoJo's Bizarre Adventure (TV)","b4003-gWDSEGbeOAll.png"],
+["Juuzou Suzuya","Tokyo Ghoul","b88412-sIOJUnIkyFRe.png"],
+["Kagura","Gintama","b674-w8wCh0A5Qa8R.png"],
+["Kaguya Shinomiya","Kaguya-sama: Love is War","b120649-NPaWaIpWy60E.png"],
+["Kakashi Hatake","Naruto","b85-mkVBh2yjxjmx.png"],
+["Kamina","Gurren Lagann","b2075-sWb5Xz76JWdX.png"],
+["Kana Arima","OSHI NO KO","b188783-77orwP7vNuNg.png"],
+["Kanna Kamui","Miss Kobayashi's Dragon Maid","b120974-cZHsjS8DX9WW.png"],
+["Kaori Miyazono","Your lie in April","b69411-lxM0FRvWHqlv.png"],
+["Kaoruko Waguri","The Fragrant Flower Blooms With Dignity","b268676-aQmqvqj0DNoJ.png"],
+["Karma Akabane","Assassination Classroom","b71933-HQ1TSjlrJ8Hv.jpg"],
+["Katsuki Bakugou","My Hero Academia","b88892-bdOha3lNcaN6.png"],
+["Kaworu Nagisa","Neon Genesis Evangelion","b1261-HYRv3HpsSL92.jpg"],
+["Kazuma Satou","KONOSUBA -God's blessing on this wonderful world!","b89364-7Th8Tv1XKJtt.png"],
+["Kazuto Kirigaya","Sword Art Online","b36765-BnLbXg0Tzzh9.png"],
+["Kei Tsukishima","HAIKYU!!","b67329-k7mDdqQ6rJ4w.png"],
+["Ken Kaneki","Tokyo Ghoul","b87275-mb13EWZBdbh3.png"],
+["Ken Ryuuguji","Tokyo Revengers","b145345-zyirrSsKIDCb.png"],
+["Kenma Kozume","HAIKYU!!","b71267-q44J2MXMinXD.jpg"],
+["Kenpachi Zaraki","Bleach","b909-slhoFBon7oiH.jpg"],
+["Kento Nanami","JUJUTSU KAISEN","b133704-8wLTGjc234q2.png"],
+["Kenzou Tenma","Monster","b718-b6ZZVp822lw0.png"],
+["Killua Zoldyck","Hunter x Hunter (2011)","b27-Z5O02kQUydpT.jpg"],
+["Kiritsugu Emiya","Fate/Zero","b10010-fNspzan5MzNk.png"],
+["Kisuke Urahara","Bleach","b210-mw01NrQfRjzT.png"],
+["Kiyotaka Ayanokouji","Classroom of the Elite","b123212-ewZgUQr9vvEM.png"],
+["Koro-sensei","Assassination Classroom","b65643-jimrOw0RGtoB.png"],
+["Koushi Sugawara","HAIKYU!!","b67321-cxP7NdI0JC3H.png"],
+["Koutarou Bokuto","HAIKYU!! 2nd Season","b88937-2GSqkX9TIzYy.png"],
+["Koyomi Araragi","Bakemonogatari","b22036-Ed3CjwPlDLp4.png"],
+["Kurapika","Hunter x Hunter (2011)","b28-ivA7UGnfE40a.png"],
+["Kurena Kukumila","86 EIGHTY-SIX","b174873-FNf08aPYTVXY.jpg"],
+["Kurisu Makise","Steins;Gate","b34470-Jw2LXZBL5R8i.png"],
+["Kurumi Tokisaki","Date A Live","b70069-DEV7X6o2L7oG.jpg"],
+["Kusuo Saiki","Assassination Classroom Second Season","b90107-ZULW5HlPX1uU.png"],
+["Kyou Souma","Fruits Basket (2019)","b209-NOAbiLvJt1QA.png"],
+["Kyoujurou Rengoku","Demon Slayer: Kimetsu no Yaiba","b129133-VlTPowwt68rJ.png"],
+["Kyouko Hori","Horimiya","b66171-o2vk3689wWFK.png"],
+["L Lawliet","Death Note","b71-1W4panC53vfs.png"],
+["Lain Iwakura","Serial Experiments Lain","b2219-K3wzEOVwdUhL.png"],
+["Langa Hasegawa","SK8 the Infinity","b195116-C2Y5jRPiTSng.png"],
+["Legoshi","BEASTARS","b125168-cOydxRHEbAYb.png"],
+["Lelouch Lamperouge","Code Geass: Lelouch of the Rebellion","b417-gVLmIJu9phcK.png"],
+["Leorio Paradinight","Hunter x Hunter (2011)","b29-RgzoSeKmDYzl.jpg"],
+["Levi","Attack on Titan","b45627-CR68RyZmddGG.png"],
+["Light Yagami","Death Note","b80-26EhwSsSqQ50.png"],
+["Loid Forger","SPY x FAMILY","b138101-7NCB0Md8zA6G.png"],
+["Lucy","Cyberpunk: Edgerunners","b284157-cqYawN7XCNJx.jpg"],
+["Mafuyu Satou","given","b136844-UoqciaLvz5Jf.png"],
+["Mai Sakurajima","Rascal Does Not Dream of Bunny Girl Senpai","b127222-Jh5hhP7vZ7s1.png"],
+["Maki Zenin","JUJUTSU KAISEN","b134167-5TCytk45YByD.png"],
+["Makima","Chainsaw Man","b137080-UHcynYNjb5ZU.png"],
+["Mami Nanami","Rent-a-Girlfriend","b154224-7dJ09BKEnG3v.png"],
+["Manjirou Sano","Tokyo Revengers","b145341-CuPldCLZMvvf.png"],
+["Maomao","The Apothecary Diaries","b126824-MqsCncTO1qpv.png"],
+["Marin Kitagawa","My Dress-Up Darling","b133676-kV2czE3C8Qls.png"],
+["Mayuri Shiina","Steins;Gate","b35253-u6QVgLLyHq2W.png"],
+["Megumi Fushiguro","JUJUTSU KAISEN","b126635-L0y3I92JSUkN.png"],
+["Megumin","KONOSUBA -God's blessing on this wonderful world!","b89361-tq8PQQ4MmF0M.png"],
+["Meguru Bachira","BLUE LOCK","b162213-4czykzdxmWG6.png"],
+["Meruem","Hunter x Hunter (2011)","b23277-EYmIxzL64Mji.png"],
+["Mikasa Ackerman","Attack on Titan","b40881-F3gr1PkreDvj.png"],
+["Miko Iino","Kaguya-sama: Love is War","b125886-TQbmqAaSgBLS.png"],
+["Mikoto Misaka","A Certain Magical Index","b13701-aFJLRPGAWAae.png"],
+["Miku Nakano","The Quintessential Quintuplets","b126373-CWeyXb822uDN.png"],
+["Minato Namikaze","Naruto","b2535-Xq9WKNPJQEt3.png"],
+["Mio Akiyama","K-ON!","b19566-XKsMgf370b4m.png"],
+["Misa Amane","Death Note","b835-CiZa8y2z2gCz.png"],
+["Misato Katsuragi","Neon Genesis Evangelion","b1259-afTQkZ5SVMOn.png"],
+["Mitsuri Kanroji","Demon Slayer: Kimetsu no Yaiba","b136072-xVwyRUKdpybi.png"],
+["Miyuki Shirogane","Kaguya-sama: Love is War","b121101-Q8HzKP15At2d.png"],
+["Momo Ayase","DAN DA DAN","b222594-24Jn7qlI5spH.png"],
+["Momonga","Overlord","b89103-ZsnA0r77GHsR.png"],
+["Monkey D. Luffy","ONE PIECE","b40-MNypXsxSRb1R.png"],
+["Nagisa Shiota","Assassination Classroom","b65645-nWH4mBMW5lYw.png"],
+["Nami","ONE PIECE","b723-vp5hPptgnNEC.png"],
+["Nana Oosaki","NANA","b702-qqO3zbj5hp1l.png"],
+["Nanachi","Made in Abyss","b122445-5uDu8wMy8Jxi.png"],
+["Nao Tomori","Charlotte","88951-bRm610RrrXp9.jpg"],
+["Naofumi Iwatani","The Rising of the Shield Hero","b88817-Aku5CuN6wO2z.png"],
+["Naruto Uzumaki","Naruto","b17-phjcWCkRuIhu.png"],
+["Natsu Dragneel","Fairy Tail","b5187-y1OEdRu9sPN2.png"],
+["Nazuna Nanakusa","Call of the Night","b168774-zoB9InjmXYq2.png"],
+["Nezuko Kamado","Demon Slayer: Kimetsu no Yaiba","b127518-NRlq1CQ1v1ro.png"],
+["Nico Robin","ONE PIECE","b61-ywXUyyocEEqt.png"],
+["Nijika Ijichi","BOCCHI THE ROCK!","b261674-a8tJYvtzqWgC.png"],
+["Nino Nakano","The Quintessential Quintuplets","b126372-DtorHRgQaYUJ.png"],
+["Nobara Kugisaki","JUJUTSU KAISEN","b133700-f6sOO3TcgLV6.png"],
+["Norman","The Promised Neverland","b121700-CRwKIlcBcjbv.jpg"],
+["Ochako Uraraka","My Hero Academia","b89221-gSF2a4gPbG4m.png"],
+["Osamu Dazai","Bungo Stray Dogs","b89198-qKmRTw4Y3PRC.png"],
+["Phosphophyllite","Land of the Lustrous","b123385-ild8gXk13xcO.png"],
+["Portgas D. Ace","ONE PIECE","b2072-Lc6jEdsueJUK.jpg"],
+["Power","Chainsaw Man","b137079-6yLEUYR3bmpr.png"],
+["Ranpo Edogawa","Bungo Stray Dogs","b89201-K0X5HNq88Oub.png"],
+["Raphtalia","The Rising of the Shield Hero","b88889-CWYytVbCOPsV.png"],
+["Ray","The Promised Neverland","b121724-SJTdODjeO7e6.jpg"],
+["Rei Ayanami","Neon Genesis Evangelion","86-cA1zL7fyls8E.jpg"],
+["Rei Kiriyama","March comes in like a lion","b21044-K0pEhdOEmAwG.png"],
+["Reiner Braun","Attack on Titan","b46484-P6A2GjNQn49F.png"],
+["Reki Kyan","SK8 the Infinity","b195120-ndTbU0TpVLWw.png"],
+["Rem","Re:ZERO -Starting Life in Another World-","b88575-Ayu8UPDA8NS6.png"],
+["Revy","Black Lagoon","b458-tlKqPcuR287U.png"],
+["Reze","Chainsaw Man","b148740-ceAibPxLW8rR.png"],
+["Rias Gremory","High School DxD","b50389-gIhJkyk8xj1P.png"],
+["Rikka Takanashi","Love, Chunibyo & Other Delusions","b65865-AC0ru7cDXUgK.png"],
+["Rimuru Tempest","That Time I Got Reincarnated as a Slime","b123962-eL9yGV0NLMF7.png"],
+["Rin Okumura","Blue Exorcist","b24482-E6087V4uAVqL.jpg"],
+["Rin Tohsaka","Fate/Zero","b498-lwawtSpLyATL.png"],
+["Rintarou Okabe","Steins;Gate","b35252-DY9TW6pusqeh.png"],
+["Rio Futaba","Rascal Does Not Dream of Bunny Girl Senpai","b127633-FcCwWK5sQRhK.png"],
+["Rohan Kishibe","JoJo's Bizarre Adventure: Diamond is Unbreakable","b12659-hgT3g7q7oHnU.png"],
+["Roronoa Zoro","ONE PIECE","b62-S7oAeA9WInjV.png"],
+["Roxy Migurdia","Mushoku Tensei: Jobless Reincarnation","b88350-QU1iwgZ887U8.png"],
+["Roy Mustang","Fullmetal Alchemist: Brotherhood","b68-moBLY2WO2am3.png"],
+["Rudeus Greyrat","Mushoku Tensei: Jobless Reincarnation","b88348-bIe5XnXdRpmX.png"],
+["Rukia Kuchiki","Bleach","b6-25WoBeWMZXBc.png"],
+["Ryou Yamada","BOCCHI THE ROCK!","b264529-BvEusZnJLD2Y.png"],
+["Ryuk","Death Note","b75-IkEpzO21LgFy.jpg"],
+["Ryuuko Matoi","Kill la Kill","b83797-ix0Cl5OMfV22.png"],
+["Saitama","One-Punch Man","b73935-ON5d0mAcrItd.jpg"],
+["Sakura Matou","Fate/Zero","b500-NQrLbnBr1sDv.png"],
+["Sakuta Azusagawa","Rascal Does Not Dream of Bunny Girl Senpai","n127221-Wxg4xFtW4kaJ.png"],
+["Sanji","ONE PIECE","b305-6lisPmHtCnLT.png"],
+["Sasha Blouse","Attack on Titan","b45887-QPtJH0KwqthW.jpg"],
+["Sasuke Uchiha","Naruto","b13-SISLEw1oAD7a.png"],
+["Satoru Gojou","JUJUTSU KAISEN","b127691-9zqh1xpIubn7.png"],
+["Sebastian Michaelis","Black Butler","b10863-DsfonbP2CATa.png"],
+["Seishirou Nagi","BLUE LOCK","b162969-WGnGyVQrFi0X.png"],
+["Senkuu Ishigami","Dr. STONE","b124142-XUO1g7wRqkaT.png"],
+["Shanks","ONE PIECE","b727-wUJx7M1z5xON.png"],
+["Shigeo Kageyama","Mob Psycho 100","b89616-dXmdOc7L6SDi.png"],
+["Shikamaru Nara","Naruto","b2007-QaesJlIZDifj.jpg"],
+["Shinei Nouzen","86 EIGHTY-SIX","b141060-ZJFvHqBBSvhN.png"],
+["Shinji Ikari","Neon Genesis Evangelion","b89-ZtZhXkh1rITn.png"],
+["Shinobu Kochou","Demon Slayer: Kimetsu no Yaiba","b136070-MC9LLxJsHyHE.png"],
+["Shinobu Oshino","Bakemonogatari","b23602-Z4MDNYcoAWZu.png"],
+["Shinra Kusakabe","Fire Force","n120462-oSWdz2MhkbDE.png"],
+["Shirley Fenette","Code Geass: Lelouch of the Rebellion","b1120-hjOjinw5j4FE.png"],
+["Shiro","No Game, No Life","b82525-sKk2FGRKN4aK.png"],
+["Shouko Komi","Komi Can’t Communicate","b121956-5FbIbcd6gAZW.png"],
+["Shouko Nishimiya","A Silent Voice","b80243-RzxE51iUU5eq.png"],
+["Shouta Aizawa","My Hero Academia","b89225-XBgvUhI9naVI.png"],
+["Shouto Todoroki","My Hero Academia","b89220-KNBwaVFAR8FD.png"],
+["Shouya Ishida","A Silent Voice","b80491-NK6pxb6oH61P.png"],
+["Shouyou Hinata","HAIKYU!!","b64769-WoWlCMLLgJ14.png"],
+["Shun Kaidou","The Disastrous Life of Saiki K.","b90112-KVRcvbKBKLxY.png"],
+["Simon","Gurren Lagann","b2257-jnalsdnIX1vN.jpg"],
+["Souma Yukihira","Food Wars!","b75216-KDU8333eIcqf.jpg"],
+["Sousuke Aizen","Bleach","b1086-qR9218BjZTC0.png"],
+["Spike Spiegel","Cowboy Bebop","b1-ChxaldmieFlQ.png"],
+["Stark","Frieren: Beyond Journey’s End","b184313-CQl6GSt4RSny.jpg"],
+["Subaru Natsuki","Re:ZERO -Starting Life in Another World-","b88573-F8yMTK9GhnTA.png"],
+["Suguru Getou","JUJUTSU KAISEN","b133699-FCnXaISgazAi.png"],
+["Sukuna","JUJUTSU KAISEN","b133701-rCQuDpHr3UZL.png"],
+["Taiga Aisaka","Toradora!","b12064-7PDN3ylIeAZn.png"],
+["Takumi Usui","Maid-Sama!","b14523-yFjXVeK6c6IE.png"],
+["Tanjirou Kamado","Demon Slayer: Kimetsu no Yaiba","b126071-BTNEc1nRIv68.png"],
+["Tanya Degurechaff","Saga of Tanya the Evil","b121052-bQZT3nIvaryX.png"],
+["Tatsumaki","One-Punch Man","b81929-WPVp2LQoWgkc.png"],
+["Tengen Uzui","Demon Slayer: Kimetsu no Yaiba","b136071-99Kexnnn2PiV.png"],
+["Tetsurou Kuroo","HAIKYU!!","b71269-pi9vjyxKPFAu.jpg"],
+["Thorfinn Karlsefni","Vinland Saga","b10138-zOPrka0ddZOR.png"],
+["Tobio Kageyama","HAIKYU!!","b64771-BuCVs7B8bBdh.png"],
+["Toge Inumaki","JUJUTSU KAISEN","b157115-kdhRYQdVhH95.png"],
+["Tomoe","Kamisama Kiss","b18344-2d8Ao1wHDZ7U.png"],
+["Tomura Shigaraki","My Hero Academia","b89226-C1ZKm2U3bR4T.png"],
+["Tony Tony Chopper","ONE PIECE","b309-H64NhbJ2ywIQ.jpg"],
+["Tooru Honda","Fruits Basket (2019)","b207-RQ4EUdTD0K62.png"],
+["Tooru Oikawa","HAIKYU!!","b71611-cUZwVfzeNXD9.png"],
+["Toshinori Yagi","My Hero Academia","b89224-K6KEuQAuYKzq.jpg"],
+["Touji Fushiguro","JUJUTSU KAISEN Season 2","b162722-btzdghBizxKS.jpg"],
+["Touka Kirishima","Tokyo Ghoul","b87277-oUaqrI1iBzu6.png"],
+["Trafalgar Law","ONE PIECE","b13767-U604OJN9dxCn.jpg"],
+["Tsubasa Hanekawa","Bakemonogatari","b22055-EaTsy30ihdgb.png"],
+["Usopp","ONE PIECE","b724-GFGgI9AJQkfy.jpg"],
+["Vanitas","The Case Study of Vanitas","b89590-K3RdKR4VnYM4.png"],
+["Vash the Stampede","Trigun","b162-kfdfqsX7Xjf0.png"],
+["Vegeta","Dragon Ball Z","b913-NIFkKazWM8VO.png"],
+["Violet Evergarden","Violet Evergarden","b90169-4wr1Zehnsac8.png"],
+["Vladilena Milizé","86 EIGHTY-SIX","b141061-jqIhB9jmClQ3.png"],
+["Wolfgang Grimmer","Monster","b3096-qCXXA8G0J8rk.png"],
+["Yami Sukehiro","Black Clover","b124440-Lpdo6y8cljV6.png"],
+["Yato","Noragami","b84677-PFmohzIXD1ud.png"],
+["Yoichi Isagi","BLUE LOCK","b140856-wVzKSyvU7R5B.png"],
+["Yor Forger","SPY x FAMILY","b138102-ZOAu9jI2d5ke.png"],
+["Yoruichi Shihouin","Bleach","b908-JSYUkJLCw1f0.png"],
+["Yoshikage Kira","JoJo's Bizarre Adventure: Diamond is Unbreakable","b12055-eCEkIVV4qoCu.png"],
+["Yotsuba Nakano","The Quintessential Quintuplets","b126374-Aal36iSQ5nKz.png"],
+["Yui Hirasawa","K-ON!","b19565-7gMiEAm7NGNK.png"],
+["Yui Yuigahama","My Teen Romantic Comedy SNAFU","b67069-6B3xnHfJUO0F.png"],
+["Yukino Yukinoshita","My Teen Romantic Comedy SNAFU","b67067-gqhgjlni0Bcf.png"],
+["Yumeko Jabami","Kakegurui","b121889-ABsurpy5SjOW.png"],
+["Yuno Gasai","The Future Diary","b4963-7ZMcCtXW5hkY.png"],
+["Yuu Ishigami","Kaguya-sama: Love is War","b121102-tiQFxnSEIAwm.png"],
+["Yuu Nishinoya","HAIKYU!!","b67327-zQb1dlC7joPb.jpg"],
+["Yuuji Itadori","JUJUTSU KAISEN","b127212-FVm2tD0erQ5B.png"],
+["Yuuta Okkotsu","JUJUTSU KAISEN","b129571-GHJk7gviHOOw.jpg"],
+["Zenitsu Agatsuma","Demon Slayer: Kimetsu no Yaiba","b129131-FZrQ7lSlxmEr.png"],
+["Zero Two","DARLING in the FRANXX","b124381-pkTKi6HHNuVR.png"]
+];
+
+const CDN   = 'https://s4.anilist.co/file/anilistcdn/character/';
+const thumb = s => CDN + 'medium/' + s;
+const full  = s => CDN + 'large/' + s;
+
+const HOST = 'categories-duel.may23jordan.workers.dev';
+const API  = 'https://' + HOST;
+const WSU  = 'wss://' + HOST;
+
+/* ---------------------------------------------------------------- helpers */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+const HAY = CHARS.map(c => (c[0] + ' ' + c[1]).toLowerCase());
+
+/* ---------------------------------------------------------------- state */
+let sock = null, S = null, code = '', myName = '';
+let selIdx = -1, guessing = false, wantOpen = false, retries = 0, retryT = 0;
+let blurCat = false;
+
+/* ---------------------------------------------------------------- connection */
+function conn(msg, sticky){
+  const el = $('conn');
+  if (!msg) { el.classList.add('hide'); return; }
+  el.textContent = msg; el.classList.remove('hide');
+  if (!sticky) setTimeout(() => el.classList.add('hide'), 2600);
+}
+
+function connect(c){
+  code = c.toUpperCase();
+  myName = ($('nameIn').value || '').trim().slice(0,14) || 'Player';
+  try { localStorage.setItem('cat_name', myName); } catch(e){}
+  wantOpen = true;
+  location.hash = code;
+  $('home').classList.add('hide');
+  $('game').classList.remove('hide');
+  $('roomCode').textContent = code;
+  $('log').innerHTML = '';
+  $('stageMsg').innerHTML =
+    '<div class="banner"><h2>Opening the room<span class="waitdots"></span></h2></div>';
+  openSock();
+}
+
+function openSock(){
+  conn('Connecting…', true);
+  try {
+    sock = new WebSocket(WSU + '/room/' + code + '/ws?name=' + encodeURIComponent(myName));
+  } catch(e){ return schedule(); }
+
+  sock.onopen = () => { retries = 0; conn('Connected'); };
+  sock.onmessage = ev => {
+    let m; try { m = JSON.parse(ev.data); } catch(e){ return; }
+    if (m.t === 'state') { S = m; render(); }
+    else if (m.t === 'chat') say(m.from, m.text, m.own);
+    else if (m.t === 'full') {
+      wantOpen = false;
+      alert('That room already has two players in it.');
+      quit();
+    }
+  };
+  sock.onclose = () => { sock = null; if (wantOpen) schedule(); };
+  sock.onerror = () => {};
+}
+
+function schedule(){
+  if (!wantOpen) return;
+  clearTimeout(retryT);
+  const wait = Math.min(1000 * Math.pow(1.6, retries++), 8000);
+  conn('Connection lost — retrying…', true);
+  retryT = setTimeout(openSock, wait);
+}
+
+const send = o => { if (sock && sock.readyState === 1) sock.send(JSON.stringify(o)); };
+
+function quit(){
+  wantOpen = false; clearTimeout(retryT);
+  if (sock) { try { sock.close(); } catch(e){} sock = null; }
+  S = null; selIdx = -1; guessing = false;
+  location.hash = '';
+  $('veil').classList.add('hide');
+  $('game').classList.add('hide');
+  $('home').classList.remove('hide');
+  conn(null);
+}
+
+/* ---------------------------------------------------------------- home */
+try { $('nameIn').value = localStorage.getItem('cat_name') || ''; } catch(e){}
+if (/^#[A-Za-z]{4}$/.test(location.hash)) $('joinCode').value = location.hash.slice(1).toUpperCase();
+
+function needName(){
+  if (($('nameIn').value || '').trim()) return false;
+  $('homeErr').textContent = 'Put a name in first.';
+  $('nameIn').focus();
+  return true;
+}
+
+$('btnCreate').onclick = async () => {
+  if (needName()) return;
+  $('homeErr').textContent = '';
+  $('btnCreate').disabled = true;
+  try {
+    const r = await fetch(API + '/create');
+    const j = await r.json();
+    connect(j.code);
+  } catch(e){
+    $('homeErr').textContent = "Couldn't reach the server. Check your connection and try again.";
+  }
+  $('btnCreate').disabled = false;
+};
+
+$('btnJoin').onclick = () => {
+  if (needName()) return;
+  const c = ($('joinCode').value || '').trim().toUpperCase();
+  if (!/^[A-Z]{4}$/.test(c)) { $('homeErr').textContent = 'Room codes are 4 letters.'; return; }
+  $('homeErr').textContent = '';
+  connect(c);
+};
+$('joinCode').addEventListener('keydown', e => { if (e.key === 'Enter') $('btnJoin').click(); });
+$('nameIn').addEventListener('keydown', e => { if (e.key === 'Enter') $('btnJoin').click(); });
+
+$('btnQuit').onclick = () => { if (confirm('Leave this room?')) quit(); };
+$('btnInvite').onclick = async () => {
+  const url = location.origin + location.pathname + '#' + code;
+  try { await navigator.clipboard.writeText(url); conn('Invite link copied'); }
+  catch(e){ prompt('Copy this link:', url); }
+};
+$('btnBlur').onclick = () => {
+  blurCat = !blurCat;
+  $('myCat').classList.toggle('blur', blurCat);
+  $('btnBlur').textContent = blurCat ? 'Show it' : 'Hide it';
+};
+
+/* ---------------------------------------------------------------- chat */
+function say(from, text, own){
+  const d = document.createElement('div');
+  d.className = 'm' + (own ? ' own' : '');
+  d.innerHTML = '<b>' + esc(from) + ':</b> ' + esc(text);
+  $('log').appendChild(d);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+function sendChat(){
+  const v = $('chatIn').value.trim();
+  if (!v) return;
+  send({ t:'chat', text:v });
+  $('chatIn').value = '';
+}
+$('btnChat').onclick = sendChat;
+$('chatIn').addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+
+/* ---------------------------------------------------------------- grid */
+function buildGrid(){
+  const g = $('grid'), f = document.createDocumentFragment();
+  CHARS.forEach((c, i) => {
+    const b = document.createElement('button');
+    b.className = 'cc'; b.dataset.i = i; b.title = c[0] + ' — ' + c[1];
+    b.innerHTML =
+      '<span class="ccimg"><img loading="lazy" decoding="async" alt="" src="' + thumb(c[2]) + '"' +
+      ' onerror="this.onerror=null;this.src=\'' + full(c[2]) + '\'"></span>' +
+      '<span class="ccn">' + esc(c[0]) + '</span>' +
+      '<span class="cca">' + esc(c[1]) + '</span><span class="ccb"></span>';
+    f.appendChild(b);
+  });
+  g.appendChild(f);
+  g.addEventListener('click', e => {
+    const b = e.target.closest('.cc');
+    if (!b) return;
+    selIdx = +b.dataset.i;
+    render();
+  });
+  $('search').addEventListener('input', filterGrid);
+  $('btnGuess').addEventListener('click', () => { guessing = true; render(); });
+  filterGrid();
+}
+buildGrid();
+
+function filterGrid(){
+  const q = $('search').value.trim().toLowerCase();
+  const kids = $('grid').children;
+  let n = 0;
+  for (let i = 0; i < kids.length; i++){
+    const on = !q || HAY[i].indexOf(q) >= 0;
+    kids[i].style.display = on ? '' : 'none';
+    if (on) n++;
+  }
+  $('count').textContent = n + ' of ' + CHARS.length;
+}
+
+function markGrid(mine){
+  const seen = {};
+  mine.forEach(p => { seen[p.i] = p.yes; });
+  const kids = $('grid').children;
+  for (let i = 0; i < kids.length; i++){
+    const k = kids[i], has = Object.prototype.hasOwnProperty.call(seen, i);
+    k.classList.toggle('used', has);
+    k.classList.toggle('mYes', has && seen[i] === true);
+    k.classList.toggle('mNo',  has && seen[i] === false);
+    k.classList.toggle('sel', i === selIdx);
+  }
+}
+
+/* ---------------------------------------------------------------- pieces */
+function nameOf(i, fallback){ return CHARS[i] ? CHARS[i][0] : (fallback || 'that character'); }
+function showOf(i){ return CHARS[i] ? CHARS[i][1] : ''; }
+
+function focusHTML(idx, fallbackName, body){
+  const c = CHARS[idx];
+  return '<div class="focus">' +
+      (c ? '<img alt="" src="' + full(c[2]) + '">' : '') +
+      '<div><h3>' + esc(c ? c[0] : fallbackName) + '</h3>' +
+      '<div class="show">' + esc(c ? c[1] : '') + '</div>' + body + '</div></div>';
+}
+
+function bucketsHTML(list){
+  const cell = (arr, cls, label) => {
+    const rows = arr.length ? arr.map(p => {
+      const c = CHARS[p.i];
+      return '<div class="chip">' +
+        (c ? '<img alt="" loading="lazy" src="' + thumb(c[2]) + '">' : '') +
+        '<span>' + esc(c ? c[0] : p.n) + '</span></div>';
+    }).join('') : '<div class="empty">nothing yet</div>';
+    return '<div class="bucket ' + cls + '"><h4>' + label +
+      ' <span class="n">' + arr.length + '</span></h4><div class="chips">' + rows + '</div></div>';
+  };
+  return cell(list.filter(p => p.yes), 'y', 'Fits') +
+         cell(list.filter(p => !p.yes), 'n', "Doesn't");
+}
+
+/* ---------------------------------------------------------------- render */
+function render(){
+  if (!S) return;
+  const you = S.you, opp = 1 - you;
+  const meName = S.names[you] || 'You', oppName = S.names[opp] || 'Opponent';
+  const oppHere = S.online[opp];
+
+  /* header */
+  $('vs').innerHTML =
+    '<span class="pill ' + (you === 0 ? 'p1' : 'p2') + (S.phase === 'play' && S.turn === you ? ' turn' : '') + '">' +
+      '<i class="dot on"></i>' + esc(meName) + ' <b style="color:var(--dim2);font-weight:600">(you)</b></span>' +
+    '<span style="color:var(--dim2)">vs</span>' +
+    '<span class="pill ' + (opp === 0 ? 'p1' : 'p2') + (S.phase === 'play' && S.turn === opp ? ' turn' : '') + '">' +
+      '<i class="dot' + (oppHere ? ' on' : '') + '"></i>' + esc(oppName) + '</span>';
+
+  /* sidebar */
+  $('myCat').textContent = S.myCat || '— not set —';
+  $('evOpp').textContent = oppName;
+  const inPlay = S.phase !== 'setup';
+  $('evMine').classList.toggle('hide', !inPlay);
+  $('evTheirs').classList.toggle('hide', !inPlay);
+  if (inPlay){
+    $('bMine').innerHTML = bucketsHTML(S.picks[you]);
+    $('bTheirs').innerHTML = bucketsHTML(S.picks[opp]);
+  }
+
+  /* modals */
+  const veil = $('veil');
+  if (S.guess && S.guess.by === opp && S.phase === 'play'){
+    veil.classList.remove('hide');
+    $('modal').innerHTML =
+      '<div class="eyebrow">' + esc(oppName) + ' is calling it</div>' +
+      '<h2 style="margin-top:8px">They think your category is…</h2>' +
+      '<div class="quote">' + esc(S.guess.text) + '</div>' +
+      '<p>Your category is <b>' + esc(S.myCat || '') + '</b>. Close enough counts — you\'re the judge.</p>' +
+      '<div class="acts" style="margin-top:16px">' +
+        '<button class="btn yes big" id="mYes">That\'s it — they got me</button>' +
+        '<button class="btn no big" id="mNo">Nope, keep going</button></div>';
+    $('mYes').onclick = () => send({ t:'judge', ok:true });
+    $('mNo').onclick  = () => send({ t:'judge', ok:false });
+  } else {
+    veil.classList.add('hide');
+  }
+
+  /* stage — pickUI is persistent, everything else renders into stageMsg */
+  const st = $('stageMsg');
+  $('pickUI').classList.add('hide');
+
+  if (S.phase === 'setup'){
+    const locked = S.locked[you];
+    st.innerHTML =
+      '<div class="banner"><div class="eyebrow">Step one</div>' +
+      '<h2 style="margin-top:8px">Invent your secret category</h2>' +
+      '<p>Anything a character can plainly fit or not fit. Your opponent probes it blind — ' +
+      'so make it findable, not impossible.</p></div>' +
+      '<div style="max-width:620px;margin:0 auto">' +
+        (locked
+          ? '<div class="quote" style="text-align:center">' + esc(S.myCat) + '</div>' +
+            '<div style="text-align:center;color:var(--dim);margin-bottom:16px">' +
+              (S.locked[opp]
+                ? 'Both locked in — starting…'
+                : (oppHere ? esc(oppName) + ' is still writing theirs<span class="waitdots"></span>'
+                           : 'Waiting for ' + esc(oppName) + ' to join<span class="waitdots"></span>')) +
+            '</div>' +
+            '<div style="text-align:center"><button class="btn ghost" id="btnUnlock">Change it</button></div>'
+          : '<input id="catIn" class="fld" maxlength="140" placeholder="e.g. has white hair" autocomplete="off">' +
+            '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:13px 0 16px" id="ideas"></div>' +
+            '<button class="btn prime big" id="btnLock" style="width:100%">Lock it in</button>') +
+      '</div>';
+
+    if (locked){
+      $('btnUnlock').onclick = () => send({ t:'unlock' });
+    } else {
+      const ideas = ['has white hair','is a villain','carries a sword','wears glasses',
+        'is not human', 'can use magic', 'is the main character', 'has a dead parent',
+        'wears a uniform', 'is over 30'];
+      $('ideas').innerHTML = ideas.map(i =>
+        '<button class="btn sm ghost idea">' + esc(i) + '</button>').join('');
+      $('ideas').onclick = e => {
+        const b = e.target.closest('.idea');
+        if (b) { $('catIn').value = b.textContent; $('catIn').focus(); }
+      };
+      const lock = () => {
+        const v = $('catIn').value.trim();
+        if (v) send({ t:'category', text:v });
+      };
+      $('btnLock').onclick = lock;
+      $('catIn').addEventListener('keydown', e => { if (e.key === 'Enter') lock(); });
+      $('catIn').focus();
+    }
+    return;
+  }
+
+  if (S.phase === 'over'){
+    const won = S.winner === you;
+    st.innerHTML =
+      '<div class="win">' +
+        '<div class="crown">' + (won ? '🏆' : '🫡') + '</div>' +
+        '<h2>' + (won ? 'You cracked it.' : esc(oppName) + ' cracked yours.') + '</h2>' +
+        '<p style="color:var(--dim)">' + (won
+          ? 'You named their category before they named yours.'
+          : 'They called it correctly. Rematch?') + '</p>' +
+        '<div class="reveal">' +
+          '<div class="r"><div class="who ' + (you === 0 ? 'p1' : 'p2') + '">' + esc(meName) + '</div>' +
+            '<div class="cat">' + esc(S.myCat || '—') + '</div></div>' +
+          '<div class="r"><div class="who ' + (opp === 0 ? 'p1' : 'p2') + '">' + esc(oppName) + '</div>' +
+            '<div class="cat">' + esc(S.oppCat || '—') + '</div></div>' +
+        '</div>' +
+        '<button class="btn prime big" id="btnRe">' +
+          (S.rematch[you] ? 'Waiting for ' + esc(oppName) + '…' : 'Rematch') + '</button>' +
+        (S.rematch[opp] && !S.rematch[you]
+          ? '<p style="color:var(--gold);margin-top:12px">' + esc(oppName) + ' wants a rematch.</p>' : '') +
+      '</div>';
+    const b = $('btnRe');
+    b.disabled = !!S.rematch[you];
+    b.onclick = () => send({ t:'rematch' });
+    return;
+  }
+
+  /* ---- phase: play ---- */
+  const mine = S.turn === you;
+  const p = S.pending;
+
+  if (!oppHere){
+    st.innerHTML = '<div class="banner"><h2>' + esc(oppName) + ' dropped out</h2>' +
+      '<p>The game is held right here. They can rejoin with code <b>' + esc(code) +
+      '</b> and pick up exactly where you left off.</p></div>';
+    return;
+  }
+
+  if (S.guess && S.guess.by === you){
+    st.innerHTML = '<div class="banner"><div class="eyebrow">Called it</div>' +
+      '<h2 style="margin-top:8px">Waiting on the verdict<span class="waitdots"></span></h2>' +
+      '<div class="quote" style="max-width:520px;margin:16px auto 0">' + esc(S.guess.text) + '</div></div>';
+    return;
+  }
+
+  if (p && p.by !== you){
+    st.innerHTML =
+      '<div class="turnbar"><h2>' + esc(oppName) + ' is probing you</h2></div>' +
+      focusHTML(p.i, p.n,
+        '<div class="q">Does <b>' + esc(nameOf(p.i, p.n)) + '</b> fit <b>your</b> category — ' +
+        '<b style="color:var(--gold)">' + esc(S.myCat || '') + '</b>?</div>' +
+        '<div class="acts"><button class="btn yes big" id="aY">Yes, fits</button>' +
+        '<button class="btn no big" id="aN">No, doesn\'t</button></div>');
+    $('aY').onclick = () => send({ t:'answer', yes:true });
+    $('aN').onclick = () => send({ t:'answer', yes:false });
+    return;
+  }
+
+  if (p && p.by === you){
+    st.innerHTML =
+      '<div class="turnbar"><h2>Sent<span class="waitdots"></span></h2>' +
+      '<div class="spacer"></div><div style="color:var(--dim)">' + esc(oppName) + ' is deciding</div></div>' +
+      focusHTML(p.i, p.n, '<div class="q">Waiting to hear whether they fit.</div>');
+    return;
+  }
+
+  if (!mine){
+    st.innerHTML = '<div class="turnbar"><h2>' + esc(oppName) +
+      ' is choosing a character<span class="waitdots"></span></h2></div>' +
+      '<div class="banner"><p>Study your board while you wait. ' +
+      'Every answer they\'ve given you is in the right-hand column.</p></div>';
+    return;
+  }
+
+  /* your turn: probe or call it */
+  if (guessing){
+    st.innerHTML =
+      '<div class="turnbar"><h2>Call their category</h2><div class="spacer"></div>' +
+      '<button class="btn sm ghost" id="gBack">Back to probing</button></div>' +
+      '<div style="max-width:620px;margin:22px auto">' +
+        '<p style="color:var(--dim);margin-bottom:14px">Say it however you\'d say it out loud — ' +
+        esc(oppName) + ' decides whether you got it. Miss and you lose this turn.</p>' +
+        '<input id="gIn" class="fld" maxlength="140" placeholder="their category is…" autocomplete="off">' +
+        '<button class="btn prime big" id="gGo" style="width:100%;margin-top:13px">Lock in this guess</button>' +
+      '</div>';
+    $('gBack').onclick = () => { guessing = false; render(); };
+    const go = () => {
+      const v = $('gIn').value.trim();
+      if (v) { guessing = false; send({ t:'guess', text:v }); }
+    };
+    $('gGo').onclick = go;
+    $('gIn').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+    $('gIn').focus();
+    return;
+  }
+
+  st.innerHTML = '';
+  $('pickUI').classList.remove('hide');
+  markGrid(S.picks[you]);
+  $('confirmSlot').innerHTML = selIdx < 0 ? '' :
+    '<div class="confirm"><span class="who">Send <b>' + esc(nameOf(selIdx)) + '</b>' +
+    '<span style="color:var(--dim2)"> — ' + esc(showOf(selIdx)) + '</span>?</span>' +
+    '<div class="spacer" style="margin-left:auto"></div>' +
+    '<button class="btn sm ghost" id="cX">Cancel</button>' +
+    '<button class="btn prime sm" id="cGo">Send probe</button></div>';
+  if (selIdx >= 0){
+    $('cX').onclick = () => { selIdx = -1; render(); };
+    $('cGo').onclick = () => {
+      const i = selIdx; selIdx = -1;
+      send({ t:'pick', i:i, n:nameOf(i) });
+    };
+  }
+}
+</script>
+</body>
+</html>
