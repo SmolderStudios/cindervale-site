@@ -1,29 +1,24 @@
-/* Rebuild the Categories roster and its tag vocabulary.
+/* Rebuild the Categories roster and its trait vocabulary.
  *
- *   node scripts/fetch-roster.js              # full run (~3 min, cached)
+ *   node scripts/fetch-roster.js              # full run (~2 min, cached)
  *   node scripts/fetch-roster.js --fresh      # ignore the cache and refetch
  *
- * Rewrites the TRAITS / SERIES / CHARS arrays in categories.html in place.
+ * Rewrites the SHOWS / TRAITS / CHARS arrays in categories.html in place.
  * Nothing else in that file is touched.
  *
- * WEIGHTING — the point of the pipeline. Characters are drawn per series, and
- * a character only makes the cut if enough AniList users have actually
- * favourited them (FLOOR). That single rule produces the shape we want without
- * hand-tuning: Naruto's 40th character still clears the bar because fans know
- * the whole cast, while a one-hit series contributes just its lead. Series
- * popularity only decides the order we fill from.
+ * The roster is an explicit whitelist (SERIES below) rather than a popularity
+ * scrape: a small cast everyone recognises beats a huge one full of characters
+ * nobody can place, because a category is only fun if both players know the
+ * faces. Add or remove a series by editing SERIES — `ids` are AniList media
+ * ids, and every season/movie listed under one label merges into that label so
+ * seasons don't fragment a cast.
  *
  * WHY ANILIST — Jikan/MyAnimeList cold-misses as HTTP 504 on most character
  * URLs, which made a full pull take over an hour with rows silently dropped.
  *
- * TAGS come in two deliberately separate groups:
- *   TRAITS  describe the character — AniList's structured gender/age/role
- *           fields, plus keyword mining of that character's own description.
- *   SERIES  describe the show, straight from AniList's genre/tag data. NINJA
- *           and PIRATES live here on purpose: the series is about ninja, but
- *           not every character in it is one.
- * Rules that could not be made precise were cut rather than shipped noisy —
- * see NARROW and the note above SERIES_MAP.
+ * TRAITS come from AniList's structured gender/age/role fields plus keyword
+ * mining of each character's own description. Rules that could not be made
+ * precise were cut rather than shipped noisy — see NARROW.
  */
 const fs = require('fs');
 const path = require('path');
@@ -31,12 +26,62 @@ const path = require('path');
 const FRESH = process.argv.includes('--fresh');
 const TARGET = path.join(__dirname, '..', 'categories.html');
 const CACHE = path.join(__dirname, '.roster-cache');
-
-const SHOW_PAGES = 22;   // 10 shows per request, popularity order
-const FLOOR = 400;       // favourites a character needs to make the cut
-const CAP = 45;          // per-series ceiling so nothing runs away
-const MIN_TAG = 6;       // drop tags too rare to be worth a filter chip
+const FLOOR = 60;        // favourites a character needs to make the cut
+const MIN_TAG = 5;       // drop traits too rare to be worth a filter chip
 const GAP = 2100;        // AniList allows ~30 requests/min
+
+// Every entry here is a series Jordan picked. `ids` merge into one label.
+const SERIES = [
+  { label: 'Naruto',              ids: [1735, 20],                     cap: 45 },
+  { label: 'One Piece',           ids: [21],                           cap: 45 },
+  { label: 'Bleach',              ids: [269, 116674],                  cap: 40 },
+  { label: 'Attack on Titan',     ids: [16498, 20958, 99147, 110277],  cap: 35 },
+  { label: 'One Punch Man',       ids: [21087, 97668, 153800],         cap: 25 },
+  { label: 'Fullmetal Alchemist', ids: [5114],                         cap: 30 },
+  { label: 'Seven Deadly Sins',   ids: [20789, 99539, 108928, 21385],  cap: 28 },
+  { label: 'Sword Art Online',    ids: [11757, 20594, 100182, 108759], cap: 25 },
+  { label: 'Code Geass',          ids: [1575, 2904],                   cap: 25 },
+  { label: 'Solo Leveling',       ids: [151807, 176496],               cap: 20 },
+  { label: 'Death Note',          ids: [1535],                         cap: 18 },
+  // Pokémon is hand-picked: the starters Jordan named plus the handful of
+  // creatures and trainers recognisable enough to anchor a category.
+  // Charmander and Mewtwo have no AniList entry in the anime, so Charizard
+  // stands in for the fire starter.
+  { label: 'Pokémon', ids: [527], cap: 99, only: [
+      'Pikachu', 'Fushigidane', 'Zenigame', 'Lizardon', 'Nyarth', 'Kabigon',
+      'Purin', 'Koduck', 'Togepy', 'Laplace', 'Metamon', 'Butterfree',
+      'Satoshi', 'Kasumi', 'Takeshi', 'Musashi', 'Kojirou', 'Sakaki',
+      'Shigeru Ookido', 'Yukinari Ookido',
+  ] },
+];
+
+// AniList romanises these in a way English-speaking fans never use.
+const NAME_OVERRIDE = {
+  // One Piece — family name is spoken first
+  'Luffy Monkey':'Monkey D. Luffy', 'Zoro Roronoa':'Roronoa Zoro',
+  'Ace Portgas':'Portgas D. Ace', 'Law Trafalgar':'Trafalgar Law',
+  'Robin Nico':'Nico Robin', 'Chopper Tony Tony':'Tony Tony Chopper',
+  'Hancock Boa':'Boa Hancock', 'Mihawk Dracule':'Dracule Mihawk',
+  'Vivi Nefertari':'Nefertari Vivi', 'Sanji Vinsmoke':'Sanji',
+  'Teach Marshall':'Marshall D. Teach', 'Roger Gol':'Gol D. Roger',
+  'Garp Monkey':'Monkey D. Garp', 'Dragon Monkey':'Monkey D. Dragon',
+  // Solo Leveling — Korean names, fandom uses the family-first romanisation
+  'Jin-U Seong':'Sung Jinwoo', 'Hae-In Cha':'Cha Hae-In', 'Ju-Hui Lee':'Lee Joohee',
+  'Jin-A Seong':'Sung Jinah', 'Geon-Hui Go':'Go Gunhee', 'Jin-Ho Yu':'Yoo Jinho',
+  'Yun-Ho Baek':'Baek Yoonho', 'Jin-Cheol U':'Woo Jinchul', 'Jong-In Choi':'Choi Jongin',
+  'Hee-Jin Park':'Park Heejin', 'Chi-Yul Song':'Song Chiyul', 'Tae-Shik Kang':'Kang Taeshik',
+  'Byeong-Gu Min':'Min Byunggu', 'Bo-Ra Lee':'Lee Bora', 'Song-I Han':'Han Song-Yi',
+  // Pokémon — Japanese cast names
+  'Satoshi':'Ash Ketchum', 'Kasumi':'Misty', 'Takeshi':'Brock',
+  'Musashi':'Jessie', 'Kojirou':'James', 'Nyarth':'Meowth',
+  'Fushigidane':'Bulbasaur', 'Zenigame':'Squirtle', 'Lizardon':'Charizard',
+  'Kabigon':'Snorlax', 'Purin':'Jigglypuff', 'Koduck':'Psyduck',
+  'Togepy':'Togepi', 'Laplace':'Lapras', 'Metamon':'Ditto',
+  'Sakaki':'Giovanni', 'Shigeru Ookido':'Gary Oak', 'Yukinari Ookido':'Professor Oak',
+};
+
+// narrators, unnamed extras and anything without a portrait
+const SKIP = /^(narrator|announcer|unknown|others?)$/i;
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const cached = (name, fn) => {
@@ -73,148 +118,108 @@ async function gql(query, variables, tries = 5) {
   return null;
 }
 
-const CAST = `edges{ role node{ id favourites gender age name{ full first last } image{ large } } }`;
-
-/* ---------------------------------------------------------------- stage 1 */
-const Q_SHOWS = `query($page:Int){ Page(page:$page, perPage:10){
-  media(sort:POPULARITY_DESC, type:ANIME){
-    id popularity title{ english romaji } genres tags{ name rank }
-    characters(sort:FAVOURITES_DESC, perPage:25){ ${CAST} }
+const Q_CAST = `query($id:Int,$p:Int){ Media(id:$id){
+  characters(sort:FAVOURITES_DESC, page:$p, perPage:25){
+    edges{ role node{ id favourites gender age name{ full first last } image{ large } } }
   } } }`;
 
-const Q_DEEP = `query($ids:[Int],$cp:Int){ Page(page:1, perPage:20){
-  media(id_in:$ids, type:ANIME){
-    id characters(sort:FAVOURITES_DESC, page:$cp, perPage:25){ ${CAST} }
-  } } }`;
-
-async function fetchShows() {
-  const all = [];
-  for (let p = 1; p <= SHOW_PAGES; p++) {
-    const d = await gql(Q_SHOWS, { page: p });
-    await sleep(GAP);
-    if (!d) { console.log(`  !! show page ${p} failed`); continue; }
-    all.push(...d.Page.media);
-    console.log(`  shows ${all.length}`);
-  }
-  if (!all.length) throw new Error('no shows returned');
-
-  // AniList caps a nested cast at 25. Series whose 25th character is still
-  // well loved get pages 2-3 so the big franchises reach their real depth.
-  const byId = new Map(all.map(s => [s.id, s]));
-  let deep = all.filter(s => s.characters.edges.length >= 25 &&
-                             s.characters.edges[24].node.favourites >= FLOOR);
-  for (let cp = 2; cp <= 3 && deep.length; cp++) {
-    const ids = deep.map(s => s.id);
-    for (let i = 0; i < ids.length; i += 20) {
-      const d = await gql(Q_DEEP, { ids: ids.slice(i, i + 20), cp });
-      await sleep(GAP);
-      if (!d) continue;
-      for (const m of d.Page.media) {
-        const s = byId.get(m.id);
-        if (!s) continue;
-        const have = new Set(s.characters.edges.map(e => e.node.id));
-        for (const e of m.characters.edges) if (!have.has(e.node.id)) s.characters.edges.push(e);
+async function fetchCasts() {
+  const out = [];
+  for (const s of SERIES) {
+    const seen = new Set();
+    const cast = [];
+    for (const id of s.ids) {
+      for (let p = 1; p <= 2; p++) {
+        const d = await gql(Q_CAST, { id, p });
+        await sleep(GAP);
+        const edges = d && d.Media && d.Media.characters.edges;
+        if (!edges || !edges.length) break;
+        for (const e of edges) {
+          if (seen.has(e.node.id)) continue;
+          seen.add(e.node.id);
+          cast.push({ role: e.role, ...e.node });
+        }
+        if (edges.length < 25) break;
       }
     }
-    deep = deep.filter(s => s.characters.edges[25 * cp - 1] &&
-                            s.characters.edges[25 * cp - 1].node.favourites >= FLOOR);
-    console.log(`  deepened to cast page ${cp} (${deep.length} series still qualify)`);
+    out.push({ label: s.label, cap: s.cap, only: s.only || null, cast });
+    console.log(`  ${s.label}: ${cast.length} cast entries`);
   }
-  return all;
+  return out;
 }
 
-/* ---------------------------------------------------------------- stage 2 */
-// "Attack on Titan Final Season Part 2" -> "Attack on Titan"
-const SUFFIX = [/\s+(Final\s+)?Season\s*\d*(\s+Part\s*\d+)?$/i, /\s+\d+(st|nd|rd|th)\s+Season$/i,
-                /\s+Part\s*\d+$/i, /\s+Cour\s*\d+$/i, /\s+[IVX]{1,4}$/, /\s+\d+$/];
-function normTitle(t) {
-  let s = t.trim();
-  for (let i = 0; i < 4; i++) {
-    const before = s;
-    for (const re of SUFFIX) s = s.replace(re, '').trim();
-    s = s.replace(/[:\-–]\s*$/, '').trim();
-    if (s === before) break;
-  }
-  return s || t.trim();
-}
-
-// AniList stores given/family names separately and `full` is given-first, which
-// matches how English-speaking fans say almost every character. These are the
-// ones where the family name is conventionally spoken first.
-const NAME_OVERRIDE = {
-  'Luffy Monkey':'Monkey D. Luffy', 'Zoro Roronoa':'Roronoa Zoro',
-  'Ace Portgas':'Portgas D. Ace', 'Law Trafalgar':'Trafalgar Law',
-  'Robin Nico':'Nico Robin', 'Chopper Tony Tony':'Tony Tony Chopper',
-  'Hancock Boa':'Boa Hancock', 'Mihawk Dracule':'Dracule Mihawk',
-  'Vivi Nefertari':'Nefertari Vivi', 'Sanji Vinsmoke':'Sanji',
-  'Teach Marshall':'Marshall D. Teach', 'Roger Gol':'Gol D. Roger',
-  'Garp Monkey':'Monkey D. Garp', 'Dragon Monkey':'Monkey D. Dragon',
+const imgFile = u => {
+  const m = /\/character\/(?:medium|large)\/(.+)$/.exec(u || '');
+  return m && !/^default/i.test(m[1]) ? m[1] : null;
 };
 function fixName(n) {
   let full = (n.full || '').trim();
   if (n.last && /\bD\.$/.test(n.last.trim()) && n.first) full = n.last.trim() + ' ' + n.first.trim();
   return NAME_OVERRIDE[full] || full;
 }
-const imgFile = u => {
-  const m = /\/character\/(?:medium|large)\/(.+)$/.exec(u || '');
-  return m && !/^default/i.test(m[1]) ? m[1] : null;
-};
 
-function pickRoster(shows) {
-  const franchise = new Map();
-  for (const s of shows) {
-    const key = normTitle(s.title.english || s.title.romaji);
-    const prev = franchise.get(key);
-    if (!prev || s.popularity > prev.popularity) {
-      franchise.set(key, { title: key, popularity: s.popularity, genres: s.genres, tags: s.tags });
-    }
-  }
-  // Suffix stripping misses movies and named arcs ("Tokyo Ghoul √A", "... The
-  // Movie: Mugen Train"). Fold any title whose alphanumeric form starts with a
-  // more popular title's into that parent.
-  const alnum = s => s.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const byPop = [...franchise.values()].sort((a, b) => b.popularity - a.popularity);
-  const merge = new Map();
-  for (const f of byPop) {
-    const a = alnum(f.title);
-    let parent = f.title;
-    for (const g of byPop) {
-      if (g === f || g.popularity < f.popularity) continue;
-      const b = alnum(g.title);
-      if (b.length >= 6 && a.length > b.length && a.startsWith(b)) { parent = g.title; break; }
-    }
-    merge.set(f.title, parent);
-  }
-  for (const [child, parent] of merge) if (child !== parent) franchise.delete(child);
-
-  const bucket = new Map();
-  for (const s of shows) {
-    const key = merge.get(normTitle(s.title.english || s.title.romaji));
-    const b = bucket.get(key) || [];
-    for (const e of s.characters.edges) b.push(e);
-    bucket.set(key, b);
-  }
-
-  const picked = [], seen = new Set();
-  for (const f of [...franchise.values()].sort((a, b) => b.popularity - a.popularity)) {
-    const cast = (bucket.get(f.title) || [])
-      .filter(e => e.node.favourites >= FLOOR)
-      .sort((a, b) => b.node.favourites - a.node.favourites);
+function pickRoster(groups) {
+  const picked = [], used = new Set();
+  for (const g of groups) {
     let n = 0;
-    for (const e of cast) {
-      if (n >= CAP) break;
-      const c = e.node, img = imgFile(c.image && c.image.large), name = fixName(c.name);
-      if (seen.has(c.id) || !img || !name) continue;
-      seen.add(c.id); n++;
-      picked.push({ id: c.id, name, show: f.title, img, gender: c.gender, age: c.age,
-                    role: e.role, genres: f.genres || [],
-                    showTags: (f.tags || []).filter(t => t.rank >= 60).map(t => t.name) });
+    const cast = g.cast.slice().sort((a, b) => b.favourites - a.favourites);
+    for (const c of cast) {
+      if (n >= g.cap) break;
+      const raw = (c.name.full || '').trim();
+      if (g.only && !g.only.includes(raw)) continue;      // hand-picked series
+      if (!g.only && c.favourites < FLOOR) continue;
+      if (SKIP.test(raw) || used.has(c.id)) continue;
+      const img = imgFile(c.image && c.image.large);
+      const name = fixName(c.name);
+      if (!img || !name || SKIP.test(name)) continue;
+      used.add(c.id); n++;
+      picked.push({ id: c.id, name, show: g.label, img,
+                    gender: c.gender, age: c.age, role: c.role });
     }
+    console.log(`  ${g.label}: kept ${n}`);
   }
   return picked;
 }
 
-/* ---------------------------------------------------------------- stage 3 */
+/* ---------------------------------------------------------------- traits */
+const RULES = {
+  FIRE:      /\b(pyrokinesis|pyrokinetic|flame[sd]?|flaming|fireball|fire (magic|style|breathing|release)|incinerat\w*|inferno)\b/,
+  ICE:       /\b(cryokinesis|cryokinetic|ice (magic|style|release|powers?|user)|icy|frost\w*|freez\w*|glacial|blizzard)\b/,
+  LIGHTNING: /\b(lightning|thunder\w*|electrokinesis|electricity)\b/,
+  WIND:      /\b(wind (magic|style|release|user)|aerokinesis|tornado)\b/,
+  WATER:     /\b(water (magic|style|release|user|manipulation)|hydrokinesis)\b/,
+  MAGIC:     /\b(mage|wizard|witch|sorcer\w*|magician|spellcast\w*|grimoire|alchemist|alchemy)\b/,
+  PSYCHIC:   /\b(psychic|telepath\w*|telekine\w*|esper|clairvoyan\w*)\b/,
+  SWORD:     /\b(sword\w*|katana|blade\w*|rapier|nodachi|zanpakutou|zanpakuto|nichirin)\b/,
+  GUNS:      /\b(gun|guns|gunman|pistol|revolver|rifle|sniper|firearm|shotgun|marksman)\b/,
+  BOW:       /\b(archer|archery|bow and arrow|quiver|longbow)\b/,
+  'MARTIAL ARTS': /\b(martial art\w*|hand[- ]to[- ]hand|karate|judo|taekwondo|boxer|boxing|kung fu)\b/,
+  ROBOT:     /\b(android|robot\w*|automaton|artificial (intelligence|human|being))\b/,
+  CYBORG:    /\b(cyborg|cybernetic\w*|prosthetic\w*|bionic|automail)\b/,
+  VAMPIRE:   /\b(vampire\w*|vampiric|dhampir)\b/,
+  DEMON:     /\b(demon\w*|hollow\b|arrancar|espada)\b/,
+  DRAGON:    /\b(dragon\w*|wyvern)\b/,
+  ELF:       /\b(elf|elves|elven|half[- ]elf)\b/,
+  GLASSES:   /\b(glasses|spectacles|monocle)\b/,
+  MASK:      /\b(mask\w*|masked)\b/,
+  DOCTOR:    /\b(doctor|physician|surgeon|medic\b|nurse)\b/,
+  CHEF:      /\b(chef|cook\b|culinary)\b/,
+  SCIENTIST: /\b(scientist|researcher|inventor|chemist)\b/,
+  DETECTIVE: /\b(detective|investigator|sleuth)\b/,
+  ASSASSIN:  /\b(assassin\w*|hitman)\b/,
+  NINJA:     /\b(ninja|shinobi|kunoichi|jounin|chuunin|genin|hokage|akatsuki)\b/,
+  PIRATE:    /\b(pirate\w*|buccaneer)\b/,
+  ROYALTY:   /\b(prince\b|princess|king\b|queen\b|emperor|empress)\b/,
+  CAPTAIN:   /\b(captain\b|commander\b|admiral\b)\b/,
+};
+
+// Job and species words are only trustworthy near the top of an entry — the
+// infobox and the "X is a ..." opener. Deeper in the biography the same words
+// describe other people or are plain adjectives ("noble" meaning honourable),
+// which is what made GOD / SOLDIER / VILLAIN unusable at any width.
+const NARROW = new Set(['DOCTOR', 'CHEF', 'SCIENTIST', 'DETECTIVE', 'ASSASSIN', 'ROBOT',
+  'CYBORG', 'VAMPIRE', 'ELF', 'DEMON', 'DRAGON', 'ROYALTY', 'CAPTAIN', 'NINJA', 'PIRATE']);
+
 const Q_DESC = `query($ids:[Int]){ Page(page:1, perPage:50){ characters(id_in:$ids){ id description(asHtml:false) } } }`;
 
 async function fetchDescriptions(picked) {
@@ -223,64 +228,12 @@ async function fetchDescriptions(picked) {
   for (let i = 0; i < ids.length; i += 50) {
     const d = await gql(Q_DESC, { ids: ids.slice(i, i + 50) });
     await sleep(GAP);
-    if (!d) { console.log(`  !! description batch ${i} failed`); continue; }
+    if (!d) continue;
     for (const c of d.Page.characters) if (c.description) out[c.id] = c.description;
     console.log(`  descriptions ${Math.min(i + 50, ids.length)}/${ids.length}`);
   }
   return out;
 }
-
-/* ---------------------------------------------------------------- stage 4 */
-const RULES = {
-  FIRE:      /\b(pyrokinesis|pyrokinetic|flame[sd]?|flaming|fireball|fire (magic|style|breathing|release)|incinerat\w*|inferno)\b/,
-  ICE:       /\b(cryokinesis|cryokinetic|ice (magic|style|release|powers?|user)|icy|frost\w*|freez\w*|glacial|blizzard)\b/,
-  LIGHTNING: /\b(lightning|thunder\w*|electrokinesis|electricity)\b/,
-  WIND:      /\b(wind (magic|style|release|user)|aerokinesis|tornado)\b/,
-  WATER:     /\b(water (magic|style|release|user|manipulation)|hydrokinesis)\b/,
-  MAGIC:     /\b(mage|wizard|witch|sorcer\w*|magician|spellcast\w*|grimoire)\b/,
-  PSYCHIC:   /\b(psychic|telepath\w*|telekine\w*|esper|clairvoyan\w*)\b/,
-  SWORD:     /\b(sword\w*|katana|blade\w*|rapier|nodachi|zanpakutou|zanpakuto|nichirin)\b/,
-  GUNS:      /\b(gun|guns|gunman|pistol|revolver|rifle|sniper|firearm|shotgun|marksman)\b/,
-  BOW:       /\b(archer|archery|bow and arrow|quiver|longbow)\b/,
-  'MARTIAL ARTS': /\b(martial art\w*|hand[- ]to[- ]hand|karate|judo|taekwondo|boxer|boxing|kung fu)\b/,
-  ROBOT:     /\b(android|robot\w*|automaton|artificial (intelligence|human|being))\b/,
-  CYBORG:    /\b(cyborg|cybernetic\w*|prosthetic\w*|bionic)\b/,
-  VAMPIRE:   /\b(vampire\w*|vampiric|dhampir)\b/,
-  DRAGON:    /\b(dragon\w*|wyvern)\b/,
-  ELF:       /\b(elf|elves|elven|half[- ]elf)\b/,
-  ALIEN:     /\b(alien\w*|extraterrestrial)\b/,
-  IMMORTAL:  /\b(immortal\w*|cannot die|undying|eternal life)\b/,
-  GLASSES:   /\b(glasses|spectacles|monocle)\b/,
-  MASK:      /\b(mask\w*|masked)\b/,
-  DOCTOR:    /\b(doctor|physician|surgeon|medic\b|nurse)\b/,
-  CHEF:      /\b(chef|cook\b|culinary)\b/,
-  SCIENTIST: /\b(scientist|researcher|inventor|chemist)\b/,
-  PILOT:     /\b(pilot\w*)\b/,
-  DETECTIVE: /\b(detective|investigator|sleuth)\b/,
-  ASSASSIN:  /\b(assassin\w*|hitman)\b/,
-  SAMURAI:   /\b(samurai|ronin)\b/,
-  IDOL:      /\b(idol\b|pop star)\b/,
-};
-
-// Job and species words are only trustworthy near the top of an entry — the
-// infobox and the "X is a ..." opener. Deeper in the biography the same words
-// describe other people or are plain adjectives ("noble" meaning honourable),
-// which is what made CAPTAIN / ROYALTY / GOD / SOLDIER / VILLAIN unusable.
-const NARROW = new Set(['DOCTOR', 'CHEF', 'SCIENTIST', 'PILOT', 'DETECTIVE', 'ASSASSIN',
-  'SAMURAI', 'IDOL', 'ROBOT', 'CYBORG', 'VAMPIRE', 'ELF', 'ALIEN', 'IMMORTAL']);
-
-const SERIES_MAP = {
-  SCHOOL:['School'], MILITARY:['Military'], SPORTS:['Sports'], MECHA:['Mecha'],
-  ISEKAI:['Isekai'], SPACE:['Space'], HISTORICAL:['Historical'],
-  'POST-APOCALYPTIC':['Post-Apocalyptic','Dystopian'], HORROR:['Horror'],
-  ROMANCE:['Romance'], MYSTERY:['Mystery'], CRIME:['Crime'],
-  PSYCHOLOGICAL:['Psychological'], 'SLICE OF LIFE':['Slice of Life'],
-  WAR:['War'], SURVIVAL:['Survival'], NINJA:['Ninja'], PIRATES:['Pirates'],
-  DEMONS:['Demons'], GODS:['Gods'], MYTHOLOGY:['Mythology'], WITCHES:['Witch'],
-  'MONSTER GIRLS':['Monster Girl'], POLICE:['Police'], YAKUZA:['Yakuza'],
-  'TIME TRAVEL':['Time Manipulation'], 'ROYAL COURT':['Royal Affairs'],
-  RURAL:['Rural'], CYBERPUNK:['Cyberpunk'], ZOMBIES:['Zombie'], 'SCI-FI':['Sci-Fi'],
-};
 
 const prep = d => (d || '')
   .replace(/\[[^\]]*\]\([^)]*\)/g, ' ')   // links — the label names another character
@@ -299,8 +252,7 @@ function ageTag(a) {
 function tagAll(picked, desc) {
   return picked.map(p => {
     const t = prep(desc[p.id]), lead = t.slice(0, 400);
-    const traits = new Set(), series = new Set();
-
+    const traits = new Set();
     if (p.gender === 'Male') traits.add('MALE');
     else if (p.gender === 'Female') traits.add('FEMALE');
     const at = ageTag(p.age); if (at) traits.add(at);
@@ -308,68 +260,59 @@ function tagAll(picked, desc) {
     if (t) for (const [tag, re] of Object.entries(RULES)) {
       if (re.test(NARROW.has(tag) ? lead : t)) traits.add(tag);
     }
-    const world = new Set([...(p.genres || []), ...(p.showTags || [])]);
-    for (const [tag, keys] of Object.entries(SERIES_MAP)) if (keys.some(k => world.has(k))) series.add(tag);
-
-    return { name: p.name, show: p.show, img: p.img, traits: [...traits], series: [...series] };
+    return { name: p.name, show: p.show, img: p.img, traits: [...traits] };
   });
 }
 
-/* ---------------------------------------------------------------- stage 5 */
+/* ---------------------------------------------------------------- emit */
 function emit(tagged) {
-  const tally = key => {
-    const m = {};
-    tagged.forEach(c => c[key].forEach(t => { m[t] = (m[t] || 0) + 1; }));
-    return m;
-  };
-  const keep = key => {
-    const m = tally(key);
-    return Object.keys(m).filter(t => m[t] >= MIN_TAG).sort();
-  };
-  const traits = keep('traits'), series = keep('series');
-  const ti = new Map(traits.map((t, i) => [t, i])), si = new Map(series.map((t, i) => [t, i]));
+  const tally = {};
+  tagged.forEach(c => c.traits.forEach(t => { tally[t] = (tally[t] || 0) + 1; }));
+  const traits = Object.keys(tally).filter(t => tally[t] >= MIN_TAG).sort();
+  const ti = new Map(traits.map((t, i) => [t, i]));
+  const shows = SERIES.map(s => s.label).filter(l => tagged.some(c => c.show === l));
+  const si = new Map(shows.map((s, i) => [s, i]));
 
   const chars = tagged.slice().sort((a, b) => a.name.localeCompare(b.name)).map(c => [
-    c.name, c.show, c.img,
+    c.name, si.get(c.show), c.img,
     c.traits.filter(t => ti.has(t)).map(t => ti.get(t)).sort((a, b) => a - b),
-    c.series.filter(t => si.has(t)).map(t => si.get(t)).sort((a, b) => a - b),
   ]);
 
   const block =
+    'const SHOWS = ' + JSON.stringify(shows) + ';\n' +
     'const TRAITS = ' + JSON.stringify(traits) + ';\n' +
-    'const SERIES = ' + JSON.stringify(series) + ';\n' +
     'const CHARS = [\n' + chars.map(c => JSON.stringify(c)).join(',\n') + '\n];';
 
   const html = fs.readFileSync(TARGET, 'utf8');
   if (!/const CHARS = \[[\s\S]*?\n\];/.test(html)) throw new Error('CHARS block not found in categories.html');
   const next = html
+    .replace(/const SHOWS = \[[^\]]*\];\n/, '')
     .replace(/const TRAITS = \[[^\]]*\];\n/, '')
     .replace(/const SERIES = \[[^\]]*\];\n/, '')
     .replace(/const CHARS = \[[\s\S]*?\n\];/, block);
   fs.writeFileSync(TARGET, next);
-  return { chars, traits, series };
+  return { chars, traits, shows, tally };
 }
 
-/* ---------------------------------------------------------------- run */
 (async () => {
-  console.log('1/4  popular series + casts');
-  const shows = await cached('shows.json', fetchShows);
+  console.log('1/4  casts for the whitelisted series');
+  const groups = await cached('casts.json', fetchCasts);
 
-  console.log('2/4  weighting the roster');
-  const picked = pickRoster(shows);
-  if (picked.length < 400) throw new Error(`only ${picked.length} characters — refusing to overwrite`);
+  console.log('2/4  picking the roster');
+  const picked = pickRoster(groups);
+  if (picked.length < 120) throw new Error(`only ${picked.length} characters — refusing to overwrite`);
 
   console.log('3/4  character descriptions');
-  const desc = await cached('desc.json', () => fetchDescriptions(picked));
+  const desc = await cached('desc2.json', () => fetchDescriptions(picked));
 
-  console.log('4/4  tagging + writing categories.html');
-  const { chars, traits, series } = emit(tagAll(picked, desc));
+  console.log('4/4  traits + writing categories.html');
+  const { chars, traits, shows, tally } = emit(tagAll(picked, desc));
 
   const per = {};
-  chars.forEach(c => { per[c[1]] = (per[c[1]] || 0) + 1; });
-  const ranked = Object.entries(per).sort((a, b) => b[1] - a[1]);
-  console.log(`\n${chars.length} characters across ${ranked.length} series`);
-  console.log(`${traits.length} traits, ${series.length} series tags`);
-  console.log('deepest: ' + ranked.slice(0, 6).map(([t, n]) => `${t} ${n}`).join(', '));
+  chars.forEach(c => { per[shows[c[1]]] = (per[shows[c[1]]] || 0) + 1; });
+  console.log(`\n${chars.length} characters across ${shows.length} series`);
+  console.log(Object.entries(per).sort((a, b) => b[1] - a[1]).map(([s, n]) => `  ${String(n).padStart(3)}  ${s}`).join('\n'));
+  console.log(`\n${traits.length} traits:`);
+  console.log(traits.map(t => `  ${String(tally[t]).padStart(3)}  ${t}`).join('\n'));
   if (!FRESH) console.log(`\n(cache in ${path.relative(process.cwd(), CACHE)} — rerun with --fresh to refetch)`);
 })().catch(e => { console.error('\nFAILED: ' + e.message); process.exit(1); });
