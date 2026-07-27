@@ -698,119 +698,105 @@ function drawSymbol(g, sym, cx, cy, s) {
 }
 drawPatternBoard = (g, w, h) => {
     g.fillStyle = '#0b0708'; g.fillRect(0, 0, w, h);
+    const PAD = 10;
+    const HDR = Math.round(h * 0.085);
+    const ROW = (h - HDR - PAD * 2) / PATTERNS.length;
+    const SPLIT = Math.round(w * 0.60);
 
-    const HDR = 62, ROW = (h - HDR - 16) / PATTERNS.length;
-    const SPLIT = 330;
-
-    g.fillStyle = '#e2ddd2'; g.fillRect(8, 8, w - 16, HDR);
+    g.fillStyle = '#e2ddd2'; g.fillRect(PAD, PAD, w - PAD * 2, HDR);
     g.fillStyle = '#14100e';
-    g.font = '900 30px "Arial Black", sans-serif';
-    g.textBaseline = 'middle'; g.textAlign = 'center';
-    g.fillText('PATTERN', 8 + SPLIT / 2, 8 + HDR / 2);
-    /* same trap as CHANCE on the symbol board: the longest word sits in the
-       narrowest column, and the panel got narrower when the boards were fitted
-       to the delivered frames. Shrink it rather than clip it. */
-    g.font = '900 24px "Arial Black", sans-serif';
-    g.fillText('MULTIPLIER', 8 + SPLIT + (w - 16 - SPLIT) / 2, 8 + HDR / 2);
+    g.textBaseline = 'middle';
+    fitText(g, 'PATTERN', PAD + SPLIT / 2, PAD + HDR / 2, SPLIT - 20, HDR * 0.52);
+    fitText(g, 'PAYS', PAD + SPLIT + (w - PAD * 2 - SPLIT) / 2, PAD + HDR / 2,
+            w - PAD * 2 - SPLIT - 16, HDR * 0.52);
 
     PATTERNS.forEach((p, i) => {
-      const y = 8 + HDR + i * ROW;
+      const y = PAD + HDR + i * ROW;
       g.fillStyle = i % 2 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.32)';
-      g.fillRect(8, y, w - 16, ROW);
+      g.fillRect(PAD, y, w - PAD * 2, ROW);
 
       /* mini grid — the first line stands in for the whole named pattern */
       const lit = new Set(p.lines[0].map(([r, c]) => r * 5 + c));
-      const D = 10, GAP = 3, gx = 26, gy = y + ROW / 2 - (3 * D + 2 * GAP) / 2;
-      for (let r = 0; r < 3; r++) {
-        for (let c = 0; c < 5; c++) {
-          g.fillStyle = lit.has(r * 5 + c) ? '#ff9a24' : 'rgba(130,98,74,.32)';
-          g.fillRect(gx + c * (D + GAP), gy + r * (D + GAP), D, D);
-        }
+      const D = Math.round(ROW * 0.20), GAP = Math.max(2, Math.round(D * 0.28));
+      const gx = PAD + 18, gy = y + ROW / 2 - (3 * D + 2 * GAP) / 2;
+      for (let r = 0; r < 3; r++) for (let c = 0; c < 5; c++) {
+        g.fillStyle = lit.has(r * 5 + c) ? '#ff9a24' : 'rgba(130,98,74,.32)';
+        g.fillRect(gx + c * (D + GAP), gy + r * (D + GAP), D, D);
       }
 
-      g.textAlign = 'left';
-      g.font = '900 30px "Arial Black", sans-serif';
+      const nameX = gx + 5 * (D + GAP) + 20;
       g.fillStyle = '#ffc65a';
-      g.fillText(p.id, gx + 5 * (D + GAP) + 24, y + ROW / 2 + 2);
+      fitText(g, p.id, nameX, y + ROW / 2 + 2, PAD + SPLIT - nameX - 12, ROW * 0.52, { align: 'left' });
 
-      /* live multiplier — pattern charms add straight onto this */
       const _pm = (typeof myMachine !== 'undefined' && myMachine)
                 ? p.mult + buff(myMachine, 'pat', p.id) : p.mult;
-      g.font = '900 34px "Arial Black", sans-serif';
       g.fillStyle = _pm > p.mult ? '#7ed321' : '#ffffff';
-      g.fillText('x' + _pm.toFixed(1), 8 + SPLIT + 34, y + ROW / 2 + 2);
+      fitText(g, 'x' + _pm.toFixed(1), PAD + SPLIT + (w - PAD * 2 - SPLIT) / 2,
+              y + ROW / 2 + 2, w - PAD * 2 - SPLIT - 16, ROW * 0.60);
 
-      g.strokeStyle = 'rgba(198,34,30,.9)'; g.lineWidth = 3;
-      g.beginPath(); g.moveTo(8, y); g.lineTo(w - 8, y); g.stroke();
+      g.strokeStyle = 'rgba(198,34,30,.55)'; g.lineWidth = 2;
+      g.beginPath(); g.moveTo(PAD, y); g.lineTo(w - PAD, y); g.stroke();
     });
 
     g.strokeStyle = 'rgba(198,34,30,.9)'; g.lineWidth = 3;
     g.beginPath();
-    g.moveTo(8 + SPLIT, 8 + HDR); g.lineTo(8 + SPLIT, h - 8); g.stroke();
-    g.strokeRect(8, 8, w - 16, h - 16);
+    g.moveTo(PAD + SPLIT, PAD + HDR); g.lineTo(PAD + SPLIT, h - PAD); g.stroke();
+    g.strokeRect(PAD, PAD, w - PAD * 2, h - PAD * 2);
   };
 drawSymbolBoard = (g, w, h) => {
     g.fillStyle = '#0b0708'; g.fillRect(0, 0, w, h);
+    const PAD = 10;
+    const HDR = Math.round(h * 0.085);
+    const ROW = (h - HDR - PAD * 2) / SYMBOLS.length;
+    /* THE NAME COLUMN IS GONE. It was the widest thing on the board and the
+       least useful: you match the picture on the reels, you never read the
+       word "PENTAGRAM" off a wall from three metres away. Dropping it buys
+       every remaining column roughly double the width, which is what lets the
+       numbers be big enough to actually read at distance. */
+    const C1 = Math.round(w * 0.34);     /* icon column ends */
+    const C2 = Math.round(w * 0.67);     /* pays column ends */
 
-    const HDR = 62, ROW = (h - HDR - 16) / SYMBOLS.length;
-    const C1 = 300, C2 = 430;
-
-    g.fillStyle = '#e2ddd2'; g.fillRect(8, 8, w - 16, HDR);
+    g.fillStyle = '#e2ddd2'; g.fillRect(PAD, PAD, w - PAD * 2, HDR);
     g.fillStyle = '#14100e';
-    g.font = '900 28px "Arial Black", sans-serif';
-    g.textBaseline = 'middle'; g.textAlign = 'center';
-    g.fillText('SYMBOL', 8 + C1 / 2, 8 + HDR / 2);
-    g.fillText('PAYS', 8 + C1 + 60, 8 + HDR / 2);
-    /* CHANCE is the widest word in the narrowest column — at 28px it ran 4px
-       past the panel border and lost its final E on the wall. */
-    g.font = '900 23px "Arial Black", sans-serif';
-    g.fillText('CHANCE', 8 + C2 + 58, 8 + HDR / 2);
+    g.textBaseline = 'middle';
+    fitText(g, 'SYMBOL', PAD + C1 / 2, PAD + HDR / 2, C1 - 16, HDR * 0.50);
+    fitText(g, 'PAYS',   PAD + (C1 + C2) / 2, PAD + HDR / 2, C2 - C1 - 16, HDR * 0.50);
+    fitText(g, 'CHANCE', PAD + (C2 + w - PAD * 2) / 2, PAD + HDR / 2,
+            w - PAD * 2 - C2 - 16, HDR * 0.50);
 
-    /* LIVE numbers: pay and chance both read through the fitted charms, so the
-       board tracks the run instead of describing a machine you stopped playing
-       several purchases ago. Buffed rows are tinted so you can see at a glance
-       what your charms have actually changed. */
     const _m = (typeof myMachine !== 'undefined') ? myMachine : null;
-    /* weightOf() applies the same floor the reels use, so a culled symbol
-       shows the odds it actually rolls at rather than a negative share */
     const total = SYMBOLS.reduce((a, x) => a + weightOf(_m, x), 0);
+
     [...SYMBOLS].sort((a, b) => b.pay - a.pay).forEach((sym, i) => {
-      const y = 8 + HDR + i * ROW;
+      const y = PAD + HDR + i * ROW;
       g.fillStyle = i % 2 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.32)';
-      g.fillRect(8, y, w - 16, ROW);
+      g.fillRect(PAD, y, w - PAD * 2, ROW);
 
-      drawSymbol(g, sym, 58, y + ROW / 2, 66);
-
-      g.textAlign = 'left';
-      g.font = '900 30px "Arial Black", sans-serif';
-      g.fillStyle = '#ffc65a';
-      g.fillText(sym.id.toUpperCase(), 108, y + ROW / 2 + 2);
+      /* the icon is the label now, so it gets the room to be one */
+      drawSymbol(g, sym, PAD + C1 / 2, y + ROW / 2, ROW * 0.86);
 
       const symUp = _m ? buff(_m, 'sym', sym.id) : 0;
       const allUp = _m ? buff(_m, 'all') : 0;
       const pay = Math.round(sym.pay * (1 + symUp) * (1 + allUp));
       const chance = (weightOf(_m, sym) / total) * 100;
 
-      g.textAlign = 'center';
-      g.font = '900 32px "Arial Black", sans-serif';
       g.fillStyle = pay > sym.pay ? '#7ed321' : '#ffffff';
-      g.fillText(String(pay), 8 + C1 + 60, y + ROW / 2 + 2);
+      fitText(g, String(pay), PAD + (C1 + C2) / 2, y + ROW / 2 + 2, C2 - C1 - 18, ROW * 0.60);
 
-      g.font = '900 26px "Arial Black", sans-serif';
-      /* green = a charm made it commoner, red = a CULL made it rarer */
-      const _wd = weightOf(_m, sym) - sym.w;
-      g.fillStyle = _wd > 0 ? '#7ed321' : _wd < 0 ? '#e0644a' : '#9fd86a';
-      g.fillText(chance.toFixed(chance < 10 ? 1 : 0) + '%', 8 + C2 + 58, y + ROW / 2 + 2);
+      const wd = weightOf(_m, sym) - sym.w;
+      g.fillStyle = wd > 0 ? '#7ed321' : wd < 0 ? '#e0644a' : '#9fd86a';
+      fitText(g, chance.toFixed(chance < 10 ? 1 : 0) + '%',
+              PAD + (C2 + w - PAD * 2) / 2, y + ROW / 2 + 2, w - PAD * 2 - C2 - 18, ROW * 0.50);
 
-      g.strokeStyle = 'rgba(198,34,30,.9)'; g.lineWidth = 3;
-      g.beginPath(); g.moveTo(8, y); g.lineTo(w - 8, y); g.stroke();
+      g.strokeStyle = 'rgba(198,34,30,.55)'; g.lineWidth = 2;
+      g.beginPath(); g.moveTo(PAD, y); g.lineTo(w - PAD, y); g.stroke();
     });
 
     g.strokeStyle = 'rgba(198,34,30,.9)'; g.lineWidth = 3;
     [C1, C2].forEach(x => {
-      g.beginPath(); g.moveTo(8 + x, 8 + HDR); g.lineTo(8 + x, h - 8); g.stroke();
+      g.beginPath(); g.moveTo(PAD + x, PAD + HDR); g.lineTo(PAD + x, h - PAD); g.stroke();
     });
-    g.strokeRect(8, 8, w - 16, h - 16);
+    g.strokeRect(PAD, PAD, w - PAD * 2, h - PAD * 2);
   };
 /* ======================================================================
    PAGE CODE — this part is written by the generator, not lifted.
