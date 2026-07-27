@@ -3,6 +3,9 @@
 **/.wrangler/
 .dev.vars
 
+# fetch-roster.js caches AniList responses here so reruns are cheap
+scripts/.roster-cache/
+
 # Node
 node_modules/
 
