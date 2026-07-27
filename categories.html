@@ -132,8 +132,12 @@ details.rules b{color:var(--text)}
   transition:border-color .12s,background .12s;display:flex;align-items:center;gap:10px}
 .cat:hover{border-color:#5a7ec0;background:#232a3c}
 .cat.on{border-color:var(--gold);background:#2a2617;box-shadow:0 0 0 2px #ffc85733}
-.cat .lbl{font-weight:650;font-size:14px;line-height:1.25;flex:1}
-.cat .n{font-size:11px;color:var(--dim2);background:#0c0f18;border-radius:99px;padding:2px 8px;flex:none}
+.cat{align-items:flex-start}
+.cat .lbl{font-weight:650;font-size:14px;line-height:1.3;flex:1;display:block}
+.cat .lbl .d{display:block;font-weight:400;font-size:11.5px;line-height:1.35;
+  color:var(--dim2);margin-top:4px}
+.cat.on .lbl .d{color:#a08a4e}
+.cat .n{font-size:11px;color:var(--dim2);background:#0c0f18;border-radius:99px;padding:2px 8px;flex:none;margin-top:2px}
 .cat.out{opacity:.3}
 .cat.out:hover{opacity:.6}
 .deckgroup{margin-bottom:16px}
@@ -148,6 +152,9 @@ details.rules b{color:var(--text)}
 .tagrow{margin-bottom:11px}
 .tagrow h4{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--dim2);
   font-weight:750;margin:0 0 8px}
+.tagrow h4 span{letter-spacing:0;text-transform:none;font-weight:400;color:#4d5570;margin-left:6px}
+.tg.f{border-color:#3a4a6a}
+.tg.f.on{background:var(--p1);border-color:var(--p1);color:#0b0d14}
 .tagrow div{display:flex;flex-wrap:wrap;gap:5px}
 .tg{font-size:11.5px;font-weight:700;letter-spacing:.4px;padding:5px 10px;border-radius:99px;
   background:#181e2c;border:1px solid var(--line);color:var(--dim);cursor:pointer;
@@ -318,7 +325,8 @@ details.rules b{color:var(--text)}
           <span id="count"></span></div>
         <div id="tagbar" class="hide">
           <div class="tagrow"><h4>Series</h4><div id="tagShow"></div></div>
-          <div class="tagrow"><h4>Traits</h4><div id="tagT"></div></div>
+          <div class="tagrow"><h4>Facts <span>checked — these back the categories</span></h4><div id="tagF"></div></div>
+          <div class="tagrow"><h4>Tags <span>rough, pulled from character bios</span></h4><div id="tagT"></div></div>
           <div class="tagfoot"><span id="tagPicked">No filters</span>
             <button class="btn sm ghost" id="btnTagClear">Clear</button></div>
         </div>
@@ -364,373 +372,255 @@ details.rules b{color:var(--text)}
 'use strict';
 
 /* ---------------------------------------------------------------- roster
-   SHOWS: the series Jordan whitelisted.
-   TRAITS: character traits mined from each AniList entry.
-   CHARS: [ name, show index, portrait file, trait indexes ]
+   SHOWS  — the series Jordan whitelisted.
+   TRAITS — mined from prose, so APPROXIMATE. A missing trait means the wiki
+            never said, not that it's false. Grid filters only.
+   FACTS  — complete by construction or curated by hand, so "no" is really no.
+            Only these may back a category.
+   CHARS  — [ name, show index, portrait, trait indexes, fact indexes, popularity rank ]
+
+   The split exists because a category answered from partial data lies: AniList
+   has no gender for Fanatio, so "is female" used to tell players she wasn't.
 
    Portraits stream from AniList's CDN, so the grid needs a live connection.
-   Rebuild with `node scripts/fetch-roster.js` — it rewrites all three arrays.
+   Rebuild with `node scripts/fetch-roster.js` — it rewrites all four arrays.
    To add or drop a series, edit SERIES at the top of that script. */
+/* ROSTER-START — everything between the markers is generated; do not hand-edit */
 const SHOWS = ["Naruto","One Piece","Bleach","Attack on Titan","One Punch Man","Fullmetal Alchemist","Seven Deadly Sins","Sword Art Online","Code Geass","Solo Leveling","Death Note","Pokémon"];
-const TRAITS = ["ADULT","CAPTAIN","CHILD","CYBORG","DEMON","DOCTOR","DRAGON","ELDER","FEMALE","FIRE","GUNS","MAGIC","MAIN CHARACTER","MALE","MARTIAL ARTS","MASK","NINJA","PIRATE","ROYALTY","SWORD","TEEN"];
+const TRAITS = ["ADULT","CAPTAIN","CHILD","DEMON","DRAGON","ELDER","FIRE","GUNS","MAGIC","MARTIAL ARTS","MASK","NINJA","PIRATE","ROYALTY","SWORD","TEEN"];
+const FACTS = ["AKATSUKI","FEMALE","GOTEI CAPTAIN","HOKAGE","MAIN CHARACTER","MALE","NOT HUMAN","ROYALTY","STRAW HAT","SUPPORTING CHARACTER","SURVEY CORPS","THE SEVEN SINS","VILLAIN"];
 const CHARS = [
-["Akamaru",0,"n4799-gwSQJlSqWnST.png",[13]],
-["Akihiko Kayaba",7,"b36829-X5zITNEQ7xij.png",[0,13,19]],
-["Alex Louis Armstrong",5,"b2079-RnhPS44vyqpJ.jpg",[11,13]],
-["Alice Zuberg",7,"b75450-vDO1lQup1pe7.jpg",[8,12,19]],
-["Alicia Rue",7,"b72901-nw8klNK66XFl.png",[8]],
-["Alphonse Elric",5,"b12-tCKu8yK5kFL5.jpg",[11,12,13,20]],
-["Andrew Gilbert Mills",7,"54099.jpg",[13]],
-["Anko Mitarashi",0,"b809-FhWTN0LFVzRa.png",[0,8,16]],
-["Annie Leonhart",3,"b46490-tan274Ifc1Jf.jpg",[8,20]],
-["Anya Alstreim",8,"b11476-EIlWnOmgLnwL.png",[8,20]],
-["Armin Arlert",3,"b46494-g7xYYuBtYPnO.png",[12,13,20]],
-["Arthur",8,"b48473-quqpuft4hD6K.png",[15,18]],
-["Arthur Pendragon",6,"b122210-l6g1EMCf5NdE.png",[13,18,19]],
-["Ash Ketchum",11,"b2473-JDoo3I82Km4l.png",[2,12,13]],
-["Asuma Sarutobi",0,"b4775-skviHvjIQHiE.png",[0,13,16,19]],
-["Asuna Yuuki",7,"b36828-j5ib0adAzGMx.png",[8,12,19,20]],
-["Bad",4,"b89156-kGKJyhWnCTHy.png",[4,6,13,20]],
-["Baek Yoonho",9,"b136077-IIMqRmMK5Fgs.png",[13]],
-["Bambietta Basterbine",2,"b64511-zr1ivnK8qPF2.jpg",[8,9]],
-["Ban",6,"b77605-NrjhQwZwgJ3l.png",[0,12,13]],
-["Bang",4,"n81141-1ml7Q6X2B508.png",[7,13,14]],
-["Banken Man",4,"b86027-g3kRrv9jewmz.png",[13]],
-["Barry the Chopper",5,"b5428-ZIjtbA5UxvSB.png",[13]],
-["Bartolomeo",1,"n85647-WfwG1ixb2qZL.png",[0,1,13]],
-["Bentham",1,"n4875-Ga2TVjP70R6r.png",[0,13,14]],
-["Bercouli",7,"b126740-BQk6zlwPE7Kn.png",[13,19]],
-["Bertolt Hoover",3,"b46488-wm6HvkdkHoZu.jpg",[13,20]],
-["Beru",9,"b159849-p0Szb7KzD2DD.png",[18]],
-["Boa Hancock",1,"b16342-kVOF6V5Q94go.png",[0,1,8,17,18]],
-["Boros-sama",4,"n89263-GPItRQ64F27D.png",[6,13,17]],
-["Borsalino",1,"b21093-Pc4kOjUn3ZkZ.png",[0,1,13]],
-["Brock",11,"b3854-qMVUF2YmWYoW.png",[12,13]],
-["Brook",1,"b5627-av8oD3zhKvDl.png",[7,12,13,17,19]],
-["Buggy",1,"n725-g04AaiaK5f9B.png",[0,13,17,19]],
-["Bulbasaur",11,"b177038-GJvYbR5PhCaE.png",[]],
-["Butterfree",11,"b181417-eoHO3LlZby5L.png",[]],
-["Byakuya Kuchiki",2,"b907-kgnDKeMtEN5y.png",[1,13,19]],
-["C.C.",8,"b1111-UhmlFtRFrnWa.png",[8,12]],
-["Cardinal",7,"b123199-lfDRm9MJrznY.png",[]],
-["Carla Yeager",3,"n62475-CExspVnLfweu.png",[8]],
-["Carrot",1,"b126179-bxjxEfrqtiuN.png",[8,20]],
-["Cécile Croomy",8,"b1131-8B8jxeFXEzld.jpg",[0,8]],
-["Cha Hae-In",9,"b138789-AhE8m0LWjE7E.png",[0,8,19]],
-["Charizard",11,"b180037-u3b2oiaWdfAm.png",[9]],
-["Choi Jongin",9,"b138794-dZNdO0pvZ659.png",[13]],
-["Chougoukin Kurobikari",4,"b156126-QQpzi77vVx45.png",[0,13]],
-["Colt Grice",3,"b125665-TicVG3OEhTqc.jpg",[13]],
-["Connie Springer",3,"n46486-izhPjzut6WCZ.png",[13,20]],
-["Cornelia li Britannia",8,"b797-lrtrQEESbWVa.jpg",[0,8,18]],
-["Coyote Starrk",2,"b3212-F5qZe4NWlZq9.png",[4,13,15,19]],
-["Crocodile",1,"b2749-e8ebEBN1SlS2.png",[0,13]],
-["Deidara",0,"b1902-JsEFRFwjmtZJ.png",[13,16,20]],
-["Derieri",6,"b131566-2v1OVoEuhaiA.jpg",[4,8,18]],
-["Diane",6,"b74653-XpMcsLVZBnkZ.jpg",[8,12]],
-["Diethard Ried",8,"b1126-7sR8ZeQoJT30.png",[0,13]],
-["Ditto",11,"b206205-ISeYalOdM1Zi.png",[]],
-["Doflamingo Donquixote",1,"b2754-B4gGSlNYgsyh.jpg",[0,13,17]],
-["Dot Pixis",3,"b62485-I0U5Cat3z65K.png",[13]],
-["Dracule Mihawk",1,"n2064-OpnF4nLi6bvL.png",[0,9,13,19]],
-["Edward Elric",5,"b11-TA5Nuk7EDUZG.jpg",[11,12,13,14,19,20]],
-["Elaine",6,"86681-6kx3mfwNhraK.png",[8,18]],
-["Elizabeth Liones",6,"b72923-Hidpb955mwMW.png",[1,8,12,18,20]],
-["Enel",1,"b1541-6c8RouunoL88.jpg",[0,13]],
-["Envy",5,"b651-S4mzVOTMzej6.png",[7,11]],
-["Eren Yeager",3,"b40882-dsj7IP943WFF.jpg",[12,13,20]],
-["Erwin Smith",3,"b46496-Mu86MENd5wNB.png",[1,13]],
-["Escanor",6,"b90202-1H7FIX2hDmYd.png",[0,12,13]],
-["Esil Radiru",9,"b164675-ZrAxmOOwGSa6.png",[4,8]],
-["Estarossa",6,"b126851-m1Vyj4V0IHNo.jpg",[4,13,18]],
-["Eugeo",7,"b70899-TwMq5mtH5ifc.jpg",[12,13,19,20]],
-["Euphemia li Britannia",8,"b1114-rjYGsn8O6ZhE.png",[8,18,20]],
-["Falco Grice",3,"b125660-mrmpOJLjJIkv.jpg",[2,12,13]],
-["Fanatio",7,"b131081-jzAIwUQ8rYmL.jpg",[19]],
-["Flask no Homunculus",5,"n15542-7kL0vJ9U8bVR.png",[11,13]],
-["Floch Forster",3,"b127703-qNIccR0yPZKu.png",[13]],
-["Franky",1,"n64-ChX6ZzHHjXqA.png",[0,3,12,13,17]],
-["Fubuki",4,"b81931-fmouMoprPVbV.png",[0,8]],
-["Gaara",0,"b1662-4E5J0LX9jZKZ.png",[2,13,16]],
-["Gabi Braun",3,"b125659-O37MZQWibV7g.png",[8,12,20]],
-["Galand",6,"b131571-CQBpyMbZaxfO.png",[4,13,18]],
-["Garou",4,"b89277-xBGb4B5YISXg.png",[13,20]],
-["Garp",1,"b8064-dPltKaZ8RAsj.jpg",[1,6,7,13,17,18]],
-["Gary Oak",11,"b4848-vR9au1dEKjyy.png",[13]],
-["Genma Shiranui",0,"n3735-IRx14wSYNVSE.png",[0,13]],
-["Genos",4,"b73979-tVi9maPID881.jpg",[3,12,13,20]],
-["Genryuusai Yamamoto",2,"b5726-mO7kc8Abka9J.jpg",[1,9,13,19]],
-["Gilthunder",6,"b74285-qGwNsXKYRPcC.png",[0,13]],
-["Gin Ichimaru",2,"b1087-wMTny26FezYB.png",[1,13,19]],
-["Giovanni",11,"b9881-eDgj9qqKOFhQ.jpg",[13]],
-["Gloxinia",6,"b131558-IwQOc0wLQ7Ey.jpg",[4,13,18]],
-["Go Gunhee",9,"b138792-TXFrDA1wpbmo.png",[10,13]],
-["Gowther",6,"b88823-Oppzl2h6OhO8.png",[12,13]],
-["Greed",5,"b351-XMQzTuMy2Xtn.jpg",[]],
-["Grimmjow Jaegerjaquez",2,"b1080-JUNo2Or0UGZg.jpg",[4,13]],
-["Grisha Yeager",3,"b62477-3AHBGul9bXK8.jpg",[0,5,13]],
-["Guila",6,"n86665-ZbYVIjmbyfl9.jpg",[8]],
-["Guy Might",0,"b307-xieUEdhdTVwQ.png",[0,13]],
-["Haku",0,"b2039-9NXBvh6H15LD.png",[13,16,20]],
-["Han Song-Yi",9,"b138793-eijpaPPkcipD.png",[8]],
-["Hange Zoe",3,"b71121-7R7CnQd3lHgt.png",[1]],
-["Hannes",3,"b46492-5kRaMLDCVD0B.jpg",[13]],
-["Hashirama Senju",0,"n12464-fcgqkCPZoREw.png",[13,16]],
-["Hawk",6,"n86683-ZXPoLZnKqNtx.png",[12,13,20]],
-["Hawk Mama",6,"n133377-CLYrm3YBvJoY.png",[8]],
-["Helbram",6,"b140918-r4nb9TM0r1qG.jpg",[13]],
-["Hendricksen",6,"86679-18WrlrOgWcq8.png",[13,18]],
-["Hidan",0,"b2792-lyvtbiT4COp0.jpg",[0,13]],
-["Hinata Hyuuga",0,"b1555-Q41GLTV3FvYF.png",[8,16,20]],
-["Hitch Dreyse",3,"b86017-m6vXFRKWMwUo.jpg",[8]],
-["Howzer",6,"86685-EVUJUHwElo95.png",[4,13]],
-["Ichigo Kurosaki",2,"b5-a7bkJgjhhigE.png",[12,13,19,20]],
-["Igris",9,"b145722-qSJ71S6vpeeM.png",[13]],
-["Ikemen Kamen Amai Mask",4,"b86031-7NpSkSSrT7ZJ.png",[0,13,15]],
-["Ikkaku Madarame",2,"b1151-izBrO6oWMvDv.png",[1,19]],
-["Il-Hwan Seong",9,"b138790-i3DFMscWID9D.jpg",[13]],
-["Ino Yamanaka",0,"b2009-H7n38Ns1fr0Y.jpg",[2,8]],
-["Iron",9,"b184956-uy2dOVHacMsf.png",[]],
-["Iruka Umino",0,"b2011-WUBm7wMCA6cE.png",[0,13,16]],
-["Isamu",4,"b137661-G30CrZkCLAWx.png",[2,13,18]],
-["Isshin Kurosaki",2,"b2553-tDUlab4F0lFJ.png",[13]],
-["Isshou",1,"b82259-NFdvvcSHup7Z.jpg",[0,1,13]],
-["Itachi Uchiha",0,"b14-9Kb1E5oel1ke.png",[13,16,20]],
-["Izumi Curtis",5,"b67-ggB3aC6DzQqB.png",[0,8,11,14]],
-["James",11,"b3936-5sX4EZIY2BRU.png",[12,13]],
-["Jean Havoc",5,"n4685-9uloq4hxlcTw.png",[10,13]],
-["Jean Kirstein",3,"b46498-ritqAj9FW6jX.png",[13,20]],
-["Jeremiah Gottwald",8,"b1113-HxXUV4z4jhvZ.png",[0,13]],
-["Jericho",6,"86699-oRLKbh6x7ijB.jpg",[8]],
-["Jessie",11,"b3935-m000RuoIVOGI.png",[8,12]],
-["Jewelry Bonney",1,"b20295-LqpG4Y3HkKxu.png",[0,1,8,17]],
-["Jigglypuff",11,"b149754-CSC80DKDOKwW.png",[]],
-["Jinbe",1,"b18938-yZANEfjsVhW4.png",[0,1,12,13,17]],
-["Jiraiya",0,"b2423-RO5MyoXSA9OL.png",[0,13,16]],
-["Jirou Souzousa Shunsui Kyouraku",2,"b1088-6oO10CmxZ1lP.jpg",[1,13]],
-["Jugram Haschwalth",2,"b71949-wcakVhS04k9t.png",[13]],
-["Juushirou Ukitake",2,"b2682-4BB6qdB296iG.png",[1,13,19]],
-["Kabuto Yakushi",0,"b2405-CqbcGW2tfaMV.png",[5,13,16]],
-["Kaguya Sumeragi",8,"1865-14xoLeBKilHb.jpg",[8,20]],
-["Kaijin Hime Do-S",4,"b156896-p8lSN9gOtqtF.png",[8]],
-["Kakashi Hatake",0,"b85-mkVBh2yjxjmx.png",[0,12,13,16]],
-["Kallen Stadtfeld",8,"b558-8tSMZ4a0LWrn.jpg",[8,12,15,20]],
-["Kamikaze",4,"b154767-B8TieN81pfMI.png",[0,13,19]],
-["Kaname Oogi",8,"b1115-0g7vZJssfj6x.png",[0,13]],
-["Kaname Tousen",2,"1085.jpg",[1,4,13]],
-["Katakuri Charlotte",1,"b124077-TODX2ThCdyx2.png",[0,13,17]],
-["Kazuto Kirigaya",7,"b36765-BnLbXg0Tzzh9.png",[12,13,18,19,20]],
-["Keiko Ayano",7,"b37681-GDtOAN6NiJ9M.jpg",[2,6,8]],
-["Keith Shadis",3,"n84305-15nngV5nTUp6.png",[5,13]],
-["Kenny Ackerman",3,"127443-aVMXGOchpsvj.png",[1,13]],
-["Kenpachi Zaraki",2,"b909-slhoFBon7oiH.jpg",[1,13,19]],
-["Kiba Inuzuka",0,"n3495-dtw0gHa5SOo6.png",[2,13,16]],
-["Kid Eustass",1,"b14989-uykLqnBTdAc2.jpg",[0,1,13,17]],
-["Killer Bee",0,"b18473-AiI3mk28a1Nm.png",[13,16,19]],
-["Kimimaro Kaguya",0,"b3438-h1fxTDdwew0h.png",[13,20]],
-["King",4,"n88907-M7QLjYvp2LEp.png",[0,13]],
-["King",6,"b83801-52RnDXQDZ1I7.png",[12,13,18]],
-["King Bradley",5,"b5103-jnflrjKevO3z.png",[0,11,13,18]],
-["Kisame Hoshigaki",0,"2672-oxbHx8n3N7WY.jpg",[0,13,16,19]],
-["Kisuke Urahara",2,"b210-mw01NrQfRjzT.png",[13,19]],
-["Kiyomi Takada",10,"n3765-XmrhzN7qO27e.png",[8,20]],
-["Koby",1,"b12361-H0SmgKxZ9T61.png",[10,13,19]],
-["Kon",2,"1089.jpg",[13]],
-["Konan",0,"3179-YVD5zJSYrnPg.jpg",[0,8,16]],
-["Konohamaru Sarutobi",0,"n3889-gCUewPsRY2kD.png",[2,13,16]],
-["Krista Lenz",3,"b62481-ZZDa7vn17lMU.png",[8,20]],
-["Kudou Kishi",4,"b138980-hp9fsJnwCF1M.png",[13,15]],
-["Kuma Bartholomew",1,"b7453-c3MArieFBs9w.png",[0,13,17]],
-["Kurama",0,"b7407-D8MYzhbuy8zu.jpg",[4,13,18]],
-["Kuroi Seishi",4,"b126976-vjLxpJVJ4QTW.png",[18]],
-["Kushina Uzumaki",0,"b7302-KQ6ddZtOkvUf.png",[0,8,16]],
-["Kuukaku Shiba",2,"1090.jpg",[3,8,19]],
-["Kuzan",1,"b2752-0ENS2a39muDz.png",[0,13]],
-["Kyoushiro Toudou",8,"1119.jpg",[0,13,19]],
-["L Lawliet",10,"b71-1W4panC53vfs.png",[0,12,13,15]],
-["Lan Fan",5,"b3292-aK72k3syf1qP.png",[8,19]],
-["Lapras",11,"b224575-QAmzeADDKgBh.png",[]],
-["Lee Joohee",9,"b136074-pLyumEnxjL7P.png",[8]],
-["Lelouch Lamperouge",8,"b417-gVLmIJu9phcK.png",[12,13,20]],
-["Levi",3,"b45627-CR68RyZmddGG.png",[1,13]],
-["Light Yagami",10,"b80-26EhwSsSqQ50.png",[12,13,20]],
-["Ling Yao",5,"b3293-2GiFTmLQnBw8.jpg",[11,13,18,20]],
-["Liz",6,"n131561-AuykLqIswUAe.jpg",[8]],
-["Lloyd Asplund",8,"b1130-0yBifno91R4e.png",[0,13]],
-["Lust",5,"b650-viEy6bOIcGiU.png",[8,11]],
-["Madara Uchiha",0,"b53901-HnRKSoHMG5Vg.png",[13,16]],
-["Maes Hughes",5,"b69-MRetSG8Qevvu.png",[0,13]],
-["Mail Jeevas",10,"n2730-SNbfxShpg90k.png",[13,20]],
-["Marco",1,"b9323-tGArly93xBZv.png",[0,1,13,17]],
-["Marco Bott",3,"b62479-mYcTkU1RXymL.jpg",[13,20]],
-["Margaret Liones",6,"b126382-dunkPEEp4rG3.png",[8,18]],
-["Maria Ross",5,"9319.jpg",[8]],
-["Marshall D. Teach",1,"b3331-7ZJDc4BNv9Yp.jpg",[0,13,17]],
-["May Chang",5,"15532.jpg",[2,8,11,18]],
-["Mayuri Kurotsuchi",2,"b1168-y2jsGtlJVv4z.png",[1,13]],
-["Melascula",6,"b126466-0BGdVrZnXGRB.png",[4,18]],
-["Meliodas",6,"b72921-XDHNd1wflN6P.png",[4,6,12,13]],
-["Meowth",11,"b3937-qBtTAn2SZqhB.png",[12,13]],
-["Merlin",6,"b89180-rN6OVPki8h3V.png",[8,11,18]],
-["Mihael Keehl",10,"b463-QBLeLf6XxVg6.png",[12,13,20]],
-["Mikasa Ackerman",3,"b40881-F3gr1PkreDvj.png",[8,12,20]],
-["Mike Zacharias",3,"71119.jpg",[1,13]],
-["Miles",5,"15540.jpg",[]],
-["Milly Ashford",8,"b1121-Y3ye9sw1u3Eh.jpg",[8,18,20]],
-["Minato Namikaze",0,"b2535-Xq9WKNPJQEt3.png",[0,4,13,16]],
-["Misa Amane",10,"b835-CiZa8y2z2gCz.png",[8,12]],
-["Misty",11,"b2909-wNDR5aaxwDdi.png",[8,12]],
-["Mizuki",4,"b144230-1r2cZyhAH9rH.png",[1,8]],
-["Monkey D. Luffy",1,"b40-MNypXsxSRb1R.png",[1,12,13,17,20]],
-["Monspeet",6,"n131572-WUWdiWoYR3eX.jpg",[4,13,18]],
-["Mosquito Musume",4,"n85797-meNMUnYKi3x4.png",[8]],
-["Nami",1,"b723-vp5hPptgnNEC.png",[8,12,17,20]],
-["Naomi Misora",10,"b4959-DKXw1VYrvael.png",[0,8]],
-["Naruto Uzumaki",0,"b17-phjcWCkRuIhu.png",[2,4,12,13,16]],
-["Nate River",10,"n464-6KeJpU6g7Hwj.jpg",[12,13,20]],
-["Nefertari Vivi",1,"b726-DqAIpscMuYYx.png",[8,17,18,20]],
-["Neji Hyuuga",0,"b1694-TL4obouDwJ7k.jpg",[13,16,20]],
-["Nelliel Tu Oderschvank",2,"b4730-zvzowqOHaQL2.png",[4,8,15,19]],
-["Nemu Kurotsuchi",2,"b3100-RTZLrbclOLRh.jpg",[1,8,14,19]],
-["Newgate Edward",1,"b2751-NnzW0N2vCTjX.jpg",[1,7,13,17]],
-["Niccolo",3,"b133218-G3SQp19jnFIJ.png",[13]],
-["Nico Robin",1,"b61-ywXUyyocEEqt.png",[0,8,12,17]],
-["Nina Tucker",5,"b4159-g0Q6tQ9SCq6R.jpg",[2,8,11]],
-["Nunnally Lamperouge",8,"b1110-TSlN2WkhDJ1T.png",[8,20]],
-["Oden Kouzuki",1,"b149797-UmdR7up3kgoK.png",[0,13,17]],
-["Olivier Mira Armstrong",5,"n3934-MKTV6tQeP8T3.png",[0,8,19]],
-["Onsoku no Sonic",4,"b74167-FE8EtGtHUM77.png",[0,13,16]],
-["Onyankopon",3,"b192909-81EoCndP0uEH.png",[]],
-["Orihime Inoue",2,"b7-JdR4betokDjR.jpg",[8,12,20]],
-["Orochimaru",0,"n2455-V9tLMS3TIgJW.png",[0,16]],
-["Pain",0,"b3180-ITMGBLWNBOgV.png",[13,16]],
-["Park Heejin",9,"b184538-4J5sRSFKNLGQ.png",[8]],
-["Perona",1,"b7467-0xxnaxQGfhkY.jpg",[0,1,4,8,17,18]],
-["Petra Ral",3,"n62501-CfTtAAgs64nE.jpg",[8]],
-["Pieck Finger",3,"b125603-Z2rgiHUGbAmY.png",[8]],
-["Pikachu",11,"b3891-edgrZOgCJ9do.jpg",[12]],
-["Pinako Rockbell",5,"b65-Yw7j20Y9uewh.png",[3,5,8]],
-["Porco Galliard",3,"b125662-an9dgh4LZ016.png",[13]],
-["Portgas D. Ace",1,"b2072-Lc6jEdsueJUK.jpg",[0,9,13]],
-["Professor Oak",11,"b17783-OwYJSOFjd91A.png",[13]],
-["Psyduck",11,"b136296-2N0Jp2pV8DeV.png",[]],
-["Puri-Puri Prisoner",4,"n86029-iomUtQtGfJOU.png",[0,13]],
-["Quillsh Wammy",10,"n2179-qF49l5qEurt5.png",[13]],
-["Quinella",7,"b123195-s4QPQ0OkqaKa.png",[8]],
-["Rakshata Chawla",8,"b1863-R3qPRdbXmLJ5.png",[0,3,8]],
-["Rangiku Matsumoto",2,"b904-bdfi2xqHicCj.png",[1,8,19]],
-["Rayleigh Silvers",1,"b17142-OXOpztWZIE2A.png",[1,7,13,17,18,19]],
-["Reiji Namikawa",10,"n1929-TYRt1UCHOS33.png",[0,13]],
-["Reiju Vinsmoke",1,"b127891-FSRMoIQeDyV8.png",[0,1,8,18]],
-["Reiner Braun",3,"b46484-P6A2GjNQn49F.png",[13,20]],
-["Rem",10,"n1905-9GfCvLFKNRLR.png",[8]],
-["Renji Abarai",2,"b906-ImRjx5HFM8X6.png",[12,13,19]],
-["Retsu Unohana",2,"b3845-B0r5OCEkdJOR.png",[1,8]],
-["Rico Brzenska",3,"b84707-b43XdPG1SCRK.jpg",[]],
-["Rika Shinozaki",7,"b43906-15QwTm2ZFDse.png",[8,19,20]],
-["Riruka Dokugamine",2,"b39609-uFe2eljvz1Sn.png",[8]],
-["Rivalz Cardemonde",8,"b1122-tzCSm261b2RP.png",[13,20]],
-["Riza Hawkeye",5,"b70-k4bCgDspyOdI.png",[8,10,11]],
-["Rock Lee",0,"b306-oUTOO45xInXt.png",[13,14,16]],
-["Roger Gold",1,"b4883-0t76xH00sehO.png",[0,13,17,18]],
-["Rolo Lamperouge",8,"b7771-yhQaoU3IXYk0.png",[13,18,20]],
-["Ronye Arabel",7,"b126746-ZplKwr6QbkeI.png",[8,19,20]],
-["Roronoa Zoro",1,"b62-S7oAeA9WInjV.png",[12,13,17,19,20]],
-["Rosinante Donquixote",1,"b120536-PxdNxEhQwE8d.png",[0,1,13,17]],
-["Roy Mustang",5,"b68-moBLY2WO2am3.png",[0,1,11,13]],
-["Rukia Kuchiki",2,"b6-25WoBeWMZXBc.png",[8,12,19]],
-["Ryoutarou Tsuboi",7,"b36830-41SWIDvhqOo4.png",[0,13,19]],
-["Ryuk",10,"b75-IkEpzO21LgFy.jpg",[12,13]],
-["Sabo",1,"b32893-3weZS61cdwLD.png",[9,13]],
-["Sachi",7,"b54777-MduA5ck1lJUy.png",[8]],
-["Sai",0,"b1901-vJRGRONNpaiG.jpg",[13,20]],
-["Saitama",4,"b73935-ON5d0mAcrItd.jpg",[0,12,13]],
-["Sakura Haruno",0,"b145-IorfpI8arxeX.png",[2,8,12,16]],
-["Sakuya",7,"73811.jpg",[19]],
-["Sanji",1,"b305-6lisPmHtCnLT.png",[12,13,17,20]],
-["Sasha Blouse",3,"b45887-QPtJH0KwqthW.jpg",[8,20]],
-["Sasori",0,"b1900-Dpd9wVWtlvIx.png",[0,13,16]],
-["Sasuke Uchiha",0,"b13-SISLEw1oAD7a.png",[2,12,13,16]],
-["Satoru",4,"b81935-NGDgB9J4MMlF.png",[13]],
-["Sayoko Shinozaki",8,"1807.jpg",[0,8]],
-["Sayu Yagami",10,"n8135-UgvqHuoMyZy5.png",[8,20]],
-["Scar",5,"b66-bLbGWXrmDqfV.png",[11,13]],
-["Scheta",7,"b171679-YBgNp87TURZv.jpg",[8,19]],
-["Schneizel el Britannia",8,"b1710-GA8qDtSsY4jN.png",[0,13,18]],
-["Selim Bradley",5,"10982.jpg",[11,18]],
-["Senjumaru Shutara",2,"b74361-xZVDAsxJmXJY.png",[8]],
-["Senkou no Flash",4,"b138981-74nPW2rXVews.png",[13,19]],
-["Shanks",1,"b727-wUJx7M1z5xON.png",[0,1,13,17]],
-["Shao May",5,"23338.jpg",[14]],
-["Sheska",5,"n8452-AgUmfwiJVcSD.png",[8]],
-["Shikamaru Nara",0,"b2007-QaesJlIZDifj.jpg",[13,16,20]],
-["Shinji Hirako",2,"b1084-36qzqGdvxVLI.jpg",[1,13]],
-["Shino Asada",7,"b55147-1fCU8lONEuZQ.png",[8,10,12,20]],
-["Shinri",5,"n33816-OcXhUl3PYzJo.png",[11]],
-["Shirley Fenette",8,"b1120-hjOjinw5j4FE.png",[8,20]],
-["Shisui Uchiha",0,"b22893-j0SxfY656SKv.jpg",[13]],
-["Shuuhei Hisagi",2,"b1095-0vUC9qW8qXey.png",[1,13,19]],
-["Shuuichi Aizawa",10,"n3767-pSbmazo2I7ZD.png",[0,13]],
-["Sin Sang",9,"b210102-R479fvXo78Zn.png",[]],
-["Smoker",1,"b2753-Y2ja8Pl6PRs0.jpg",[0,1,13]],
-["Snorlax",11,"b177037-VAWVNfkeSEpZ.png",[]],
-["Soi Fon",2,"b905-zKwCoIRiYJSr.png",[1,8,14]],
-["Solf Kimblee",5,"b6590-HIiNVX4XVFom.jpg",[11,13]],
-["Sortiliena Serlut",7,"n131082-zJ5AbyVbXZUI.png",[19]],
-["Souichirou Yagami",10,"b1927-iaIWrFITyeJw.jpg",[0,13]],
-["Sousuke Aizen",2,"b1086-qR9218BjZTC0.png",[1,13,19]],
-["Squirtle",11,"b181415-PDKBuX4s07HF.png",[]],
-["Stephen Loud",10,"n3770-tvFv3ulGAmjt.png",[13]],
-["Suguha Kirigaya",7,"b36831-JfyFU7gPPVmr.png",[8,12,20]],
-["Suiryu",4,"b132939-DLMpET3S5YG6.png",[13,14]],
-["Sung Jinah",9,"b138791-IngjgBQqGMWc.png",[8]],
-["Sung Jinwoo",9,"b129928-BCEjVaP0AQSw.png",[0,11,12,13]],
-["Suzaku Kururugi",8,"b559-KRvTdc6zdCuU.jpg",[12,13,20]],
-["Tank",9,"b184545-zoRmBPp8l7Mi.png",[]],
-["Tatsumaki",4,"b81929-WPVp2LQoWgkc.png",[0,8]],
-["Temari",0,"b2174-XTX0TtzkZCnO.png",[8,16,20]],
-["Tenten",0,"b3710-OmDNYKi0Xfjk.png",[8,16,20]],
-["Teru Mikami",10,"n1904-xKw2NgiE6VbU.jpg",[0,13]],
-["Thomas Andre",9,"b184540-JNscGAnjHExA.png",[13]],
-["Tier Harribel",2,"b3217-WahxtOqdRxJq.png",[4,8,15,18]],
-["Tiese Shtolienen",7,"b131080-OyTmgsDa2V2s.png",[8,19,20]],
-["Tobi",0,"b3149-j6cl8A9yup51.png",[0,13,16]],
-["Tobirama Senju",0,"n12465-y8ByDAvzC5cA.png",[13,16]],
-["Togepi",11,"b53521-5reh4aWyEZfN.png",[12]],
-["Tomo Hosaka",7,"b66645-Np9FjjBajBkd.jpg",[8,14,19]],
-["Tony Tony Chopper",1,"b309-H64NhbJ2ywIQ.jpg",[5,12,13,17,20]],
-["Toushirou Hitsugaya",2,"b245-buy3Cfn6IFSB.jpg",[1,13,19]],
-["Touta Matsuda",10,"n1906-JCWKEGGook3Z.png",[13]],
-["Trafalgar Law",1,"b13767-U604OJN9dxCn.jpg",[0,1,13,16,17]],
-["Tsunade Senju",0,"b2767-r61Cj9v8I0wl.png",[0,8]],
-["Tusk",9,"b184957-b9X1TeiuteqR.png",[]],
-["Ulquiorra Cifer",2,"b1081-xLTqHfLL2I2W.png",[4,9,13]],
-["Uryuu Ishida",2,"b564-a6LJitrjSfKC.jpg",[12,13,20]],
-["Usopp",1,"b724-GFGgI9AJQkfy.jpg",[10,12,13,17,20]],
-["Uta",1,"b270493-pviD8gBS5BXW.png",[0,8]],
-["Van Hohenheim",5,"b9792-YA8kiO4NjmGL.jpg",[11,13,15]],
-["Veronica Liones",6,"86691-juwtWAV3MumS.png",[8,18,19]],
-["Villetta Nu",8,"b1117-Zc6IwzGMj4Qy.png",[0,8]],
-["Winry Rockbell",5,"63-xloedtYxiJ2E.jpg",[3,8,20]],
-["Woo Jinchul",9,"b136819-okbPuuFAefYX.png",[13]],
-["Xingke Li",8,"b11166-FLEJh0viRLwm.png",[13,18,19]],
-["Yachiru Kusajishi",2,"b910-cAC9g4i208Ou.png",[1,8]],
-["Yamato",0,"b2006-FTCz2Eu3cXsI.png",[0,13]],
-["Yamato",1,"b176840-8KRqXXLJeLOg.png",[0,13,16,17]],
-["Yasutora Sado",2,"575.jpg",[12,13,20]],
-["Yelena",3,"b133216-HKl61n4F7eYv.png",[8]],
-["Yhwach",2,"b68537-1bRB5OdseCp0.jpg",[13,18]],
-["Ymir",3,"b71479-huCD908XIdqv.png",[8]],
-["Yoo Jinho",9,"b136076-D7eiE3pA9U8g.jpg",[0,13]],
-["Yoruichi Shihouin",2,"b908-JSYUkJLCw1f0.png",[1,8]],
-["Yui",7,"b43892-Ig6ZMdUbQDO2.jpg",[8,19]],
-["Yuuki Konno",7,"b64523-LPeAiw8Yx517.jpg",[8,12,20]],
-["Zabuza Momochi",0,"b728-zHw77BzLzQKT.jpg",[4,13,16,19]],
-["Zangetsu",2,"b911-KgzOcvf4jhOh.png",[13,19]],
-["Zeke",3,"b125661-FiqFvAtNlL0v.png",[0,13]],
-["Zeldris",6,"b131559-MmROAidOkGqL.jpg",[4,13,18]],
-["Zombieman",4,"n133835-7dbqvi4YzpRC.png",[13]]
+["Akamaru",0,"n4799-gwSQJlSqWnST.png",[],[5,6,9],33],
+["Akihiko Kayaba",7,"b36829-X5zITNEQ7xij.png",[0,14],[5,9,12],188],
+["Alex Louis Armstrong",5,"b2079-RnhPS44vyqpJ.jpg",[8],[5,9],148],
+["Alice Zuberg",7,"b75450-vDO1lQup1pe7.jpg",[14],[1,4],177],
+["Alphonse Elric",5,"b12-tCKu8yK5kFL5.jpg",[8,15],[4,5],140],
+["Andrew Gilbert Mills",7,"54099.jpg",[],[5,9],187],
+["Annie Leonhart",3,"b46490-tan274Ifc1Jf.jpg",[15],[1,9,12],108],
+["Armin Arlert",3,"b46494-g7xYYuBtYPnO.png",[15],[4,5,10],101],
+["Arthur Pendragon",6,"b122210-l6g1EMCf5NdE.png",[13,14],[5,7,9],168],
+["Ash Ketchum",11,"b2473-JDoo3I82Km4l.png",[2],[4,5],224],
+["Asuna Yuuki",7,"b36828-j5ib0adAzGMx.png",[14,15],[1,4],174],
+["Bad",4,"b89156-kGKJyhWnCTHy.png",[3,4,15],[5,9],131],
+["Baek Yoonho",9,"b136077-IIMqRmMK5Fgs.png",[],[5,9],210],
+["Ban",6,"b77605-NrjhQwZwgJ3l.png",[0],[4,5,11],158],
+["Bang",4,"n81141-1ml7Q6X2B508.png",[5,9],[5,9],133],
+["Banken Man",4,"b86027-g3kRrv9jewmz.png",[],[5,9],135],
+["Bentham",1,"n4875-Ga2TVjP70R6r.png",[0,9],[5,9],56],
+["Bercouli",7,"b126740-BQk6zlwPE7Kn.png",[14],[5,9],186],
+["Bertolt Hoover",3,"b46488-wm6HvkdkHoZu.jpg",[15],[5,9,12],116],
+["Beru",9,"b159849-p0Szb7KzD2DD.png",[13],[5,6,9],204],
+["Boa Hancock",1,"b16342-kVOF6V5Q94go.png",[0,1,12,13],[1,7,9],45],
+["Boros-sama",4,"n89263-GPItRQ64F27D.png",[4,12],[5,6,9,12],136],
+["Brook",1,"b5627-av8oD3zhKvDl.png",[5,12,14],[4,5,6,8],44],
+["Buggy",1,"n725-g04AaiaK5f9B.png",[0,12,14],[5,9],57],
+["Bulbasaur",11,"b177038-GJvYbR5PhCaE.png",[],[6,9],228],
+["Byakuya Kuchiki",2,"b907-kgnDKeMtEN5y.png",[1,14],[2,5,9],77],
+["C.C.",8,"b1111-UhmlFtRFrnWa.png",[],[1,4],190],
+["Cha Hae-In",9,"b138789-AhE8m0LWjE7E.png",[0,14],[1,9],202],
+["Charizard",11,"b180037-u3b2oiaWdfAm.png",[6],[6,9],226],
+["Choi Jongin",9,"b138794-dZNdO0pvZ659.png",[],[5,9],212],
+["Connie Springer",3,"n46486-izhPjzut6WCZ.png",[15],[5,9,10],113],
+["Cornelia li Britannia",8,"b797-lrtrQEESbWVa.jpg",[0,13],[1,7,9],196],
+["Coyote Starrk",2,"b3212-F5qZe4NWlZq9.png",[3,10,14],[5,6,9],96],
+["Crocodile",1,"b2749-e8ebEBN1SlS2.png",[0],[5,9,12],59],
+["Deidara",0,"b1902-JsEFRFwjmtZJ.png",[11,15],[0,5,9,12],20],
+["Derieri",6,"b131566-2v1OVoEuhaiA.jpg",[3,13],[1,6,9,12],172],
+["Diane",6,"b74653-XpMcsLVZBnkZ.jpg",[],[1,4,6,11],162],
+["Doflamingo Donquixote",1,"b2754-B4gGSlNYgsyh.jpg",[0,12],[5,9,12],46],
+["Dot Pixis",3,"b62485-I0U5Cat3z65K.png",[],[5,9],119],
+["Dracule Mihawk",1,"n2064-OpnF4nLi6bvL.png",[0,6,14],[5,9],53],
+["Edward Elric",5,"b11-TA5Nuk7EDUZG.jpg",[8,9,14,15],[4,5],138],
+["Elaine",6,"86681-6kx3mfwNhraK.png",[13],[1,6,9],169],
+["Elizabeth Liones",6,"b72923-Hidpb955mwMW.png",[1,13,15],[1,4,7],163],
+["Envy",5,"b651-S4mzVOTMzej6.png",[5,8],[5,6,9,12],149],
+["Eren Yeager",3,"b40882-dsj7IP943WFF.jpg",[15],[4,5,10],99],
+["Erwin Smith",3,"b46496-Mu86MENd5wNB.png",[1],[5,9,10],103],
+["Escanor",6,"b90202-1H7FIX2hDmYd.png",[0],[4,5,11],160],
+["Esil Radiru",9,"b164675-ZrAxmOOwGSa6.png",[3],[1,6,9],205],
+["Estarossa",6,"b126851-m1Vyj4V0IHNo.jpg",[3,13],[5,6,9,12],173],
+["Eugeo",7,"b70899-TwMq5mtH5ifc.jpg",[14,15],[4,5],178],
+["Euphemia li Britannia",8,"b1114-rjYGsn8O6ZhE.png",[13,15],[1,7,9],194],
+["Falco Grice",3,"b125660-mrmpOJLjJIkv.jpg",[2],[4,5],114],
+["Floch Forster",3,"b127703-qNIccR0yPZKu.png",[],[5,9,10],117],
+["Franky",1,"n64-ChX6ZzHHjXqA.png",[0,12],[4,5,8],48],
+["Fubuki",4,"b81931-fmouMoprPVbV.png",[0],[1,9],128],
+["Gaara",0,"b1662-4E5J0LX9jZKZ.png",[2,11],[5,9],5],
+["Gabi Braun",3,"b125659-O37MZQWibV7g.png",[15],[1,4],104],
+["Garou",4,"b89277-xBGb4B5YISXg.png",[15],[5,9,12],127],
+["Garp",1,"b8064-dPltKaZ8RAsj.jpg",[1,4,5,12,13],[5,9],65],
+["Genos",4,"b73979-tVi9maPID881.jpg",[15],[4,5],126],
+["Genryuusai Yamamoto",2,"b5726-mO7kc8Abka9J.jpg",[1,6,14],[2,5,9],95],
+["Gilthunder",6,"b74285-qGwNsXKYRPcC.png",[0],[5,9],167],
+["Gin Ichimaru",2,"b1087-wMTny26FezYB.png",[1,14],[2,5,9,12],81],
+["Go Gunhee",9,"b138792-TXFrDA1wpbmo.png",[7],[5,9],208],
+["Gowther",6,"b88823-Oppzl2h6OhO8.png",[],[4,5,6,11],165],
+["Greed",5,"b351-XMQzTuMy2Xtn.jpg",[],[5,6,9],144],
+["Grimmjow Jaegerjaquez",2,"b1080-JUNo2Or0UGZg.jpg",[3],[5,6,9,12],75],
+["Grisha Yeager",3,"b62477-3AHBGul9bXK8.jpg",[0],[5,9],121],
+["Guy Might",0,"b307-xieUEdhdTVwQ.png",[0],[5,9],15],
+["Haku",0,"b2039-9NXBvh6H15LD.png",[11,15],[5,9],28],
+["Hange Zoe",3,"b71121-7R7CnQd3lHgt.png",[1],[9,10],102],
+["Hashirama Senju",0,"n12464-fcgqkCPZoREw.png",[11],[3,5,9],26],
+["Hawk",6,"n86683-ZXPoLZnKqNtx.png",[15],[4,5,6],166],
+["Hinata Hyuuga",0,"b1555-Q41GLTV3FvYF.png",[11,15],[1,9],8],
+["Hitch Dreyse",3,"b86017-m6vXFRKWMwUo.jpg",[],[1,9],122],
+["Ichigo Kurosaki",2,"b5-a7bkJgjhhigE.png",[14,15],[4,5],68],
+["Igris",9,"b145722-qSJ71S6vpeeM.png",[],[5,6,9],203],
+["Ikkaku Madarame",2,"b1151-izBrO6oWMvDv.png",[1,14],[5,9],92],
+["Ino Yamanaka",0,"b2009-H7n38Ns1fr0Y.jpg",[2],[1,9],27],
+["Itachi Uchiha",0,"b14-9Kb1E5oel1ke.png",[11,15],[0,5,9],0],
+["Izumi Curtis",5,"b67-ggB3aC6DzQqB.png",[0,8,9],[1,9],152],
+["Jean Havoc",5,"n4685-9uloq4hxlcTw.png",[7],[5,9],157],
+["Jean Kirstein",3,"b46498-ritqAj9FW6jX.png",[15],[5,9,10],107],
+["Jeremiah Gottwald",8,"b1113-HxXUV4z4jhvZ.png",[0],[5,9],195],
+["Jericho",6,"86699-oRLKbh6x7ijB.jpg",[],[1,9],171],
+["Jinbe",1,"b18938-yZANEfjsVhW4.png",[0,1,12],[4,5,8],49],
+["Jiraiya",0,"b2423-RO5MyoXSA9OL.png",[0,11],[5,9],7],
+["Jirou Souzousa Shunsui Kyouraku",2,"b1088-6oO10CmxZ1lP.jpg",[1],[2,5,9],79],
+["Kakashi Hatake",0,"b85-mkVBh2yjxjmx.png",[0,11],[3,4,5],1],
+["Kallen Stadtfeld",8,"b558-8tSMZ4a0LWrn.jpg",[10,15],[1,4],192],
+["Katakuri Charlotte",1,"b124077-TODX2ThCdyx2.png",[0,12],[5,9],51],
+["Kazuto Kirigaya",7,"b36765-BnLbXg0Tzzh9.png",[13,14,15],[4,5],175],
+["Keiko Ayano",7,"b37681-GDtOAN6NiJ9M.jpg",[2,4],[1,9],184],
+["Kenny Ackerman",3,"127443-aVMXGOchpsvj.png",[1],[5,9,12],118],
+["Kenpachi Zaraki",2,"b909-slhoFBon7oiH.jpg",[1,14],[2,5,9],73],
+["Kiba Inuzuka",0,"n3495-dtw0gHa5SOo6.png",[2,11],[5,9],32],
+["King",4,"n88907-M7QLjYvp2LEp.png",[0],[5,9],132],
+["King",6,"b83801-52RnDXQDZ1I7.png",[13],[4,5,6,11],161],
+["King Bradley",5,"b5103-jnflrjKevO3z.png",[0,8,13],[5,6,9,12],151],
+["Kisuke Urahara",2,"b210-mw01NrQfRjzT.png",[14],[2,5,9],69],
+["Kon",2,"1089.jpg",[],[5,6,9],94],
+["Konan",0,"3179-YVD5zJSYrnPg.jpg",[0,11],[0,1,9],23],
+["Krista Lenz",3,"b62481-ZZDa7vn17lMU.png",[15],[1,9,10],109],
+["Kuma Bartholomew",1,"b7453-c3MArieFBs9w.png",[0,12],[5,9],61],
+["Kurama",0,"b7407-D8MYzhbuy8zu.jpg",[3,13],[5,6,9],22],
+["Kushina Uzumaki",0,"b7302-KQ6ddZtOkvUf.png",[0,11],[1,9],25],
+["Kuzan",1,"b2752-0ENS2a39muDz.png",[0],[5,9],60],
+["L Lawliet",10,"b71-1W4panC53vfs.png",[0,10],[4,5],213],
+["Lan Fan",5,"b3292-aK72k3syf1qP.png",[14],[1,9],153],
+["Lee Joohee",9,"b136074-pLyumEnxjL7P.png",[],[1,9],206],
+["Lelouch Lamperouge",8,"b417-gVLmIJu9phcK.png",[15],[4,5,7],189],
+["Levi",3,"b45627-CR68RyZmddGG.png",[1],[5,9,10],98],
+["Light Yagami",10,"b80-26EhwSsSqQ50.png",[15],[4,5],214],
+["Ling Yao",5,"b3293-2GiFTmLQnBw8.jpg",[8,13,15],[5,9],143],
+["Lloyd Asplund",8,"b1130-0yBifno91R4e.png",[0],[5,9],198],
+["Lust",5,"b650-viEy6bOIcGiU.png",[8],[1,6,9,12],154],
+["Madara Uchiha",0,"b53901-HnRKSoHMG5Vg.png",[11],[5,9,12],11],
+["Maes Hughes",5,"b69-MRetSG8Qevvu.png",[0],[5,9],145],
+["Mail Jeevas",10,"n2730-SNbfxShpg90k.png",[15],[5,9],223],
+["Marco Bott",3,"b62479-mYcTkU1RXymL.jpg",[15],[5,9],123],
+["May Chang",5,"15532.jpg",[2,8,13],[1,9],156],
+["Mayuri Kurotsuchi",2,"b1168-y2jsGtlJVv4z.png",[1],[2,5,9],89],
+["Meliodas",6,"b72921-XDHNd1wflN6P.png",[3,4],[4,5,6,11],159],
+["Merlin",6,"b89180-rN6OVPki8h3V.png",[8,13],[1,9,11],164],
+["Mihael Keehl",10,"b463-QBLeLf6XxVg6.png",[15],[4,5],217],
+["Mikasa Ackerman",3,"b40881-F3gr1PkreDvj.png",[15],[1,4,10],100],
+["Minato Namikaze",0,"b2535-Xq9WKNPJQEt3.png",[0,3,11],[3,5,9],6],
+["Misa Amane",10,"b835-CiZa8y2z2gCz.png",[],[1,4],216],
+["Monkey D. Luffy",1,"b40-MNypXsxSRb1R.png",[1,12,15],[4,5,8],34],
+["Nami",1,"b723-vp5hPptgnNEC.png",[12,15],[1,4,8],39],
+["Naomi Misora",10,"b4959-DKXw1VYrvael.png",[0],[1,9],222],
+["Naruto Uzumaki",0,"b17-phjcWCkRuIhu.png",[2,3,11],[3,4,5],2],
+["Nate River",10,"n464-6KeJpU6g7Hwj.jpg",[15],[4,5],218],
+["Nefertari Vivi",1,"b726-DqAIpscMuYYx.png",[12,13,15],[1,7,9],58],
+["Neji Hyuuga",0,"b1694-TL4obouDwJ7k.jpg",[11,15],[5,9],14],
+["Nelliel Tu Oderschvank",2,"b4730-zvzowqOHaQL2.png",[3,10,14],[1,6,9],85],
+["Nemu Kurotsuchi",2,"b3100-RTZLrbclOLRh.jpg",[1,9,14],[1,6,9],97],
+["Newgate Edward",1,"b2751-NnzW0N2vCTjX.jpg",[1,5,12],[5,9],47],
+["Nico Robin",1,"b61-ywXUyyocEEqt.png",[0,12],[1,4,8],37],
+["Nunnally Lamperouge",8,"b1110-TSlN2WkhDJ1T.png",[15],[1,7,9],197],
+["Oden Kouzuki",1,"b149797-UmdR7up3kgoK.png",[0,12],[5,9],66],
+["Olivier Mira Armstrong",5,"n3934-MKTV6tQeP8T3.png",[0,14],[1,9],147],
+["Onsoku no Sonic",4,"b74167-FE8EtGtHUM77.png",[0,11],[5,9],129],
+["Orihime Inoue",2,"b7-JdR4betokDjR.jpg",[15],[1,4],78],
+["Orochimaru",0,"n2455-V9tLMS3TIgJW.png",[0,11],[5,9,12],17],
+["Pain",0,"b3180-ITMGBLWNBOgV.png",[11],[0,5,9,12],9],
+["Perona",1,"b7467-0xxnaxQGfhkY.jpg",[0,1,3,12,13],[1,9],55],
+["Petra Ral",3,"n62501-CfTtAAgs64nE.jpg",[],[1,9,10],120],
+["Pieck Finger",3,"b125603-Z2rgiHUGbAmY.png",[],[1,9],112],
+["Pikachu",11,"b3891-edgrZOgCJ9do.jpg",[],[4,6],225],
+["Portgas D. Ace",1,"b2072-Lc6jEdsueJUK.jpg",[0,6],[5,9],40],
+["Puri-Puri Prisoner",4,"n86029-iomUtQtGfJOU.png",[0],[5,9],137],
+["Quinella",7,"b123195-s4QPQ0OkqaKa.png",[],[1,9,12],185],
+["Rangiku Matsumoto",2,"b904-bdfi2xqHicCj.png",[1,14],[1,9],84],
+["Rayleigh Silvers",1,"b17142-OXOpztWZIE2A.png",[1,5,12,13,14],[5,9],62],
+["Reiner Braun",3,"b46484-P6A2GjNQn49F.png",[15],[5,9,12],106],
+["Rem",10,"n1905-9GfCvLFKNRLR.png",[],[1,6,9],220],
+["Renji Abarai",2,"b906-ImRjx5HFM8X6.png",[14],[4,5],82],
+["Retsu Unohana",2,"b3845-B0r5OCEkdJOR.png",[1],[1,2,9],88],
+["Rika Shinozaki",7,"b43906-15QwTm2ZFDse.png",[14,15],[1,9],183],
+["Riza Hawkeye",5,"b70-k4bCgDspyOdI.png",[7,8],[1,9],142],
+["Rock Lee",0,"b306-oUTOO45xInXt.png",[9,11],[5,9],10],
+["Roger Gold",1,"b4883-0t76xH00sehO.png",[0,12,13],[5,9],64],
+["Rolo Lamperouge",8,"b7771-yhQaoU3IXYk0.png",[13,15],[5,9],200],
+["Roronoa Zoro",1,"b62-S7oAeA9WInjV.png",[12,14,15],[4,5,8],35],
+["Rosinante Donquixote",1,"b120536-PxdNxEhQwE8d.png",[0,1,12],[5,9],50],
+["Roy Mustang",5,"b68-moBLY2WO2am3.png",[0,1,8],[5,9],139],
+["Rukia Kuchiki",2,"b6-25WoBeWMZXBc.png",[14],[1,4],70],
+["Ryoutarou Tsuboi",7,"b36830-41SWIDvhqOo4.png",[0,14],[5,9],182],
+["Ryuk",10,"b75-IkEpzO21LgFy.jpg",[],[4,5,6],215],
+["Sabo",1,"b32893-3weZS61cdwLD.png",[6],[5,9],52],
+["Sai",0,"b1901-vJRGRONNpaiG.jpg",[15],[5,9],24],
+["Saitama",4,"b73935-ON5d0mAcrItd.jpg",[0],[4,5],124],
+["Sakura Haruno",0,"b145-IorfpI8arxeX.png",[2,11],[1,4],12],
+["Sanji",1,"b305-6lisPmHtCnLT.png",[12,15],[4,5,8],36],
+["Sasha Blouse",3,"b45887-QPtJH0KwqthW.jpg",[15],[1,9,10],105],
+["Sasori",0,"b1900-Dpd9wVWtlvIx.png",[0,11],[0,5,9,12],21],
+["Sasuke Uchiha",0,"b13-SISLEw1oAD7a.png",[2,11],[4,5],3],
+["Satoru",4,"b81935-NGDgB9J4MMlF.png",[],[5,9],130],
+["Scar",5,"b66-bLbGWXrmDqfV.png",[8],[5,9],146],
+["Shanks",1,"b727-wUJx7M1z5xON.png",[0,1,12],[5,9],43],
+["Shikamaru Nara",0,"b2007-QaesJlIZDifj.jpg",[11,15],[5,9],4],
+["Shinji Hirako",2,"b1084-36qzqGdvxVLI.jpg",[1],[2,5,9],80],
+["Shino Asada",7,"b55147-1fCU8lONEuZQ.png",[7,15],[1,4],176],
+["Shirley Fenette",8,"b1120-hjOjinw5j4FE.png",[15],[1,9],191],
+["Shisui Uchiha",0,"b22893-j0SxfY656SKv.jpg",[],[5,9],29],
+["Shuuhei Hisagi",2,"b1095-0vUC9qW8qXey.png",[1,14],[5,9],91],
+["Smoker",1,"b2753-Y2ja8Pl6PRs0.jpg",[0,1],[5,9],63],
+["Soi Fon",2,"b905-zKwCoIRiYJSr.png",[1,9],[1,2,9],86],
+["Solf Kimblee",5,"b6590-HIiNVX4XVFom.jpg",[8],[5,9,12],155],
+["Sousuke Aizen",2,"b1086-qR9218BjZTC0.png",[1,14],[2,5,9,12],72],
+["Squirtle",11,"b181415-PDKBuX4s07HF.png",[],[6,9],227],
+["Suguha Kirigaya",7,"b36831-JfyFU7gPPVmr.png",[15],[1,4],181],
+["Sung Jinah",9,"b138791-IngjgBQqGMWc.png",[],[1,9],207],
+["Sung Jinwoo",9,"b129928-BCEjVaP0AQSw.png",[0,8],[4,5],201],
+["Suzaku Kururugi",8,"b559-KRvTdc6zdCuU.jpg",[15],[4,5],193],
+["Tatsumaki",4,"b81929-WPVp2LQoWgkc.png",[0],[1,9],125],
+["Temari",0,"b2174-XTX0TtzkZCnO.png",[11,15],[1,9],19],
+["Tenten",0,"b3710-OmDNYKi0Xfjk.png",[11,15],[1,9],31],
+["Teru Mikami",10,"n1904-xKw2NgiE6VbU.jpg",[0],[5,9,12],221],
+["Tobi",0,"b3149-j6cl8A9yup51.png",[0,11],[0,5,9,12],13],
+["Tobirama Senju",0,"n12465-y8ByDAvzC5cA.png",[11],[3,5,9],30],
+["Tony Tony Chopper",1,"b309-H64NhbJ2ywIQ.jpg",[12,15],[4,5,6,8],41],
+["Toushirou Hitsugaya",2,"b245-buy3Cfn6IFSB.jpg",[1,14],[2,5,9],76],
+["Touta Matsuda",10,"n1906-JCWKEGGook3Z.png",[],[5,9],219],
+["Trafalgar Law",1,"b13767-U604OJN9dxCn.jpg",[0,1,11,12],[5,9],38],
+["Tsunade Senju",0,"b2767-r61Cj9v8I0wl.png",[0],[1,3,9],16],
+["Ulquiorra Cifer",2,"b1081-xLTqHfLL2I2W.png",[3,6],[5,6,9,12],74],
+["Uryuu Ishida",2,"b564-a6LJitrjSfKC.jpg",[15],[4,5],83],
+["Usopp",1,"b724-GFGgI9AJQkfy.jpg",[7,12,15],[4,5,8],42],
+["Uta",1,"b270493-pviD8gBS5BXW.png",[0],[1,9],67],
+["Van Hohenheim",5,"b9792-YA8kiO4NjmGL.jpg",[8,10],[5,9],150],
+["Villetta Nu",8,"b1117-Zc6IwzGMj4Qy.png",[0],[1,9],199],
+["Winry Rockbell",5,"63-xloedtYxiJ2E.jpg",[15],[1,9],141],
+["Woo Jinchul",9,"b136819-okbPuuFAefYX.png",[],[5,9],211],
+["Yachiru Kusajishi",2,"b910-cAC9g4i208Ou.png",[1],[1,9],93],
+["Yamato",1,"b176840-8KRqXXLJeLOg.png",[0,11,12],[5,9],54],
+["Yasutora Sado",2,"575.jpg",[15],[4,5],87],
+["Yelena",3,"b133216-HKl61n4F7eYv.png",[],[1,9,12],115],
+["Ymir",3,"b71479-huCD908XIdqv.png",[],[1,9,10],110],
+["Yoo Jinho",9,"b136076-D7eiE3pA9U8g.jpg",[0],[5,9],209],
+["Yoruichi Shihouin",2,"b908-JSYUkJLCw1f0.png",[1],[1,9],71],
+["Yui",7,"b43892-Ig6ZMdUbQDO2.jpg",[14],[1,6,9],180],
+["Yuuki Konno",7,"b64523-LPeAiw8Yx517.jpg",[15],[1,4],179],
+["Zabuza Momochi",0,"b728-zHw77BzLzQKT.jpg",[3,11,14],[5,9,12],18],
+["Zangetsu",2,"b911-KgzOcvf4jhOh.png",[14],[5,6,9],90],
+["Zeke",3,"b125661-FiqFvAtNlL0v.png",[0],[5,9,12],111],
+["Zeldris",6,"b131559-MmROAidOkGqL.jpg",[3,13],[5,6,7,9,12],170],
+["Zombieman",4,"n133835-7dbqvi4YzpRC.png",[],[5,9],134]
 ];
+/* ROSTER-END */
 
 const CDN   = 'https://s4.anilist.co/file/anilistcdn/character/';
 const thumb = s => CDN + 'medium/' + s;
@@ -746,62 +636,137 @@ const esc = s => String(s == null ? '' : s)
   .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
 const tIdx = n => TRAITS.indexOf(n);
-const sIdx = n => SHOWS.indexOf(n);
-const HAY = CHARS.map(c =>
-  (c[0] + ' ' + SHOWS[c[1]] + ' ' + c[3].map(i => TRAITS[i]).join(' ')).toLowerCase());
+const fIdx = n => FACTS.indexOf(n);
+const HAY = CHARS.map(c => (c[0] + ' ' + SHOWS[c[1]] + ' ' +
+  c[3].map(i => TRAITS[i]).join(' ') + ' ' + c[4].map(i => FACTS[i]).join(' ')).toLowerCase());
+// letters only, so "L Lawliet" and "C.C." behave sensibly in name rules
+const bare = s => s.toLowerCase().replace(/[^a-z]/g, '');
 
 /* ---------------------------------------------------------------- categories
    Every category is a plain predicate over a character row, which is what lets
    the solo opponent answer honestly and reason about yours by elimination.
-   Keep them decidable — no "is cool", nothing needing taste. */
+
+   Two hard rules, both learned the hard way:
+     1. Only FACTS, series, popularity rank and the name itself may back a
+        category — never a mined TRAIT. Mined data is full of holes, and a hole
+        becomes a wrong answer rather than a missing one.
+     2. Every category carries a `desc` spelling out exactly what counts, so
+        nobody has to guess where the edge of a rule sits. */
 function buildCats(){
   const out = [];
-  const add = (group, label, test) => out.push({ id: 'c' + out.length, group, label, test });
+  const add = (group, label, desc, test) =>
+    out.push({ id: 'c' + out.length, group, label, desc, test });
 
-  SHOWS.forEach((s, i) => add('Series', 'Is from ' + s, c => c[1] === i));
+  SHOWS.forEach((s, i) =>
+    add('Series', 'Is from ' + s, 'Any character whose series is ' + s + '.', c => c[1] === i));
 
-  const T = (label, name) => { const i = tIdx(name); if (i >= 0) add('Who they are', label, c => c[3].includes(i)); };
-  T('Is female', 'FEMALE');
-  T('Is male', 'MALE');
-  T('Is a main character', 'MAIN CHARACTER');
-  T('Is a teenager', 'TEEN');
-  T('Is a grown adult', 'ADULT');
-  T('Is royalty', 'ROYALTY');
-  T('Leads people — captain or commander', 'CAPTAIN');
-  T('Is a ninja', 'NINJA');
-  T('Is a pirate', 'PIRATE');
-  T('Is a demon or hollow', 'DEMON');
+  const F = (group, label, desc, name) => {
+    const i = fIdx(name);
+    if (i >= 0) add(group, label, desc, c => c[4].includes(i));
+  };
+  F('Who they are', 'Is female', 'Canonically female.', 'FEMALE');
+  F('Who they are', 'Is male', 'Canonically male.', 'MALE');
+  F('Who they are', 'Is a main character',
+    'Billed as a main character rather than supporting.', 'MAIN CHARACTER');
+  F('Who they are', 'Is a supporting character',
+    'Billed as supporting rather than a main character.', 'SUPPORTING CHARACTER');
+  F('Who they are', 'Is not human',
+    'Not a human being — creatures, Hollows, homunculi, Shinigami, shadows and Pokémon. ' +
+    'Soul Reapers count as human souls, and cyborgs who started out human stay human.', 'NOT HUMAN');
+  F('Who they are', 'Is a villain',
+    'A clear-cut antagonist. Characters the fandom argues about — Light, Greed, Lelouch — are left out on purpose.', 'VILLAIN');
+  F('Who they are', 'Is royalty',
+    'A prince, princess, king, queen or the equivalent in their world.', 'ROYALTY');
 
-  const P = (label, name) => { const i = tIdx(name); if (i >= 0) add('Powers & gear', label, c => c[3].includes(i)); };
-  P('Fights with a sword', 'SWORD');
-  P('Uses magic or alchemy', 'MAGIC');
-  P('Wields fire', 'FIRE');
-  P('Wears a mask', 'MASK');
-  P('Fights hand to hand', 'MARTIAL ARTS');
-  P('Is part machine', 'CYBORG');
+  F('Who they run with', 'Is a Straw Hat Pirate',
+    'A sworn member of Luffy\'s crew.', 'STRAW HAT');
+  F('Who they run with', 'Is in the Akatsuki',
+    'A member of the Akatsuki.', 'AKATSUKI');
+  F('Who they run with', 'Has been Hokage',
+    'Has held the office of Hokage at some point.', 'HOKAGE');
+  F('Who they run with', 'Is a Gotei 13 captain',
+    'Captain of one of the thirteen court guard squads, past or present.', 'GOTEI CAPTAIN');
+  F('Who they run with', 'Is in the Survey Corps',
+    'Served in the Survey Corps.', 'SURVEY CORPS');
+  F('Who they run with', 'Is one of the Seven Deadly Sins',
+    'One of the seven — not merely allied with them.', 'THE SEVEN SINS');
 
-  // Name rules are perfectly decidable, so they make clean, fair categories.
-  add('Name games', 'Name starts with a vowel', c => /^[aeiou]/i.test(c[0]));
-  add('Name games', 'Goes by a single name', c => !/\s/.test(c[0].trim()));
-  add('Name games', 'Full name is 14+ characters', c => c[0].length >= 14);
-  add('Name games', 'Name has a double letter', c => /(.)\1/i.test(c[0].replace(/\s/g, '')));
-  add('Name games', 'Name starts with A through J', c => /^[a-j]/i.test(c[0]));
-  add('Name games', 'Name ends in a vowel', c => /[aeiou]$/i.test(c[0].trim()));
+  // Series groupings — complete, since every character has exactly one series.
+  const big3 = ['Naruto', 'One Piece', 'Bleach'].map(s => SHOWS.indexOf(s)).filter(i => i >= 0);
+  add('Series', 'Is from the Big Three',
+    'Naruto, One Piece or Bleach — the three that defined shounen for a generation.',
+    c => big3.includes(c[1]));
+  const oneWord = SHOWS.map((s, i) => [s, i]).filter(([s]) => !/\s/.test(s)).map(([, i]) => i);
+  if (oneWord.length) add('Series', 'Is from a one-word series',
+    'The series title is a single word — Naruto, Bleach, Pokémon.', c => oneWord.includes(c[1]));
+
+  // popularity rank is complete for every character, so it is safe to build on
+  const N = CHARS.length;
+  add('Fame', 'Is a top 20 fan favourite',
+    'One of the 20 most favourited characters in this roster on AniList.', c => c[5] < 20);
+  add('Fame', 'Is a top 60 fan favourite',
+    'One of the 60 most favourited characters in this roster.', c => c[5] < 60);
+  add('Fame', 'Is a top 100 fan favourite',
+    'One of the 100 most favourited characters in this roster.', c => c[5] < 100);
+  add('Fame', 'Is in the less-loved half',
+    'Sits in the bottom half of this roster by AniList favourites.', c => c[5] >= N / 2);
+
+  // Combinations — still complete, because both halves are.
+  const has = n => { const i = fIdx(n); return i < 0 ? null : (c => c[4].includes(i)); };
+  const fem = has('FEMALE'), male = has('MALE'), main = has('MAIN CHARACTER'), vil = has('VILLAIN');
+  if (fem && main) add('Combinations', 'Is a female lead',
+    'Female and billed as a main character.', c => fem(c) && main(c));
+  if (male && main) add('Combinations', 'Is a male lead',
+    'Male and billed as a main character.', c => male(c) && main(c));
+  if (vil && male) add('Combinations', 'Is a male villain',
+    'Male and a clear-cut antagonist.', c => vil(c) && male(c));
+  if (main) add('Combinations', 'Is a top 60 favourite who is NOT a lead',
+    'Well loved, but billed as supporting rather than main.', c => c[5] < 60 && !main(c));
+
+  // Name rules are perfectly decidable, which makes them the fairest of all.
+  const NM = (label, desc, test) => add('Name games', label, desc, test);
+  NM('Name starts with a vowel', 'The first letter is A, E, I, O or U.', c => /^[aeiou]/i.test(c[0]));
+  NM('Name ends in a vowel', 'The last letter is A, E, I, O or U.', c => /[aeiou]$/i.test(c[0].trim()));
+  NM('Goes by a single name', 'One word only — no surname.', c => !/\s/.test(c[0].trim()));
+  NM('Has a two-word name', 'Exactly two words.', c => c[0].trim().split(/\s+/).length === 2);
+  NM('Has three or more names', 'Three words or more.', c => c[0].trim().split(/\s+/).length >= 3);
+  NM('Name is 14+ characters', 'Counting spaces and punctuation.', c => c[0].length >= 14);
+  NM('Name is 6 letters or fewer', 'Counting letters only.', c => bare(c[0]).length <= 6);
+  NM('Name has a double letter', 'Two identical letters in a row, like Luffy or Brook.', c => /(.)\1/.test(bare(c[0])));
+  NM('Name starts with A–F', 'First letter falls between A and F.', c => /^[a-f]/i.test(c[0]));
+  NM('Name starts with G–L', 'First letter falls between G and L.', c => /^[g-l]/i.test(c[0]));
+  NM('Name starts with M–R', 'First letter falls between M and R.', c => /^[m-r]/i.test(c[0]));
+  NM('Name starts with S–Z', 'First letter falls between S and Z.', c => /^[s-z]/i.test(c[0]));
+  NM('Name starts with A–M', 'First letter is in the first half of the alphabet.', c => /^[a-m]/i.test(c[0]));
+  NM('Name contains a K', 'A K anywhere in the name.', c => /k/.test(bare(c[0])));
+  NM('Name contains an S', 'An S anywhere in the name.', c => /s/.test(bare(c[0])));
+  NM('Name contains an O', 'An O anywhere in the name.', c => /o/.test(bare(c[0])));
+  NM('Name contains an N', 'An N anywhere in the name.', c => /n/.test(bare(c[0])));
+  NM('Name contains an I', 'An I anywhere in the name.', c => /i/.test(bare(c[0])));
+  NM('Name is 10+ letters', 'Counting letters only, spaces ignored.', c => bare(c[0]).length >= 10);
+  NM('First name is 4 letters or fewer', 'Just the first word of their name.',
+    c => bare(c[0].trim().split(/\s+/)[0]).length <= 4);
+  NM('Name has no E in it', 'Not a single E.', c => !/e/.test(bare(c[0])));
+  NM('Name has an A twice or more', 'At least two As.', c => (bare(c[0]).match(/a/g) || []).length >= 2);
+  NM('Both names start with the same letter',
+    'First and last name share an initial, like Sasuke Sarutobi would.',
+    c => { const p = c[0].trim().split(/\s+/); return p.length >= 2 && p[0][0].toLowerCase() === p[p.length-1][0].toLowerCase(); });
 
   for (const c of out) c.n = CHARS.filter(c.test).length;
-  return out.filter(c => c.n > 0);
+  return out.filter(c => c.n > 0 && c.n < CHARS.length);
 }
 const CATS = buildCats();
 const catById = id => CATS.find(c => c.id === id);
-// A category the machine can actually be caught out on: common enough to show
-// up in probes, rare enough that it isn't every second character.
-const AI_POOL = CATS.filter(c => c.n >= 14 && c.n <= CHARS.length * 0.55);
+/* The machine may only take a category you stand a fair chance of spotting —
+   broad enough to turn up in probes, narrow enough to still be a puzzle. It
+   will happily deduce ANY category you pick, including the rare ones. */
+const AI_POOL = CATS.filter(c => c.n >= CHARS.length * 0.09 && c.n <= CHARS.length * 0.6);
 
 /* ---------------------------------------------------------------- state */
 let sock = null, S = null, code = '', myName = '';
 let selIdx = -1, guessing = false, wantOpen = false, retries = 0, retryT = 0;
 let blurCat = false, solo = false, difficulty = 'sharp';
-const onT = new Set(), onS = new Set();
+const onT = new Set(), onS = new Set(), onF = new Set();
 
 /* ================================================================ SOLO
    A local stand-in for the room server. It keeps the same state shape and
@@ -819,8 +784,8 @@ const pick = a => a[Math.floor(Math.random() * a.length)];
 
 function soloStart(){
   solo = true;
-  AI.cat = pick(AI_POOL);
-  AI.live = AI_POOL.slice();
+  AI.cat = pick(AI_POOL);          // its own must be findable…
+  AI.live = CATS.slice();          // …but you may pick anything at all
   AI.probed = [];
   AI.wrong = new Set();
   clearTimeout(AI.timer);
@@ -842,7 +807,7 @@ function aiAnswers(charIdx){ return !!AI.cat.test(CHARS[charIdx]); }
    earlier one — a misclick, or a category of your own invention. Fall back to
    whatever agrees with the most answers instead of giving up. */
 function aiRebuild(){
-  const pool = AI_POOL.filter(c => !AI.wrong.has(c.id));
+  const pool = CATS.filter(c => !AI.wrong.has(c.id));
   let best = [], score = -1;
   for (const c of pool){
     let s = 0;
@@ -1149,30 +1114,32 @@ function buildGrid(){
 }
 
 function buildTagBar(){
-  const tc = new Array(TRAITS.length).fill(0), sc = new Array(SHOWS.length).fill(0);
-  for (const c of CHARS){ c[3].forEach(i => tc[i]++); sc[c[1]]++; }
-  const chips = (list, counts, kind) => list.map((name, i) =>
-    '<button class="tg" data-k="' + kind + '" data-i="' + i + '">' + esc(name) +
+  const tc = new Array(TRAITS.length).fill(0), fc = new Array(FACTS.length).fill(0),
+        sc = new Array(SHOWS.length).fill(0);
+  for (const c of CHARS){ c[3].forEach(i => tc[i]++); c[4].forEach(i => fc[i]++); sc[c[1]]++; }
+  const chips = (list, counts, kind, cls) => list.map((name, i) =>
+    '<button class="tg' + (cls || '') + '" data-k="' + kind + '" data-i="' + i + '">' + esc(name) +
     '<span class="k">' + counts[i] + '</span></button>').join('');
   $('tagShow').innerHTML = chips(SHOWS, sc, 's');
+  $('tagF').innerHTML = chips(FACTS, fc, 'f', ' f');
   $('tagT').innerHTML = chips(TRAITS, tc, 't');
 
+  const setFor = k => k === 't' ? onT : k === 'f' ? onF : onS;
   const hit = e => {
     const b = e.target.closest('.tg');
     if (!b) return;
-    const set = b.dataset.k === 't' ? onT : onS, i = +b.dataset.i;
+    const set = setFor(b.dataset.k), i = +b.dataset.i;
     if (set.has(i)) set.delete(i); else set.add(i);
     b.classList.toggle('on', set.has(i));
     filterGrid();
   };
-  $('tagShow').addEventListener('click', hit);
-  $('tagT').addEventListener('click', hit);
+  ['tagShow', 'tagF', 'tagT'].forEach(id => $(id).addEventListener('click', hit));
   $('btnTags').addEventListener('click', () => {
     const hidden = $('tagbar').classList.toggle('hide');
     $('btnTags').classList.toggle('on', !hidden);
   });
   $('btnTagClear').addEventListener('click', () => {
-    onT.clear(); onS.clear();
+    onT.clear(); onS.clear(); onF.clear();
     [...document.querySelectorAll('.tg.on')].forEach(b => b.classList.remove('on'));
     filterGrid();
   });
@@ -1186,12 +1153,14 @@ function filterGrid(){
     const c = CHARS[i];
     let on = !q || HAY[i].indexOf(q) >= 0;
     if (on && onS.size) on = onS.has(c[1]);                       // series: any of
-    if (on) for (const t of onT) if (c[3].indexOf(t) < 0){ on = false; break; }  // traits: all of
+    if (on) for (const f of onF) if (c[4].indexOf(f) < 0){ on = false; break; }  // facts: all of
+    if (on) for (const t of onT) if (c[3].indexOf(t) < 0){ on = false; break; }  // tags: all of
     kids[i].style.display = on ? '' : 'none';
     if (on) n++;
   }
   $('count').textContent = n + ' of ' + CHARS.length;
-  const picked = [...onS].map(i => SHOWS[i]).concat([...onT].map(i => TRAITS[i]));
+  const picked = [...onS].map(i => SHOWS[i])
+    .concat([...onF].map(i => FACTS[i])).concat([...onT].map(i => TRAITS[i]));
   $('tagPicked').textContent = picked.length
     ? picked.join(' · ') + (n ? '' : ' — nothing matches')
     : 'No filters';
@@ -1217,7 +1186,7 @@ const showOf = i => CHARS[i] ? SHOWS[CHARS[i][1]] : '';
 function tagChips(idx){
   const c = CHARS[idx];
   if (!c) return '';
-  const t = [SHOWS[c[1]]].concat(c[3].map(i => TRAITS[i]))
+  const t = [SHOWS[c[1]]].concat(c[4].map(i => FACTS[i])).concat(c[3].map(i => TRAITS[i]))
     .map(x => '<span class="tg">' + esc(x) + '</span>').join('');
   return t ? '<div class="ctags">' + t + '</div>' : '';
 }
@@ -1268,7 +1237,8 @@ function deckHTML(cats, sel, dimOut){
     g.items.map(c =>
       '<button class="cat' + (c.id === sel ? ' on' : '') +
       (live && !live.has(c.id) ? ' out' : '') + '" data-c="' + c.id + '">' +
-      '<span class="lbl">' + esc(c.label) + '</span>' +
+      '<span class="lbl">' + esc(c.label) +
+        '<span class="d">' + esc(c.desc) + '</span></span>' +
       '<span class="n">' + c.n + '</span></button>').join('') +
     '</div></div>').join('');
 }
