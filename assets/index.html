@@ -153,6 +153,24 @@ footer{ margin:50px 0 40px; color:var(--dim); font-size:12.5px; text-align:cente
       <li><b>Animation IS wanted for the characters now</b> — anything with a <span class="animtag">🎬 needs animation</span> tag should come <b>rigged with animation clips</b> (Tripo's rig + animate). A bare rig with no clip is still frozen, so include at least an <b>idle</b> (and a <b>walk</b> on the prisoner). The game auto-plays them. Everything <i>without</i> the tag stays static — Claude animates those in code (doors, lever, etc.).</li>
     </ul>
 
+    <h3 style="color:var(--trim-bright)">⚠ Everything delivered so far is STATIC — the animated characters need redoing</h3>
+    <p class="muted" style="margin:0 0 10px">Checked directly inside the files: <code>the collector.glb</code> and <code>the watcher.glb</code> both contain
+      <b>0 animation clips and 0 skeletons</b>. They're plain frozen meshes. That's not a game bug — there is genuinely
+      nothing in the file to play, which is why the collector stands in a T-pose instead of sitting or walking.
+      The <b>rig + animate</b> step in Tripo has to actually be run before export; a normal Tripo export skips it.</p>
+    <ul class="spec-list">
+      <li><b>Clips the dealer needs</b>, named exactly (lowercase): <code>sit_idle</code>, <code>stand_up</code>, <code>walk</code>, <code>idle</code>.
+        He waits sat in a chair down a corridor, stands when the night's debt comes due, walks to the door, and sells you charms there.
+        If only one clip is possible, make it <code>walk</code>.</li>
+      <li><b>NO root motion</b> — this one silently ruins it. Walk <b>on the spot</b>; the game drives where he actually moves.
+        If the walk clip travels forward, he'll slide away from where the code puts him.</li>
+      <li><b>Keep the rig humanoid and simple.</b> If Tripo can't rig it, a free <b>Mixamo</b> auto-rig works: upload the static
+        <code>.glb</code>/<code>.fbx</code>, let it rig, then grab <i>Idle</i>, <i>Walking</i>, <i>Sitting</i> and <i>Stand Up</i> — download
+        <b>with skin</b>, and tick <b>in-place</b> on the walk.</li>
+      <li><b>One character, not three.</b> The door currently spawns a floating head, a pair of eyes <i>and</i> a walking figure.
+        That's collapsing down to just the dealer walking up — so <b>the collector is the priority</b>; the watcher's animation can wait.</li>
+    </ul>
+
     <h3>The only two things that actually matter for the model</h3>
     <ul class="spec-list">
       <li><b>Make it the right thing</b> — match the card's description. If Tripo offers a lower-poly / cleaner option, take it; if not, whatever it gives is fine.</li>
