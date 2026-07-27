@@ -26,7 +26,12 @@ main{padding:26px 0 70px}
 h1{font-family:var(--serif);font-size:clamp(30px,5vw,42px);margin:0 0 6px;color:var(--text)}
 .updated{color:var(--dim);font-size:14px;margin:0 0 30px}
 h2{font-family:var(--serif);font-size:23px;color:var(--trim-bright);margin:34px 0 10px}
+h3{font-family:var(--serif);font-size:17px;color:var(--trim);margin:22px 0 6px;font-weight:600}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;color:var(--trim-bright);
+  background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:2px 7px;
+  word-break:break-all;display:inline-block;max-width:100%}
 p,li{color:var(--text)}
+li>ul{margin:6px 0 2px}
 a{color:var(--trim)}a:hover{color:var(--trim-bright)}
 .lead{color:var(--muted)}
 ul{padding-left:22px}li{margin:7px 0}
@@ -60,9 +65,14 @@ footer a{color:var(--muted)}
   <h2>What we collect</h2>
   <ul>
     <li><strong>Website &amp; hosting.</strong> This site is served through Cloudflare and GitHub Pages. Like any website, their servers automatically process standard technical data — such as your IP address and browser type — to deliver the page and protect against abuse. Cloudflare may set one strictly-necessary security cookie. We do not add any analytics, advertising, or tracking scripts.</li>
-    <li><strong>Game saves.</strong> Your progress is stored locally in your own browser (via <em>localStorage</em>) or on your own device in the desktop app. It is never uploaded to us. Clearing your browser data or game saves erases it.</li>
+    <li><strong>Game saves.</strong> Your progress never reaches our servers — we don't run any. Where it lives depends on how you play:
+      <ul>
+        <li><strong>Browser demo</strong> — in your own browser's <em>localStorage</em>, on your device.</li>
+        <li><strong>Desktop / Steam version</strong> — in the game's data folder on your PC, at <code>%APPDATA%\cindervale-idle</code>. Each character slot is also written there as a plain <code>.json</code> file under <code>\saves</code>.</li>
+      </ul>
+      If you own the game on Steam and have Steam Cloud enabled, those save files also sync to <strong>your</strong> Steam Cloud storage, which is Valve's service under Valve's privacy policy. We can't see or reach your Cloud files.</li>
     <li><strong>Bug reports and suggestions.</strong> If you use the in-game "Report a bug" or "Send an idea" features, what you type — plus any screenshot you choose to attach — is sent to our private Discord so we can act on it. Only send what you're comfortable sharing.</li>
-    <li><strong>A random device number.</strong> The game generates a random string and keeps it in your browser's local storage. It isn't your name, your email, your IP, or anything bought from a data broker — it's a meaningless number that only means something to us, and only in one place: our own Discord. We use it for two things. First, so we can tell whether ten new characters are ten new players or one person making ten. Second, so that when the game reports something unexpected, we can see whether it's happening to lots of people or just one setup. Nothing here blocks, changes, or punishes anything in-game — it's visibility for one solo developer, nothing more. You can wipe it any time by clearing your browser storage or game data.</li>
+    <li><strong>A random device number.</strong> The game generates a random string and keeps it alongside your saves — in browser storage on the web demo, in the game's data folder on the desktop version. It isn't your name, your email, your IP, or anything bought from a data broker — it's a meaningless number that only means something to us, and only in one place: our own Discord. We use it for two things. First, so we can tell whether ten new characters are ten new players or one person making ten. Second, so that when the game reports something unexpected, we can see whether it's happening to lots of people or just one setup. Nothing here blocks, changes, or punishes anything in-game — it's visibility for one solo developer, nothing more. You can wipe it any time using the steps under <a href="#delete">Deleting your data</a> below.</li>
   </ul>
 
   <h2>What we don't do</h2>
@@ -78,14 +88,30 @@ footer a{color:var(--muted)}
   <ul>
     <li><strong>Cloudflare</strong> and <strong>GitHub Pages</strong> — website delivery and security.</li>
     <li><strong>Discord</strong> — our community server, and where bug reports, suggestions and the device number described above arrive.</li>
-    <li><strong>Steam (Valve)</strong> — if you buy the full game, the purchase is handled entirely by Valve under Valve's own privacy policy and terms. We never see or store your payment details.</li>
+    <li><strong>Steam (Valve)</strong> — if you buy the full game, the purchase is handled entirely by Valve under Valve's own privacy policy and terms. We never see or store your payment details. Steam Cloud save syncing and Steam achievements are also Valve services, tied to your Steam account rather than to us.</li>
   </ul>
 
   <h2>Children</h2>
   <p>Cindervale Idle is not directed to children under 13, and we do not knowingly collect personal information from them. Because there are no accounts and we collect no profile data, there is nothing for a child to submit beyond an optional bug report.</p>
 
   <h2>Your choices &amp; rights</h2>
-  <p>Depending on where you live (for example, under the GDPR or CCPA), you may have rights to access or delete personal data a business holds about you. In practice we hold almost none — but you can email us any time at <a href="mailto:support@cindervaleidle.com">support@cindervaleidle.com</a> and we'll help. You can remove your local game data at any time by clearing your browser storage or deleting your save.</p>
+  <p>Depending on where you live (for example, under the GDPR or CCPA), you may have rights to access or delete personal data a business holds about you. In practice we hold almost none — but you can email us any time at <a href="mailto:support@cindervaleidle.com">support@cindervaleidle.com</a> and we'll help.</p>
+
+  <h2 id="delete">Deleting your data</h2>
+  <p>Everything the game stores is on your own device, so you can remove all of it yourself. Which steps apply depends on how you play.</p>
+
+  <h3>Browser demo</h3>
+  <p>Clear site data for this site in your browser's settings (in Chrome and Edge: <em>Settings → Privacy and security → Third-party cookies → See all site data and permissions</em>). That erases your save and the device number together.</p>
+
+  <h3>Desktop and Steam version</h3>
+  <p>Delete the game's data folder:</p>
+  <p><code>%APPDATA%\cindervale-idle</code></p>
+  <p>Paste that into the Windows Run box (<em>Win + R</em>) or File Explorer's address bar to open it. Deleting the folder removes your saves, the device number, and the game's local cache. Uninstalling through Steam does <em>not</em> remove it — Windows leaves app data folders in place.</p>
+
+  <h3>Steam Cloud copies</h3>
+  <p>If Steam Cloud is enabled, your save files are also stored in your own Steam Cloud storage. Deleting the local folder won't remove those, and Steam may restore them the next time you launch. To clear them, turn off Steam Cloud for Cindervale Idle first (<em>right-click the game in your Library → Properties → General</em>), then delete the local folder. You can view and delete your stored Cloud files from Valve's Steam Cloud page at <a href="https://store.steampowered.com/account/remotestorage" target="_blank" rel="noopener">store.steampowered.com/account/remotestorage</a>.</p>
+
+  <p>Steam achievements are held by Valve against your Steam account, not by us. Those are managed through Steam.</p>
 
   <h2>Changes to this policy</h2>
   <p>We may update this policy as the game evolves. When we do, we'll change the "last updated" date above.</p>

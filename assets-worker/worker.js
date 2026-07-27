@@ -36,7 +36,12 @@ export default {
       let body;
       try { body = await req.json(); } catch { return json({ error: 'bad json' }, 400); }
       const file = String(body.file || '');
-      const status = Math.max(0, Math.min(2, parseInt(body.status, 10) || 0));
+      /* 0 not started, 1 working, 2 delivered, 3 REMOVED. 3 is a soft delete:
+         the card stays in the board's source list and can be restored, it just
+         hides by default -- which is why it lives here rather than being a row
+         deletion. Widening this clamp from 2 to 3 is what lets the board's
+         delete button sync to everyone instead of being per-browser. */
+      const status = Math.max(0, Math.min(3, parseInt(body.status, 10) || 0));
       if (!/^[a-z0-9_]{1,64}$/i.test(file)) return json({ error: 'bad file' }, 400);
       await env.DB.prepare(
         `INSERT INTO status (file, status, updated_at) VALUES (?1, ?2, ?3)

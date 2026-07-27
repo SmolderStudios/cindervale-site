@@ -337,6 +337,57 @@ const CHARMS = [
   { id: 'rite_cheap',  name: 'CHEAP SEAT',  kind: 'RITE', tier: '◆', cost: 0, boon: true,
     desc: 'Spins cost 1 less.', spinCost: 1 },
 
+  /* More RITEs, so the tribute stops repeating itself. Eight was small enough
+     that a long run saw the same three cards over and over. */
+  { id: 'rite_hoard',  name: 'THE HOARD',   kind: 'RITE', tier: '◆', cost: 0, boon: true,
+    desc: 'Each night, gain 4 coins per clover held.', cloverCoins: 4, stack: true },
+  { id: 'rite_field',  name: 'FIELD OF GREEN', kind: 'RITE', tier: '◆', cost: 0, boon: true,
+    desc: '+3 clovers every night.', clovers: 3, stack: true },
+  { id: 'rite_sharp',  name: 'SHARP EYE',   kind: 'RITE', tier: '◆', cost: 0, boon: true,
+    desc: 'Eyes and spiders pay +60%.', sym: { eye: 0.6, spider: 0.6 }, stack: true },
+  { id: 'rite_grave',  name: 'GRAVE PACT',  kind: 'RITE', tier: '◆', cost: 0, boon: true,
+    desc: 'Skulls and coffins pay +70% and crowd the reels.',
+    sym: { skull: 0.7, coffin: 0.7 }, symWeight: { skull: 5, coffin: 5 }, stack: true },
+  { id: 'rite_crossed', name: 'CROSSED LINES', kind: 'RITE', tier: '◆', cost: 0, boon: true,
+    desc: 'DIAG, ZIG and ZAG all +1.5.',
+    pat: { DIAG: 1.5, ZIG: 1.5, ZAG: 1.5 }, stack: true },
+  { id: 'rite_wide',   name: 'THE WIDE ROW', kind: 'RITE', tier: '◆', cost: 0, boon: true,
+    desc: 'HOR +1.0, HOR-L +1.0, HOR-XL +1.0.',
+    pat: { HOR: 1, 'HOR-L': 1, 'HOR-XL': 1 }, stack: true },
+  { id: 'rite_edges',  name: 'THE EDGES',   kind: 'RITE', tier: '◆', cost: 0, boon: true,
+    desc: 'ABOVE +3.0, BELOW +3.0, EYE +3.0.',
+    pat: { ABOVE: 3, BELOW: 3, EYE: 3 }, stack: true },
+
+  /* ---- CURSE. Boons with teeth. Everything above is free upside, which makes
+     the tribute a formality once you've seen the list — these are the cards you
+     have to actually think about. Each one buys a multiplier nothing else in
+     the game can match and charges something real for it: spins, time, float,
+     dread, or the commons that pay your steady wins.
+
+     They are boons, not charms, so they can never be shopped for — you only
+     ever meet one at the door, and you take it or you don't. ---- */
+  { id: 'curse_famished', name: 'FAMISHED', kind: 'CURSE', tier: '☠', cost: 0, boon: true,
+    desc: 'All wins x1.60. Two fewer spins every night.',
+    mult: 1.60, spins: -2, stack: true },
+  { id: 'curse_toll',  name: 'THE TOLL',   kind: 'CURSE', tier: '☠', cost: 0, boon: true,
+    desc: 'All wins x1.70. Spins cost 2 more.', mult: 1.70, spinCost: -2 },
+  { id: 'curse_hollow', name: 'HOLLOW HANDS', kind: 'CURSE', tier: '☠', cost: 0, boon: true,
+    desc: 'All wins x1.80. Start each night 30 coins down.',
+    mult: 1.80, head: -30, stack: true },
+  { id: 'curse_haste', name: 'THE HASTE',  kind: 'CURSE', tier: '☠', cost: 0, boon: true,
+    desc: 'All wins x1.55. Twelve seconds less before it breaks in.',
+    mult: 1.55, timer: -12, stack: true },
+  { id: 'curse_bleed', name: 'THE BLEEDING', kind: 'CURSE', tier: '☠', cost: 0, boon: true,
+    desc: 'All wins +45%. Dread rises much faster.',
+    all: 0.45, dread: 0.55, stack: true },
+  { id: 'curse_blind', name: 'BLIND FAITH', kind: 'CURSE', tier: '☠', cost: 0, boon: true,
+    desc: 'Pentagrams pay +200% and crowd the reels. Candles, moths and eyes all but vanish.',
+    sym: { pentagram: 2.0 },
+    symWeight: { pentagram: 8, candle: -16, moth: -14, eye: -6 } },
+  { id: 'curse_gamble', name: "THE GAMBLER'S DEBT", kind: 'CURSE', tier: '∞', cost: 0, boon: true,
+    desc: 'All wins x1.40, and dread climbs. Offered again and again.',
+    mult: 1.40, dread: 0.28, repeat: true },
+
   /* ---- CULL. The other half of the reel-weight lever. Every charm above ADDS
      presence to a symbol; these take it away. Because a symbol's odds are its
      share of the total weight, thinning the commons lifts everything else
@@ -766,10 +817,10 @@ drawSymbolBoard = (g, w, h) => {
    stackable charms just appear more than once. */
 const SYM_C   = document.getElementById('symBoard');
 const PAT_C   = document.getElementById('patBoard');
-const KINDS   = ['RITE','PAYOUT','PATTERN','TEMPO','LUCK','NERVE','CULL','GREED','COMPOUND','FUSED'];
+const KINDS   = ['RITE','CURSE','PAYOUT','PATTERN','TEMPO','LUCK','NERVE','CULL','GREED','COMPOUND','FUSED'];
 const KIND_HUE = { PAYOUT:'#d8b070', PATTERN:'#88b0d0', TEMPO:'#c0c8a0', NERVE:'#9aa8b0',
                    GREED:'#e0b040', FUSED:'#c890e8', LUCK:'#7ed321', COMPOUND:'#ff7a3a',
-                   CULL:'#9a8fa4', RITE:'#ffe066' };
+                   CULL:'#9a8fa4', RITE:'#ffe066', CURSE:'#e0455f' };
 
 function spend() {
   /* replay the purchases in order so repeatable charms price up the way they
