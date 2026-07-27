@@ -349,7 +349,7 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
       <div class="hero-meta">
         <span class="pill"><span class="dot"></span> Coming soon to Steam</span>
         <span class="pill">🖥️ Windows &middot; one-time purchase</span>
-        <span class="pill">🛠️ In development &middot; v0.9.40</span>
+        <span class="pill">🛠️ In development &middot; <span class="ver">v0.9.53</span></span>
       </div>
     </div>
   </section>
@@ -501,7 +501,7 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
         <div class="row"><span class="k">Genre</span><span class="v">Dark-Fantasy Idle RPG</span></div>
         <div class="row"><span class="k">Platform</span><span class="v">Windows &middot; Steam</span></div>
         <div class="row"><span class="k">Price</span><span class="v"><s>$4.99</s> $3.99 &middot; 20% launch discount</span></div>
-        <div class="row"><span class="k">Status</span><span class="v beta">● In development &middot; v0.9.40</span></div>
+        <div class="row"><span class="k">Status</span><span class="v beta">● In development &middot; <span class="ver">v0.9.53</span></span></div>
         <div class="row"><span class="k">Steam</span><span class="v">Wishlist — coming soon</span></div>
       </div>
     </div>
@@ -660,6 +660,24 @@ document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(
     requestAnimationFrame(tick);
   }
   addEventListener('resize',size,{passive:true}); size(); tick();
+})();
+
+/* ---- live version stamp ----
+   The .ver spans are hardcoded to the version that shipped with this page, so
+   the site is correct with JS off or if the fetch fails. When it succeeds we
+   upgrade them to whatever the game is actually serving, which stops the
+   marketing page drifting behind the game the way it did at v0.9.40.
+   version.json lives in the game repo and GitHub Pages sends ACAO:* on it. */
+(function(){
+  var els=document.querySelectorAll('.ver');
+  if(!els.length||!window.fetch) return;
+  fetch('https://smolderstudios.github.io/cindervale/version.json',{cache:'no-cache'})
+    .then(function(r){ return r.ok?r.json():null; })
+    .then(function(j){
+      if(!j||!j.version||!/^\d+\.\d+\.\d+$/.test(j.version)) return;
+      els.forEach(function(el){ el.textContent='v'+j.version; });
+    })
+    .catch(function(){ /* offline or blocked — the hardcoded value stands */ });
 })();
 </script>
 </body>
