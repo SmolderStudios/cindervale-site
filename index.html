@@ -163,6 +163,38 @@ section{padding:88px 0; position:relative}
 .shot-lb-x{position:absolute; top:16px; right:22px; background:none; border:none; color:var(--muted); font-size:34px; line-height:1; cursor:pointer}
 .shot-lb-x:hover{color:var(--trim-bright)}
 
+/* ---------- CONTACT MODAL ----------
+   Replaces the old footer mailto:. Firing the OS mail client off a single
+   click is jarring when most people would rather hop into Discord, so this
+   offers both and copies the address instead of launching anything. */
+.cmodal{position:fixed; inset:0; z-index:1100; background:rgba(6,4,2,.9); display:flex;
+  align-items:center; justify-content:center; padding:24px}
+.cmodal[hidden]{display:none}
+.cmodal-card{position:relative; width:min(460px,100%); background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line2); border-radius:14px; padding:28px 26px 24px;
+  box-shadow:0 30px 90px rgba(0,0,0,.7); text-align:center}
+.cmodal-x{position:absolute; top:10px; right:14px; background:none; border:none; color:var(--dim);
+  font-size:28px; line-height:1; cursor:pointer; padding:4px}
+.cmodal-x:hover{color:var(--trim-bright)}
+.cmodal h3{font-family:var(--serif); font-size:24px; color:var(--trim-bright); margin:0 0 6px}
+.cmodal p.cm-sub{color:var(--muted); font-size:14px; margin:0 0 20px}
+.cm-opt{display:block; text-align:left; border:1px solid var(--line); background:var(--bg2);
+  border-radius:11px; padding:14px 16px; margin-bottom:12px; text-decoration:none}
+a.cm-opt:hover{border-color:#8b9cff; background:#171523}
+.cm-opt .cm-t{display:block; font-weight:700; font-size:15px; color:var(--text); margin-bottom:2px}
+.cm-opt .cm-d{display:block; font-size:12.5px; color:var(--dim); line-height:1.45}
+a.cm-opt .cm-t{color:#8b9cff}
+.cm-mail{display:flex; gap:8px; align-items:center; margin-top:10px}
+.cm-mail input{flex:1; min-width:0; font-family:ui-monospace,Consolas,monospace; font-size:13px;
+  background:var(--bg); border:1px solid var(--line); border-radius:8px; color:var(--trim-bright);
+  padding:9px 11px; text-overflow:ellipsis}
+.cm-copy{flex:none; font-family:var(--sans); font-size:12.5px; font-weight:700; cursor:pointer;
+  background:var(--raised); border:1px solid var(--line2); color:var(--text);
+  border-radius:8px; padding:9px 14px}
+.cm-copy:hover{border-color:var(--trim); color:var(--trim-bright)}
+.cm-copy.ok{border-color:var(--teal); color:var(--teal)}
+.cmodal-note{font-size:12px; color:var(--dim); margin:16px 0 0}
+
 /* ---------- FEATURES ---------- */
 .feat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px}
 @media(max-width:900px){.feat-grid{grid-template-columns:repeat(2,1fr)}}
@@ -573,17 +605,41 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
         <a href="#features">Features</a>
         <a href="#about">About</a>
         <a href="https://discord.gg/Z8kZjzgxWt" target="_blank" rel="noopener">Discord</a>
-        <a href="mailto:support@cindervaleidle.com">Contact</a>
+        <a href="#contact" data-contact>Contact</a>
         <a href="privacy.html">Privacy</a>
         <a href="terms.html">Terms</a>
       </div>
     </div>
-    <p class="foot-contact">Questions or feedback? <a href="mailto:support@cindervaleidle.com">support@cindervaleidle.com</a></p>
+    <p class="foot-contact">Questions or feedback? <a href="#contact" data-contact>Get in touch</a></p>
     <p class="foot-note">© Smolder Studios. Cindervale Idle is in active development — features and balance are subject to change. All rights reserved.</p>
   </div>
 </footer>
 
 <div id="shotLightbox" class="shot-lb" hidden><button class="shot-lb-x" aria-label="Close">&times;</button><img alt=""></div>
+
+<div id="contactModal" class="cmodal" hidden role="dialog" aria-modal="true" aria-labelledby="cmTitle">
+  <div class="cmodal-card">
+    <button class="cmodal-x" aria-label="Close">&times;</button>
+    <h3 id="cmTitle">Get in touch</h3>
+    <p class="cm-sub">One person makes this game, and reads everything sent to it.</p>
+
+    <a class="cm-opt" href="https://discord.gg/Z8kZjzgxWt" target="_blank" rel="noopener">
+      <span class="cm-t">Join the Discord →</span>
+      <span class="cm-d">Fastest way to reach me. Bug reports, questions, suggestions, and everyone else playing.</span>
+    </a>
+
+    <div class="cm-opt">
+      <span class="cm-t">Email</span>
+      <span class="cm-d">For anything you'd rather not post publicly.</span>
+      <div class="cm-mail">
+        <input id="cmEmail" type="text" value="support@cindervaleidle.com" readonly aria-label="Support email address">
+        <button class="cm-copy" type="button">Copy</button>
+      </div>
+    </div>
+
+    <p class="cmodal-note">Playing already? The in-game menu sends bugs and ideas straight through.</p>
+  </div>
+</div>
 <script>
 // ---- feature slider ----
 (function(){
@@ -626,6 +682,55 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
   function close(){ lb.hidden=true; im.src=''; }
   lb.addEventListener('click',close);
   document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!lb.hidden) close(); });
+})();
+</script>
+
+<!-- Contact modal gets its OWN script block on purpose. The block above opens
+     with matchMedia and IntersectionObserver; if either is missing, an uncaught
+     throw there would take every later IIFE in the same block down with it —
+     and Contact is not something that should break because a slider did. -->
+<script>
+// ---- contact modal ----
+// Deliberately never fires a mailto:. The address is copied to the clipboard
+// instead, so nobody gets an empty mail window they didn't ask for.
+(function(){
+  var m=document.getElementById('contactModal'); if(!m) return;
+  var card=m.querySelector('.cmodal-card'), last=null;
+
+  function open(){
+    last=document.activeElement; m.hidden=false;
+    var d=m.querySelector('.cm-opt'); if(d) d.focus({preventScroll:true});
+  }
+  function close(){
+    m.hidden=true;
+    if(last&&last.focus) last.focus({preventScroll:true});
+    // drop #contact so a refresh doesn't reopen it
+    if(location.hash==='#contact') history.replaceState(null,'',location.pathname+location.search);
+  }
+
+  document.querySelectorAll('[data-contact]').forEach(function(el){
+    el.addEventListener('click',function(e){ e.preventDefault(); open(); });
+  });
+  m.querySelector('.cmodal-x').addEventListener('click',close);
+  // backdrop only — clicks inside the card must not close it
+  m.addEventListener('click',function(e){ if(e.target===m) close(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!m.hidden) close(); });
+
+  var btn=m.querySelector('.cm-copy'), input=document.getElementById('cmEmail'), t=null;
+  btn.addEventListener('click',function(){
+    var done=function(){
+      btn.textContent='Copied'; btn.classList.add('ok');
+      clearTimeout(t); t=setTimeout(function(){ btn.textContent='Copy'; btn.classList.remove('ok'); },1800);
+    };
+    // execCommand fallback covers non-secure contexts and older Safari
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(input.value).then(done,select);
+    } else select();
+    function select(){ input.select(); input.setSelectionRange(0,99); try{ document.execCommand('copy'); done(); }catch(err){} }
+  });
+
+  // deep link: privacy.html / terms.html point their Contact link at index.html#contact
+  if(location.hash==='#contact') open();
 })();
 </script>
 
