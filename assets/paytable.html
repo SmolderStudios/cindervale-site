@@ -305,6 +305,38 @@ const CHARMS = [
     desc: 'All wins +18% more. Dread rises faster still.',
     all: 0.18, dread: 0.45, needs: ['greedcut'] },
 
+  /* ---- RITE. The end-of-night boon, and the only thing here you cannot buy.
+     A charm is a part you bolt to a machine; a RITE is something the room does
+     to you once, for the rest of the run. They are strictly stronger than what
+     the shop sells because they are never for sale — the tribute at the door
+     always offers exactly one, so surviving a night is worth something on its
+     own rather than just resetting the counter.
+
+     `boon: true` is what keeps them out of the shop pool. Most stack up to
+     STACK_CAP so a long run can lean into one, and THE BARGAIN repeats without
+     limit because compounding is what lets a run outpace the quota. The shovel
+     part is deliberately NOT one of these: it is the escape, it is capped at
+     SHOVEL_PARTS, and it must never be stackable. ---- */
+  { id: 'rite_tithe',  name: 'THE TITHE',   kind: 'RITE', tier: '◆', cost: 0, boon: true,
+    desc: 'Start every night with 40 coins.', head: 40, stack: true },
+  { id: 'rite_long',   name: 'THE LONG NIGHT', kind: 'RITE', tier: '◆', cost: 0, boon: true,
+    desc: '+2 spins every night.', spins: 2, stack: true },
+  { id: 'rite_ledger', name: 'THE LEDGER',  kind: 'RITE', tier: '◆', cost: 0, boon: true,
+    desc: 'All wins +20%.', all: 0.20, stack: true },
+  { id: 'rite_bargain', name: 'THE BARGAIN', kind: 'RITE', tier: '∞', cost: 0, boon: true,
+    desc: 'All wins x1.25, and dread climbs. Offered again and again.',
+    mult: 1.25, dread: 0.15, repeat: true },
+  { id: 'rite_greenrot', name: 'GREEN ROT', kind: 'RITE', tier: '◆', cost: 0, boon: true,
+    desc: 'Clovers crowd the reels.', cloverWeight: 6, stack: true },
+  { id: 'rite_still',  name: 'STILLNESS',   kind: 'RITE', tier: '◆', cost: 0, boon: true,
+    desc: 'Dread rises 30% slower, and +10s before it breaks in.',
+    dread: -0.30, timer: 10, stack: true },
+  { id: 'rite_famine', name: 'FAMINE',      kind: 'RITE', tier: '◆', cost: 0, boon: true,
+    desc: 'Candles and moths grow scarcer for the rest of the run.',
+    symWeight: { candle: -12, moth: -10 }, stack: true },
+  { id: 'rite_cheap',  name: 'CHEAP SEAT',  kind: 'RITE', tier: '◆', cost: 0, boon: true,
+    desc: 'Spins cost 1 less.', spinCost: 1 },
+
   /* ---- CULL. The other half of the reel-weight lever. Every charm above ADDS
      presence to a symbol; these take it away. Because a symbol's odds are its
      share of the total weight, thinning the commons lifts everything else
@@ -377,7 +409,11 @@ function charmAvailable(c) {
   if (c.needs && !c.needs.every(hasCharm)) return false;
   return true;
 }
-const charmPool = () => CHARMS.filter(charmAvailable);
+/* Two pools off one gate. The shop never stocks a RITE — they are the reward
+   for getting through a night, and putting a price on one would turn it into
+   just another charm. */
+const charmPool  = () => CHARMS.filter(c => !c.boon && charmAvailable(c));
+const boonPool   = () => CHARMS.filter(c =>  c.boon && charmAvailable(c));
 function buffMult(m) {
   let v = 1;
   if (!m) return 1;
@@ -730,10 +766,10 @@ drawSymbolBoard = (g, w, h) => {
    stackable charms just appear more than once. */
 const SYM_C   = document.getElementById('symBoard');
 const PAT_C   = document.getElementById('patBoard');
-const KINDS   = ['PAYOUT','PATTERN','TEMPO','LUCK','NERVE','CULL','GREED','COMPOUND','FUSED'];
+const KINDS   = ['RITE','PAYOUT','PATTERN','TEMPO','LUCK','NERVE','CULL','GREED','COMPOUND','FUSED'];
 const KIND_HUE = { PAYOUT:'#d8b070', PATTERN:'#88b0d0', TEMPO:'#c0c8a0', NERVE:'#9aa8b0',
                    GREED:'#e0b040', FUSED:'#c890e8', LUCK:'#7ed321', COMPOUND:'#ff7a3a',
-                   CULL:'#9a8fa4' };
+                   CULL:'#9a8fa4', RITE:'#ffe066' };
 
 function spend() {
   /* replay the purchases in order so repeatable charms price up the way they
