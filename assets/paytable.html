@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SLOTROOM — Live Paytable</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0d0906">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0' y2='0'%3E%3Cstop offset='0' stop-color='%237a1820'/%3E%3Cstop offset='.4' stop-color='%23e0762f'/%3E%3Cstop offset='.8' stop-color='%23fbd24e'/%3E%3Cstop offset='1' stop-color='%23fff8dc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M32 6 Q22 18 19 30 Q15 42 20 52 Q25 58 32 58 Q39 58 44 52 Q49 42 45 30 Q42 18 32 6 Z' fill='url(%23g)'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#0d0906; --bg2:#120c07; --panel:#1c130a; --panel2:#251a10;
+  --raised:#322415; --line:#3a2c17; --line2:#4a3820;
+  --trim:#c79b4e; --trim-bright:#f0c772; --trim-dim:#6e552c;
+  --ember:#e0762f; --flame:#fbd24e; --red:#c4543a; --green:#7ea84a;
+  --text:#ead9b5; --muted:#a08a64; --dim:#7a6647;
+  --serif:'Iowan Old Style','Palatino Linotype',Palatino,'Book Antiqua',Georgia,serif;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --mono:'SFMono-Regular',Consolas,'Roboto Mono',Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:
+    radial-gradient(1200px 700px at 50% -10%, rgba(224,118,47,.14), transparent 60%),
+    linear-gradient(180deg,#0d0906,#0a0705 60%,#080604) fixed;
+  color:var(--text); font-family:var(--sans); font-size:15px; line-height:1.55; min-height:100vh;
+}
+a{color:var(--trim)}
+h1,h2,h3{font-family:var(--serif); font-weight:600; margin:0; line-height:1.15}
+.wrap{max-width:1500px; margin:0 auto; padding:0 22px}
+header.top{border-bottom:1px solid var(--line); background:rgba(13,9,6,.78); backdrop-filter:blur(8px); position:sticky; top:0; z-index:50}
+header.top .wrap{padding:14px 22px; display:flex; align-items:center; gap:22px; flex-wrap:wrap}
+header.top h1{font-size:21px}
+header.top h1 .sub{color:var(--muted); font-family:var(--sans); font-size:12px; font-weight:400; display:block; margin-top:2px}
+.stats{display:flex; gap:18px; flex-wrap:wrap; margin-left:auto}
+.stat{text-align:right}
+.stat b{display:block; font-family:var(--mono); font-size:17px; color:var(--flame); font-weight:600}
+.stat span{font-size:10px; text-transform:uppercase; letter-spacing:.18em; color:var(--dim)}
+
+.lead{padding:22px 0 4px; max-width:900px; color:var(--muted)}
+.lead p{margin:0 0 10px}
+.lead b{color:var(--text)}
+
+.cols{display:grid; grid-template-columns:minmax(0,1fr) 420px; gap:26px; align-items:start; padding:14px 0 60px}
+@media (max-width:1180px){ .cols{grid-template-columns:1fr} }
+
+.boards{display:flex; gap:22px; flex-wrap:wrap; justify-content:center}
+.board{background:linear-gradient(180deg,var(--panel),var(--bg2)); border:1px solid var(--line2); border-radius:10px; padding:14px}
+.board canvas{display:block; width:340px; height:461px; image-rendering:auto; cursor:pointer; border:1px solid #000}
+.board .cap{font-size:11px; color:var(--dim); text-align:center; margin-top:8px; letter-spacing:.1em; text-transform:uppercase}
+
+.side{background:linear-gradient(180deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:12px; padding:16px 18px; max-height:calc(100vh - 130px); overflow:auto; position:sticky; top:86px}
+.side h2{font-size:16px; color:var(--trim-bright); margin-bottom:4px}
+.hint{font-size:12px; color:var(--dim); margin:0 0 12px}
+.ctl{display:flex; align-items:center; gap:10px; margin:10px 0 14px; font-size:12px; color:var(--muted)}
+.ctl input[type=range]{flex:1; accent-color:var(--ember)}
+button.plain{background:var(--raised); border:1px solid var(--line2); color:var(--text); border-radius:7px; padding:5px 11px; font-size:12px; cursor:pointer; font-family:var(--sans)}
+button.plain:hover{border-color:var(--trim)}
+textarea{width:100%; height:52px; background:#00000055; border:1px solid var(--line); border-radius:7px; color:var(--trim-bright); font-family:var(--mono); font-size:11px; padding:7px; resize:vertical}
+
+.kind{margin:14px 0 4px}
+.kind h3{font-size:11px; letter-spacing:.22em; text-transform:uppercase; margin-bottom:7px}
+.kgrid{display:flex; flex-direction:column; gap:5px}
+.charm{display:block; width:100%; text-align:left; background:#00000038; border:1px solid var(--line); border-left:3px solid var(--hue,#666); border-radius:7px; padding:7px 10px; cursor:pointer; color:var(--text); font-family:var(--sans); transition:background .12s,border-color .12s}
+.charm:hover:not(:disabled){background:#00000060; border-color:var(--trim-dim)}
+.charm.on{background:linear-gradient(90deg,rgba(224,118,47,.16),rgba(224,118,47,.03)); border-color:var(--trim-dim)}
+.charm.locked{opacity:.42; cursor:not-allowed}
+.charm:disabled{cursor:not-allowed}
+.charm .cn{display:block; font-size:12.5px; font-weight:600; letter-spacing:.03em}
+.charm .cn i{color:var(--dim); font-style:normal; font-size:10px; letter-spacing:.1em}
+.charm .cd{display:block; font-size:11px; color:var(--muted); line-height:1.35; margin-top:1px}
+.charm .cc{display:block; font-size:10px; color:var(--dim); font-family:var(--mono); margin-top:3px}
+.charm .cc b{color:var(--flame); margin-left:8px; font-weight:600}
+.charm .cl{display:block; font-size:10px; color:var(--red); margin-top:3px}
+footer{border-top:1px solid var(--line); color:var(--dim); font-size:12px; padding:18px 0 40px}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <h1>SLOTROOM — Live Paytable<span class="sub">the two dungeon wall boards, drawn by the game's own code</span></h1>
+  <div class="stats">
+    <div class="stat"><b id="statCount">0</b><span>charms</span></div>
+    <div class="stat"><b id="statSpent">0</b><span>coins spent</span></div>
+    <div class="stat"><b id="statAll">+0%</b><span>all wins</span></div>
+    <div class="stat"><b id="statMult">x1.00</b><span>compound</span></div>
+    <div class="stat"><b id="statSpins">+0</b><span>spins</span></div>
+  </div>
+</div></header>
+
+<div class="wrap">
+  <div class="lead">
+    <p>These are the two boards that hang on the dungeon walls, painted by the
+       <b>same functions the game uses</b> — not a copy of the numbers. Fit charms on the
+       right and both boards redraw exactly as they do in a run: buffed pays and
+       raised odds turn <b style="color:var(--green)">green</b>.</p>
+    <p><b>Click a charm</b> to fit it, <b>shift-click</b> to take it back off. Locked charms need
+       their lower tier first, same ladder as the game. <b>Click a board</b> to download it as a PNG.</p>
+  </div>
+
+  <div class="cols">
+    <div class="boards">
+      <div class="board">
+        <canvas id="symBoard" width="560" height="760"></canvas>
+        <div class="cap">Symbol board &mdash; west wall</div>
+      </div>
+      <div class="board">
+        <canvas id="patBoard" width="560" height="760"></canvas>
+        <div class="cap">Pattern board &mdash; east wall</div>
+      </div>
+    </div>
+
+    <div class="side">
+      <h2>Charms</h2>
+      <p class="hint">Click to fit &middot; shift-click to remove</p>
+      <div class="ctl">
+        <label for="clovers">Clovers held</label>
+        <input type="range" id="clovers" min="0" max="30" value="0">
+        <b id="cloverN" style="font-family:var(--mono); color:var(--flame)">0</b>
+      </div>
+      <div class="ctl">
+        <button class="plain" id="reset">Clear all</button>
+      </div>
+      <textarea id="loadout" spellcheck="false" title="Paste a loadout to restore it"></textarea>
+      <div id="charms"></div>
+    </div>
+  </div>
+
+  <footer>
+    Generated from <code>slotroom/game.js</code> by <code>tools/paytable.js</code> — do not hand-edit.
+    Re-run it after any change to SYMBOLS, PATTERNS or CHARMS.
+    &nbsp;·&nbsp; <a href="./">back to the asset board</a>
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ======================================================================
+   EVERYTHING BELOW IS LIFTED VERBATIM FROM slotroom/game.js.
+   Do not edit it here — edit game.js and re-run tools/paytable.js.
+   ====================================================================== */
+
+let drawPatternBoard = null, drawSymbolBoard = null;
+const myMachine = { charms: [] };
+const MACHINES  = [myMachine];
+const game      = { clovers: 0 };
+
+const SYMBOLS = [
+  { id: 'candle',    w: 34, pay: 10,  color: '#ffb43a' },
+  { id: 'moth',      w: 26, pay: 14,  color: '#d8cfae' },
+  { id: 'eye',       w: 16, pay: 20,  color: '#ffd84a' },
+  { id: 'spider',    w: 11, pay: 30,  color: '#ff3b4a' },
+  { id: 'coffin',    w: 7,  pay: 45,  color: '#a878d8' },
+  { id: 'clover',    w: 5,  pay: 60,  color: '#7ed321' },
+  { id: 'skull',     w: 4,  pay: 110, color: '#e8f0ff' },
+  { id: 'pentagram', w: 3,  pay: 200, color: '#ff2ec4' },
+];
+/* every run of N adjacent cells in a row, so HOR pays anywhere across */
+const _runs = (r, n) => Array.from({ length: 6 - n }, (_, o) =>
+  Array.from({ length: n }, (_, i) => [r, o + i]));
+const _rowAll = r => Array.from({ length: 5 }, (_, c) => [r, c]);
+const _everything = [];
+for (let r = 0; r < 3; r++) for (let c = 0; c < 5; c++) _everything.push([r, c]);
+
+const PATTERNS = [
+  { id: 'HOR',     mult: 1.0,  lines: [0, 1, 2].flatMap(r => _runs(r, 3)) },
+  { id: 'DIAG',    mult: 1.0,  lines: [[[0,0],[1,1],[2,2]], [[2,0],[1,1],[0,2]]] },
+  { id: 'HOR-L',   mult: 2.0,  lines: [0, 1, 2].flatMap(r => _runs(r, 4)) },
+  { id: 'HOR-XL',  mult: 3.0,  lines: [_rowAll(1)] },
+  { id: 'ZIG',     mult: 4.0,  lines: [[[2,0],[1,1],[0,2],[1,3],[2,4]]] },
+  { id: 'ZAG',     mult: 4.0,  lines: [[[0,0],[1,1],[2,2],[1,3],[0,4]]] },
+  { id: 'ABOVE',   mult: 7.0,  lines: [_rowAll(0)] },
+  { id: 'BELOW',   mult: 7.0,  lines: [_rowAll(2)] },
+  { id: 'EYE',     mult: 8.0,  lines: [[[0,2],[1,0],[1,2],[1,4],[2,2]]] },
+  /* the whole grid. Honest odds without a wild: about 1 in 25 million. The
+     WILD CLOVER charm is what makes this a real target rather than a myth. */
+  { id: 'JACKPOT', mult: 10.0, lines: [_everything] },
+];
+const _SYM_LADDER = [
+  /* symbol,     I name,          II name,          III name,        base cost */
+  ['candle',    'TALLOW STUB',   'VIGIL WAX',      'THE LONG WAKE',   34],
+  ['moth',      'MOTH DUST',     'LAMPFEEDER',     'THE SWARM',       40],
+  ['eye',       'GLASS EYE',     'SIXTH SENSE',    'THE WATCHFUL',    52],
+  ['spider',    'SILK KNOT',     'WEAVER',         'BROODMOTHER',     66],
+  ['coffin',    'COFFIN NAIL',   'PALL BEARER',    'THE PROCESSION',  80],
+  ['clover',    'PRESSED CLOVER','GREEN SAINT',    'FOUR-LEAF CROWN', 96],
+  ['skull',     'BONE MEAL',     'OSSUARY',        'THE CHARNEL',    120],
+  ['pentagram', 'CHALK MARK',    'SIGIL WORK',     'THE COVENANT',   150],
+];
+/* The fourth column is a TARGET reel weight, not an amount to add. Line odds go
+   as p^3..p^5, so adding weight in proportion to what a symbol already has
+   compounds violently for common ones (candles hit ~7x base in the sim) while
+   still leaving rare ones dead. Pulling each symbol UP TOWARD a floor instead
+   means the commons — already everywhere — gain nothing from it and stay a pure
+   percentage play, while the rare, high-paying end finally gets enough presence
+   to line up at all. Reel weights for reference: candle 34 ... pentagram 3. */
+const _SYM_TIERS = [
+  /* add,  costMult, tier, target weight */
+  [0.45, 1.00, 'I',    0],
+  [0.70, 1.85, 'II',   9],
+  [1.10, 3.30, 'III', 18],
+];
+const _symCharms = [];
+for (const [sym, n1, n2, n3, base] of _SYM_LADDER) {
+  const names = [n1, n2, n3];
+  const S = SYMBOLS.find(s => s.id === sym);
+  const pretty = sym[0].toUpperCase() + sym.slice(1) + 's';
+  for (let t = 0; t < 3; t++) {
+    const [add, cm, tier, targetW] = _SYM_TIERS[t];
+    const wAdd = Math.max(0, targetW - S.w);
+    _symCharms.push({
+      id: sym + '_' + (t + 1),
+      name: names[t],
+      kind: 'PAYOUT', tier,
+      cost: Math.round(base * cm),
+      desc: pretty + ' pay +' + Math.round(add * 100) + '%'
+            + (wAdd ? ', and land more often.' : '.'),
+      sym: { [sym]: add },
+      symWeight: wAdd ? { [sym]: wAdd } : null,
+      needs: t === 0 ? null : [sym + '_' + t],
+    });
+  }
+}
+
+const CHARMS = [
+  ..._symCharms,
+
+  /* ---- PATTERN. Small flat adds; the big multipliers are already on the
+     board, so these tilt which shape you want rather than replacing it. ---- */
+  { id: 'straightedge', name: 'STRAIGHT EDGE', kind: 'PATTERN', tier: 'I', cost: 48,
+    desc: 'HOR +0.5.', pat: { HOR: 0.5 } },
+  { id: 'longarm',   name: 'LONG ARM',       kind: 'PATTERN', tier: 'II', cost: 92,
+    desc: 'HOR-L +1.0, HOR-XL +1.0.', pat: { 'HOR-L': 1, 'HOR-XL': 1 }, needs: ['straightedge'] },
+  { id: 'fullspan',  name: 'FULL SPAN',      kind: 'PATTERN', tier: 'III', cost: 170,
+    desc: 'HOR-XL +2.5.', pat: { 'HOR-XL': 2.5 }, needs: ['longarm'] },
+  { id: 'crookedeye', name: 'CROOKED EYE',   kind: 'PATTERN', tier: 'I', cost: 55,
+    desc: 'DIAG +0.8.', pat: { DIAG: 0.8 } },
+  { id: 'serpent',   name: 'SERPENT',        kind: 'PATTERN', tier: 'II', cost: 104,
+    desc: 'ZIG +1.5, ZAG +1.5.', pat: { ZIG: 1.5, ZAG: 1.5 }, needs: ['crookedeye'] },
+  { id: 'highlow',   name: 'HIGH AND LOW',   kind: 'PATTERN', tier: 'II', cost: 118,
+    desc: 'ABOVE +2.0, BELOW +2.0.', pat: { ABOVE: 2, BELOW: 2 } },
+  { id: 'thirdeye',  name: 'THIRD EYE',      kind: 'PATTERN', tier: 'III', cost: 165,
+    desc: 'EYE +3.0.', pat: { EYE: 3 }, needs: ['crookedeye'] },
+
+  /* ---- TEMPO. Time and float. Nerfed hard from the old +3 spins / 40 coins
+     because both were auto-buys — they now come in ones and twos. ---- */
+  { id: 'onemore',   name: 'ONE MORE',       kind: 'TEMPO', tier: 'I', cost: 62,
+    desc: '+1 spin every night.', spins: 1, stack: true },
+  { id: 'nightowl',  name: 'NIGHT OWL',      kind: 'TEMPO', tier: 'II', cost: 128,
+    desc: '+2 more spins every night.', spins: 2, needs: ['onemore'] },
+  { id: 'deeppocket', name: 'DEEP POCKETS',  kind: 'TEMPO', tier: 'I', cost: 54,
+    desc: 'Start each night with 15 coins.', head: 15, stack: true },
+  { id: 'shortchange', name: 'SHORT CHANGE', kind: 'TEMPO', tier: 'II', cost: 96,
+    desc: 'Spins cost 1 less.', spinCost: 1 },
+  { id: 'gleaner',   name: 'GLEANER',        kind: 'TEMPO', tier: 'I', cost: 70,
+    desc: '+1 clover every night.', clovers: 1, stack: true },
+
+  /* ---- LUCK. Clovers used to be a reroll token and nothing else — you sat on
+     a pile of them with no reason to want more, and the "each clover nudges the
+     tray toward rares" effect was invisible so it may as well not have existed.
+     These make a held clover worth something on every single spin, which turns
+     the pile into a resource you actually weigh spending. ---- */
+  { id: 'foundluck', name: 'FOUND LUCK',     kind: 'LUCK', tier: 'I', cost: 74,
+    desc: 'All wins +1% for each clover you hold (max +15%).', perClover: 0.01, perCloverMax: 0.15 },
+  { id: 'greenfingers', name: 'GREEN FINGERS', kind: 'LUCK', tier: 'II', cost: 142,
+    desc: 'A further +1.5% per clover (max +30% total).',
+    perClover: 0.015, perCloverMax: 0.15, needs: ['foundluck'] },
+  { id: 'cloverbank', name: 'CLOVER BANK',   kind: 'LUCK', tier: 'I', cost: 86,
+    desc: 'Each night, gain 3 coins per clover held.', cloverCoins: 3 },
+  { id: 'fourleaf',  name: 'FOUR-LEAF EYE',  kind: 'LUCK', tier: 'II', cost: 120,
+    desc: 'Clovers land more often, and pay out from 2 on the grid.',
+    cloverWeight: 4, cloverFloor: 1 },
+
+  /* ---- NERVE. Keeping the room off your back. ---- */
+  { id: 'ironnerve', name: 'IRON NERVE',     kind: 'NERVE', tier: 'I', cost: 58,
+    desc: 'Dread rises 25% slower.', dread: -0.25 },
+  { id: 'deadcalm',  name: 'DEAD CALM',      kind: 'NERVE', tier: 'II', cost: 112,
+    desc: 'Dread rises a further 35% slower.', dread: -0.35, needs: ['ironnerve'] },
+  { id: 'fusetape',  name: 'FUSE TAPE',      kind: 'NERVE', tier: 'II', cost: 88,
+    desc: 'The power never cuts again.', power: true },
+  { id: 'stalltime', name: 'STALLING',       kind: 'NERVE', tier: 'I', cost: 66,
+    desc: '+8 seconds before it breaks the door.', timer: 8, stack: true },
+
+  /* ---- COMPOUND. The scaling engine, and the reason a run can go long.
+     Everything else here is a ONE-TIME ADDITIVE boost, and the quota is
+     exponential (x1.30 a night) — additive income cannot race an exponential,
+     so every run used to die around night 4 with a hard ceiling near 34k a
+     night against a night-30 quota of 141k. These are repeatable and
+     MULTIPLICATIVE: each copy multiplies every win, and each copy costs more
+     than the last. Buy rate is the whole game — 1.35x income against a 1.30x
+     quota means one purchase a night pulls slowly ahead, two runs away with
+     it, none and the room takes you. `repeat` = no stack cap, `costGrow` =
+     what the next copy costs. ---- */
+  { id: 'houserake', name: "THE HOUSE'S CUT", kind: 'COMPOUND', tier: '∞', cost: 70,
+    desc: 'All wins x1.30. Buy it again and again — each costs more.',
+    mult: 1.30, repeat: true, costGrow: 1.38 },
+  { id: 'deadmanshand', name: "DEAD MAN'S HAND", kind: 'COMPOUND', tier: '∞', cost: 260,
+    desc: 'All wins x1.45, and dread climbs. Repeatable.',
+    mult: 1.45, dread: 0.20, repeat: true, costGrow: 1.52, needs: ['houserake'] },
+
+  /* ---- GREED. Flat multipliers on everything, paid for in dread. ---- */
+  { id: 'greedcut',  name: 'GREED',          kind: 'GREED', tier: 'I', cost: 90,
+    desc: 'All wins +12%. Dread rises faster.', all: 0.12, dread: 0.35 },
+  { id: 'avarice',   name: 'AVARICE',        kind: 'GREED', tier: 'II', cost: 178,
+    desc: 'All wins +18% more. Dread rises faster still.',
+    all: 0.18, dread: 0.45, needs: ['greedcut'] },
+
+  /* ---- FUSED. Two finished lines welded into one thing neither could do.
+     These are the reason to go deep on a pair rather than wide on everything,
+     and the `needs` gate means they can only ever show up once you have. ---- */
+  { id: 'wildclover', name: 'WILD CLOVER',   kind: 'FUSED', tier: '★', cost: 210,
+    desc: 'Clovers count as ANY symbol.', wild: true, needs: ['clover_2'] },
+  { id: 'nightvigil', name: 'NIGHT VIGIL',   kind: 'FUSED', tier: '★', cost: 165,
+    desc: 'Candles and moths both pay +80% on top.',
+    sym: { candle: 0.8, moth: 0.8 }, needs: ['candle_2', 'moth_2'] },
+  /* The fused charms that feed RARE symbols carry reel weight as well as pay.
+     Without it they were traps: BONE ORCHARD is five charms and 800 coins deep
+     and moved the average by half a coin a spin, because skulls and coffins
+     still almost never lined up. Pay alone cannot rescue a symbol you never
+     see — same lesson as the ladder tiers above. */
+  { id: 'boneorchard', name: 'BONE ORCHARD', kind: 'FUSED', tier: '★', cost: 235,
+    desc: 'Skulls and coffins pay +100% and crowd the reels.',
+    sym: { skull: 1.0, coffin: 1.0 }, symWeight: { skull: 7, coffin: 7 },
+    needs: ['skull_2', 'coffin_2'] },
+  { id: 'allseeing', name: 'ALL-SEEING',     kind: 'FUSED', tier: '★', cost: 220,
+    desc: 'Eyes pay +90%, land far more often, and EYE pays +4.0.',
+    sym: { eye: 0.9 }, symWeight: { eye: 8 }, pat: { EYE: 4 },
+    needs: ['eye_2', 'thirdeye'] },
+  { id: 'blackmass', name: 'BLACK MASS',     kind: 'FUSED', tier: '★', cost: 290,
+    desc: 'Pentagrams pay +150%, appear far more often, and all wins +10%.',
+    sym: { pentagram: 1.5 }, symWeight: { pentagram: 9 }, all: 0.10,
+    needs: ['pentagram_2'] },
+  { id: 'spinnersluck', name: "SPINNER'S LUCK", kind: 'FUSED', tier: '★', cost: 195,
+    desc: '+2 spins, and clovers land far more often.',
+    spins: 2, cloverWeight: 7, needs: ['clover_1', 'onemore'] },
+];
+const charmById = id => CHARMS.find(c => c.id === id);
+
+function hasCharm(id) { return MACHINES.some(m => m.charms.includes(id)); }
+/* how many copies you hold — stackable charms can be taken again */
+function charmCount(id) {
+  let n = 0;
+  for (const m of MACHINES) for (const c of m.charms) if (c === id) n++;
+  return n;
+}
+/* One gate for every place a charm can be offered. A charm is available when
+   it isn't already taken (unless it stacks) AND its prerequisites are all
+   owned — that `needs` check is what turns the list into a ladder: tier II
+   simply does not exist for you until tier I is on the rack. Cap the stacks so
+   a run cannot become nothing but ONE MORE. */
+const STACK_CAP = 3;
+function charmAvailable(c) {
+  if (!c) return false;
+  /* `repeat` charms never leave the pool — they are the run's scaling engine
+     and the escalating price is what limits them, not a stack cap. */
+  if (!c.repeat && (c.stack ? charmCount(c.id) >= STACK_CAP : hasCharm(c.id))) return false;
+  if (c.needs && !c.needs.every(hasCharm)) return false;
+  return true;
+}
+const charmPool = () => CHARMS.filter(charmAvailable);
+function buffMult(m) {
+  let v = 1;
+  if (!m) return 1;
+  for (const id of m.charms) {
+    const c = charmById(id);
+    if (c && c.mult) v *= c.mult;
+  }
+  return v;
+}
+/* What the NEXT copy of a charm costs. Repeatable charms get more expensive
+   each time, which is what stops one purchase a night from being automatic. */
+function charmCost(c) {
+  if (!c) return 0;
+  if (!c.costGrow) return c.cost;
+  return Math.round(c.cost * Math.pow(c.costGrow, charmCount(c.id)));
+}
+
+function buff(m, field, key) {
+  let v = 0;
+  if (!m) return 0;
+  for (const id of m.charms) {
+    const c = charmById(id);
+    if (!c) continue;
+    if (field === 'sym')        v += (c.sym && c.sym[key]) || 0;
+    else if (field === 'pat')   v += (c.pat && c.pat[key]) || 0;
+    else if (field === 'wild')  v = v || !!c.wild;
+    else if (field === 'extraSpins') v += c.spins || 0;
+    else if (field === 'all')   v += c.all || 0;
+    else if (field === 'head')  v += c.head || 0;
+    else if (field === 'cloverWeight') v += c.cloverWeight || 0;
+    else if (field === 'symWeight') v += (c.symWeight && c.symWeight[key]) || 0;
+    else if (field === 'cloverCoins') v += c.cloverCoins || 0;
+    else if (field === 'cloverFloor') v += c.cloverFloor || 0;
+    /* each LUCK charm contributes rate x clovers, capped per charm so a big
+       hoard cannot run away with the run */
+    else if (field === 'perClover') {
+      if (c.perClover) v += Math.min(c.perCloverMax || 99, c.perClover * (game.clovers || 0));
+    }
+    /* stackable charms appear in m.charms once per copy, so these just add up */
+    else if (field === 'spinCost') v += c.spinCost || 0;
+    else if (field === 'timer')  v += c.timer || 0;
+    else if (field === 'clovers') v += c.clovers || 0;
+  }
+  return v;
+}
+function drawSymbol(g, sym, cx, cy, s) {
+  g.save();
+  g.shadowColor = sym.color;
+  g.shadowBlur = 12;
+  g.lineJoin = 'round';
+
+  switch (sym.id) {
+    /* --- tall warm silhouette, lowest tier --- */
+    case 'candle': {
+      g.fillStyle = '#f2e6cc';
+      g.fillRect(cx - s * 0.11, cy - s * 0.10, s * 0.22, s * 0.36);
+      /* wax runs down the side */
+      g.fillStyle = '#dccca8';
+      g.fillRect(cx - s * 0.11, cy - s * 0.02, s * 0.05, s * 0.16);
+      /* holder */
+      g.fillStyle = '#9a8258';
+      g.fillRect(cx - s * 0.20, cy + s * 0.26, s * 0.40, s * 0.07);
+      g.fillStyle = sym.color;
+      /* flame */
+      g.beginPath();
+      g.moveTo(cx, cy - s * 0.40);
+      g.quadraticCurveTo(cx + s * 0.12, cy - s * 0.20, cx, cy - s * 0.11);
+      g.quadraticCurveTo(cx - s * 0.12, cy - s * 0.20, cx, cy - s * 0.40);
+      g.fill();
+      g.fillStyle = '#fff3c4';
+      g.beginPath();
+      g.moveTo(cx, cy - s * 0.32);
+      g.quadraticCurveTo(cx + s * 0.055, cy - s * 0.20, cx, cy - s * 0.14);
+      g.quadraticCurveTo(cx - s * 0.055, cy - s * 0.20, cx, cy - s * 0.32);
+      g.fill();
+      break;
+    }
+
+    /* --- pale wings, broad and soft against the hard shapes --- */
+    case 'moth': {
+      g.fillStyle = sym.color;
+      /* upper wings */
+      g.beginPath();
+      g.moveTo(cx, cy - s * 0.04);
+      g.quadraticCurveTo(cx - s * 0.38, cy - s * 0.36, cx - s * 0.26, cy + s * 0.04);
+      g.quadraticCurveTo(cx - s * 0.20, cy + s * 0.24, cx, cy + s * 0.14);
+      g.quadraticCurveTo(cx + s * 0.20, cy + s * 0.24, cx + s * 0.26, cy + s * 0.04);
+      g.quadraticCurveTo(cx + s * 0.38, cy - s * 0.36, cx, cy - s * 0.04);
+      g.fill();
+      g.shadowBlur = 0;
+      /* eyespots */
+      g.fillStyle = 'rgba(90,60,40,.75)';
+      g.beginPath(); g.arc(cx - s * 0.17, cy - s * 0.06, s * 0.05, 0, 6.283); g.fill();
+      g.beginPath(); g.arc(cx + s * 0.17, cy - s * 0.06, s * 0.05, 0, 6.283); g.fill();
+      /* body + antennae */
+      g.fillStyle = '#6a5540';
+      g.fillRect(cx - s * 0.028, cy - s * 0.10, s * 0.056, s * 0.30);
+      g.strokeStyle = '#6a5540'; g.lineWidth = s * 0.026;
+      g.beginPath();
+      g.moveTo(cx - s * 0.02, cy - s * 0.11); g.lineTo(cx - s * 0.13, cy - s * 0.27);
+      g.moveTo(cx + s * 0.02, cy - s * 0.11); g.lineTo(cx + s * 0.13, cy - s * 0.27);
+      g.stroke();
+      break;
+    }
+
+    /* --- hard hexagon silhouette, reads even at a glance --- */
+    case 'coffin': {
+      g.fillStyle = sym.color;
+      g.beginPath();
+      g.moveTo(cx,             cy - s * 0.36);
+      g.lineTo(cx + s * 0.19,  cy - s * 0.16);
+      g.lineTo(cx + s * 0.14,  cy + s * 0.34);
+      g.lineTo(cx - s * 0.14,  cy + s * 0.34);
+      g.lineTo(cx - s * 0.19,  cy - s * 0.16);
+      g.closePath(); g.fill();
+      g.shadowBlur = 0;
+      /* lid seam + cross */
+      g.strokeStyle = 'rgba(40,20,60,.85)'; g.lineWidth = s * 0.03;
+      g.beginPath();
+      g.moveTo(cx - s * 0.17, cy - s * 0.13); g.lineTo(cx + s * 0.17, cy - s * 0.13);
+      g.stroke();
+      g.fillStyle = 'rgba(250,240,255,.85)';
+      g.fillRect(cx - s * 0.028, cy - s * 0.06, s * 0.056, s * 0.24);
+      g.fillRect(cx - s * 0.085, cy + s * 0.02, s * 0.17, s * 0.05);
+      break;
+    }
+
+    /* --- wide oval, unmistakable against the tall candle --- */
+    case 'eye': {
+      g.fillStyle = '#f4f0e2';
+      g.beginPath(); g.ellipse(cx, cy, s * 0.32, s * 0.20, 0, 0, 6.283); g.fill();
+      g.fillStyle = sym.color;
+      g.beginPath(); g.arc(cx, cy, s * 0.145, 0, 6.283); g.fill();
+      g.shadowBlur = 0;
+      g.fillStyle = '#160a06';
+      g.beginPath(); g.ellipse(cx, cy, s * 0.055, s * 0.115, 0, 0, 6.283); g.fill();
+      /* veins */
+      g.strokeStyle = 'rgba(200,40,40,.75)'; g.lineWidth = s * 0.022;
+      [-1, 1].forEach(d => {
+        g.beginPath();
+        g.moveTo(cx + d * s * 0.30, cy - s * 0.02);
+        g.lineTo(cx + d * s * 0.19, cy + s * 0.05);
+        g.lineTo(cx + d * s * 0.22, cy - s * 0.07);
+        g.stroke();
+      });
+      g.fillStyle = 'rgba(255,255,255,.85)';
+      g.beginPath(); g.arc(cx - s * 0.07, cy - s * 0.07, s * 0.04, 0, 6.283); g.fill();
+      break;
+    }
+
+    /* --- spiky and wide, reads instantly even blurred --- */
+    case 'spider': {
+      g.strokeStyle = sym.color;
+      g.lineWidth = s * 0.045;
+      g.lineCap = 'round';
+      for (let i = 0; i < 4; i++) {
+        const yy = cy - s * 0.10 + i * s * 0.085;
+        const sp = s * (0.20 + (i === 1 || i === 2 ? 0.14 : 0.06));
+        [-1, 1].forEach(d => {
+          g.beginPath();
+          g.moveTo(cx + d * s * 0.06, yy);
+          g.lineTo(cx + d * sp, yy - s * 0.06);
+          g.lineTo(cx + d * (sp + s * 0.08), yy + s * 0.09);
+          g.stroke();
+        });
+      }
+      g.fillStyle = sym.color;
+      g.beginPath(); g.ellipse(cx, cy + s * 0.06, s * 0.14, s * 0.17, 0, 0, 6.283); g.fill();
+      g.beginPath(); g.arc(cx, cy - s * 0.13, s * 0.095, 0, 6.283); g.fill();
+      g.shadowBlur = 0;
+      g.fillStyle = '#fff';
+      g.beginPath(); g.arc(cx - s * 0.04, cy - s * 0.15, s * 0.028, 0, 6.283); g.fill();
+      g.beginPath(); g.arc(cx + s * 0.04, cy - s * 0.15, s * 0.028, 0, 6.283); g.fill();
+      break;
+    }
+
+    case 'clover': {
+      g.fillStyle = sym.color;
+      const r = s * 0.14, o = s * 0.13;
+      [[-o, -o], [o, -o], [-o, o], [o, o]].forEach(([dx, dy]) => {
+        g.beginPath(); g.arc(cx + dx, cy + dy - s * 0.05, r, 0, 6.283); g.fill();
+      });
+      g.fillStyle = '#4a8f14';
+      g.fillRect(cx - s * 0.03, cy + s * 0.08, s * 0.06, s * 0.24);
+      break;
+    }
+
+    case 'skull': {
+      g.fillStyle = sym.color;
+      g.beginPath();
+      g.ellipse(cx, cy - s * 0.05, s * 0.24, s * 0.22, 0, 0, 6.283);
+      g.fill();
+      g.fillRect(cx - s * 0.13, cy + s * 0.12, s * 0.26, s * 0.13);
+      g.shadowBlur = 0;
+      g.fillStyle = '#160a12';
+      g.beginPath(); g.arc(cx - s * 0.10, cy - s * 0.06, s * 0.068, 0, 6.283); g.fill();
+      g.beginPath(); g.arc(cx + s * 0.10, cy - s * 0.06, s * 0.068, 0, 6.283); g.fill();
+      g.fillRect(cx - s * 0.03, cy + s * 0.05, s * 0.06, s * 0.07);
+      /* teeth */
+      g.fillRect(cx - s * 0.075, cy + s * 0.12, s * 0.03, s * 0.13);
+      g.fillRect(cx + s * 0.045, cy + s * 0.12, s * 0.03, s * 0.13);
+      break;
+    }
+
+    /* --- the jackpot: inverted star in a ring --- */
+    case 'pentagram': {
+      g.strokeStyle = sym.color;
+      g.lineWidth = s * 0.055;
+      g.lineJoin = 'miter';
+      const R = s * 0.30;
+      g.beginPath();
+      for (let i = 0; i < 5; i++) {
+        /* step by 2/5 of a turn to draw the star in one stroke; +PI inverts it */
+        const a = Math.PI / 2 + Math.PI + (i * 4 * Math.PI) / 5;
+        const x = cx + Math.cos(a) * R, y = cy + Math.sin(a) * R;
+        i ? g.lineTo(x, y) : g.moveTo(x, y);
+      }
+      g.closePath();
+      g.stroke();
+      g.lineWidth = s * 0.042;
+      g.beginPath(); g.arc(cx, cy, R * 1.06, 0, 6.283); g.stroke();
+      break;
+    }
+  }
+  g.restore();
+}
+drawPatternBoard = (g, w, h) => {
+    g.fillStyle = '#0b0708'; g.fillRect(0, 0, w, h);
+
+    const HDR = 62, ROW = (h - HDR - 16) / PATTERNS.length;
+    const SPLIT = 330;
+
+    g.fillStyle = '#e2ddd2'; g.fillRect(8, 8, w - 16, HDR);
+    g.fillStyle = '#14100e';
+    g.font = '900 30px "Arial Black", sans-serif';
+    g.textBaseline = 'middle'; g.textAlign = 'center';
+    g.fillText('PATTERN', 8 + SPLIT / 2, 8 + HDR / 2);
+    g.fillText('MULTIPLIER', 8 + SPLIT + (w - 16 - SPLIT) / 2, 8 + HDR / 2);
+
+    PATTERNS.forEach((p, i) => {
+      const y = 8 + HDR + i * ROW;
+      g.fillStyle = i % 2 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.32)';
+      g.fillRect(8, y, w - 16, ROW);
+
+      /* mini grid — the first line stands in for the whole named pattern */
+      const lit = new Set(p.lines[0].map(([r, c]) => r * 5 + c));
+      const D = 10, GAP = 3, gx = 26, gy = y + ROW / 2 - (3 * D + 2 * GAP) / 2;
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 5; c++) {
+          g.fillStyle = lit.has(r * 5 + c) ? '#ff9a24' : 'rgba(130,98,74,.32)';
+          g.fillRect(gx + c * (D + GAP), gy + r * (D + GAP), D, D);
+        }
+      }
+
+      g.textAlign = 'left';
+      g.font = '900 30px "Arial Black", sans-serif';
+      g.fillStyle = '#ffc65a';
+      g.fillText(p.id, gx + 5 * (D + GAP) + 24, y + ROW / 2 + 2);
+
+      /* live multiplier — pattern charms add straight onto this */
+      const _pm = (typeof myMachine !== 'undefined' && myMachine)
+                ? p.mult + buff(myMachine, 'pat', p.id) : p.mult;
+      g.font = '900 34px "Arial Black", sans-serif';
+      g.fillStyle = _pm > p.mult ? '#7ed321' : '#ffffff';
+      g.fillText('x' + _pm.toFixed(1), 8 + SPLIT + 34, y + ROW / 2 + 2);
+
+      g.strokeStyle = 'rgba(198,34,30,.9)'; g.lineWidth = 3;
+      g.beginPath(); g.moveTo(8, y); g.lineTo(w - 8, y); g.stroke();
+    });
+
+    g.strokeStyle = 'rgba(198,34,30,.9)'; g.lineWidth = 3;
+    g.beginPath();
+    g.moveTo(8 + SPLIT, 8 + HDR); g.lineTo(8 + SPLIT, h - 8); g.stroke();
+    g.strokeRect(8, 8, w - 16, h - 16);
+  };
+drawSymbolBoard = (g, w, h) => {
+    g.fillStyle = '#0b0708'; g.fillRect(0, 0, w, h);
+
+    const HDR = 62, ROW = (h - HDR - 16) / SYMBOLS.length;
+    const C1 = 300, C2 = 430;
+
+    g.fillStyle = '#e2ddd2'; g.fillRect(8, 8, w - 16, HDR);
+    g.fillStyle = '#14100e';
+    g.font = '900 28px "Arial Black", sans-serif';
+    g.textBaseline = 'middle'; g.textAlign = 'center';
+    g.fillText('SYMBOL', 8 + C1 / 2, 8 + HDR / 2);
+    g.fillText('PAYS', 8 + C1 + 60, 8 + HDR / 2);
+    /* CHANCE is the widest word in the narrowest column — at 28px it ran 4px
+       past the panel border and lost its final E on the wall. */
+    g.font = '900 23px "Arial Black", sans-serif';
+    g.fillText('CHANCE', 8 + C2 + 58, 8 + HDR / 2);
+
+    /* LIVE numbers: pay and chance both read through the fitted charms, so the
+       board tracks the run instead of describing a machine you stopped playing
+       several purchases ago. Buffed rows are tinted so you can see at a glance
+       what your charms have actually changed. */
+    const _m = (typeof myMachine !== 'undefined') ? myMachine : null;
+    const _sw = s => (_m ? buff(_m, 'symWeight', s.id) : 0)
+                   + (_m && s.id === 'clover' ? buff(_m, 'cloverWeight') : 0);
+    const total = SYMBOLS.reduce((s, x) => s + x.w + _sw(x), 0);
+    [...SYMBOLS].sort((a, b) => b.pay - a.pay).forEach((sym, i) => {
+      const y = 8 + HDR + i * ROW;
+      g.fillStyle = i % 2 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.32)';
+      g.fillRect(8, y, w - 16, ROW);
+
+      drawSymbol(g, sym, 58, y + ROW / 2, 66);
+
+      g.textAlign = 'left';
+      g.font = '900 30px "Arial Black", sans-serif';
+      g.fillStyle = '#ffc65a';
+      g.fillText(sym.id.toUpperCase(), 108, y + ROW / 2 + 2);
+
+      const symUp = _m ? buff(_m, 'sym', sym.id) : 0;
+      const allUp = _m ? buff(_m, 'all') : 0;
+      const pay = Math.round(sym.pay * (1 + symUp) * (1 + allUp));
+      const chance = ((sym.w + _sw(sym)) / total) * 100;
+
+      g.textAlign = 'center';
+      g.font = '900 32px "Arial Black", sans-serif';
+      g.fillStyle = pay > sym.pay ? '#7ed321' : '#ffffff';
+      g.fillText(String(pay), 8 + C1 + 60, y + ROW / 2 + 2);
+
+      g.font = '900 26px "Arial Black", sans-serif';
+      g.fillStyle = _sw(sym) > 0 ? '#7ed321' : '#9fd86a';
+      g.fillText(chance.toFixed(chance < 10 ? 1 : 0) + '%', 8 + C2 + 58, y + ROW / 2 + 2);
+
+      g.strokeStyle = 'rgba(198,34,30,.9)'; g.lineWidth = 3;
+      g.beginPath(); g.moveTo(8, y); g.lineTo(w - 8, y); g.stroke();
+    });
+
+    g.strokeStyle = 'rgba(198,34,30,.9)'; g.lineWidth = 3;
+    [C1, C2].forEach(x => {
+      g.beginPath(); g.moveTo(8 + x, 8 + HDR); g.lineTo(8 + x, h - 8); g.stroke();
+    });
+    g.strokeRect(8, 8, w - 16, h - 16);
+  };
+/* ======================================================================
+   PAGE CODE — this part is written by the generator, not lifted.
+   ====================================================================== */
+
+/* ---- page state --------------------------------------------------------
+   `myMachine.charms` holds one entry PER COPY, exactly as the game does, so
+   stackable charms just appear more than once. */
+const SYM_C   = document.getElementById('symBoard');
+const PAT_C   = document.getElementById('patBoard');
+const KINDS   = ['PAYOUT','PATTERN','TEMPO','LUCK','NERVE','GREED','COMPOUND','FUSED'];
+const KIND_HUE = { PAYOUT:'#d8b070', PATTERN:'#88b0d0', TEMPO:'#c0c8a0', NERVE:'#9aa8b0',
+                   GREED:'#e0b040', FUSED:'#c890e8', LUCK:'#7ed321', COMPOUND:'#ff7a3a' };
+
+function spend() {
+  /* replay the purchases in order so repeatable charms price up the way they
+     actually did on the night you bought them */
+  const held = [];
+  let total = 0;
+  for (const id of myMachine.charms) {
+    const c = charmById(id);
+    if (!c) continue;
+    const n = held.filter(x => x === id).length;
+    total += c.costGrow ? Math.round(c.cost * Math.pow(c.costGrow, n)) : c.cost;
+    held.push(id);
+  }
+  return total;
+}
+
+function redraw() {
+  for (const [cv, draw] of [[SYM_C, drawSymbolBoard], [PAT_C, drawPatternBoard]])
+    draw(cv.getContext('2d'), cv.width, cv.height);
+  renderCharms();
+  document.getElementById('statSpent').textContent = spend().toLocaleString();
+  document.getElementById('statMult').textContent  = 'x' + buffMult(myMachine).toFixed(2);
+  document.getElementById('statAll').textContent   = '+' + Math.round((buff(myMachine,'all') + buff(myMachine,'perClover')) * 100) + '%';
+  document.getElementById('statSpins').textContent = '+' + buff(myMachine, 'extraSpins');
+  document.getElementById('statCount').textContent = myMachine.charms.length;
+  document.getElementById('loadout').value = JSON.stringify(myMachine.charms);
+}
+
+function renderCharms() {
+  const host = document.getElementById('charms');
+  host.innerHTML = '';
+  for (const kind of KINDS) {
+    const list = CHARMS.filter(c => c.kind === kind);
+    if (!list.length) continue;
+    const sec = document.createElement('div');
+    sec.className = 'kind';
+    sec.innerHTML = '<h3 style="color:' + KIND_HUE[kind] + '">' + kind + '</h3>';
+    const grid = document.createElement('div');
+    grid.className = 'kgrid';
+    for (const c of list) {
+      const have = charmCount(c.id);
+      /* locked = its `needs` are unmet, which is the game's own ladder gate */
+      const locked = !!(c.needs && !c.needs.every(hasCharm));
+      const capped = !c.repeat && (c.stack ? have >= STACK_CAP : have >= 1);
+      const b = document.createElement('button');
+      b.className = 'charm' + (have ? ' on' : '') + (locked ? ' locked' : '');
+      b.disabled = locked || (capped && !have);
+      b.style.setProperty('--hue', KIND_HUE[kind]);
+      b.innerHTML =
+        '<span class="cn">' + c.name + (c.tier ? ' <i>' + c.tier + '</i>' : '') + '</span>' +
+        '<span class="cd">' + c.desc + '</span>' +
+        '<span class="cc">' + charmCost(c) + 'c' +
+          (have ? '<b>' + (have > 1 ? '\u00d7' + have : 'fitted') + '</b>' : '') + '</span>' +
+        (locked ? '<span class="cl">needs ' + c.needs.map(n => (charmById(n)||{}).name || n).join(' + ') + '</span>' : '');
+      b.onclick = e => {
+        if (e.shiftKey) { const i = myMachine.charms.lastIndexOf(c.id); if (i >= 0) myMachine.charms.splice(i, 1); }
+        else if (!capped) myMachine.charms.push(c.id);
+        prune(); redraw();
+      };
+      grid.appendChild(b);
+    }
+    sec.appendChild(grid);
+    host.appendChild(sec);
+  }
+}
+
+/* Removing a prerequisite has to remove what it unlocked, or the board shows a
+   loadout the game would never let you hold. Repeat until nothing drops. */
+function prune() {
+  for (;;) {
+    const before = myMachine.charms.length;
+    myMachine.charms = myMachine.charms.filter(id => {
+      const c = charmById(id);
+      if (!c || !c.needs) return true;
+      return c.needs.every(n => myMachine.charms.includes(n));
+    });
+    if (myMachine.charms.length === before) return;
+  }
+}
+
+document.getElementById('clovers').oninput = e => {
+  game.clovers = +e.target.value;
+  document.getElementById('cloverN').textContent = game.clovers;
+  redraw();
+};
+document.getElementById('reset').onclick = () => { myMachine.charms.length = 0; redraw(); };
+document.getElementById('loadout').onchange = e => {
+  try {
+    const v = JSON.parse(e.target.value);
+    if (Array.isArray(v)) { myMachine.charms = v.filter(id => charmById(id)); prune(); redraw(); }
+  } catch (_) { /* leave the old loadout alone rather than blanking the boards */ }
+};
+for (const cv of [SYM_C, PAT_C]) cv.onclick = () => {
+  const a = document.createElement('a');
+  a.download = cv.id.replace('Board', '_board') + '.png';
+  a.href = cv.toDataURL('image/png');
+  a.click();
+};
+
+redraw();
+
+</script>
+</body>
+</html>
