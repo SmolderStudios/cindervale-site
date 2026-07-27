@@ -305,6 +305,26 @@ const CHARMS = [
     desc: 'All wins +18% more. Dread rises faster still.',
     all: 0.18, dread: 0.45, needs: ['greedcut'] },
 
+  /* ---- CULL. The other half of the reel-weight lever. Every charm above ADDS
+     presence to a symbol; these take it away. Because a symbol's odds are its
+     share of the total weight, thinning the commons lifts everything else
+     without touching it — which is the only way to make the rare, high-paying
+     end of the board show up often enough to matter.
+
+     The trade is real. Candles and moths are what pay your small, steady wins,
+     so a run that culls them is betting the night on landing the top end and
+     starving if it doesn't. That is the decision these exist to create. ---- */
+  { id: 'snuffed',   name: 'SNUFFED',     kind: 'CULL', tier: 'I', cost: 84,
+    desc: 'Candles land far less often.', symWeight: { candle: -18 } },
+  { id: 'mothbane',  name: 'MOTHBANE',    kind: 'CULL', tier: 'I', cost: 92,
+    desc: 'Moths land far less often.', symWeight: { moth: -14 } },
+  { id: 'sweptclean', name: 'SWEPT CLEAN', kind: 'CULL', tier: 'II', cost: 175,
+    desc: 'Candles and moths grow scarcer still.',
+    symWeight: { candle: -10, moth: -8 }, needs: ['snuffed', 'mothbane'] },
+  { id: 'thintheherd', name: 'THIN THE HERD', kind: 'CULL', tier: 'II', cost: 190,
+    desc: 'Eyes and spiders land less often, and all wins +8%.',
+    symWeight: { eye: -8, spider: -4 }, all: 0.08, needs: ['snuffed'] },
+
   /* ---- FUSED. Two finished lines welded into one thing neither could do.
      These are the reason to go deep on a pair rather than wide on everything,
      and the `needs` gate means they can only ever show up once you have. ---- */
@@ -402,6 +422,11 @@ function buff(m, field, key) {
     else if (field === 'clovers') v += c.clovers || 0;
   }
   return v;
+}
+function weightOf(m, s) {
+  let w = s.w + (m ? buff(m, 'symWeight', s.id) : 0);
+  if (s.id === 'clover' && m) w += buff(m, 'cloverWeight');
+  return Math.max(1, w);
 }
 function drawSymbol(g, sym, cx, cy, s) {
   g.save();
@@ -655,9 +680,9 @@ drawSymbolBoard = (g, w, h) => {
        several purchases ago. Buffed rows are tinted so you can see at a glance
        what your charms have actually changed. */
     const _m = (typeof myMachine !== 'undefined') ? myMachine : null;
-    const _sw = s => (_m ? buff(_m, 'symWeight', s.id) : 0)
-                   + (_m && s.id === 'clover' ? buff(_m, 'cloverWeight') : 0);
-    const total = SYMBOLS.reduce((s, x) => s + x.w + _sw(x), 0);
+    /* weightOf() applies the same floor the reels use, so a culled symbol
+       shows the odds it actually rolls at rather than a negative share */
+    const total = SYMBOLS.reduce((a, x) => a + weightOf(_m, x), 0);
     [...SYMBOLS].sort((a, b) => b.pay - a.pay).forEach((sym, i) => {
       const y = 8 + HDR + i * ROW;
       g.fillStyle = i % 2 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.32)';
@@ -673,7 +698,7 @@ drawSymbolBoard = (g, w, h) => {
       const symUp = _m ? buff(_m, 'sym', sym.id) : 0;
       const allUp = _m ? buff(_m, 'all') : 0;
       const pay = Math.round(sym.pay * (1 + symUp) * (1 + allUp));
-      const chance = ((sym.w + _sw(sym)) / total) * 100;
+      const chance = (weightOf(_m, sym) / total) * 100;
 
       g.textAlign = 'center';
       g.font = '900 32px "Arial Black", sans-serif';
@@ -681,7 +706,9 @@ drawSymbolBoard = (g, w, h) => {
       g.fillText(String(pay), 8 + C1 + 60, y + ROW / 2 + 2);
 
       g.font = '900 26px "Arial Black", sans-serif';
-      g.fillStyle = _sw(sym) > 0 ? '#7ed321' : '#9fd86a';
+      /* green = a charm made it commoner, red = a CULL made it rarer */
+      const _wd = weightOf(_m, sym) - sym.w;
+      g.fillStyle = _wd > 0 ? '#7ed321' : _wd < 0 ? '#e0644a' : '#9fd86a';
       g.fillText(chance.toFixed(chance < 10 ? 1 : 0) + '%', 8 + C2 + 58, y + ROW / 2 + 2);
 
       g.strokeStyle = 'rgba(198,34,30,.9)'; g.lineWidth = 3;
@@ -703,9 +730,10 @@ drawSymbolBoard = (g, w, h) => {
    stackable charms just appear more than once. */
 const SYM_C   = document.getElementById('symBoard');
 const PAT_C   = document.getElementById('patBoard');
-const KINDS   = ['PAYOUT','PATTERN','TEMPO','LUCK','NERVE','GREED','COMPOUND','FUSED'];
+const KINDS   = ['PAYOUT','PATTERN','TEMPO','LUCK','NERVE','CULL','GREED','COMPOUND','FUSED'];
 const KIND_HUE = { PAYOUT:'#d8b070', PATTERN:'#88b0d0', TEMPO:'#c0c8a0', NERVE:'#9aa8b0',
-                   GREED:'#e0b040', FUSED:'#c890e8', LUCK:'#7ed321', COMPOUND:'#ff7a3a' };
+                   GREED:'#e0b040', FUSED:'#c890e8', LUCK:'#7ed321', COMPOUND:'#ff7a3a',
+                   CULL:'#9a8fa4' };
 
 function spend() {
   /* replay the purchases in order so repeatable charms price up the way they
