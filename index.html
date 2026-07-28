@@ -276,6 +276,29 @@ a.cm-opt .cm-t{color:#8b9cff}
 .comm.discord .ico{color:#8b9cff}
 .comm.discord .badge{color:#8b9cff; border-color:rgba(88,101,242,.4)}
 
+/* ---------- PLAYTEST ----------
+   One centred panel rather than a fourth .comm card: .comm-grid is a fixed
+   repeat(3,1fr), so a fourth would leave an orphan on its own row. */
+#playtest{padding:0 0 96px}
+.pt-panel{max-width:840px; margin:0 auto; text-align:center; border-radius:16px;
+  padding:46px 40px 40px; border:1px solid rgba(88,101,242,.38);
+  background:linear-gradient(180deg,rgba(88,101,242,.09),rgba(28,19,10,.55) 60%,var(--panel));
+  box-shadow:0 24px 70px rgba(0,0,0,.45)}
+.pt-panel .eyebrow{color:#8b9cff}
+.pt-panel h2{font-size:clamp(27px,3.6vw,38px); margin-bottom:14px}
+.pt-lead{color:var(--muted); font-size:17px; max-width:620px; margin:0 auto 26px}
+.pt-points{list-style:none; padding:0; margin:0 auto 28px; max-width:640px;
+  display:grid; gap:11px; text-align:left}
+.pt-points li{position:relative; padding-left:26px; color:var(--text); font-size:14.5px; line-height:1.55}
+.pt-points li::before{content:""; position:absolute; left:8px; top:.62em; width:6px; height:6px;
+  border-radius:50%; background:#8b9cff}
+.pt-points b{color:var(--trim-bright)}
+.pt-fine{margin:16px 0 0; font-size:12.5px; color:var(--dim)}
+@media(max-width:720px){
+  .pt-panel{padding:34px 22px 30px}
+  .pt-points{gap:13px}
+}
+
 /* ---------- FINAL CTA ---------- */
 .finalcta{text-align:center; padding:100px 0}
 .finalcta h2{font-size:clamp(34px,5.5vw,58px); margin-bottom:18px}
@@ -576,6 +599,29 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
           <a class="btn btn-ghost" href="https://smolderstudios.github.io/cindervale/cindervale.html" target="_blank" rel="noopener">Launch the demo →</a>
         </div>
 
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAYTEST -->
+  <!-- Deliberately does NOT link to /playtester. That page is code-gated and the
+       codes are handed out by hand in Discord, so pointing people straight at it
+       would just give them a form they cannot get past. Discord is the door. -->
+  <section id="playtest">
+    <div class="wrap">
+      <div class="pt-panel reveal">
+        <div class="pt-body">
+          <p class="eyebrow">Before launch</p>
+          <h2>Want to <em>playtest</em>?</h2>
+          <p class="pt-lead">A small group is playing Cindervale ahead of the Steam release — testing new builds, breaking things, and shaping what gets fixed first.</p>
+          <ul class="pt-points">
+            <li><b>Play it before Steam.</b> Updates land in the playtest build days before they reach the store.</li>
+            <li><b>Your progress carries over.</b> Characters made now come with you to the Steam version.</li>
+            <li><b>Say what you actually think.</b> Bug reports and blunt feedback both go straight to the developer.</li>
+          </ul>
+          <a class="btn btn-primary" href="https://discord.gg/Z8kZjzgxWt" target="_blank" rel="noopener">Ask in the Discord →</a>
+          <p class="pt-fine">Windows only &middot; limited spots &middot; access is handed out in the Discord</p>
+        </div>
       </div>
     </div>
   </section>
