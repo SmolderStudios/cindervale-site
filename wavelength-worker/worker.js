@@ -46,6 +46,7 @@ export class Room {
     this.target = 0;
     this.clue = '';
     this.guess = null;
+    this.aim = null;            // the guesser's needle while they are still moving it
     this.pts = 0;
     this.skips = SKIPS;
     this.total = 0;
@@ -79,6 +80,7 @@ export class Room {
     this.target = EDGE + Math.random() * (100 - 2 * EDGE);
     this.clue = '';
     this.guess = null;
+    this.aim = null;
     this.pts = 0;
     this.phase = 'clue';
   }
@@ -100,6 +102,9 @@ export class Room {
       card: this.card,
       clue: this.clue,
       guess: this.guess,
+      // where they are hovering right now — only meaningful mid-guess, and only
+      // the psychic has any use for it
+      aim: this.phase === 'guess' ? this.aim : null,
       // the whole point: a guesser is never sent the target mid-round
       target: this.phase === 'lobby' ? null : (shown ? this.target : null),
       pts: this.pts,
@@ -202,6 +207,20 @@ export class Room {
         this.card = this.draw();
         this.target = EDGE + Math.random() * (100 - 2 * EDGE);
         break;
+      }
+
+      /* Live needle. Relayed straight to the psychic instead of pushed as state:
+         this arrives ~10x a second while they drag, and a full frame each time
+         would be silly. Kept on the room too, so a psychic who reloads mid-guess
+         still picks the needle up. */
+      case 'aim': {
+        if (this.phase !== 'guess' || i === this.psychic) break;
+        const v = Number(m.v);
+        if (!isFinite(v) || v < 0 || v > 100) break;
+        this.aim = v;
+        const p = this.seats[this.psychic];
+        if (live(p)) { try { p.ws.send(JSON.stringify({ t: 'aim', v })); } catch (e) {} }
+        return;                            // no state push
       }
 
       case 'guess': {

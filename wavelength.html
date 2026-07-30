@@ -271,6 +271,7 @@ details.rules b{color:var(--text)}
       <li>One of you is the <b>psychic</b>. You alone see a hidden <b>target</b> sitting somewhere on that dial.</li>
       <li>The psychic gives <b>one clue</b>: anything in the world that sits exactly there on the spectrum. Not "warm" — say <b>a cup of tea</b>.</li>
       <li>The other player spins the needle to where they think that clue lands, and locks it in.</li>
+      <li>The psychic watches that needle move <b>live</b> — a dashed arm crawling towards the target, or away from it. Squirming is half the game.</li>
       <li>Scoring: <b>4</b> dead centre, <b>3</b> close, <b>2</b> on the edge of the target, <b>0</b> outside it.</li>
       <li>You're on the <b>same team</b> — the score is shared. Roles swap every round. Chase a high average.</li>
       <li>Dealt a spectrum you can't work with? The psychic can <b>swap the card</b> — three swaps per game.</li>
@@ -639,6 +640,7 @@ const esc = s => String(s == null ? '' : s)
 let sock = null, S = null, code = '', myName = '', mateName = '';
 let local = false, wantOpen = false, retries = 0, retryT = 0;
 let needle = 50, locked = false, curtainFor = -1, lastPhase = '', lastRound = 0;
+let oppAim = null;                 // their needle, live, while they are still moving it
 let rounds = 10;
 const sel = new Set();
 
@@ -786,6 +788,9 @@ function openSock(){
   sock.onmessage = ev => {
     let m; try { m = JSON.parse(ev.data); } catch (e){ return; }
     if (m.t === 'state'){ S = m; render(); }
+    else if (m.t === 'aim'){
+      if (S && S.phase === 'guess' && S.you === S.psychic){ oppAim = m.v; paintGhost(); }
+    }
     else if (m.t === 'chat') say(m.from, m.text, m.own);
     else if (m.t === 'full'){ wantOpen = false; alert('That room already has two players in it.'); quit(); }
   };
@@ -858,19 +863,25 @@ function dialSVG(o){
   }
   p.push('<path d="' + seg(0,100,R_OUT+6,R_OUT+10) + '" fill="url(#wlrail)" fill-opacity=".55"/>');
   // locked-in guess (drawn under the live needle so both read at reveal)
-  if (o.guess != null) p.push(pin(o.guess, '#57d2ff', o.needle != null ? .5 : 1));
-  if (o.needle != null) p.push(pin(o.needle, '#f4f7ff', 1));
+  if (o.guess != null) p.push(pin(o.guess, '#57d2ff', o.needle != null ? .5 : 1, 'guess'));
+  if (o.ghost != null) p.push(pin(o.ghost, '#e9edf8', .62, 'opp', 1));
+  if (o.needle != null) p.push(pin(o.needle, '#f4f7ff', 1, 'me'));
   p.push('<circle cx="' + CX + '" cy="' + CY + '" r="17" fill="#242a3c" stroke="#3a4360"/>');
   p.push('<circle cx="' + CX + '" cy="' + CY + '" r="5" fill="#8b94ad"/>');
   p.push('</svg>');
   return p.join('');
 }
-function pin(v, col, op){
+function pin(v, col, op, cls, dash){
   const g = (v - 50) * 1.8;
-  return '<g transform="rotate(' + g.toFixed(2) + ' ' + CX + ' ' + CY + ')" opacity="' + op + '">' +
+  return '<g class="pin ' + cls + '" transform="rotate(' + g.toFixed(2) + ' ' + CX + ' ' + CY +
+    ')" opacity="' + op + '">' +
     '<line x1="' + CX + '" y1="' + (CY - 12) + '" x2="' + CX + '" y2="' + (CY - R_OUT - 12) +
-    '" stroke="' + col + '" stroke-width="4" stroke-linecap="round"/>' +
-    '<circle cx="' + CX + '" cy="' + (CY - R_OUT - 16) + '" r="9" fill="' + col + '"/>' +
+    '" stroke="' + col + '" stroke-width="' + (dash ? 3 : 4) + '" stroke-linecap="round"' +
+    (dash ? ' stroke-dasharray="9 7"' : '') + '/>' +
+    (dash
+      ? '<circle cx="' + CX + '" cy="' + (CY - R_OUT - 16) + '" r="8" fill="none" stroke="' + col +
+        '" stroke-width="3"/>'
+      : '<circle cx="' + CX + '" cy="' + (CY - R_OUT - 16) + '" r="9" fill="' + col + '"/>') +
     '</g>';
 }
 function vFromEvent(ev){
@@ -883,13 +894,36 @@ function vFromEvent(ev){
   const a = Math.atan2(dy, dx) * 180 / Math.PI;
   return clampV((180 - a) / 1.8);
 }
-function paintNeedle(){
+/* Spin one pin in place. Cheap enough to do on every pointermove and on every
+   inbound aim packet; a full re-render there would flicker. */
+function spin(cls, v){
   const svg = $('dialWrap').firstElementChild;
-  if (!svg) return;
-  const gs = svg.querySelectorAll('g[transform]');
-  const g = gs[gs.length - 1];
-  if (g) g.setAttribute('transform',
-    'rotate(' + ((needle - 50) * 1.8).toFixed(2) + ' ' + CX + ' ' + CY + ')');
+  const g = svg && svg.querySelector('.pin.' + cls);
+  if (!g) return false;
+  g.setAttribute('transform', 'rotate(' + ((v - 50) * 1.8).toFixed(2) + ' ' + CX + ' ' + CY + ')');
+  return true;
+}
+const paintNeedle = () => { spin('me', needle); pushAim(); };
+function paintGhost(){ if (!spin('opp', oppAim)) render(); }
+
+/* The guesser's needle, streamed to the psychic while they hunt. Trailing-edge
+   throttled: a drag fires pointermove far faster than anyone needs to watch. */
+let aimTimer = 0, aimSent = -1;
+function pushAim(){
+  if (local || !S || S.phase !== 'guess' || S.you === S.psychic || aimTimer) return;
+  aimTimer = setTimeout(() => {
+    aimTimer = 0;
+    if (Math.abs(needle - aimSent) < 0.05) return;
+    aimSent = needle;
+    send({ t:'aim', v:needle });
+  }, 90);
+}
+function flushAim(){                       // land the final position immediately
+  if (local || !S || S.phase !== 'guess' || S.you === S.psychic) return;
+  clearTimeout(aimTimer); aimTimer = 0;
+  if (Math.abs(needle - aimSent) < 0.05) return;
+  aimSent = needle;
+  send({ t:'aim', v:needle });
 }
 let dragging = false;
 function dialDown(ev){
@@ -899,7 +933,7 @@ function dialDown(ev){
   needle = vFromEvent(ev); paintNeedle();
 }
 function dialMove(ev){ if (dragging && canAim()){ needle = vFromEvent(ev); paintNeedle(); } }
-function dialUp(){ dragging = false; }
+function dialUp(){ dragging = false; flushAim(); }
 const canAim = () => !!S && S.phase === 'guess' && S.you !== S.psychic && !locked;
 
 $('dialWrap').addEventListener('pointerdown', dialDown);
@@ -934,8 +968,11 @@ function render(){
   if (S.round !== lastRound || ph !== lastPhase){
     if (ph === 'clue' && S.round !== lastRound){ needle = 50; locked = false; }
     if (ph === 'guess' && lastPhase !== 'guess'){ needle = 50; locked = false; }
+    if (ph !== 'guess'){ oppAim = null; aimSent = -1; }
     lastRound = S.round; lastPhase = ph;
   }
+  // a psychic who reloaded mid-guess picks their needle back up off the state
+  if (ph === 'guess' && mine && oppAim == null && S.aim != null) oppAim = S.aim;
 
   /* --- top bar --- */
   const pill = i => {
@@ -973,10 +1010,12 @@ function render(){
       bands: showBands, target: S.target,
       guess: S.guess != null ? S.guess : null,
       needle: aim ? needle : null,
+      ghost: ph === 'guess' && mine ? oppAim : null,
     });
     $('dhint').textContent =
-      aim ? 'Drag the dial, or use ← →. Enter locks it in.' :
-      (ph === 'clue' && mine ? 'The gold slice is your target. They cannot see it.' : '');
+      aim ? 'Drag the dial, or use ← →. Enter locks it in. They can watch it move.' :
+      (ph === 'clue' && mine ? 'The gold slice is your target. They cannot see it.' :
+       ph === 'guess' && mine ? 'The dashed needle is them, live. Say nothing.' : '');
   }
 
   if (ph === 'lobby') return renderLobby();
@@ -1029,7 +1068,9 @@ function render(){
     } else {
       ctl.innerHTML = clue + '<div class="banner"><h2>' +
         esc(S.names[oppI] || 'They') + ' is aiming<span class="waitdots"></span></h2>' +
-        '<p>Nothing more you can do. No hints.</p></div>';
+        '<p>' + (oppAim == null
+          ? 'Watch the dial — you’ll see their needle the moment they touch it.'
+          : 'Nothing more you can do. No hints.') + '</p></div>';
     }
     return maybeCurtain();
   }
@@ -1290,7 +1331,8 @@ $('nameIn').addEventListener('keydown', e => { if (e.key === 'Enter') $('btnCrea
 /* handles for the jsdom suite */
 window.__wl = {
   CATS, DV, TOTALCARDS, scoreOf, cardOf, dialSVG, vFromEvent, RATING,
-  L, lview, localSend, render,
+  L, lview, localSend, render, pushAim, flushAim, paintNeedle,
+  get oppAim(){ return oppAim; },
   get S(){ return S; }, set S(v){ S = v; },
   get needle(){ return needle; }, set needle(v){ needle = v; },
   get local(){ return local; }, set local(v){ local = v; },
