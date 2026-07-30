@@ -415,7 +415,14 @@
     bee: I('<path d="M12 4.5c3 0 5 2.4 5 6.5s-2 8.5-5 8.5-5-4.4-5-8.5 2-6.5 5-6.5z"/><path d="M7.4 10h9.2M7.6 14h8.8"/><path d="M9 5.5 6 3M15 5.5 18 3"/>'),
     rankdle: I('<path d="M4 19h4V9H4zM10 19h4V4h-4zM16 19h4v-7h-4z"/>'),
     cluedle: I('<circle cx="11" cy="11" r="7"/><path d="M16.2 16.2 21 21"/><path d="M11 8v3.2M11 14h.01"/>'),
-    phylo: I('<circle cx="5" cy="12" r="2"/><circle cx="13" cy="6" r="2"/><circle cx="13" cy="18" r="2"/><circle cx="20" cy="6" r="1.6"/><circle cx="20" cy="18" r="1.6"/><path d="M7 12c3 0 3-6 4-6M7 12c3 0 3 6 4 6M15 6h3.4M15 18h3.4"/>')
+    travle: I('<circle cx="5" cy="18" r="2.2" fill="#5fa663" stroke="none"/><circle cx="19" cy="6" r="2.2" fill="#b4483f" stroke="none"/><path d="M6.6 16.4C9 13 8 10.5 11 10.5s3 3.5 6.4-2.9" stroke-dasharray="2.5 2"/><circle cx="11" cy="10.5" r="1.4"/>'),
+    capitals: I('<path d="M4 20h16"/><path d="M6 20V9l6-4 6 4v11"/><path d="M10 20v-5h4v5"/><circle cx="12" cy="10.5" r="1.2"/>'),
+    borders: I('<path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/>'),
+    boxed: I('<rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9" cy="4" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="4" r="1.1" fill="currentColor" stroke="none"/><circle cx="20" cy="9" r="1.1" fill="currentColor" stroke="none"/><circle cx="20" cy="15" r="1.1" fill="currentColor" stroke="none"/><circle cx="4" cy="9" r="1.1" fill="currentColor" stroke="none"/><circle cx="4" cy="15" r="1.1" fill="currentColor" stroke="none"/><path d="M9 4 20 15 4 9 15 20"/>'),
+    weaver: I('<rect x="3" y="3" width="18" height="4.4" rx="1.4"/><rect x="3" y="9.8" width="18" height="4.4" rx="1.4"/><rect x="3" y="16.6" width="18" height="4.4" rx="1.4"/><path d="M8 7.4v2.4M16 14.2v2.4"/>'),
+    threads: I('<circle cx="6" cy="6" r="1.7"/><circle cx="12" cy="10" r="1.7"/><circle cx="18" cy="7" r="1.7"/><circle cx="9" cy="17" r="1.7"/><circle cx="16" cy="18" r="1.7"/><path d="M7.4 7 10.7 9M13.4 9.4 16.6 8M11.6 11.7 9.7 15.4M10.6 17.3l3.8.5"/>'),
+    codebreak: I('<circle cx="7" cy="7" r="3" fill="#c9a227" stroke="none"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/><circle cx="17" cy="17" r="3" fill="#5fa663" stroke="none"/>'),
+    sudoku: I('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18" opacity=".5"/><path d="M3 12h18" /><path d="M12 3v18"/>')
   };
   DLES.icon = function (id) { return DLES.ICONS[id] || I('<circle cx="12" cy="12" r="8"/>'); };
 

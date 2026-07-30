@@ -80,15 +80,6 @@
       acc: function (m) { return byGuess(b(m.solved), n(m.guesses), 6, .34, 0); },
       chips: function (m) { return [b(m.solved) ? n(m.guesses) + '/6 guesses' : 'unsolved']; } },
 
-    mini: { fast: 65e3, slow: 330e3,
-      acc: function (m) {
-        var tot = n(m.total) || 25;
-        if (b(m.solved)) return 1 - clamp(n(m.checks), 0, 6) / 6 * .45;
-        return .55 * (n(m.correct) / tot);
-      },
-      chips: function (m) { return [b(m.solved) ? 'solved' : n(m.correct) + '/' + n(m.total) + ' squares',
-                                     n(m.checks) ? n(m.checks) + ' reveals' : 'no help']; } },
-
     globle: { fast: 45e3, slow: 260e3,
       acc: function (m) { return byGuess(b(m.solved), n(m.guesses), 12, .3, 0); },
       chips: function (m) { return [b(m.solved) ? n(m.guesses) + ' guesses' : 'unsolved']; } },
@@ -137,9 +128,69 @@
       chips: function (m) { return [b(m.solved) ? n(m.cluesUsed) + ' clues' : 'unsolved',
                                      n(m.wrong) + ' wrong']; } },
 
-    phylo: { fast: 45e3, slow: 250e3,
-      acc: function (m) { return byGuess(b(m.solved), n(m.guesses), 10, .3, 0); },
-      chips: function (m) { return [b(m.solved) ? n(m.guesses) + ' guesses' : 'unsolved']; } }
+    /* ── geography ─────────────────────────────────────────────────── */
+    travle: { fast: 60e3, slow: 300e3,
+      acc: function (m) {
+        if (!b(m.solved)) return .25 * clamp(n(m.best) / Math.max(1, n(m.par) + 3), 0, 1);
+        var par = n(m.par) || 1, used = Math.max(par, n(m.steps));
+        // Par is the shortest possible route; every extra hop costs a fifth.
+        return clamp(1 - (used - par) * .2, .3, 1);
+      },
+      chips: function (m) { return [b(m.solved) ? n(m.steps) + ' stops (best ' + n(m.par) + ')' : 'no route',
+                                     n(m.wrong) ? n(m.wrong) + ' dead ends' : null].filter(Boolean); } },
+
+    capitals: { fast: 35e3, slow: 150e3,
+      acc: function (m) {
+        var tot = n(m.total) || 1;
+        return clamp(n(m.correct) / tot, 0, 1);
+      },
+      chips: function (m) { return [n(m.correct) + '/' + n(m.total) + ' right']; } },
+
+    borders: { fast: 45e3, slow: 220e3,
+      acc: function (m) {
+        var tot = n(m.total) || 1;
+        var got = clamp(n(m.found), 0, tot) / tot;
+        return clamp(got - n(m.wrong) * .07, 0, 1);
+      },
+      chips: function (m) { return [n(m.found) + '/' + n(m.total) + ' neighbours',
+                                     n(m.wrong) ? n(m.wrong) + ' wrong' : null].filter(Boolean); } },
+
+    /* ── word + logic ──────────────────────────────────────────────── */
+    boxed: { fast: 90e3, slow: 360e3,
+      acc: function (m) {
+        if (!b(m.solved)) return .3 * (clamp(n(m.used), 0, 12) / 12);
+        // Six words is a comfortable solve, three or fewer is excellent.
+        return clamp(1 - (clamp(n(m.words), 1, 12) - 2) * .13, .35, 1);
+      },
+      chips: function (m) { return [b(m.solved) ? n(m.words) + ' words' : n(m.used) + '/12 letters used']; } },
+
+    weaver: { fast: 50e3, slow: 240e3,
+      acc: function (m) {
+        if (!b(m.solved)) return .25 * clamp(n(m.best) / Math.max(1, n(m.par)), 0, 1);
+        var par = n(m.par) || 1, used = Math.max(par, n(m.steps));
+        return clamp(1 - (used - par) * .13, .35, 1);
+      },
+      chips: function (m) { return [b(m.solved) ? n(m.steps) + ' steps (best ' + n(m.par) + ')' : 'unsolved']; } },
+
+    codebreak: { fast: 45e3, slow: 210e3,
+      acc: function (m) { return byGuess(b(m.solved), n(m.guesses), 8, .3, 0); },
+      chips: function (m) { return [b(m.solved) ? 'cracked in ' + n(m.guesses) : 'not cracked']; } },
+
+    threads: { fast: 55e3, slow: 260e3,
+      acc: function (m) {
+        var tot = n(m.total) || 1;
+        return clamp(n(m.found) / tot - n(m.wrong) * .04, 0, 1);
+      },
+      chips: function (m) { return [n(m.found) + '/' + n(m.total) + ' words']; } },
+
+    sudoku: { fast: 100e3, slow: 420e3,
+      acc: function (m) {
+        var tot = n(m.total) || 1;
+        if (b(m.solved)) return clamp(1 - n(m.wrong) * .05, .45, 1);
+        return .5 * (n(m.filled) / tot);
+      },
+      chips: function (m) { return [b(m.solved) ? 'solved' : n(m.filled) + '/' + n(m.total) + ' cells',
+                                     n(m.wrong) ? n(m.wrong) + ' mistakes' : 'clean'].filter(Boolean); } }
   };
 
   function speedPart(spec, timeMs) {
