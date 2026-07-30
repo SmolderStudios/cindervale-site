@@ -1,0 +1,201 @@
+/* ═══ CONNECTIONS PUZZLES ═══════════════════════════════════════════════
+   Hand-authored. Each puzzle is four groups of four, listed EASIEST FIRST —
+   index 0 is the yellow group, 3 is the purple (usually wordplay) one.
+
+   Rule when adding puzzles: a word may look like it fits two groups, but
+   only one partition of all sixteen may be fully consistent. If a word
+   overlaps, make sure its other group is already full without it.
+═══════════════════════════════════════════════════════════════════════════ */
+window.CONNECTIONS = [
+{ c: [
+  ['SHADES OF RED', ['CRIMSON','SCARLET','RUBY','CHERRY']],
+  ['___ BOARD', ['CARD','KEY','SURF','SKATE']],
+  ['THINGS WITH TEETH', ['COMB','SAW','GEAR','ZIPPER']],
+  ['LETTERS, SPELLED OUT', ['BEE','SEA','WHY','QUEUE']] ] },
+
+{ c: [
+  ['DOG BREEDS', ['BOXER','POODLE','BEAGLE','HUSKY']],
+  ['BOXING TERMS', ['JAB','HOOK','CLINCH','ROUND']],
+  ['PARTS OF A SHIP', ['ANCHOR','MAST','DECK','KEEL']],
+  ['STURDY', ['BURLY','HARDY','STOUT','ROBUST']] ] },
+
+{ c: [
+  ['KITCHEN UTENSILS', ['WHISK','LADLE','SPATULA','TONGS']],
+  ['PASTA SHAPES', ['PENNE','ROTINI','ORZO','RIGATONI']],
+  ['___ POT', ['JACK','CROCK','TEA','HOT']],
+  ['SILENT K', ['KNIGHT','KNEEL','KNACK','KNOLL']] ] },
+
+{ c: [
+  ['SEA CREATURES', ['SQUID','CORAL','MANTA','EEL']],
+  ['CARD GAMES', ['BRIDGE','HEARTS','RUMMY','SPADES']],
+  ['GARDEN TOOLS', ['RAKE','HOE','TROWEL','SHEARS']],
+  ['___ FISH', ['JELLY','SWORD','CAT','STAR']] ] },
+
+{ c: [
+  ['MOUNTAIN RANGES', ['ANDES','ALPS','ROCKIES','URALS']],
+  ['COFFEE ORDERS', ['LATTE','MOCHA','ESPRESSO','AMERICANO']],
+  ['STICKY THINGS', ['HONEY','GLUE','TAR','SYRUP']],
+  ['___ TRAP', ['SAND','SPEED','TOURIST','BOOBY']] ] },
+
+{ c: [
+  ['CHESS PIECES', ['ROOK','BISHOP','KNIGHT','PAWN']],
+  ['LEND MONEY', ['LOAN','HOCK','ADVANCE','FRONT']],
+  ['BIRDS', ['FINCH','HERON','MAGPIE','WREN']],
+  ['___ SHOP', ['BARBER','COFFEE','WORK','BODY']] ] },
+
+{ c: [
+  ['SEEN IN A DESERT', ['CACTUS','DUNE','OASIS','MIRAGE']],
+  ['PAINTERS', ['MONET','GOYA','RENOIR','TITIAN']],
+  ['MUSICAL TERMS', ['TEMPO','CHORD','SCALE','REST']],
+  ['SLEEP', ['NAP','DOZE','SNOOZE','SLUMBER']] ] },
+
+{ c: [
+  ['BOARD GAMES', ['CLUE','RISK','SORRY','TROUBLE']],
+  ['PARTS OF A BOOK', ['SPINE','INDEX','PREFACE','CHAPTER']],
+  ['COME IN PAIRS', ['SOCKS','DICE','EARRINGS','CHOPSTICKS']],
+  ['DANGER', ['PERIL','HAZARD','MENACE','THREAT']] ] },
+
+{ c: [
+  ['CITRUS FRUITS', ['LEMON','LIME','POMELO','CITRON']],
+  ['ROMAN GODS', ['MARS','JUNO','VESTA','CERES']],
+  ['___ LIGHT', ['STAR','FLASH','SPOT','HEAD']],
+  ['FLAT THINGS', ['PANCAKE','TIRE','EARTH','NOTE']] ] },
+
+{ c: [
+  ['TREES', ['MAPLE','BIRCH','CEDAR','ASPEN']],
+  ['BEER STYLES', ['STOUT','PORTER','LAGER','PILSNER']],
+  ['ON A BED', ['PILLOW','SHEET','QUILT','DUVET']],
+  ['NONSENSE', ['DRIVEL','TWADDLE','HOKUM','BUNKUM']] ] },
+
+{ c: [
+  ['PLANETS', ['NEPTUNE','SATURN','URANUS','JUPITER']],
+  ['GREEK LETTERS', ['SIGMA','OMEGA','KAPPA','THETA']],
+  ['THINGS THAT RING', ['BELL','PHONE','ALARM','EARS']],
+  ['___ WORK', ['HOME','NET','TEAM','FIRE']] ] },
+
+{ c: [
+  ['SHADES OF BLUE', ['NAVY','COBALT','AZURE','TEAL']],
+  ['MILITARY BRANCHES', ['ARMY','MARINES','COAST','AIR']],
+  ['BUGS', ['APHID','MANTIS','WEEVIL','CICADA']],
+  ['SUDDENLY', ['ABRUPTLY','SHARPLY','SMARTLY','PLUMB']] ] },
+
+{ c: [
+  ['CARD SUITS AND RANKS', ['ACE','JACK','QUEEN','DEUCE']],
+  ['BEE WORDS', ['HIVE','DRONE','COMB','NECTAR']],
+  ['HAIRSTYLES', ['BOB','PERM','BRAID','FADE']],
+  ['GO AWAY SLOWLY', ['DWINDLE','EBB','WANE','TAPER']] ] },
+
+{ c: [
+  ['SPICES', ['CUMIN','NUTMEG','PAPRIKA','CLOVE']],
+  ['BOATS', ['KAYAK','FERRY','SLOOP','BARGE']],
+  ['PALINDROMES', ['LEVEL','RADAR','CIVIC','ROTOR']],
+  ['___ HOUSE', ['LIGHT','GREEN','FULL','WARE']] ] },
+
+{ c: [
+  ['BIG CATS', ['LION','TIGER','LEOPARD','LYNX']],
+  ['CAR MAKERS', ['DODGE','HONDA','TESLA','SUBARU']],
+  ['AVOID', ['DUCK','SHIRK','EVADE','SIDESTEP']],
+  ['___ MAN', ['SPIDER','IRON','SNOW','CON']] ] },
+
+{ c: [
+  ['THINGS IN A GYM', ['DUMBBELL','TREADMILL','MAT','BENCH']],
+  ['COURT WORDS', ['JUDGE','JURY','GAVEL','DOCKET']],
+  ['PAPER SIZES AND TYPES', ['LEGAL','CREPE','TRACING','CARBON']],
+  ['STEAL', ['PINCH','SWIPE','NICK','LIFT']] ] },
+
+{ c: [
+  ['CLOUDS', ['CIRRUS','STRATUS','CUMULUS','NIMBUS']],
+  ['DANCES', ['TANGO','SALSA','RUMBA','WALTZ']],
+  ['DIPS', ['HUMMUS','QUESO','RANCH','PESTO']],
+  ['___ BREAK', ['DAY','HEART','JAIL','COFFEE']] ] },
+
+{ c: [
+  ['ELEMENTS', ['CARBON','NEON','ARGON','SODIUM']],
+  ['SIGNS OF THE ZODIAC', ['LIBRA','ARIES','VIRGO','TAURUS']],
+  ['THINGS ON A FACE', ['DIMPLE','FRECKLE','LASH','BROW']],
+  ['MEASURE OUT', ['METE','DOLE','RATION','PORTION']] ] },
+
+{ c: [
+  ['CHEESES', ['GOUDA','BRIE','FETA','CHEDDAR']],
+  ['MONOPOLY SQUARES', ['BOARDWALK','JAIL','CHANCE','UTILITY']],
+  ['RIVERS', ['DANUBE','VOLGA','SEINE','TIBER']],
+  ['SLIGHT CHANCE', ['PRAYER','SHOT','HOPE','LONGSHOT']] ] },
+
+{ c: [
+  ['THINGS THAT ORBIT', ['MOON','SATELLITE','COMET','STATION']],
+  ['TYPES OF BREAD', ['RYE','PITA','NAAN','BRIOCHE']],
+  ['MAGIC WORDS', ['PRESTO','ABRACADABRA','VOILA','TADA']],
+  ['CROWDED', ['PACKED','JAMMED','TEEMING','DENSE']] ] },
+
+{ c: [
+  ['MUSICAL INSTRUMENTS', ['CELLO','OBOE','TIMPANI','HARP']],
+  ['SHOE PARTS', ['SOLE','LACE','TONGUE','HEEL']],
+  ['FISH', ['TROUT','HALIBUT','MACKEREL','PLAICE']],
+  ['COMPLAIN', ['GRIPE','WHINE','GRUMBLE','BEEF']] ] },
+
+{ c: [
+  ['UNITS OF TIME', ['DECADE','FORTNIGHT','SEMESTER','TRIMESTER']],
+  ['THINGS WITH KEYS', ['PIANO','LOCK','MAP','KEYBOARD']],
+  ['DESERTS', ['GOBI','SAHARA','MOJAVE','ATACAMA']],
+  ['UTTERLY DEFEAT', ['ROUT','TROUNCE','THRASH','DRUB']] ] },
+
+{ c: [
+  ['SHAPES', ['RHOMBUS','TRAPEZOID','OCTAGON','PRISM']],
+  ['COWBOY GEAR', ['LASSO','SPURS','CHAPS','STETSON']],
+  ['SANDWICHES', ['REUBEN','CLUB','HOAGIE','PANINI']],
+  ['___ SPLIT', ['BANANA','HAIR','STOCK','DOUBLE']] ] },
+
+{ c: [
+  ['GEMSTONES', ['OPAL','TOPAZ','GARNET','JADE']],
+  ['OLYMPIC EVENTS', ['JAVELIN','HURDLES','DISCUS','RELAY']],
+  ['THINGS IN A WALLET', ['RECEIPT','LICENCE','STAMP','COUPON']],
+  ['TIRED OUT', ['SPENT','BEAT','SHOT','DONE']] ] },
+
+{ c: [
+  ['WEATHER', ['SLEET','DRIZZLE','GALE','FROST']],
+  ['CIRCUS ACTS', ['TRAPEZE','JUGGLER','CLOWN','ACROBAT']],
+  ['SNAKES', ['ADDER','MAMBA','COBRA','VIPER']],
+  ['SUM UP', ['TALLY','TOTAL','RECAP','SUMMARISE']] ] },
+
+{ c: [
+  ['CASTLE PARTS', ['MOAT','TURRET','KEEP','DRAWBRIDGE']],
+  ['SMALL AMOUNTS', ['DASH','PINCH','SHRED','OUNCE']],
+  ['CANDY', ['TAFFY','NOUGAT','TOFFEE','FUDGE']],
+  ['___ ROOM', ['MUSH','BOILER','LOCKER','WAITING']] ] },
+
+{ c: [
+  ['HERBS', ['BASIL','THYME','OREGANO','SAGE']],
+  ['WISE', ['SHREWD','ASTUTE','CANNY','PRUDENT']],
+  ['DINOSAURS', ['RAPTOR','STEGOSAURUS','TRICERATOPS','DIPLODOCUS']],
+  ['___ LINE', ['DEAD','PUNCH','SKY','BASE']] ] },
+
+{ c: [
+  ['CONTINENTS', ['AFRICA','EUROPE','ASIA','ANTARCTICA']],
+  ['BATHROOM ITEMS', ['TOWEL','RAZOR','LOOFAH','PLUNGER']],
+  ['POKER TERMS', ['BLUFF','FOLD','RAISE','FLOP']],
+  ['SPEAK QUIETLY', ['MURMUR','MUTTER','WHISPER','MUMBLE']] ] },
+
+{ c: [
+  ['KNOTS', ['BOWLINE','HITCH','CLOVE','SHEEPSHANK']],
+  ['MOONS OF JUPITER', ['EUROPA','IO','GANYMEDE','CALLISTO']],
+  ['SUPERMARKET AISLES', ['PRODUCE','DAIRY','FROZEN','BAKERY']],
+  ['MOCK', ['TAUNT','JEER','RIDICULE','NEEDLE']] ] },
+
+{ c: [
+  ['THINGS THAT ARE STRIPED', ['ZEBRA','BARBERPOLE','REFEREE','CANDYCANE']],
+  ['PARTS OF AN EYE', ['IRIS','RETINA','CORNEA','PUPIL']],
+  ['FLOWERS', ['DAHLIA','PEONY','LILAC','ORCHID']],
+  ['ROOKIE', ['NOVICE','GREENHORN','TENDERFOOT','FLEDGLING']] ] },
+
+{ c: [
+  ['THINGS IN A DECK OF TOOLS', ['CHISEL','PLANE','CLAMP','AWL']],
+  ['AIRPORT WORDS', ['GATE','TARMAC','CAROUSEL','TERMINAL']],
+  ['CEREALS', ['BRAN','MUESLI','GRANOLA','OATMEAL']],
+  ['PLAIN AND OBVIOUS', ['STARK','BLATANT','OVERT','GLARING']] ] },
+
+{ c: [
+  ['MYTHICAL CREATURES', ['GRIFFIN','KRAKEN','CENTAUR','SPHINX']],
+  ['PIZZA TOPPINGS', ['PEPPERONI','ANCHOVY','OLIVE','CAPSICUM']],
+  ['THINGS THAT POP', ['BUBBLE','CORK','BALLOON','KERNEL']],
+  ['SECRET', ['COVERT','VEILED','CLOAKED','HUSHED']] ] }
+];
