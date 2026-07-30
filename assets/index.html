@@ -89,6 +89,9 @@ button.btn.ghost{ background:transparent; }
 .prio.P0{ background:#4a1a18; color:#f0a08a; border:1px solid #6a2a24; }
 .prio.P1{ background:#4a3410; color:#f0c772; border:1px solid #6a4a18; }
 .prio.P2{ background:#243414; color:#b7d07a; border:1px solid #38501e; }
+/* P3 = parked. Greyed out on purpose — it should read as "not now" at a glance
+   rather than as another tier of work to pick up. */
+.prio.P3{ background:#1e1e22; color:#7a7a82; border:1px solid #33333a; }
 .card .spec{ font-family:var(--mono); font-size:11.5px; color:var(--muted); }
 .card .animreq{ font-size:12px; color:#e6b8ff; background:#2a1838; border:1px solid #4a2c66; border-radius:7px; padding:6px 9px; line-height:1.4; }
 .card .animreq b{ color:#f0d0ff; }
@@ -138,7 +141,7 @@ footer{ margin:50px 0 40px; color:var(--dim); font-size:12.5px; text-align:cente
       <p><b>How to use a card:</b> copy its <b>prompt</b> → paste into <b>ChatGPT</b> (or any image AI) → you get one clear <b>reference picture</b> → send <b>just that picture</b> to Troper, who runs it through Tripo image-to-3D and drops the <code>.glb</code> in the Drive folder under the filename shown.</p>
       <p><b>Troper gets a picture and a filename — nothing else.</b> He isn't handed a list of rules to follow, so anything that matters has to be <i>visible in the picture itself</i>. That's what the card's <b>notes</b> are for: they're the checklist for <i>you</i>, before you send it. Look at what ChatGPT gave you and make sure it actually shows what the notes describe — a blank reel window, an empty shelf, the right proportions. If it doesn't, re-prompt until it does. <b>The only thing ever sent as words is animation</b> — cards that need it carry a <span class="animtag">🎬 needs animation</span> tag, and that gets passed on.</p>
       <p><b>Click the status button</b> on a card to cycle it <span class="muted">Not started → Working on it → Delivered</span>. Status is <b>shared</b> — everyone looking at this page sees the same thing, and it updates within a few seconds (the badge up top shows when you're connected). Finished <code>.glb</code> files still go in the shared Drive folder.</p>
-      <p>Start with the <span class="prio P0" style="padding:1px 6px">P0</span> cards — the characters and the slot machine are where real models help most. <span class="prio P1" style="padding:1px 6px">P1</span> is the tarot deck art and second-pass props. <span class="prio P2" style="padding:1px 6px">P2</span> are environment dressing — nice-to-have, the game already has placeholder versions.</p>
+      <p>Start with the <span class="prio P0" style="padding:1px 6px">P0</span> cards — right now that means <b>THE DREAM</b> group first: the witch, her table and the prison cot are all still made of plain shapes, and the witch's table is a scene the player stares straight at, up close, every single night. <span class="prio P1" style="padding:1px 6px">P1</span> is the tarot deck art and second-pass props. <span class="prio P2" style="padding:1px 6px">P2</span> are environment dressing — nice-to-have, the game already has placeholder versions. <span class="prio P3" style="padding:1px 6px">P3</span> is <b>parked</b> — don't start these, the feature they belong to has been pulled out of the game for now.</p>
     </div>
   </section>
 
@@ -215,6 +218,7 @@ footer{ margin:50px 0 40px; color:var(--dim); font-size:12.5px; text-align:cente
     <button class="filterpill" data-f="P0">P0 only</button>
     <button class="filterpill" data-f="P1">P1 only</button>
     <button class="filterpill" data-f="P2">P2 only</button>
+    <button class="filterpill" data-f="P3">P3 (parked)</button>
     <button class="filterpill" data-f="wip">Working on it</button>
     <button class="filterpill" data-f="todo">Not delivered</button>
     <button class="filterpill" data-f="removed">Removed</button>
@@ -250,11 +254,11 @@ const ASSETS = [
      row may be drawn in: every value on the boards is painted by code so it
      can move when a card is taken, and anything baked in sits underneath
      that forever. ---- */
-  { file:"symbols", ext:"png", name:"The 8 reel symbols (one sheet)", group:"2D art (drawings, not models)", prio:"P0",
-    spec:"one 1024×1024 PNG · 4 across, 2 down · 256 per cell · TRUE transparency",
+  { file:"symbols", ext:"png", name:"The 9 reel symbols (one sheet)", group:"2D art (drawings, not models)", prio:"P0",
+    spec:"one 1024×768 PNG · 4 across, 3 down · 256 per cell · 9 used, last 3 EMPTY · TRUE transparency",
     flat:"Save the picture itself as symbols.png. Nobody models this — it goes into the game as-is.",
-    notes:"Order matters, left to right, top row then bottom: CANDLE, MOTH, EYE, SPIDER / COFFIN, CLOVER, SKULL, PENTAGRAM. Each one centred in its own 256×256 cell with a little breathing room, and the background must be REAL transparency (alpha) — not white, not a checkerboard pattern drawn in. These same 8 show up on the spinning reels AND down the side of the symbol board, so they have to still read at about the size of a fingernail.",
-    prompt:"A sheet of 8 spooky pixel-art icons on a fully transparent background, arranged in a neat 4-across by 2-down grid, evenly spaced, each icon centred in its own square cell. Top row: a lit dripping candle, a pale moth with spread wings, a slit-pupil yellow eye, a red widow spider. Bottom row: a purple coffin with a cross, a green four-leaf clover, a white human skull, a pink pentagram in a circle. Each icon a bold simple silhouette in one strong colour, readable when tiny." },
+    notes:"NOW NINE, not eight — a SIX was added to the reels (it only appears once the blood moon is up, and each one that lands is a step toward 666, so it has to look like a threat and not like a payout). Order matters, left to right, row by row: CANDLE, MOTH, EYE, SPIDER / COFFIN, CLOVER, SKULL, PENTAGRAM / SIX, then three empty cells. Each icon centred in its own 256×256 cell with breathing room, and the background must be REAL transparency (alpha) — not white, not a drawn-in checkerboard. These show up on the spinning reels AND down the side of the symbol board, so they have to read at about the size of a fingernail.",
+    prompt:"A sheet of 9 spooky pixel-art icons on a fully transparent background, arranged in a neat 4-across by 3-down grid, evenly spaced, each icon centred in its own square cell, the last three cells left empty. Row 1: a lit dripping candle, a pale moth with spread wings, a slit-pupil yellow eye, a red widow spider. Row 2: a purple coffin with a cross, a green four-leaf clover, a white human skull, a pink pentagram in a circle. Row 3: a single blood-red numeral 6 inside a thin red ring, then three empty cells. Each icon a bold simple silhouette in one strong colour, readable when tiny." },
 
   { file:"symbol_board_face", ext:"png", name:"Symbol board — frame & header only", group:"2D art (drawings, not models)", prio:"P0",
     spec:"560 × 760 PNG · portrait · everything below the header left EMPTY",
@@ -278,7 +282,8 @@ const ASSETS = [
     prompt:"A tall, unnaturally thin humanoid silhouette with elongated limbs and long hanging arms — a shadow given a body. Featureless charcoal-black skin that swallows light, with only faint hollow pits where the eyes should be. No clothing, no fine detail. Slightly stooped, ominous. Near-black matte texture with barely-visible surface texture." },
   { file:"collector", name:"The Collector", group:"Characters", prio:"P0",
     spec:"≈1.95 m tall · humanoid",
-    anim:"rig + a heavy, looming idle",
+    anim:"rig + a heavy, looming idle + a KNOCK (one arm hammering a door, loopable)",
+    notes:"His job changed: he no longer brings a tray of cards through the door (that is the witch's job now). He turns up the moment you run out of energy and he KNOCKS, over and over, harder and harder, until he is paid. So the knock is the animation that matters — a heavy one-armed hammering on a door at chest height that can be looped and played at different speeds. Everything about the model can stay as already delivered.",
     prompt:"A hulking executioner-warden in a heavy stained leather apron over dark clothes, thick gloves and heavy boots, wearing a riveted iron mask or hood that hides the face. A ring of iron keys and a short cleaver hang at the belt. Broad-shouldered, brutal, intimidating. Dark leather and rusted-iron hand-painted texture with baked grime." },
   { file:"peeker", name:"Peering face (window)", group:"Characters", prio:"P0",
     spec:"≈40 cm · just the head + shoulders",
@@ -375,8 +380,9 @@ const ASSETS = [
   { file:"toilet", name:"Filthy toilet", group:"Environment", prio:"P2",
     spec:"≈70 cm tall · sits in a corner",
     prompt:"A filthy old dungeon toilet crammed into a corner — grimy cracked porcelain, a raised seat lid, a cistern tank behind it, a dark muck ring inside the bowl, rust and filth streaks down the front, and a foul puddle around the base. Dark-fantasy horror, hand-painted grime." },
-  { file:"dirtpile", name:"Dig site (dirt pile + hole)", group:"Environment", prio:"P2",
-    spec:"≈1 m across · a mound beside a dark hole",
+  { file:"dirtpile", name:"Dig site (dirt pile + hole)", group:"Environment", prio:"P3",
+    spec:"PARKED · ≈1 m across · a mound beside a dark hole",
+    notes:"ON HOLD — digging was pulled out of the game on 2026-07-30 to get the core night loop clean on its own, and it will come back later. Don't spend time on this one yet.",
     prompt:"An escape dig clawed into a dungeon floor: a rough dark hole in the packed earth with a heap of loose dug-up dirt piled beside it and scattered clods around the edge. No tools, no signage — just disturbed damp ground. Dark-fantasy horror, hand-painted." },
   { file:"floor_tile", name:"Floor tile (square)", group:"Room shell", prio:"P0",
     spec:"one ~1 × 1 m square · tiles edge-to-edge",
@@ -393,14 +399,45 @@ const ASSETS = [
     spec:"one ~1 × 1 m square · tiles across the ceiling",
     notes:"Optional — Claude tiles the ceiling with these. Edges flush so the beams line up.",
     prompt:"A single square ceiling tile seen from below: dark rough timber beams over grimy boards, cobwebs in the corners, flat and tileable at the edges. Dark-fantasy dungeon, hand-painted." },
-  { file:"dig_wall", name:"Dirt wall — the escape dig (main exit)", group:"Room shell", prio:"P0",
-    spec:"one model · fills a wall gap · crumbles as you dig",
-    notes:"SEPARATE / removable piece — the game crumbles it and piles up rubble as you dig, then opens the way out. Match the wall-panel stone.",
+  { file:"dig_wall", name:"Dirt wall — the escape dig (main exit)", group:"Room shell", prio:"P3",
+    spec:"PARKED · one model · fills a wall gap · crumbles as you dig",
+    notes:"ON HOLD — digging was pulled out of the game on 2026-07-30 to get the core night loop clean on its own, and it will come back later. Don't spend time on this one yet. (When it does: SEPARATE / removable piece — the game crumbles it and piles up rubble as you dig, then opens the way out. Match the wall-panel stone.)",
     prompt:"A section of dungeon wall collapsing into packed DIRT and rubble: bulging loose stones, deep cracks, crumbling mortar, dark earth pushing through, a few fallen rocks at the base — clearly the soft spot you'd dig through to escape. Dark-fantasy horror, hand-painted." },
   { file:"sealed_stairway", name:"Sealed stairway (hidden, for later)", group:"Room shell", prio:"P2",
     spec:"one model · a bricked-up stairway going down",
-    notes:"Not used yet — placed sealed/closed off, opened in a future update. The dirt wall is the exit for now.",
-    prompt:"A grimy stone STAIRWAY descending into darkness, but its top is BRICKED UP and boarded over — mismatched fresh stones and nailed planks sealing the way down, cobwebbed, long shut. Dark-fantasy horror, hand-painted." }
+    notes:"Not used yet — placed sealed/closed off, opened in a future update. There is no exit at all in the game as it stands: digging was pulled on 2026-07-30 and this is the likeliest way back in when escape returns, so it is worth having before the dirt wall.",
+    prompt:"A grimy stone STAIRWAY descending into darkness, but its top is BRICKED UP and boarded over — mismatched fresh stones and nailed planks sealing the way down, cobwebbed, long shut. Dark-fantasy horror, hand-painted." },
+
+  /* ================= THE DREAM =================================
+     Added 2026-07-30 with the night-loop rework. The card SHOP moved off the
+     collector and onto a witch you meet in your sleep, so the whole scene she
+     sits in is new: it is currently built out of Three.js primitives and every
+     piece of it wants replacing. This is the highest-value group on the board
+     right now — it is a scene the player stares straight at, up close, once a
+     night, with nothing else on screen to look at. ============== */
+
+  { file:"witch", name:"The Witch (deals + sells the cards)", group:"The dream", prio:"P0",
+    spec:"≈1.5 m SEATED · humanoid, seated at a table",
+    anim:"rig + a slow seated idle (breathing, small sway) + a DEAL gesture if possible",
+    notes:"She is the only other living thing in the game you are not afraid of, and she is seated the whole time — model her SITTING, hands forward and resting on a table top at about 95 cm. The face must be genuinely EMPTY under the hat brim: black shadow with two small glowing points, no nose, no mouth, no chin. Hat brim wide enough to throw that shadow. Long thin hands and long fingers matter — they are the closest thing to the camera and the only part of her that moves much.",
+    prompt:"A seated witch fortune-teller in a dark hooded robe, dealing cards at a table: wide-brimmed pointed witch hat, deep cowl, and NO FACE under the brim — just black shadow with two small glowing eyes. Long thin pale hands with long fingers resting forward on the table in front of her. Dusty purple and near-black cloth, hand-painted. Seated pose, facing the viewer." },
+
+  { file:"dream_table", name:"Her card table (round, covered)", group:"The dream", prio:"P0",
+    spec:"≈2.3 m across · round · cloth to the floor · CLEAR flat top",
+    notes:"This is where the whole card scene happens, so the top must be CLEAR and flat — the game stands up to eight cards on it and puts candles on it, and anything modelled on the top ends up underneath them. Round, low, and the cloth should hang all the way to the floor so there are no legs to see. Top at about 95 cm.",
+    prompt:"A round fortune-teller's card table draped in a heavy dark red cloth that hangs all the way to the floor, seen from the front: worn embroidered edge, candle wax drips and old stains on the cloth, completely empty flat top with nothing on it. Dark-fantasy occult, hand-painted." },
+
+  { file:"dream_candle", name:"Candle on a holder (for her table)", group:"The dream", prio:"P1",
+    spec:"≈30 cm tall · ONE candle · the game places three",
+    notes:"Just ONE — the game puts three of them around the back of her table. Model the candle and its holder only; DON'T model a flame, the game draws its own animated one and its light. Keep the top of the wax flat and centred so the flame lands in the right place.",
+    prompt:"A single tall dripping wax candle standing in a small tarnished brass holder, thick wax runs down the sides, blackened wick, no flame lit. Simple and readable, dark-fantasy occult, hand-painted." },
+
+  /* ================= new ROOM props ============================= */
+
+  { file:"cot", name:"Prison cot (the bed — ends the night)", group:"Environment", prio:"P0",
+    spec:"≈1.9 m long × 0.8 m wide · low iron frame",
+    notes:"THE most important prop in the room: walking to this and pressing a key is how a night ends, so it has to read as a BED instantly from across a dark room and from any angle. Keep it low (mattress about 50 cm up) with a taller head end than foot end, and leave the mattress a light dirty grey — a dark one disappears completely in that corner. Nothing on it but bedding; the game does not put anything there.",
+    prompt:"A low iron prison cot seen from the side: rusted metal frame with vertical bars at the head and foot, a thin dirty pale grey mattress sagging in the middle, a dark red wool blanket thrown over the foot half and a flat grey pillow at the head. Grimy and worn, dark-fantasy dungeon, hand-painted." },
 ];
 
 /* ---------------- state ---------------- */
@@ -448,7 +485,7 @@ async function syncReset(){
 
 let filter = "all";
 const board = document.getElementById("board");
-const GROUPS = ["2D art (drawings, not models)","Characters","Slot machine","Environment","Room shell"];
+const GROUPS = ["2D art (drawings, not models)","The dream","Characters","Slot machine","Environment","Room shell"];
 
 /* 2D cards are delivered as .png, everything else as .glb */
 const fileOf = a => a.file + "." + (a.ext || "glb");
