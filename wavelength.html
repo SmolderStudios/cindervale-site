@@ -1,0 +1,1303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spectrum — a two-player mind-reading dial</title>
+<meta name="description" content="One of you sees a hidden point on a dial and gives a single clue. The other spins the needle to find it. 450+ spectrums across 15 categories, playable online with a room code or side by side on one device.">
+<style>
+:root{
+  --bg:#0b0d14; --panel:#141824; --panel2:#1c2130; --panel3:#242a3c;
+  --line:#2c334a; --text:#e9edf8; --dim:#8b94ad; --dim2:#5f6884;
+  --p1:#57d2ff; --p2:#ff6ec7; --yes:#4ade80; --no:#fb7185; --gold:#ffc857;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 700px at 78% -12%,#1d2a4d 0%,transparent 62%),
+    radial-gradient(900px 620px at 10% 108%,#3a1d3f 0%,transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--text);
+  font:15px/1.5 ui-sans-serif,system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  min-height:100vh;
+}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;text-align:left}
+input,textarea{font:inherit;color:inherit}
+h1,h2,h3,h4,p{margin:0}
+.hide{display:none !important}
+
+.btn{
+  background:linear-gradient(180deg,var(--panel3),var(--panel2));
+  border:1px solid var(--line); border-radius:11px;
+  padding:12px 20px; font-weight:650; letter-spacing:.2px; text-align:center;
+  transition:transform .08s,border-color .15s,background .15s;
+}
+.btn:hover{border-color:#46507080;background:linear-gradient(180deg,#2b3348,#232939)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.big{padding:15px 28px;font-size:17px}
+.btn.prime{background:linear-gradient(180deg,#3f7fd6,#2f5fa8);border-color:#5a92e0}
+.btn.prime:hover{background:linear-gradient(180deg,#4a8ce4,#3568b6)}
+.btn.gold{background:linear-gradient(180deg,#e0aa3c,#b8862a);border-color:#ffc857;color:#171307}
+.btn.gold:hover{background:linear-gradient(180deg,#f0ba4a,#c89330)}
+.btn.ghost{background:none;border-color:var(--line);color:var(--dim)}
+.btn.ghost:hover{color:var(--text);border-color:#46507080}
+.btn.sm{padding:8px 14px;font-size:13px;border-radius:9px}
+.btn.wide{width:100%}
+.fld{
+  width:100%;background:#0c0f18;border:1px solid var(--line);
+  border-radius:11px;padding:13px 15px;outline:none;
+}
+.fld:focus{border-color:#4a6ea8;box-shadow:0 0 0 3px #3f7fd633}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r)}
+.eyebrow{font-size:11px;letter-spacing:2.4px;text-transform:uppercase;color:var(--dim2);font-weight:700}
+.waitdots::after{content:'';animation:dots 1.4s steps(4,end) infinite}
+@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes glowin{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+
+/* ---------------- home ---------------- */
+#home{max-width:940px;margin:0 auto;padding:min(7vh,54px) 20px 60px}
+.logo{text-align:center;margin-bottom:28px}
+.logo h1{
+  font-size:clamp(40px,9vw,74px);font-weight:850;letter-spacing:min(1.2vw,10px);
+  background:linear-gradient(100deg,var(--p1),#c6a3ff 46%,var(--p2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.logo p{color:var(--dim);margin-top:10px;font-size:16px}
+#nameBox{padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+#nameBox label{white-space:nowrap;font-weight:650}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mode{padding:22px;display:flex;flex-direction:column}
+.mode h3{font-size:17px;margin-bottom:5px}
+.mode .sub{color:var(--dim2);font-size:13px;margin-bottom:16px;flex:1}
+.joinrow{display:flex;gap:9px;margin-top:10px}
+#joinCode{text-transform:uppercase;letter-spacing:7px;font-weight:800;text-align:center;flex:1;min-width:0}
+.err{color:var(--no);text-align:center;margin-top:16px;min-height:20px;font-size:14px}
+details.rules{margin-top:22px;padding:18px 22px}
+details.rules summary{cursor:pointer;font-weight:700;list-style:none}
+details.rules summary::-webkit-details-marker{display:none}
+details.rules summary::before{content:'▸ ';color:var(--dim2)}
+details.rules[open] summary::before{content:'▾ '}
+details.rules ol{color:var(--dim);margin:14px 0 0;padding-left:20px}
+details.rules li{margin:8px 0}
+details.rules b{color:var(--text)}
+
+/* ---------------- game chrome ---------------- */
+#game{max-width:1420px;margin:0 auto;padding:16px 18px 40px}
+.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 18px;margin-bottom:16px}
+.top .brand{font-weight:850;letter-spacing:4px;font-size:14px;color:var(--dim)}
+.roomtag{display:flex;align-items:center;gap:9px;margin-left:auto;flex-wrap:wrap}
+.roomtag .code{font-weight:850;letter-spacing:5px;font-size:19px;color:var(--gold);
+  background:#0c0f18;border:1px solid var(--line);border-radius:9px;padding:5px 12px 5px 17px}
+.vs{display:flex;align-items:center;gap:10px;font-weight:700;flex-wrap:wrap}
+.pill{display:flex;align-items:center;gap:7px;background:#0c0f18;border:1px solid var(--line);
+  border-radius:99px;padding:6px 14px}
+.pill.psy{border-color:var(--gold);box-shadow:0 0 0 3px #ffc85722}
+.pill .sc{color:var(--dim2);font-weight:650}
+.pill .rl{font-size:10.5px;letter-spacing:1.3px;text-transform:uppercase;color:var(--gold);font-weight:800}
+.dot{width:8px;height:8px;border-radius:99px;background:var(--no);flex:none}
+.dot.on{background:var(--yes);box-shadow:0 0 8px var(--yes)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 344px;gap:16px;align-items:start}
+.stage{padding:20px 22px 24px;min-height:520px}
+.side{display:flex;flex-direction:column;gap:14px;position:sticky;top:16px}
+
+.banner{text-align:center;padding:30px 18px}
+.banner h2{font-size:clamp(20px,2.6vw,28px);font-weight:800;margin-bottom:8px}
+.banner p{color:var(--dim);max-width:620px;margin:0 auto}
+.rline{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.rline .rn{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--dim2);font-weight:800}
+.rline .role{font-size:13px;font-weight:750}
+.rline .spacer{margin-left:auto}
+
+/* ---------------- dial ---------------- */
+.specrow{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  max-width:720px;margin:-4px auto 0}
+.sl,.sr{font-weight:800;font-size:clamp(15px,2vw,21px);line-height:1.2;max-width:42%}
+.sl{text-align:left;color:#9fd8ff}
+.sr{text-align:right;color:#ffb0dd}
+.dialwrap{position:relative;width:100%;max-width:720px;margin:0 auto;aspect-ratio:800/425;
+  touch-action:none;user-select:none}
+.dialwrap svg{width:100%;height:100%;display:block;overflow:visible}
+.dialwrap.grab{cursor:grab}
+.dialwrap.grab:active{cursor:grabbing}
+.dhint{text-align:center;color:var(--dim2);font-size:12.5px;margin-top:10px}
+#ctl{margin-top:14px}
+.cluebox{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.cluebox input{flex:1;min-width:200px}
+.clueshow{text-align:center;padding:16px 18px;border-radius:12px;background:#0c0f18;
+  border:1px solid var(--gold);margin-bottom:14px;animation:glowin .25s ease}
+.clueshow .lbl{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--dim2);font-weight:800}
+.clueshow .txt{font-size:clamp(20px,3.4vw,30px);font-weight:800;margin-top:5px;word-break:break-word}
+.acts{display:flex;gap:11px;flex-wrap:wrap;align-items:center}
+.acts .spacer{margin-left:auto}
+.res{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:16px 18px;border-radius:12px;
+  background:linear-gradient(160deg,#1e2434,#151926);border:1px solid var(--line);animation:pop .22s ease}
+.res .pts{font-size:40px;font-weight:850;line-height:1;min-width:66px;text-align:center}
+.res .pts small{display:block;font-size:11px;letter-spacing:1.6px;color:var(--dim2);font-weight:800;margin-top:4px}
+.res .txt{flex:1;min-width:180px}
+.res .txt h3{font-size:19px;font-weight:800}
+.res .txt p{color:var(--dim);font-size:13.5px;margin-top:3px}
+.p4{color:var(--gold)} .p3{color:var(--yes)} .p2{color:var(--p1)} .p0{color:var(--no)}
+
+/* ---------------- lobby ---------------- */
+.setrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.seg{display:flex;gap:6px}
+.seg button{padding:9px 15px;border:1px solid var(--line);border-radius:10px;background:#0f131e;
+  font-size:13px;font-weight:700;color:var(--dim)}
+.seg button:hover{color:var(--text)}
+.seg button.on{background:var(--gold);border-color:var(--gold);color:#141824}
+.deck{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:9px}
+.cat{padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:var(--panel2);
+  transition:border-color .12s,background .12s;display:flex;align-items:flex-start;gap:10px}
+.cat:hover{border-color:#5a7ec0;background:#232a3c}
+.cat.on{border-color:var(--gold);background:#2a2617;box-shadow:0 0 0 2px #ffc85733}
+.cat .lbl{font-weight:650;font-size:14px;line-height:1.3;flex:1}
+.cat .lbl .d{display:block;font-weight:400;font-size:11.5px;line-height:1.35;color:var(--dim2);margin-top:4px}
+.cat.on .lbl .d{color:#a08a4e}
+.cat .n{font-size:11px;color:var(--dim2);background:#0c0f18;border-radius:99px;padding:2px 8px;flex:none;margin-top:2px}
+.cat .ad{font-size:9.5px;letter-spacing:1px;font-weight:800;color:var(--p2);margin-left:5px}
+.lobfoot{display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin-top:18px;
+  border-top:1px solid var(--line);padding-top:16px}
+.lobfoot .cnt{color:var(--dim2);font-size:13px;flex:1;min-width:140px}
+.readonly{color:var(--dim);font-size:13.5px;line-height:1.6}
+.readonly b{color:var(--text)}
+
+/* ---------------- sidebar ---------------- */
+.sec{padding:16px 17px}
+.sec h3{font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:var(--dim2);
+  margin-bottom:11px;font-weight:750}
+.bigscore{display:flex;align-items:baseline;gap:9px}
+.bigscore .v{font-size:38px;font-weight:850;line-height:1;color:var(--gold)}
+.bigscore .of{color:var(--dim2);font-size:13px}
+.meter{height:8px;border-radius:99px;background:#0c0f18;border:1px solid var(--line);margin:11px 0 12px;overflow:hidden}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,#3f7fd6,var(--gold))}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.st{background:#0f131e;border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+.st .k{font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim2);font-weight:800}
+.st .v{font-size:17px;font-weight:800;margin-top:2px}
+#hist{display:flex;flex-direction:column;gap:9px;max-height:340px;overflow-y:auto}
+#hist::-webkit-scrollbar,#log::-webkit-scrollbar{width:9px}
+#hist::-webkit-scrollbar-thumb,#log::-webkit-scrollbar-thumb{background:var(--panel3);border-radius:9px}
+.hr{background:#0f131e;border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+.hr .hh{display:flex;gap:8px;align-items:baseline;font-size:11.5px;color:var(--dim2)}
+.hr .hh b{margin-left:auto;font-size:14px}
+.hr .hc{font-size:13.5px;font-weight:700;margin:4px 0 6px;word-break:break-word}
+.hr .hs{font-size:11px;color:var(--dim2)}
+.mini{position:relative;height:7px;border-radius:99px;background:#0b0e17;border:1px solid var(--line);margin-top:6px}
+.mini i{position:absolute;top:-2px;width:3px;height:9px;border-radius:2px;transform:translateX(-1.5px)}
+.mini i.t{background:var(--gold)} .mini i.g{background:var(--p1)}
+.empty{color:var(--dim2);font-size:12.5px;font-style:italic}
+#log{display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;margin-bottom:10px}
+#log .m{font-size:13px;line-height:1.35;word-break:break-word}
+#log .m b{color:var(--dim)}
+#log .m.own b{color:var(--p1)}
+#log .m.sys{color:var(--dim2);font-style:italic}
+.chatrow{display:flex;gap:8px}
+
+/* ---------------- overlays ---------------- */
+.veil{position:fixed;inset:0;background:#05070ce8;backdrop-filter:blur(7px);
+  display:flex;align-items:center;justify-content:center;padding:22px;z-index:50}
+.modal{max-width:580px;width:100%;padding:30px;text-align:center;animation:pop .22s ease}
+.modal .eyebrow{margin-bottom:10px}
+.modal h2{font-size:clamp(23px,4vw,32px);font-weight:850;margin-bottom:10px}
+.modal p{color:var(--dim);margin-bottom:18px}
+.finalgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:20px 0}
+.finalgrid .st{text-align:left}
+#conn{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:60;
+  background:#1a2133;border:1px solid var(--line);border-radius:99px;padding:9px 18px;
+  font-size:13px;box-shadow:0 8px 26px #0008}
+.foot{max-width:1420px;margin:0 auto;padding:0 18px 30px;color:var(--dim2);font-size:12.5px}
+.foot a{color:var(--dim)}
+
+@media(max-width:1080px){
+  .layout{grid-template-columns:1fr}
+  .side{position:static}
+  #hist{max-height:none}
+}
+@media(max-width:620px){
+  .modes{grid-template-columns:1fr}
+  .deck{grid-template-columns:1fr}
+  .finalgrid{grid-template-columns:1fr}
+  .stage{padding:16px 14px 20px}
+  .sl,.sr{max-width:46%}
+}
+</style>
+</head>
+<body>
+
+<div id="home">
+  <div class="logo">
+    <h1>SPECTRUM</h1>
+    <p>One of you sees the target. The other has one clue to find it.</p>
+  </div>
+
+  <div class="card" id="nameBox">
+    <label for="nameIn">Your name</label>
+    <input id="nameIn" class="fld" maxlength="14" placeholder="who are you?" autocomplete="off">
+  </div>
+
+  <div class="modes">
+    <div class="card mode">
+      <h3>Play a friend online</h3>
+      <div class="sub">Make a room and send them the link. They join from anywhere — phone,
+        laptop, whatever's nearby. You each see your own half of the secret.</div>
+      <button class="btn prime big" id="btnCreate">Create a room</button>
+      <div class="joinrow">
+        <input id="joinCode" class="fld" maxlength="4" placeholder="CODE" autocomplete="off">
+        <button class="btn" id="btnJoin">Join</button>
+      </div>
+    </div>
+
+    <div class="card mode">
+      <h3>Same device</h3>
+      <div class="sub">Sat next to each other? Pass the phone back and forth — the screen
+        covers itself between turns so nobody sees the target.</div>
+      <input id="p2In" class="fld" maxlength="14" placeholder="your friend's name" autocomplete="off"
+        style="margin-bottom:11px">
+      <button class="btn big" id="btnLocal">Start on this device</button>
+    </div>
+  </div>
+
+  <div class="err" id="homeErr"></div>
+
+  <details class="rules card">
+    <summary>How to play</summary>
+    <ol>
+      <li>Each round you get a <b>spectrum</b> — two opposites, like <b>Cold ←→ Hot</b>, and a dial between them.</li>
+      <li>One of you is the <b>psychic</b>. You alone see a hidden <b>target</b> sitting somewhere on that dial.</li>
+      <li>The psychic gives <b>one clue</b>: anything in the world that sits exactly there on the spectrum. Not "warm" — say <b>a cup of tea</b>.</li>
+      <li>The other player spins the needle to where they think that clue lands, and locks it in.</li>
+      <li>Scoring: <b>4</b> dead centre, <b>3</b> close, <b>2</b> on the edge of the target, <b>0</b> outside it.</li>
+      <li>You're on the <b>same team</b> — the score is shared. Roles swap every round. Chase a high average.</li>
+      <li>Dealt a spectrum you can't work with? The psychic can <b>swap the card</b> — three swaps per game.</li>
+    </ol>
+  </details>
+</div>
+
+<div id="game" class="hide">
+  <div class="top card">
+    <div class="brand">SPECTRUM</div>
+    <div class="vs" id="vs"></div>
+    <div class="roomtag" id="roomtag"></div>
+  </div>
+
+  <div class="layout">
+    <section class="stage card">
+      <div id="stageTop"></div>
+      <div id="board" class="hide">
+        <div class="dialwrap" id="dialWrap"></div>
+        <div class="specrow"><div class="sl" id="sL"></div><div class="sr" id="sR"></div></div>
+        <div class="dhint" id="dhint"></div>
+      </div>
+      <div id="ctl"></div>
+    </section>
+
+    <aside class="side">
+      <div class="card sec" id="scoreCard">
+        <h3>Team score</h3>
+        <div class="bigscore"><span class="v" id="scV">0</span><span class="of" id="scOf"></span></div>
+        <div class="meter"><i id="scBar" style="width:0%"></i></div>
+        <div class="stats" id="scStats"></div>
+      </div>
+      <div class="card sec" id="histCard">
+        <h3>Rounds so far</h3>
+        <div id="hist"><div class="empty">Nothing yet.</div></div>
+      </div>
+      <div class="card sec" id="chatBox">
+        <h3>Table talk</h3>
+        <div id="log"></div>
+        <div class="chatrow">
+          <input id="chatIn" class="fld" maxlength="140" placeholder="say something…" autocomplete="off">
+          <button class="btn sm" id="btnChat">Send</button>
+        </div>
+      </div>
+      <button class="btn sm ghost" id="btnQuit">Leave game</button>
+    </aside>
+  </div>
+</div>
+
+<div id="veil" class="veil hide"><div class="card modal" id="modal"></div></div>
+<div id="conn" class="hide"></div>
+<div class="foot">Part of <a href="/">Cindervale Idle</a>. Built for two people and one dial.</div>
+
+<script>
+'use strict';
+
+/* ================================================================ deck
+   Every card is a one-dimensional spectrum: two ends with a straight line
+   between them. A card earns its place if you can put a THING somewhere in
+   the middle and argue about where. Pairs that are really two questions
+   ("wet/savoury") don't work and were kept out.
+   Bump DV whenever a category's card COUNT changes — the server draws by
+   index, so two clients on different decks would read different labels. */
+const DV = 1;
+
+const CATS = [
+{id:'gen', name:'General', desc:'The classics. Works with anything in the world.', on:1, cards:[
+['Cold','Hot'],['Bad','Good'],['Round','Pointy'],['Tiny','Enormous'],['Silent','Deafening'],
+['Boring','Thrilling'],['Cheap','Expensive'],['Slow','Blistering fast'],['Soft','Hard'],
+['Pitch dark','Blinding'],['Weak','Unstoppable'],['Ugly','Beautiful'],['Simple','Complicated'],
+['Useless','Essential'],['Everywhere','One of a kind'],['Ancient','Brand new'],['Filthy','Spotless'],
+['Fragile','Indestructible'],['Feather light','Crushingly heavy'],['Smooth','Rough'],
+['Flat','Towering'],['Empty','Overflowing'],['Miserable','Joyful'],['Calm','Chaos'],
+['Deadly serious','Completely silly'],['Perfectly safe','Will kill you'],['Bone dry','Soaking wet'],
+['Fake','The real thing'],['Forgettable','Iconic'],['Underrated','Overrated'],
+['Guilty pleasure','Genuinely great'],['Basic','Fancy'],['Lasts a second','Lasts forever'],
+['Natural','Artificial'],['Keep it private','Shout it publicly'],['Blunt','Razor sharp'],
+['Cursed','Blessed'],['Local','Worldwide'],['Ordinary','Legendary'],['Terrible for you','Very good for you'],
+['Waste of time','Worth every minute'],['Broken','Flawless'],['Widely hated','Universally loved'],
+['Optional','Non-negotiable'],['Free','Priceless'],['Predictable','Total surprise'],
+['Nobody knows it','Everybody knows it'],['Quietly annoying','Genuinely enraging']
+]},
+
+{id:'things', name:'Everyday things', desc:'Objects, stuff, the contents of your house.', on:1, cards:[
+['Junk','Treasure'],['Awful gift','Perfect gift'],['Useless tool','Tool you use weekly'],
+['Feels cheap','Feels expensive'],['Uncomfortable','Sink-into-it comfy'],['Disposable','Heirloom'],
+['Clutter','Decor'],['Never leaves the drawer','Used every single day'],['Fits in a pocket','Needs a van'],
+['Impossible to open','Opens itself'],['Wobbly','Rock solid'],['Bad smell','Smells amazing'],
+['Nightmare to assemble','Snaps together'],['Toy','Serious equipment'],['Ugly furniture','Beautiful furniture'],
+['Bad souvenir','Great souvenir'],['Overpriced','Absolute bargain'],['Horrible texture','Weirdly satisfying to touch'],
+['Worst seat on a plane','Best seat on a plane'],['Grim motel','Luxury hotel'],
+['Cheap material','Luxury material'],['Impossible to wrap','Wraps itself'],
+['Terrible first car','Dream first car'],['Bad mug','Perfect mug'],['Bad bed','Perfect bed'],
+['Loud in a quiet house','Completely silent'],['Bad thing to lend out','Fine to lend out'],
+['Hard to clean','Wipes clean'],['Bad umbrella','Storm-proof umbrella'],
+['Dies in a month','Outlives you'],['Bad thing to own a second of','Own ten of them'],
+['Bad packaging','Packaging you keep'],['Terrible pen','Glorious pen'],['Bad haircut','Great haircut'],
+['Bad phone case','Great phone case'],['Bad shoe for walking','Walk 20 miles in them']
+]},
+
+{id:'food', name:'Food & drink', desc:'Meals, snacks, and things you should not microwave.', on:1, cards:[
+['Bland','Bursting with flavour'],['Snack','Full meal'],['Junk food','Health food'],
+['Bitter','Sweet'],['Mild','Mouth on fire'],['Cheap eat','Fine dining'],
+['Bad pizza topping','Perfect pizza topping'],['Awful breakfast','Ideal breakfast'],
+['Ruined as leftovers','Better the next day'],['Kids will only eat it','Grown-ups only'],
+['Bad sandwich filling','Elite sandwich filling'],['Bad ice cream flavour','Best ice cream flavour'],
+['Beige food','Wildly colourful food'],['Awful on toast','Belongs on toast'],
+['Bad with coffee','Made for coffee'],['Boring vegetable','Delicious vegetable'],
+['Impossible to cook','Cooks itself'],['Bad hangover food','Cures a hangover'],
+['Bad late-night order','Perfect at 2am'],['Watery','Rich and heavy'],
+['Bad party food','Party food that vanishes'],['Bad thing to eat in a car','Designed for a car'],
+['Cursed food combo','Genius food combo'],['Cheap wine','Very expensive bottle'],
+['Bad thing to microwave','Microwaves perfectly'],['Bad cake flavour','Wedding-worthy cake'],
+['Barely food','Definitely food'],['Bad drink when you are thirsty','Exactly what you needed'],
+['Sad packed lunch','Enviable packed lunch'],['Bad food to share','Made for sharing'],
+['Eaten with your hands','Needs a full set of cutlery'],['Bad fruit','Best fruit'],
+['Bad thing on a barbecue','Born for the grill'],['Bad diner order','Diner classic'],
+['Bad thing to eat before bed','Perfect before bed'],['Overrated dish','Underrated dish']
+]},
+
+{id:'ppl', name:'People & personality', desc:'Who someone is, and what they are like at a party.', on:1, cards:[
+['Total introvert','Total extrovert'],['Villain','Hero'],['Nightmare roommate','Dream roommate'],
+['Follower','Born leader'],['Awful boss','Boss you would follow anywhere'],
+['Ice cold','Genuinely warm'],['Terrible liar','Frighteningly good liar'],
+['Reckless','Painfully careful'],['Broke','Filthy rich'],['Awkward at parties','Life of the party'],
+['Cursed with bad luck','Absurdly lucky'],['Holds a grudge forever','Forgives instantly'],
+['Bad name for a kid','Great name for a kid'],['Useless wingman','Elite wingman'],
+['Gives terrible advice','Genuinely wise'],['Terrifying driver','Perfect driver'],
+['Cannot dance','Dancefloor legend'],['Sidekick','Main character'],
+['Does the bare minimum','Insufferable overachiever'],['Never replies','Replies in four seconds'],
+['Chaotic evil','Lawful good'],['Tells everyone','Takes it to the grave'],
+['Bad hugger','World-class hugger'],['Clears the karaoke room','Karaoke star'],
+['Happiest alone','Needs a crowd'],['Coward','Fearless'],['Rude','Impeccably polite'],
+['Terrible tipper','Tips too much'],['Passive','Aggressive'],['Naive','Deeply cynical'],
+['Bad influence','Good influence'],['Hopeless at gifts','Gives the perfect gift'],
+['Would lose an argument','Never loses an argument'],['Bad at keeping plans','Never cancels'],
+['Cannot be trusted with a secret','A vault'],['Loves the spotlight','Hides from the camera']
+]},
+
+{id:'screen', name:'Movies & TV', desc:'Everything on a screen with a plot.', on:1, cards:[
+['Bad movie','Masterpiece'],['Comfort watch','Deeply stressful watch'],
+['Made for kids','Strictly for grown-ups'],['Flop','Blockbuster'],
+['Awful sequel','Better than the original'],['Toothless villain','Genuinely terrifying villain'],
+['Slow burn','Non-stop action'],['Ruined by the ending','Perfect ending'],
+['Cringe','Effortlessly cool'],['Dry eyes','Sobbing on the floor'],
+['Skip the intro','Never skip the intro'],['Should have been one season','Ran seasons too long'],
+['Background noise','Phone-down attention'],['Bad reality TV','Guilty-pleasure gold'],
+['Bad date movie','Perfect date movie'],['Pointless remake','Remake that earned it'],
+['Looks cheap','Looks like a fortune'],['Terrible effects','Seamless effects'],
+['Saw the twist coming','Genuinely floored me'],['Weak first episode','Hooked in five minutes'],
+['Forgotten','Rewatched every year'],['Not scary','Slept with the light on'],
+['Snoozy documentary','Gripping documentary'],['Baffling casting','Perfect casting'],
+['Forgettable theme tune','Iconic theme tune'],['Watch alone','Watch with a full room'],
+['Ends in tragedy','Happily ever after'],['Bad Christmas movie','Christmas tradition'],
+['Bad anime','Peak anime'],['Trash','Art'],['Bad book adaptation','Better than the book'],
+['One long chase','No plot at all']
+]},
+
+{id:'music', name:'Music & sound', desc:'Songs, noise, and things you hear.', on:1, cards:[
+['Bad song','Absolute banger'],['Devastating','Pure hype'],['Shower song','Stadium song'],
+['Bad karaoke pick','Perfect karaoke pick'],['Barely a whisper','Wall of noise'],
+['One-hit wonder','Untouchable discography'],['Bad album cover','Iconic album cover'],
+['Skip it','On repeat all week'],['Study music','Gym music'],
+['Nonsense lyrics','Actual poetry'],['Cheesy','Cool'],['Funeral music','Wedding music'],
+['Overplayed','Hidden gem'],['Pointless remix','Better than the original'],
+['Empties the dancefloor','Fills the dancefloor'],['Awful live','Incredible live'],
+['Painful voice','Angelic voice'],['Ringtone','Anthem'],
+['Nails on a chalkboard','Pure ASMR'],['Dead slow','Frantic'],
+['Guilty pleasure','Critically adored'],['Opening act','Headliner'],
+['Hard instrument to learn','Playable in a week'],['Sound you dread','Sound you love'],
+['Bad song to wake up to','Perfect alarm'],['Nobody has heard it','Everyone knows the words']
+]},
+
+{id:'games', name:'Video games', desc:'For the two of you who own too many.', on:1, cards:[
+['Bad game','Masterpiece'],['Casual','Brutally hardcore'],['Pushover boss','Controller-snapping boss'],
+['Bad tutorial','Tutorial done right'],['Mobile time-killer','AAA epic'],
+['Endless grind','Instant gratification'],['Awful multiplayer','Best with friends'],
+['Pay to win','Perfectly fair'],['Rough graphics','Gorgeous'],
+['Skip every cutscene','Story is the whole point'],['Shameless DLC','Worth every penny'],
+['Rage quit','Genuinely relaxing'],['Speedrun','100% completionist'],
+['Broken on launch','Flawless launch'],['Starter weapon','Absurdly overpowered'],
+['Useless class','The meta pick'],['Boring loot','Chase item'],
+['Confusing map','Perfect map'],['Lazy remaster','Definitive edition'],
+['Awful controls','Buttery smooth'],['Forgettable soundtrack','Legendary OST'],
+['Needs a nerf','Needs a buff'],['Skippable sidequest','Main quest'],
+['Annoying NPC','Best companion ever'],['Asset-flip indie','Indie darling'],
+['Not worth £5','Worth full price'],['Solo game','Party game'],
+['Save scummer','One life, no reloads'],['Bad idle game','Dangerously addictive'],
+['Forgot it in a week','Still thinking about it years on'],['Bad boss music','Boss music that carries the fight'],
+['Bad open world','World worth exploring']
+]},
+
+{id:'net', name:'Internet & tech', desc:'Online life, gadgets, and being a nerd.', on:1, cards:[
+['Dead meme','Immortal meme'],['Cringe post','Certified banger'],
+['Bad username','Great username'],['Delete the app','Essential app'],
+['Doomscroll','Wholesome feed'],['Terrible password','Uncrackable'],
+['Instant block','Instant follow'],['Bad take','Galaxy brain'],
+['Old internet','New internet'],['Hideous website','Beautiful website'],
+['Spam','Email you open immediately'],['Log off','Post more'],
+['Never online','Extremely online'],['Awful community','Genuinely lovely community'],
+['Normie','Deep nerd'],['Regretted purchase','Best money ever spent'],
+['Useless AI answer','Actually did the job'],['Doomed startup idea','Billion-dollar idea'],
+['Bad group chat name','Perfect group chat name'],['Mute it forever','Notifications on'],
+['Useless emoji','Perfect emoji'],['Unlistenable podcast','Great podcast'],
+['Obsolete tech','Bleeding edge'],['Bad wifi name','Elite wifi name'],
+['Fits in one line','Needs a whole thread'],['Bad thing to google at work','Fine to google at work'],
+['Should not be a subscription','Fine as a subscription'],['Bad tab to leave open','Open forever'],
+['Bad autocorrect','Read my mind'],['Bad thing to back up','Back it up twice']
+]},
+
+{id:'nature', name:'Nature & animals', desc:'Creatures, weather, and the great outdoors.', on:1, cards:[
+['Terrible pet','Perfect pet'],['Completely harmless','Would kill you'],
+['Ugly animal','Majestic animal'],['Prey','Apex predator'],
+['Miserable weather','Perfect weather'],['Ant-sized','Whale-sized'],
+['Grim trail','Breathtaking trail'],['Fully tame','Utterly wild'],
+['Dies in a week','Unkillable houseplant'],['Bug','Beast'],
+['Do not swim here','Perfect swimming spot'],['Adorable','Terrifying'],
+['Lives on land','Lives in water'],['Grim campsite','Idyllic campsite'],
+['Barren','Lush'],['Extinct','Thriving everywhere'],
+['Bad animal to ride','Magnificent mount'],['Glacially slow','Lightning fast'],
+['Awful animal noise','Soothing animal noise'],['Bad tree','Magnificent tree'],
+['Bad smell outdoors','Sweetest smell outdoors'],['Weed','Prize flower'],
+['Worst season','Best season'],['City sky','Perfect stargazing'],
+['Dead in an hour out there','Would survive a month'],['Bad animal in your house','Fine in your house'],
+['Bad animal to be reincarnated as','Great animal to be'],['Harmless plant','Do not touch it'],
+['Bad place to live','Paradise'],['Bad animal in a fight','Would win any fight']
+]},
+
+{id:'sport', name:'Sport & fitness', desc:'Games with sweat in them.', on:1, cards:[
+['Not a sport','Absolutely a sport'],['Miserable workout','Great workout'],
+['Boring to watch','Cannot look away'],['Learn it in a day','Takes a lifetime'],
+['Bad team name','Great team name'],['Purely individual','Purely team'],
+['Zero risk','Broken bones'],['Bad mascot','Iconic mascot'],
+['Benchwarmer','The greatest of all time'],['All mental','All physical'],
+['Bad Olympic event','Best Olympic event'],['Kickabout','Championship final'],
+['All cardio','All strength'],['Warm-up','All-out'],
+['Hate it at the gym','Love it at the gym'],['Ruined by rain','Better in the rain'],
+['Underdog','Dynasty'],['Bad sport to play drunk','Improved by a drink'],
+['Bad sport for short people','Made for tall people'],['Nobody watches it','Whole country stops'],
+['Easy on the body','Wrecks your knees'],['Bad first sport for a kid','Perfect first sport']
+]},
+
+{id:'work', name:'Work & money', desc:'Jobs, cash, meetings that should be emails.', on:1, cards:[
+['Nightmare job','Dream job'],['Wildly underpaid','Wildly overpaid'],
+['Blew the interview','Nailed the interview'],['Waste of money','Brilliant investment'],
+['Pointless meeting','Genuinely useful meeting'],['Unprofessional email','Immaculate email'],
+['Side hustle','Whole career'],['Terrible management','Real leadership'],
+['Awful co-worker habit','Perfect teammate'],['Small treat','Serious splurge'],
+['Flimsy excuse','Airtight excuse'],['Micromanaged','Total freedom'],
+['Useless perk','Amazing perk'],['Fully remote','Must be on site'],
+['Bin the CV','Hire them today'],['Bad company name','Great company name'],
+['Bad time to quit','Perfect time to quit'],['Terrible money advice','Genuinely smart'],
+['Bad first job','Great first job'],['Should be automated','Keep a human on it'],
+['Impossible deadline','Comfortable deadline'],['Cancel that subscription','Worth it every month'],
+['Broke','Wealthy'],['Rolled over instantly','Master negotiator'],
+['Bad video call background','Perfect background'],['Utterly overworked','Suspiciously chill'],
+['Bad thing to put on expenses','Fine on expenses'],['Bad reason to call in sick','Completely legitimate']
+]},
+
+{id:'life', name:'Life & feelings', desc:'Days, moods, and the small stuff.', on:1, cards:[
+['Worst day','Best day'],['Excruciatingly awkward','Effortlessly smooth'],
+['Minor inconvenience','Ruins your whole week'],['Bad habit','Good habit'],
+['Lonely','Surrounded by people'],['Stressful errand','Relaxing errand'],
+['Terrible night of sleep','Perfect sleep'],['Disastrous date','Perfect date'],
+['Awful first impression','Instantly charming'],['Small win','Life-changing'],
+['Wasted Sunday','Perfect Sunday'],['Cringe memory','Proudest memory'],
+['Hollow apology','Real apology'],['Worst text to get','Best text to get'],
+['Horrible surprise','Wonderful surprise'],['Painful small talk','Conversation you remember'],
+['Petty grudge','Genuinely unforgivable'],['Brutal way to wake up','Gentle wake-up'],
+['Chore','Treat'],['Holiday from hell','Trip of a lifetime'],
+['Bad news','Best news'],['Hard to admit','Easy to admit'],
+['Bad birthday','Perfect birthday'],['Worst £20 you could spend','Best £20 you could spend'],
+['Overthink it for weeks','Decide in a second'],['Embarrassing','Nothing to be ashamed of'],
+['Bad time to arrive','Perfect timing'],['Bad way to spend a rainy day','Ideal rainy day'],
+['Draining company','Recharges you'],['Bad thing to say sorry for','Definitely apologise'],
+['Bad reason to stay in','Excellent reason to stay in'],['Would not remember it','Remember it forever']
+]},
+
+{id:'chaos', name:'Chaos', desc:'Silly hypotheticals and terrible plans.', on:1, cards:[
+['You would win that fight','You would lose badly'],['Would fight a goose','Would run'],
+['Fits in a microwave','Absolutely does not'],['Dead first in a zombie apocalypse','Last one standing'],
+['Useless superpower','World-breaking superpower'],['Perfectly reasonable fear','Deeply irrational fear'],
+['Stupid hill to die on','Worth fighting for'],['Nonsense conspiracy','Suspiciously plausible'],
+['Fine off the floor','Never off the floor'],['Awful thing to bring to a fight','Genuinely useful'],
+['Would make a terrible hat','Would make a great hat'],['Worst place in the time machine','Best trip in history'],
+['Bad thing to be reborn as','Great thing to be reborn as'],['Definitely illegal','Technically legal'],
+['Embarrassing way to go out','Legendary way to go out'],['Never say that to a police officer','Perfectly fine to say'],
+['Doomed plan','Genius plan'],['Bad way to make money','Weirdly effective'],
+['Would not survive school','Prom royalty'],['Bad thing to find in your fridge','Delightful find'],
+['Bad name for a boat','Perfect name for a boat'],['Sounds made up','Definitely real'],
+['Bad idea at 2pm','Excellent idea at 2am'],['Bad thing to bring camping','Bring two of them'],
+['Would lose to a toddler','Would beat a toddler'],['Bad animal to send to space','Ideal astronaut'],
+['Bad thing to shout in a library','Fine to shout'],['Bad gift for your nan','She would love it'],
+['Would not last a round','Would win the whole tournament'],['Bad thing to be famous for','Great thing to be famous for']
+]},
+
+{id:'cinder', name:'Dark fantasy', desc:'Swords, curses and loot. A Cindervale house special.', on:1, cards:[
+['Mortal','Divine'],['Mundane','Cursed'],['Peasant','King'],
+['Rusty dagger','Legendary blade'],['Village pest','World-ending beast'],
+['Common drop','Once in a lifetime drop'],['Early grind','Endgame'],
+['Fresh squire','Grandmaster'],['A single torch','Inferno'],
+['Roadside herb','Priceless elixir'],['Whisper','War cry'],
+['Tavern rumour','True prophecy'],['Copper','Void-forged'],
+['Useless familiar','Perfect familiar'],['Trash mob','Raid boss'],
+['Novice spell','Forbidden magic'],['Safe road','Certain death'],
+['Junk quest reward','Best in slot'],['Rat','Dragon'],['Cloth','Full plate'],
+['Cursed idol','Holy relic'],['Small tremor','Cataclysm'],
+['Goblin scheme','Demon lord plan'],['Broke adventurer','Dragon hoard'],
+['Grim tavern','Legendary inn'],['Cowardly retreat','Heroic last stand'],
+['Bad omen','Good omen'],['Silly name for a sword','Terrifying name for a sword'],
+['Would not last one floor','Clears the whole dungeon'],['Merchant','Warlord']
+]},
+
+{id:'party', name:'After dark', desc:'Cheeky, party-night stuff. Off by default.', on:0, adult:1, cards:[
+['Innocent','Filthy'],['Tame night','Completely wild night'],['Stone sober','Absolutely wasted'],
+['Painful flirting','Devastatingly smooth'],['Wholesome','Scandalous'],
+['Would tell your mum','Take it to the grave'],['Bad drink to order','Perfect drink to order'],
+['Slow dance','Grinding'],['Regrettable tattoo','Genuinely great tattoo'],
+['Very vanilla','Very adventurous'],['Terrible pick-up line','Somehow works'],
+['Bad party trick','Show stopper'],['Harmless text to send','Never send that text'],
+['Little white lie','Deal-breaker lie'],['Awful party game','Chaos in the best way'],
+['Mild hangover','Bedridden for a day'],['Full of regret','Zero regrets'],
+['Bad idea sober','Great idea at 1am'],['Awkward confession','Genuinely romantic'],
+['Grim club','Best night out of your life'],['Bad thing to shout at 3am','Iconic thing to shout'],
+['Bad kiss','Perfect kiss'],['Terrible Valentine gift','Swoon'],
+['Would do it for £20','Would not for a million'],['Bad place to take a date','Perfect place'],
+['Keep your clothes on','Skinny dip']
+]},
+];
+
+const CBY = {};
+for (const c of CATS) CBY[c.id] = c;
+const cardOf = k => (k && CBY[k.c] && CBY[k.c].cards[k.i]) || ['?','?'];
+const TOTALCARDS = CATS.reduce((n, c) => n + c.cards.length, 0);
+
+/* ================================================================ scoring
+   Mirrors the server exactly (the server's number is the one that counts —
+   this copy only draws the bands and explains the result). */
+const EDGE = 10;
+const BANDS = [[2.5,4],[6,3],[10,2]];
+const scoreOf = (g,t) => { const d = Math.abs(g-t); for (const [w,p] of BANDS) if (d<=w) return p; return 0; };
+
+const VERDICT = {
+  4:['Dead centre','Bullseye. Straight out of each other’s heads.'],
+  3:['So close','A hair off the middle. That clue landed.'],
+  2:['Caught the edge','Right idea, drifted a little.'],
+  0:['Missed it','Nowhere near. Whose fault was that?'],
+};
+const RATING = a =>
+  a >= 3.4 ? ['Telepathic','You two should be studied.'] :
+  a >= 2.8 ? ['Attuned','Genuinely in sync.'] :
+  a >= 2.2 ? ['In tune','Solid reading of each other.'] :
+  a >= 1.5 ? ['Getting there','Some real moments in that.'] :
+             ['Strangers','You have some talking to do.'];
+
+/* ================================================================ net */
+const HOST = 'spectrum-duel.may23jordan.workers.dev';
+const API  = 'https://' + HOST;
+const WSU  = 'wss://' + HOST;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+let sock = null, S = null, code = '', myName = '', mateName = '';
+let local = false, wantOpen = false, retries = 0, retryT = 0;
+let needle = 50, locked = false, curtainFor = -1, lastPhase = '', lastRound = 0;
+let rounds = 10;
+const sel = new Set();
+
+try {
+  const saved = JSON.parse(localStorage.getItem('wl_cats') || 'null');
+  if (Array.isArray(saved) && saved.length) saved.forEach(id => { if (CBY[id]) sel.add(id); });
+  const r = parseInt(localStorage.getItem('wl_rounds'), 10);
+  if ([5,10,15,0].includes(r)) rounds = r;
+} catch (e) {}
+if (!sel.size) CATS.forEach(c => { if (c.on) sel.add(c.id); });
+
+const saveSel = () => {
+  try {
+    localStorage.setItem('wl_cats', JSON.stringify([...sel]));
+    localStorage.setItem('wl_rounds', String(rounds));
+  } catch (e) {}
+};
+const manifest = () => {
+  const o = {};
+  for (const c of CATS) if (sel.has(c.id)) o[c.id] = c.cards.length;
+  return o;
+};
+const selCards = () => CATS.reduce((n,c) => n + (sel.has(c.id) ? c.cards.length : 0), 0);
+
+/* ================================================================ local engine
+   Pass-and-play. A deliberate mirror of the Durable Object's reducer so both
+   modes behave identically; the curtain is what keeps the target secret when
+   there is only one screen. */
+const L = {};
+function localStart(){
+  L.phase = 'lobby'; L.round = 0; L.psychic = 0; L.card = null; L.target = 0;
+  L.clue = ''; L.guess = null; L.pts = 0; L.skips = 3; L.total = 0;
+  L.psy = [0,0]; L.gs = [0,0]; L.bull = 0; L.hist = []; L.used = new Set();
+  L.names = [myName, mateName];
+}
+function ldraw(){
+  const pool = [], cats = manifest();
+  for (const c of Object.keys(cats))
+    for (let i = 0; i < cats[c]; i++) if (!L.used.has(c+':'+i)) pool.push({c,i});
+  if (!pool.length){ L.used.clear(); return ldraw(); }
+  const k = pool[Math.floor(Math.random()*pool.length)];
+  L.used.add(k.c+':'+k.i);
+  return k;
+}
+function lround(first){
+  L.round = first ? 1 : L.round + 1;
+  L.psychic = first ? (Math.random() < 0.5 ? 0 : 1) : 1 - L.psychic;
+  L.card = ldraw();
+  L.target = EDGE + Math.random()*(100 - 2*EDGE);
+  L.clue = ''; L.guess = null; L.pts = 0; L.phase = 'clue';
+}
+/* whoever is holding the device right now */
+const actor = () => (L.phase === 'guess' ? 1 - L.psychic : L.psychic);
+function lview(){
+  const i = L.phase === 'reveal' || L.phase === 'over' ? L.psychic : actor();
+  const shown = L.phase === 'reveal' || L.phase === 'over' || i === L.psychic;
+  return {
+    t:'state', dv:DV, you:i, phase:L.phase, names:L.names.slice(), online:[1,1],
+    cfg:{cats:manifest(), rounds, dv:DV}, round:L.round, rounds,
+    psychic:L.psychic, card:L.card, clue:L.clue, guess:L.guess,
+    target: L.phase === 'lobby' ? null : (shown ? L.target : null),
+    pts:L.pts, skips:L.skips, total:L.total, psy:L.psy, gs:L.gs, bull:L.bull, hist:L.hist,
+  };
+}
+function localSend(m){
+  const i = actor();
+  switch (m.t){
+    case 'cfg': break;                                   // read straight off `sel`
+    case 'start': if (L.phase === 'lobby' || L.phase === 'over'){ localStart(); lround(true); } break;
+    case 'clue': {
+      if (L.phase !== 'clue') break;
+      const t = String(m.text||'').replace(/\s+/g,' ').trim().slice(0,60);
+      if (!t) break;
+      L.clue = t; L.phase = 'guess';
+      break;
+    }
+    case 'skip':
+      if (L.phase === 'clue' && L.skips > 0){
+        L.skips--; L.card = ldraw(); L.target = EDGE + Math.random()*(100-2*EDGE);
+      }
+      break;
+    case 'guess': {
+      if (L.phase !== 'guess') break;
+      const v = Number(m.v);
+      if (!isFinite(v) || v < 0 || v > 100) break;
+      L.guess = v; L.pts = scoreOf(v, L.target); L.total += L.pts;
+      L.psy[L.psychic] += L.pts; L.gs[1-L.psychic] += L.pts;
+      if (L.pts === 4) L.bull++;
+      L.hist.unshift({n:L.round, c:L.card, clue:L.clue, g:v, t:L.target, p:L.pts, by:L.psychic});
+      if (L.hist.length > 40) L.hist.pop();
+      L.phase = 'reveal';
+      break;
+    }
+    case 'next':
+      if (L.phase !== 'reveal') break;
+      if (rounds && L.round >= rounds) L.phase = 'over'; else lround(false);
+      break;
+    case 'stop': if (L.phase !== 'lobby' && L.phase !== 'over') L.phase = 'over'; break;
+    case 'again': if (L.phase === 'over') localStart(); break;
+    case 'chat': return;
+  }
+  void i;
+  S = lview();
+  render();
+}
+
+const send = o => {
+  if (local) return localSend(o);
+  if (sock && sock.readyState === 1) sock.send(JSON.stringify(o));
+};
+
+function conn(msg, sticky){
+  const el = $('conn');
+  if (!msg){ el.classList.add('hide'); return; }
+  el.textContent = msg; el.classList.remove('hide');
+  if (!sticky) setTimeout(() => el.classList.add('hide'), 2600);
+}
+
+function enterGame(){
+  $('home').classList.add('hide');
+  $('game').classList.remove('hide');
+  $('log').innerHTML = '';
+  needle = 50; locked = false; curtainFor = -1; lastPhase = ''; lastRound = 0;
+}
+
+function connect(c){
+  code = c.toUpperCase();
+  local = false; wantOpen = true;
+  location.hash = code;
+  enterGame();
+  $('stageTop').innerHTML =
+    '<div class="banner"><h2>Opening the room<span class="waitdots"></span></h2></div>';
+  openSock();
+}
+
+function openSock(){
+  conn('Connecting…', true);
+  try {
+    sock = new WebSocket(WSU + '/room/' + code + '/ws?name=' + encodeURIComponent(myName));
+  } catch (e){ return schedule(); }
+  sock.onopen = () => {
+    retries = 0; conn('Connected');
+    if (sel.size) send({t:'cfg', cats:manifest(), rounds, dv:DV});   // host's settings win
+  };
+  sock.onmessage = ev => {
+    let m; try { m = JSON.parse(ev.data); } catch (e){ return; }
+    if (m.t === 'state'){ S = m; render(); }
+    else if (m.t === 'chat') say(m.from, m.text, m.own);
+    else if (m.t === 'full'){ wantOpen = false; alert('That room already has two players in it.'); quit(); }
+  };
+  sock.onclose = () => { sock = null; if (wantOpen) schedule(); };
+  sock.onerror = () => {};
+}
+
+function schedule(){
+  if (!wantOpen) return;
+  clearTimeout(retryT);
+  const wait = Math.min(1000 * Math.pow(1.6, retries++), 8000);
+  conn('Connection lost — retrying…', true);
+  retryT = setTimeout(openSock, wait);
+}
+
+function quit(){
+  wantOpen = false; local = false;
+  clearTimeout(retryT);
+  if (sock){ try { sock.close(); } catch (e){} sock = null; }
+  S = null;
+  location.hash = '';
+  $('veil').classList.add('hide');
+  $('game').classList.add('hide');
+  $('home').classList.remove('hide');
+  conn(null);
+}
+
+/* ================================================================ the dial */
+const CX = 400, CY = 392, R_IN = 205, R_OUT = 348;
+const rad = d => d * Math.PI / 180;
+const ang = v => 180 - v * 1.8;
+const pt = (v,r) => [
+  (CX + r * Math.cos(rad(ang(v)))).toFixed(2),
+  (CY - r * Math.sin(rad(ang(v)))).toFixed(2),
+];
+function seg(v1, v2, r1, r2){
+  const a = pt(v1,r2), b = pt(v2,r2), c = pt(v2,r1), d = pt(v1,r1);
+  return 'M' + a + 'A' + r2 + ' ' + r2 + ' 0 0 1 ' + b +
+         'L' + c + 'A' + r1 + ' ' + r1 + ' 0 0 0 ' + d + 'Z';
+}
+const clampV = v => Math.max(0, Math.min(100, v));
+
+function dialSVG(o){
+  const p = [];
+  p.push('<svg viewBox="0 0 800 425" aria-hidden="true">');
+  p.push('<defs><linearGradient id="wlface" x1="0" y1="1" x2="0" y2="0">' +
+         '<stop offset="0" stop-color="#0d1120"/><stop offset="1" stop-color="#171d2e"/></linearGradient>' +
+         '<linearGradient id="wlrail" x1="0" y1="0" x2="1" y2="0">' +
+         '<stop offset="0" stop-color="#57d2ff"/><stop offset="1" stop-color="#ff6ec7"/></linearGradient></defs>');
+  // face
+  p.push('<path d="' + seg(0,100,R_IN,R_OUT) + '" fill="url(#wlface)" stroke="#2c334a"/>');
+  // scoring bands
+  if (o.bands){
+    const t = o.target;
+    const b = [[t-10,t-6,'#57d2ff',.30],[t-6,t-2.5,'#4ade80',.34],[t-2.5,t+2.5,'#ffc857',.52],
+               [t+2.5,t+6,'#4ade80',.34],[t+6,t+10,'#57d2ff',.30]];
+    for (const [v1,v2,col,op] of b)
+      p.push('<path d="' + seg(clampV(v1),clampV(v2),R_IN,R_OUT) + '" fill="' + col +
+             '" fill-opacity="' + op + '"/>');
+    const [tx,ty] = pt(t, R_OUT + 4), [tx2,ty2] = pt(t, R_IN - 4);
+    p.push('<line x1="' + tx + '" y1="' + ty + '" x2="' + tx2 + '" y2="' + ty2 +
+           '" stroke="#ffc857" stroke-width="2" stroke-dasharray="6 5" opacity=".85"/>');
+  }
+  // ticks
+  for (let v = 0; v <= 100; v += 5){
+    const big = v % 25 === 0;
+    const [x1,y1] = pt(v, R_OUT - (big ? 22 : 11)), [x2,y2] = pt(v, R_OUT - 2);
+    p.push('<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 +
+           '" stroke="#3a4360" stroke-width="' + (big ? 3 : 1.5) + '"/>');
+  }
+  p.push('<path d="' + seg(0,100,R_OUT+6,R_OUT+10) + '" fill="url(#wlrail)" fill-opacity=".55"/>');
+  // locked-in guess (drawn under the live needle so both read at reveal)
+  if (o.guess != null) p.push(pin(o.guess, '#57d2ff', o.needle != null ? .5 : 1));
+  if (o.needle != null) p.push(pin(o.needle, '#f4f7ff', 1));
+  p.push('<circle cx="' + CX + '" cy="' + CY + '" r="17" fill="#242a3c" stroke="#3a4360"/>');
+  p.push('<circle cx="' + CX + '" cy="' + CY + '" r="5" fill="#8b94ad"/>');
+  p.push('</svg>');
+  return p.join('');
+}
+function pin(v, col, op){
+  const g = (v - 50) * 1.8;
+  return '<g transform="rotate(' + g.toFixed(2) + ' ' + CX + ' ' + CY + ')" opacity="' + op + '">' +
+    '<line x1="' + CX + '" y1="' + (CY - 12) + '" x2="' + CX + '" y2="' + (CY - R_OUT - 12) +
+    '" stroke="' + col + '" stroke-width="4" stroke-linecap="round"/>' +
+    '<circle cx="' + CX + '" cy="' + (CY - R_OUT - 16) + '" r="9" fill="' + col + '"/>' +
+    '</g>';
+}
+function vFromEvent(ev){
+  const wrap = $('dialWrap'), r = wrap.getBoundingClientRect();
+  if (!r.width) return needle;
+  const k = 800 / r.width;
+  const x = (ev.clientX - r.left) * k, y = (ev.clientY - r.top) * k;
+  const dx = x - CX, dy = CY - y;
+  if (dy <= 0) return dx < 0 ? 0 : 100;              // below the hub — snap to the near end
+  const a = Math.atan2(dy, dx) * 180 / Math.PI;
+  return clampV((180 - a) / 1.8);
+}
+function paintNeedle(){
+  const svg = $('dialWrap').firstElementChild;
+  if (!svg) return;
+  const gs = svg.querySelectorAll('g[transform]');
+  const g = gs[gs.length - 1];
+  if (g) g.setAttribute('transform',
+    'rotate(' + ((needle - 50) * 1.8).toFixed(2) + ' ' + CX + ' ' + CY + ')');
+}
+let dragging = false;
+function dialDown(ev){
+  if (!canAim()) return;
+  dragging = true;
+  $('dialWrap').setPointerCapture && $('dialWrap').setPointerCapture(ev.pointerId);
+  needle = vFromEvent(ev); paintNeedle();
+}
+function dialMove(ev){ if (dragging && canAim()){ needle = vFromEvent(ev); paintNeedle(); } }
+function dialUp(){ dragging = false; }
+const canAim = () => !!S && S.phase === 'guess' && S.you !== S.psychic && !locked;
+
+$('dialWrap').addEventListener('pointerdown', dialDown);
+$('dialWrap').addEventListener('pointermove', dialMove);
+$('dialWrap').addEventListener('pointerup', dialUp);
+$('dialWrap').addEventListener('pointercancel', dialUp);
+window.addEventListener('keydown', e => {
+  if (!canAim()) return;
+  const ae = document.activeElement;
+  if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
+  const step = e.shiftKey ? 3 : 0.5;
+  if (e.key === 'ArrowLeft'){ needle = clampV(needle - step); paintNeedle(); e.preventDefault(); }
+  else if (e.key === 'ArrowRight'){ needle = clampV(needle + step); paintNeedle(); e.preventDefault(); }
+  else if (e.key === 'Enter' && document.activeElement === document.body) lockGuess();
+});
+
+function lockGuess(){
+  if (!canAim()) return;
+  locked = true;
+  send({t:'guess', v:needle});
+}
+
+/* ================================================================ render */
+function render(){
+  if (!S) return;
+  const ph = S.phase;
+  const mine = S.you === S.psychic;
+  const card = cardOf(S.card);
+  const oppI = 1 - S.you;
+
+  /* --- fresh round: reset the local aim --- */
+  if (S.round !== lastRound || ph !== lastPhase){
+    if (ph === 'clue' && S.round !== lastRound){ needle = 50; locked = false; }
+    if (ph === 'guess' && lastPhase !== 'guess'){ needle = 50; locked = false; }
+    lastRound = S.round; lastPhase = ph;
+  }
+
+  /* --- top bar --- */
+  const pill = i => {
+    const nm = S.names[i] || (i === S.you ? myName : 'Waiting…');
+    const psy = ph !== 'lobby' && ph !== 'over' && i === S.psychic;
+    return '<div class="pill' + (psy ? ' psy' : '') + '">' +
+      '<i class="dot' + (S.online[i] ? ' on' : '') + '"></i>' +
+      '<span>' + esc(nm) + (i === S.you && !local ? ' <span class="sc">(you)</span>' : '') + '</span>' +
+      (psy ? '<span class="rl">psychic</span>' : '') + '</div>';
+  };
+  $('vs').innerHTML = pill(0) + '<span style="color:var(--dim2)">+</span>' + pill(1);
+  $('roomtag').innerHTML = local
+    ? '<span class="sc" style="color:var(--dim2)">same device</span>'
+    : '<span class="code">' + esc(code) + '</span>' +
+      '<button class="btn sm ghost" id="btnCopy">Copy invite link</button>';
+  if ($('btnCopy')) $('btnCopy').onclick = copyLink;
+
+  /* --- sidebar: nothing to score before the first round --- */
+  const fresh = ph === 'lobby' && !S.hist.length;
+  $('scoreCard').classList.toggle('hide', fresh);
+  $('histCard').classList.toggle('hide', fresh);
+  if (!fresh){ renderScore(); renderHist(); }
+
+  /* --- stage --- */
+  const board = $('board');
+  if (ph === 'lobby' || ph === 'over'){ board.classList.add('hide'); }
+  else {
+    board.classList.remove('hide');
+    $('sL').textContent = card[0];
+    $('sR').textContent = card[1];
+    const showBands = S.target != null;
+    const aim = canAim();
+    $('dialWrap').classList.toggle('grab', aim);
+    $('dialWrap').innerHTML = dialSVG({
+      bands: showBands, target: S.target,
+      guess: S.guess != null ? S.guess : null,
+      needle: aim ? needle : null,
+    });
+    $('dhint').textContent =
+      aim ? 'Drag the dial, or use ← →. Enter locks it in.' :
+      (ph === 'clue' && mine ? 'The gold slice is your target. They cannot see it.' : '');
+  }
+
+  if (ph === 'lobby') return renderLobby();
+  if (ph === 'over')  return renderOver();
+
+  $('stageTop').innerHTML =
+    '<div class="rline"><span class="rn">Round ' + S.round +
+      (S.rounds ? ' of ' + S.rounds : '') + '</span>' +
+    '<span class="role">' + (mine && !local ? 'You are the psychic' :
+      esc(S.names[S.psychic] || 'They') + ' is the psychic') + '</span>' +
+    '<span class="spacer"></span>' +
+    (ph === 'clue' && mine && S.skips > 0
+      ? '<button class="btn sm ghost" id="btnSkip">Swap this card (' + S.skips + ')</button>' : '') +
+    (!S.rounds && ph === 'reveal'
+      ? '<button class="btn sm ghost" id="btnStop">Finish up</button>' : '') +
+    '</div>';
+  if ($('btnSkip')) $('btnSkip').onclick = () => send({t:'skip'});
+  if ($('btnStop')) $('btnStop').onclick = () => send({t:'stop'});
+
+  const ctl = $('ctl');
+
+  if (ph === 'clue'){
+    if (mine){
+      ctl.innerHTML =
+        '<div class="cluebox"><input id="clueIn" class="fld" maxlength="60" autocomplete="off" ' +
+          'placeholder="one thing that sits exactly there…">' +
+        '<button class="btn prime" id="btnClue">Send clue</button></div>' +
+        '<div class="dhint" style="margin-top:9px;text-align:left">Name a thing, not a position. ' +
+          '&ldquo;Lukewarm&rdquo; is cheating; &ldquo;a cup of tea you forgot about&rdquo; is the game.</div>';
+      $('btnClue').onclick = sendClue;
+      $('clueIn').addEventListener('keydown', e => { if (e.key === 'Enter') sendClue(); });
+      $('clueIn').focus();
+    } else {
+      ctl.innerHTML = '<div class="banner"><h2>' + esc(S.names[S.psychic] || 'They') +
+        ' is thinking<span class="waitdots"></span></h2>' +
+        '<p>They can see the target. You can’t. Sit tight.</p></div>';
+    }
+    return maybeCurtain();
+  }
+
+  if (ph === 'guess'){
+    const clue = '<div class="clueshow"><div class="lbl">The clue</div>' +
+      '<div class="txt">' + esc(S.clue) + '</div></div>';
+    if (!mine){
+      ctl.innerHTML = clue +
+        '<div class="acts"><button class="btn gold big" id="btnLock"' +
+          (locked ? ' disabled' : '') + '>Lock it in</button>' +
+        '<span class="spacer"></span></div>';
+      $('btnLock').onclick = lockGuess;
+    } else {
+      ctl.innerHTML = clue + '<div class="banner"><h2>' +
+        esc(S.names[oppI] || 'They') + ' is aiming<span class="waitdots"></span></h2>' +
+        '<p>Nothing more you can do. No hints.</p></div>';
+    }
+    return maybeCurtain();
+  }
+
+  if (ph === 'reveal'){
+    const v = VERDICT[S.pts] || VERDICT[0];
+    const off = Math.abs(S.guess - S.target);
+    ctl.innerHTML =
+      '<div class="clueshow"><div class="lbl">The clue was</div><div class="txt">' +
+        esc(S.clue) + '</div></div>' +
+      '<div class="res"><div class="pts p' + S.pts + '">' + S.pts +
+        '<small>' + (S.pts === 1 ? 'point' : 'points') + '</small></div>' +
+      '<div class="txt"><h3>' + v[0] + '</h3><p>' + v[1] + ' Off by ' + off.toFixed(1) +
+        ' out of 100.</p></div>' +
+      '<button class="btn prime big" id="btnNext">' +
+        (S.rounds && S.round >= S.rounds ? 'See the results' : 'Next round') + '</button></div>';
+    $('btnNext').onclick = () => { locked = false; send({t:'next'}); };
+    return maybeCurtain();
+  }
+}
+
+function sendClue(){
+  const el = $('clueIn');
+  if (!el) return;
+  const v = el.value.trim();
+  if (!v) return;
+  el.value = '';
+  send({t:'clue', text:v});
+}
+
+function renderScore(){
+  const max = S.rounds ? S.rounds * 4 : Math.max(4, S.hist.length * 4);
+  const done = S.hist.length;
+  $('scV').textContent = S.total;
+  $('scOf').textContent = S.rounds ? '/ ' + max + ' possible' : (done + ' rounds played');
+  $('scBar').style.width = Math.min(100, max ? S.total / max * 100 : 0) + '%';
+  const avg = done ? S.total / done : 0;
+  $('scStats').innerHTML =
+    st('Average', done ? avg.toFixed(2) : '—') +
+    st('Bullseyes', S.bull) +
+    st('As psychic: ' + short(S.names[0] || 'P1'), S.psy[0]) +
+    st('As psychic: ' + short(S.names[1] || 'P2'), S.psy[1]);
+}
+const st = (k,v) => '<div class="st"><div class="k">' + esc(k) + '</div><div class="v">' + esc(v) + '</div></div>';
+const short = s => String(s).length > 9 ? String(s).slice(0,8) + '…' : String(s);
+
+function renderHist(){
+  if (!S.hist.length){ $('hist').innerHTML = '<div class="empty">Nothing yet.</div>'; return; }
+  $('hist').innerHTML = S.hist.map(h => {
+    const c = cardOf(h.c);
+    return '<div class="hr"><div class="hh"><span>#' + h.n + '</span>' +
+      '<span>' + esc(short(S.names[h.by] || 'P' + (h.by+1))) + ' gave it</span>' +
+      '<b class="p' + h.p + '">' + h.p + '</b></div>' +
+      '<div class="hc">&ldquo;' + esc(h.clue) + '&rdquo;</div>' +
+      '<div class="hs">' + esc(c[0]) + ' &rarr; ' + esc(c[1]) + '</div>' +
+      '<div class="mini"><i class="t" style="left:' + h.t.toFixed(1) + '%"></i>' +
+      '<i class="g" style="left:' + h.g.toFixed(1) + '%"></i></div></div>';
+  }).join('');
+}
+
+function renderLobby(){
+  const host = S.you === 0 || local;
+  const waiting = !S.online[1] || !S.names[1];
+  $('ctl').innerHTML = '';
+  if (!host){
+    $('stageTop').innerHTML =
+      '<div class="banner"><h2>' + esc(S.names[0] || 'Your friend') +
+        ' is setting it up<span class="waitdots"></span></h2>' +
+      '<p>They pick the categories and the length. You are in — nothing to do.</p></div>' +
+      '<div class="readonly" style="max-width:640px;margin:0 auto;text-align:center">' +
+        'In play: <b>' + Object.keys(S.cfg.cats || {}).map(id => esc(CBY[id] ? CBY[id].name : id)).join(', ') +
+        '</b><br>Length: <b>' + (S.cfg.rounds ? S.cfg.rounds + ' rounds' : 'endless') + '</b></div>';
+    if (S.dv && S.dv !== DV) $('ctl').innerHTML =
+      '<div class="banner"><p style="color:var(--no)">One of you is on an older copy of the ' +
+      'card deck. Both refresh the page so the spectrums line up.</p></div>';
+    return;
+  }
+  $('stageTop').innerHTML =
+    '<div class="rline"><span class="rn">Set up the game</span>' +
+    '<span class="role">' + (waiting && !local
+      ? 'Waiting for someone to join'
+      : esc(S.names[1] || mateName) + ' is here') + '</span></div>' +
+    (waiting && !local
+      ? '<div class="banner" style="padding:16px 0 22px"><p>Send them this link:<br>' +
+        '<b style="color:var(--gold);word-break:break-all">' + esc(inviteLink()) + '</b></p></div>'
+      : '');
+
+  $('ctl').innerHTML =
+    '<div class="setrow"><span class="eyebrow" style="margin-right:4px">Length</span>' +
+      '<div class="seg" id="segR">' +
+      [[5,'5 rounds'],[10,'10 rounds'],[15,'15 rounds'],[0,'Endless']].map(
+        ([v,l]) => '<button data-r="' + v + '"' + (rounds === v ? ' class="on"' : '') + '>' + l + '</button>'
+      ).join('') + '</div></div>' +
+    '<div class="deck" id="deck">' + CATS.map(c =>
+      '<button class="cat' + (sel.has(c.id) ? ' on' : '') + '" data-c="' + c.id + '">' +
+      '<span class="lbl">' + esc(c.name) +
+        (c.adult ? '<span class="ad">18+</span>' : '') +
+        '<span class="d">' + esc(c.desc) + '</span></span>' +
+      '<span class="n">' + c.cards.length + '</span></button>'
+    ).join('') + '</div>' +
+    '<div class="lobfoot"><span class="cnt" id="deckCnt"></span>' +
+      '<button class="btn sm ghost" id="btnAll">All</button>' +
+      '<button class="btn sm ghost" id="btnClassics">Just the classics</button>' +
+      '<button class="btn gold big" id="btnStart">Start playing</button></div>';
+
+  const cnt = () => {
+    $('deckCnt').textContent = sel.size
+      ? selCards() + ' spectrums in play, across ' + sel.size + ' categories (' + TOTALCARDS + ' total)'
+      : 'Pick at least one category.';
+    $('btnStart').disabled = !sel.size || (!local && waiting);
+  };
+  const pushCfg = () => { saveSel(); if (!local) send({t:'cfg', cats:manifest(), rounds, dv:DV}); };
+  cnt();
+
+  $('deck').onclick = e => {
+    const b = e.target.closest('.cat');
+    if (!b) return;
+    const id = b.dataset.c;
+    if (sel.has(id)) sel.delete(id); else sel.add(id);
+    b.classList.toggle('on', sel.has(id));
+    cnt(); pushCfg();
+  };
+  $('segR').onclick = e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    rounds = parseInt(b.dataset.r, 10);
+    [...$('segR').children].forEach(x => x.classList.toggle('on', x === b));
+    pushCfg();
+  };
+  $('btnAll').onclick = () => { CATS.forEach(c => sel.add(c.id)); renderLobby(); pushCfg(); };
+  $('btnClassics').onclick = () => {
+    sel.clear(); ['gen','things','food','ppl'].forEach(id => sel.add(id));
+    renderLobby(); pushCfg();
+  };
+  $('btnStart').onclick = () => { pushCfg(); send({t:'start'}); };
+}
+
+function renderOver(){
+  const done = S.hist.length, avg = done ? S.total / done : 0;
+  const [title, blurb] = RATING(avg);
+  $('ctl').innerHTML = '';
+  $('stageTop').innerHTML =
+    '<div class="banner"><div class="eyebrow">Final score</div>' +
+    '<h2 style="font-size:clamp(34px,7vw,58px);color:var(--gold);margin:4px 0 2px">' + S.total + '</h2>' +
+    '<p style="margin-bottom:18px">' + done + ' rounds &middot; ' + avg.toFixed(2) +
+      ' per round &middot; ' + S.bull + ' bullseye' + (S.bull === 1 ? '' : 's') + '</p>' +
+    '<h2>' + title + '</h2><p>' + blurb + '</p>' +
+    '<div class="finalgrid" style="max-width:520px;margin:22px auto">' +
+      st('Points from ' + short(S.names[0] || 'P1') + '’s clues', S.psy[0]) +
+      st('Points from ' + short(S.names[1] || 'P2') + '’s clues', S.psy[1]) +
+      st(short(S.names[0] || 'P1') + ' guessing', S.gs[0]) +
+      st(short(S.names[1] || 'P2') + ' guessing', S.gs[1]) +
+    '</div>' +
+    '<div class="acts" style="justify-content:center">' +
+      '<button class="btn prime big" id="btnAgain">Play again</button>' +
+      '<button class="btn ghost" id="btnHome">Back to the menu</button></div></div>';
+  $('btnAgain').onclick = () => send({t:'again'});
+  $('btnHome').onclick = quit;
+}
+
+/* ---- pass-and-play curtain: one screen, one secret ---- */
+function maybeCurtain(){
+  if (!local) return;
+  const who = actor();
+  const need = S.phase === 'clue' || S.phase === 'guess';
+  if (!need){ curtainFor = -1; $('veil').classList.add('hide'); return; }
+  if (curtainFor === who) return;
+  const nm = S.names[who] || 'Player ' + (who + 1);
+  const role = S.phase === 'clue' ? 'You are the psychic — you’ll see the target.'
+                                  : 'A clue is waiting. Don’t peek before you’re handed it.';
+  $('modal').innerHTML =
+    '<div class="eyebrow">Pass the device</div><h2>' + esc(nm) + '’s turn</h2>' +
+    '<p>' + role + '</p><button class="btn gold big" id="btnCurt">I’m ' + esc(nm) + ' — go</button>';
+  $('veil').classList.remove('hide');
+  $('btnCurt').onclick = () => { curtainFor = who; $('veil').classList.add('hide'); };
+}
+
+/* ================================================================ chat */
+function say(from, text, own, sys){
+  const d = document.createElement('div');
+  d.className = 'm' + (own ? ' own' : '') + (sys ? ' sys' : '');
+  d.innerHTML = sys ? esc(text) : '<b>' + esc(from) + ':</b> ' + esc(text);
+  $('log').appendChild(d);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+function sendChat(){
+  const v = $('chatIn').value.trim();
+  if (!v) return;
+  if (local){ say(myName, v, 1); $('chatIn').value = ''; return; }
+  send({t:'chat', text:v});
+  $('chatIn').value = '';
+}
+$('btnChat').onclick = sendChat;
+$('chatIn').addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+$('btnQuit').onclick = quit;
+
+const inviteLink = () => location.origin + location.pathname + '#' + code;
+function copyLink(){
+  const t = inviteLink();
+  if (navigator.clipboard && navigator.clipboard.writeText)
+    navigator.clipboard.writeText(t).then(() => conn('Link copied'), () => conn(t, true));
+  else conn(t, true);
+}
+
+/* ================================================================ home */
+try { $('nameIn').value = localStorage.getItem('wl_name') || ''; } catch (e){}
+try { $('p2In').value = localStorage.getItem('wl_mate') || ''; } catch (e){}
+if (/^#[A-Za-z]{4}$/.test(location.hash)) $('joinCode').value = location.hash.slice(1).toUpperCase();
+
+function needName(){
+  const v = ($('nameIn').value || '').trim();
+  if (v){
+    myName = v.slice(0,14);
+    try { localStorage.setItem('wl_name', myName); } catch (e){}
+    return false;
+  }
+  $('homeErr').textContent = 'Put a name in first.';
+  $('nameIn').focus();
+  return true;
+}
+
+$('btnCreate').onclick = async () => {
+  if (needName()) return;
+  $('homeErr').textContent = '';
+  $('btnCreate').disabled = true;
+  try {
+    const r = await fetch(API + '/create');
+    connect((await r.json()).code);
+  } catch (e){
+    $('homeErr').textContent = "Couldn't reach the server. Check your connection and try again.";
+  }
+  $('btnCreate').disabled = false;
+};
+
+$('btnJoin').onclick = () => {
+  if (needName()) return;
+  const c = ($('joinCode').value || '').trim().toUpperCase();
+  if (!/^[A-Z]{4}$/.test(c)){ $('homeErr').textContent = 'Room codes are 4 letters.'; return; }
+  $('homeErr').textContent = '';
+  connect(c);
+};
+
+$('btnLocal').onclick = () => {
+  if (needName()) return;
+  mateName = ($('p2In').value || '').trim().slice(0,14) || 'Player 2';
+  try { localStorage.setItem('wl_mate', mateName); } catch (e){}
+  $('homeErr').textContent = '';
+  local = true; code = '';
+  enterGame();
+  localStart();
+  S = lview();
+  render();
+};
+
+$('joinCode').addEventListener('keydown', e => { if (e.key === 'Enter') $('btnJoin').click(); });
+$('nameIn').addEventListener('keydown', e => { if (e.key === 'Enter') $('btnCreate').click(); });
+
+/* handles for the jsdom suite */
+window.__wl = {
+  CATS, DV, TOTALCARDS, scoreOf, cardOf, dialSVG, vFromEvent, RATING,
+  L, lview, localSend, render,
+  get S(){ return S; }, set S(v){ S = v; },
+  get needle(){ return needle; }, set needle(v){ needle = v; },
+  get local(){ return local; }, set local(v){ local = v; },
+  get names(){ return [myName, mateName]; },
+  setNames(a,b){ myName = a; mateName = b; },
+  enterGame, localStart, lround, sel, manifest, selCards,
+};
+</script>
+</body>
+</html>

@@ -61,17 +61,17 @@ textarea{width:100%; height:52px; background:#00000055; border:1px solid var(--l
 .kind{margin:14px 0 4px}
 .kind h3{font-size:11px; letter-spacing:.22em; text-transform:uppercase; margin-bottom:7px}
 .kgrid{display:flex; flex-direction:column; gap:5px}
-.charm{display:block; width:100%; text-align:left; background:#00000038; border:1px solid var(--line); border-left:3px solid var(--hue,#666); border-radius:7px; padding:7px 10px; cursor:pointer; color:var(--text); font-family:var(--sans); transition:background .12s,border-color .12s}
-.charm:hover:not(:disabled){background:#00000060; border-color:var(--trim-dim)}
-.charm.on{background:linear-gradient(90deg,rgba(224,118,47,.16),rgba(224,118,47,.03)); border-color:var(--trim-dim)}
-.charm.locked{opacity:.42; cursor:not-allowed}
-.charm:disabled{cursor:not-allowed}
-.charm .cn{display:block; font-size:12.5px; font-weight:600; letter-spacing:.03em}
-.charm .cn i{color:var(--dim); font-style:normal; font-size:10px; letter-spacing:.1em}
-.charm .cd{display:block; font-size:11px; color:var(--muted); line-height:1.35; margin-top:1px}
-.charm .cc{display:block; font-size:10px; color:var(--dim); font-family:var(--mono); margin-top:3px}
-.charm .cc b{color:var(--flame); margin-left:8px; font-weight:600}
-.charm .cl{display:block; font-size:10px; color:var(--red); margin-top:3px}
+.tcard{display:block; width:100%; text-align:left; background:#00000038; border:1px solid var(--line); border-left:3px solid var(--hue,#666); border-radius:7px; padding:7px 10px; cursor:pointer; color:var(--text); font-family:var(--sans); transition:background .12s,border-color .12s}
+.tcard:hover:not(:disabled){background:#00000060; border-color:var(--trim-dim)}
+.tcard.on{background:linear-gradient(90deg,rgba(224,118,47,.16),rgba(224,118,47,.03)); border-color:var(--trim-dim)}
+.tcard.locked{opacity:.42; cursor:not-allowed}
+.tcard:disabled{cursor:not-allowed}
+.tcard .cn{display:block; font-size:12.5px; font-weight:600; letter-spacing:.03em}
+.tcard .cn i{color:var(--dim); font-style:normal; font-size:10px; letter-spacing:.1em}
+.tcard .cd{display:block; font-size:11px; color:var(--muted); line-height:1.35; margin-top:1px}
+.tcard .cc{display:block; font-size:10px; color:var(--dim); font-family:var(--mono); margin-top:3px}
+.tcard .cc b{color:var(--flame); margin-left:8px; font-weight:600}
+.tcard .cl{display:block; font-size:10px; color:var(--red); margin-top:3px}
 footer{border-top:1px solid var(--line); color:var(--dim); font-size:12px; padding:18px 0 40px}
 </style>
 </head>
@@ -80,7 +80,7 @@ footer{border-top:1px solid var(--line); color:var(--dim); font-size:12px; paddi
 <header class="top"><div class="wrap">
   <h1>SLOTROOM — Live Paytable<span class="sub">the two dungeon wall boards, drawn by the game's own code</span></h1>
   <div class="stats">
-    <div class="stat"><b id="statCount">0</b><span>charms</span></div>
+    <div class="stat"><b id="statCount">0</b><span>cards held</span></div>
     <div class="stat"><b id="statSpent">0</b><span>coins spent</span></div>
     <div class="stat"><b id="statAll">+0%</b><span>all wins</span></div>
     <div class="stat"><b id="statMult">x1.00</b><span>compound</span></div>
@@ -91,10 +91,10 @@ footer{border-top:1px solid var(--line); color:var(--dim); font-size:12px; paddi
 <div class="wrap">
   <div class="lead">
     <p>These are the two boards that hang on the dungeon walls, painted by the
-       <b>same functions the game uses</b> — not a copy of the numbers. Fit charms on the
+       <b>same functions the game uses</b> — not a copy of the numbers. Take cards on the
        right and both boards redraw exactly as they do in a run: buffed pays and
        raised odds turn <b style="color:var(--green)">green</b>.</p>
-    <p><b>Click a charm</b> to fit it, <b>shift-click</b> to take it back off. Locked charms need
+    <p><b>Click a card</b> to take it, <b>shift-click</b> to put it back. Locked cards need
        their lower tier first, same ladder as the game. <b>Click a board</b> to download it as a PNG.</p>
   </div>
 
@@ -111,7 +111,7 @@ footer{border-top:1px solid var(--line); color:var(--dim); font-size:12px; paddi
     </div>
 
     <div class="side">
-      <h2>Charms</h2>
+      <h2>The deck</h2>
       <p class="hint">Click to fit &middot; shift-click to remove</p>
       <div class="ctl">
         <label for="clovers">Clovers held</label>
@@ -122,13 +122,13 @@ footer{border-top:1px solid var(--line); color:var(--dim); font-size:12px; paddi
         <button class="plain" id="reset">Clear all</button>
       </div>
       <textarea id="loadout" spellcheck="false" title="Paste a loadout to restore it"></textarea>
-      <div id="charms"></div>
+      <div id="cards"></div>
     </div>
   </div>
 
   <footer>
     Generated from <code>slotroom/game.js</code> by <code>tools/paytable.js</code> — do not hand-edit.
-    Re-run it after any change to SYMBOLS, PATTERNS or CHARMS.
+    Re-run it after any change to SYMBOLS, PATTERNS or TAROT (the deck).
     &nbsp;·&nbsp; <a href="./">back to the asset board</a>
   </footer>
 </div>
@@ -141,10 +141,20 @@ footer{border-top:1px solid var(--line); color:var(--dim); font-size:12px; paddi
    ====================================================================== */
 
 let drawPatternBoard = null, drawSymbolBoard = null;
-const myMachine = { charms: [] };
+const myMachine = { cards: [] };
 const MACHINES  = [myMachine];
 const game      = { clovers: 0 };
 
+function fitText(g, text, cx, cy, maxW, size, { align = 'center', min = 9, weight = '900' } = {}) {
+  let fs_ = size;
+  do {
+    g.font = weight + ' ' + fs_ + 'px "Arial Black", sans-serif';
+    if (g.measureText(text).width <= maxW) break;
+    fs_ -= 1;
+  } while (fs_ > min);
+  g.textAlign = align;
+  g.fillText(text, cx, cy);
+}
 const SYMBOLS = [
   { id: 'candle',    w: 34, pay: 10,  color: '#ffb43a' },
   { id: 'moth',      w: 26, pay: 14,  color: '#d8cfae' },
@@ -173,45 +183,44 @@ const PATTERNS = [
   { id: 'BELOW',   mult: 7.0,  lines: [_rowAll(2)] },
   { id: 'EYE',     mult: 8.0,  lines: [[[0,2],[1,0],[1,2],[1,4],[2,2]]] },
   /* the whole grid. Honest odds without a wild: about 1 in 25 million. The
-     WILD CLOVER charm is what makes this a real target rather than a myth. */
+     THE FOOL is what makes this a real target rather than a myth. */
   { id: 'JACKPOT', mult: 10.0, lines: [_everything] },
 ];
-const _SYM_LADDER = [
-  /* symbol,     I name,          II name,          III name,        base cost */
-  ['candle',    'TALLOW STUB',   'VIGIL WAX',      'THE LONG WAKE',   34],
-  ['moth',      'MOTH DUST',     'LAMPFEEDER',     'THE SWARM',       40],
-  ['eye',       'GLASS EYE',     'SIXTH SENSE',    'THE WATCHFUL',    52],
-  ['spider',    'SILK KNOT',     'WEAVER',         'BROODMOTHER',     66],
-  ['coffin',    'COFFIN NAIL',   'PALL BEARER',    'THE PROCESSION',  80],
-  ['clover',    'PRESSED CLOVER','GREEN SAINT',    'FOUR-LEAF CROWN', 96],
-  ['skull',     'BONE MEAL',     'OSSUARY',        'THE CHARNEL',    120],
-  ['pentagram', 'CHALK MARK',    'SIGIL WORK',     'THE COVENANT',   150],
+const SUITS = [
+  /* symbol,      suit,        base cost */
+  ['candle',    'CANDLES',      34],
+  ['moth',      'MOTHS',        40],
+  ['eye',       'EYES',         52],
+  ['spider',    'WEBS',         66],
+  ['coffin',    'COFFINS',      80],
+  ['clover',    'CLOVERS',      96],
+  ['skull',     'SKULLS',      120],
+  ['pentagram', 'SIGILS',      150],
 ];
-/* The fourth column is a TARGET reel weight, not an amount to add. Line odds go
+/* The last column is a TARGET reel weight, not an amount to add. Line odds go
    as p^3..p^5, so adding weight in proportion to what a symbol already has
-   compounds violently for common ones (candles hit ~7x base in the sim) while
-   still leaving rare ones dead. Pulling each symbol UP TOWARD a floor instead
-   means the commons — already everywhere — gain nothing from it and stay a pure
-   percentage play, while the rare, high-paying end finally gets enough presence
-   to line up at all. Reel weights for reference: candle 34 ... pentagram 3. */
-const _SYM_TIERS = [
-  /* add,  costMult, tier, target weight */
-  [0.45, 1.00, 'I',    0],
-  [0.70, 1.85, 'II',   9],
-  [1.10, 3.30, 'III', 18],
+   compounds violently for the common ones (candles hit ~7x base in the sim)
+   while still leaving the rare ones dead. Pulling each symbol UP TOWARD a
+   floor instead means the commons — already everywhere — gain nothing from it
+   and stay a pure percentage play, while the rare, high-paying end finally
+   gets enough presence to line up at all. Reel weights: candle 34 ...
+   pentagram 3. */
+const RANKS = [
+  /* rank,   pay add, cost x, tier, target weight */
+  ['ACE',     0.45,   1.00,   'I',    0],
+  ['SEVEN',   0.70,   1.85,   'II',   9],
+  ['KING',    1.10,   3.30,   'III', 18],
 ];
-const _symCharms = [];
-for (const [sym, n1, n2, n3, base] of _SYM_LADDER) {
-  const names = [n1, n2, n3];
+const _minor = [];
+for (const [sym, suit, base] of SUITS) {
   const S = SYMBOLS.find(s => s.id === sym);
   const pretty = sym[0].toUpperCase() + sym.slice(1) + 's';
-  for (let t = 0; t < 3; t++) {
-    const [add, cm, tier, targetW] = _SYM_TIERS[t];
+  RANKS.forEach(([rank, add, cm, tier, targetW], t) => {
     const wAdd = Math.max(0, targetW - S.w);
-    _symCharms.push({
+    _minor.push({
       id: sym + '_' + (t + 1),
-      name: names[t],
-      kind: 'PAYOUT', tier,
+      name: rank + ' OF ' + suit,
+      kind: 'MINOR', suit: sym, rank, tier, pow: t,
       cost: Math.round(base * cm),
       desc: pretty + ' pay +' + Math.round(add * 100) + '%'
             + (wAdd ? ', and land more often.' : '.'),
@@ -219,274 +228,209 @@ for (const [sym, n1, n2, n3, base] of _SYM_LADDER) {
       symWeight: wAdd ? { [sym]: wAdd } : null,
       needs: t === 0 ? null : [sym + '_' + t],
     });
-  }
+  });
 }
 
-const CHARMS = [
-  ..._symCharms,
+/* ---- MAJOR ARCANA -------------------------------------------------------
+   Twenty-two cards, each with two faces. UPRIGHT is what gets dealt onto the
+   tray with a price on it. REVERSED is stronger and only ever comes from the
+   room, at the door, for nothing.
 
-  /* ---- PATTERN. Small flat adds; the big multipliers are already on the
-     board, so these tilt which shape you want rather than replacing it. ---- */
-  { id: 'straightedge', name: 'STRAIGHT EDGE', kind: 'PATTERN', tier: 'I', cost: 48,
-    desc: 'HOR +0.5.', pat: { HOR: 0.5 } },
-  { id: 'longarm',   name: 'LONG ARM',       kind: 'PATTERN', tier: 'II', cost: 92,
-    desc: 'HOR-L +1.0, HOR-XL +1.0.', pat: { 'HOR-L': 1, 'HOR-XL': 1 }, needs: ['straightedge'] },
-  { id: 'fullspan',  name: 'FULL SPAN',      kind: 'PATTERN', tier: 'III', cost: 170,
-    desc: 'HOR-XL +2.5.', pat: { 'HOR-XL': 2.5 }, needs: ['longarm'] },
-  { id: 'crookedeye', name: 'CROOKED EYE',   kind: 'PATTERN', tier: 'I', cost: 55,
-    desc: 'DIAG +0.8.', pat: { DIAG: 0.8 } },
-  { id: 'serpent',   name: 'SERPENT',        kind: 'PATTERN', tier: 'II', cost: 104,
-    desc: 'ZIG +1.5, ZAG +1.5.', pat: { ZIG: 1.5, ZAG: 1.5 }, needs: ['crookedeye'] },
-  { id: 'highlow',   name: 'HIGH AND LOW',   kind: 'PATTERN', tier: 'II', cost: 118,
-    desc: 'ABOVE +2.0, BELOW +2.0.', pat: { ABOVE: 2, BELOW: 2 } },
-  { id: 'thirdeye',  name: 'THIRD EYE',      kind: 'PATTERN', tier: 'III', cost: 165,
-    desc: 'EYE +3.0.', pat: { EYE: 3 }, needs: ['crookedeye'] },
+   That split replaces the old RITE / CURSE divide and fixes what was wrong
+   with it: the free card used to be pure upside, which made the tribute a
+   formality once you had seen the list. A reversed card gives you something
+   no upright card can match and takes spins, float, time, dread or the
+   commons that pay your steady wins in exchange. You take it or you don't.
 
-  /* ---- TEMPO. Time and float. Nerfed hard from the old +3 spins / 40 coins
-     because both were auto-buys — they now come in ones and twos. ---- */
-  { id: 'onemore',   name: 'ONE MORE',       kind: 'TEMPO', tier: 'I', cost: 62,
-    desc: '+1 spin every night.', spins: 1, stack: true },
-  { id: 'nightowl',  name: 'NIGHT OWL',      kind: 'TEMPO', tier: 'II', cost: 128,
-    desc: '+2 more spins every night.', spins: 2, needs: ['onemore'] },
-  { id: 'deeppocket', name: 'DEEP POCKETS',  kind: 'TEMPO', tier: 'I', cost: 54,
-    desc: 'Start each night with 15 coins.', head: 15, stack: true },
-  { id: 'shortchange', name: 'SHORT CHANGE', kind: 'TEMPO', tier: 'II', cost: 96,
-    desc: 'Spins cost 1 less.', spinCost: 1 },
-  { id: 'gleaner',   name: 'GLEANER',        kind: 'TEMPO', tier: 'I', cost: 70,
-    desc: '+1 clover every night.', clovers: 1, stack: true },
+   `up` and `rev` are the two faces; the id, numeral and name are shared. */
+const MAJORS = [
+  { id: 'fool', n: '0', name: 'THE FOOL',
+    up:  { cost: 210, desc: 'Clovers count as ANY symbol.',
+           wild: true, needs: ['clover_2'] },
+    rev: { desc: 'Clovers count as ANY symbol and all wins x1.25. Two fewer spins every night.',
+           wild: true, mult: 1.25, spins: -2 } },
 
-  /* ---- LUCK. Clovers used to be a reroll token and nothing else — you sat on
-     a pile of them with no reason to want more, and the "each clover nudges the
-     tray toward rares" effect was invisible so it may as well not have existed.
-     These make a held clover worth something on every single spin, which turns
-     the pile into a resource you actually weigh spending. ---- */
-  { id: 'foundluck', name: 'FOUND LUCK',     kind: 'LUCK', tier: 'I', cost: 74,
-    desc: 'All wins +1% for each clover you hold (max +15%).', perClover: 0.01, perCloverMax: 0.15 },
-  { id: 'greenfingers', name: 'GREEN FINGERS', kind: 'LUCK', tier: 'II', cost: 142,
-    desc: 'A further +1.5% per clover (max +30% total).',
-    perClover: 0.015, perCloverMax: 0.15, needs: ['foundluck'] },
-  { id: 'cloverbank', name: 'CLOVER BANK',   kind: 'LUCK', tier: 'I', cost: 86,
-    desc: 'Each night, gain 3 coins per clover held.', cloverCoins: 3 },
-  { id: 'fourleaf',  name: 'FOUR-LEAF EYE',  kind: 'LUCK', tier: 'II', cost: 120,
-    desc: 'Clovers land more often, and pay out from 2 on the grid.',
-    cloverWeight: 4, cloverFloor: 1 },
+  { id: 'magician', n: 'I', name: 'THE MAGICIAN',
+    up:  { cost: 260, desc: 'All wins x1.45. Take it again and again — each costs more.',
+           mult: 1.45, repeat: true, costGrow: 1.52, engine: true, needs: ['maj_wheel'] },
+    rev: { desc: 'All wins x1.55, and dread climbs. Dealt again and again.',
+           mult: 1.55, dread: 0.30, repeat: true, engine: true } },
 
-  /* ---- NERVE. Keeping the room off your back. ---- */
-  { id: 'ironnerve', name: 'IRON NERVE',     kind: 'NERVE', tier: 'I', cost: 58,
-    desc: 'Dread rises 25% slower.', dread: -0.25 },
-  { id: 'deadcalm',  name: 'DEAD CALM',      kind: 'NERVE', tier: 'II', cost: 112,
-    desc: 'Dread rises a further 35% slower.', dread: -0.35, needs: ['ironnerve'] },
-  { id: 'fusetape',  name: 'FUSE TAPE',      kind: 'NERVE', tier: 'II', cost: 88,
-    desc: 'The power never cuts again.', power: true },
-  { id: 'stalltime', name: 'STALLING',       kind: 'NERVE', tier: 'I', cost: 66,
-    desc: '+8 seconds before it breaks the door.', timer: 8, stack: true },
+  { id: 'priestess', n: 'II', name: 'THE HIGH PRIESTESS',
+    up:  { cost: 220, desc: 'Eyes pay +90%, land far more often, and EYE pays +4.0.',
+           sym: { eye: 0.9 }, symWeight: { eye: 8 }, pat: { EYE: 4 }, needs: ['eye_2'] },
+    rev: { desc: 'Eyes and spiders pay +60%.',
+           sym: { eye: 0.6, spider: 0.6 }, stack: true } },
 
-  /* ---- COMPOUND. The scaling engine, and the reason a run can go long.
-     Everything else here is a ONE-TIME ADDITIVE boost, and the quota is
-     exponential (x1.30 a night) — additive income cannot race an exponential,
-     so every run used to die around night 4 with a hard ceiling near 34k a
-     night against a night-30 quota of 141k. These are repeatable and
-     MULTIPLICATIVE: each copy multiplies every win, and each copy costs more
-     than the last. Buy rate is the whole game — 1.35x income against a 1.30x
-     quota means one purchase a night pulls slowly ahead, two runs away with
-     it, none and the room takes you. `repeat` = no stack cap, `costGrow` =
-     what the next copy costs. ---- */
-  { id: 'houserake', name: "THE HOUSE'S CUT", kind: 'COMPOUND', tier: '∞', cost: 70,
-    desc: 'All wins x1.30. Buy it again and again — each costs more.',
-    mult: 1.30, repeat: true, costGrow: 1.38 },
-  { id: 'deadmanshand', name: "DEAD MAN'S HAND", kind: 'COMPOUND', tier: '∞', cost: 260,
-    desc: 'All wins x1.45, and dread climbs. Repeatable.',
-    mult: 1.45, dread: 0.20, repeat: true, costGrow: 1.52, needs: ['houserake'] },
+  { id: 'empress', n: 'III', name: 'THE EMPRESS',
+    up:  { cost: 70, desc: '+1 clover every night.', clovers: 1, stack: true },
+    rev: { desc: '+3 clovers every night.', clovers: 3, stack: true } },
 
-  /* ---- GREED. Flat multipliers on everything, paid for in dread. ---- */
-  { id: 'greedcut',  name: 'GREED',          kind: 'GREED', tier: 'I', cost: 90,
-    desc: 'All wins +12%. Dread rises faster.', all: 0.12, dread: 0.35 },
-  { id: 'avarice',   name: 'AVARICE',        kind: 'GREED', tier: 'II', cost: 178,
-    desc: 'All wins +18% more. Dread rises faster still.',
-    all: 0.18, dread: 0.45, needs: ['greedcut'] },
+  { id: 'emperor', n: 'IV', name: 'THE EMPEROR',
+    up:  { cost: 48, desc: 'HOR +0.5.', pat: { HOR: 0.5 } },
+    rev: { desc: 'HOR, HOR-L and HOR-XL all +1.0.',
+           pat: { HOR: 1, 'HOR-L': 1, 'HOR-XL': 1 }, stack: true } },
 
-  /* ---- RITE. The end-of-night boon, and the only thing here you cannot buy.
-     A charm is a part you bolt to a machine; a RITE is something the room does
-     to you once, for the rest of the run. They are strictly stronger than what
-     the shop sells because they are never for sale — the tribute at the door
-     always offers exactly one, so surviving a night is worth something on its
-     own rather than just resetting the counter.
+  { id: 'hierophant', n: 'V', name: 'THE HIEROPHANT',
+    up:  { cost: 92, desc: 'HOR-L +1.0, HOR-XL +1.0.',
+           pat: { 'HOR-L': 1, 'HOR-XL': 1 }, needs: ['maj_emperor'] },
+    rev: { desc: 'HOR-XL +2.5.', pat: { 'HOR-XL': 2.5 } } },
 
-     `boon: true` is what keeps them out of the shop pool. Most stack up to
-     STACK_CAP so a long run can lean into one, and THE BARGAIN repeats without
-     limit because compounding is what lets a run outpace the quota. The shovel
-     part is deliberately NOT one of these: it is the escape, it is capped at
-     SHOVEL_PARTS, and it must never be stackable. ---- */
-  { id: 'rite_tithe',  name: 'THE TITHE',   kind: 'RITE', tier: '◆', cost: 0, boon: true,
-    desc: 'Start every night with 40 coins.', head: 40, stack: true },
-  { id: 'rite_long',   name: 'THE LONG NIGHT', kind: 'RITE', tier: '◆', cost: 0, boon: true,
-    desc: '+2 spins every night.', spins: 2, stack: true },
-  { id: 'rite_ledger', name: 'THE LEDGER',  kind: 'RITE', tier: '◆', cost: 0, boon: true,
-    desc: 'All wins +20%.', all: 0.20, stack: true },
-  { id: 'rite_bargain', name: 'THE BARGAIN', kind: 'RITE', tier: '∞', cost: 0, boon: true,
-    desc: 'All wins x1.25, and dread climbs. Offered again and again.',
-    mult: 1.25, dread: 0.15, repeat: true },
-  { id: 'rite_greenrot', name: 'GREEN ROT', kind: 'RITE', tier: '◆', cost: 0, boon: true,
-    desc: 'Clovers crowd the reels.', cloverWeight: 6, stack: true },
-  { id: 'rite_still',  name: 'STILLNESS',   kind: 'RITE', tier: '◆', cost: 0, boon: true,
-    desc: 'Dread rises 30% slower, and +10s before it breaks in.',
-    dread: -0.30, timer: 10, stack: true },
-  { id: 'rite_famine', name: 'FAMINE',      kind: 'RITE', tier: '◆', cost: 0, boon: true,
-    desc: 'Candles and moths grow scarcer for the rest of the run.',
-    symWeight: { candle: -12, moth: -10 }, stack: true },
-  { id: 'rite_cheap',  name: 'CHEAP SEAT',  kind: 'RITE', tier: '◆', cost: 0, boon: true,
-    desc: 'Spins cost 1 less.', spinCost: 1 },
+  { id: 'lovers', n: 'VI', name: 'THE LOVERS',
+    up:  { cost: 165, desc: 'Candles and moths both pay +80% on top.',
+           sym: { candle: 0.8, moth: 0.8 }, needs: ['candle_2', 'moth_2'] },
+    rev: { desc: 'Skulls and coffins pay +70% and crowd the reels.',
+           sym: { skull: 0.7, coffin: 0.7 }, symWeight: { skull: 5, coffin: 5 }, stack: true } },
 
-  /* More RITEs, so the tribute stops repeating itself. Eight was small enough
-     that a long run saw the same three cards over and over. */
-  { id: 'rite_hoard',  name: 'THE HOARD',   kind: 'RITE', tier: '◆', cost: 0, boon: true,
-    desc: 'Each night, gain 4 coins per clover held.', cloverCoins: 4, stack: true },
-  { id: 'rite_field',  name: 'FIELD OF GREEN', kind: 'RITE', tier: '◆', cost: 0, boon: true,
-    desc: '+3 clovers every night.', clovers: 3, stack: true },
-  { id: 'rite_sharp',  name: 'SHARP EYE',   kind: 'RITE', tier: '◆', cost: 0, boon: true,
-    desc: 'Eyes and spiders pay +60%.', sym: { eye: 0.6, spider: 0.6 }, stack: true },
-  { id: 'rite_grave',  name: 'GRAVE PACT',  kind: 'RITE', tier: '◆', cost: 0, boon: true,
-    desc: 'Skulls and coffins pay +70% and crowd the reels.',
-    sym: { skull: 0.7, coffin: 0.7 }, symWeight: { skull: 5, coffin: 5 }, stack: true },
-  { id: 'rite_crossed', name: 'CROSSED LINES', kind: 'RITE', tier: '◆', cost: 0, boon: true,
-    desc: 'DIAG, ZIG and ZAG all +1.5.',
-    pat: { DIAG: 1.5, ZIG: 1.5, ZAG: 1.5 }, stack: true },
-  { id: 'rite_wide',   name: 'THE WIDE ROW', kind: 'RITE', tier: '◆', cost: 0, boon: true,
-    desc: 'HOR +1.0, HOR-L +1.0, HOR-XL +1.0.',
-    pat: { HOR: 1, 'HOR-L': 1, 'HOR-XL': 1 }, stack: true },
-  { id: 'rite_edges',  name: 'THE EDGES',   kind: 'RITE', tier: '◆', cost: 0, boon: true,
-    desc: 'ABOVE +3.0, BELOW +3.0, EYE +3.0.',
-    pat: { ABOVE: 3, BELOW: 3, EYE: 3 }, stack: true },
+  { id: 'chariot', n: 'VII', name: 'THE CHARIOT',
+    up:  { cost: 62, desc: '+1 spin every night.', spins: 1, stack: true },
+    rev: { desc: '+2 spins every night.', spins: 2, stack: true } },
 
-  /* ---- CURSE. Boons with teeth. Everything above is free upside, which makes
-     the tribute a formality once you've seen the list — these are the cards you
-     have to actually think about. Each one buys a multiplier nothing else in
-     the game can match and charges something real for it: spins, time, float,
-     dread, or the commons that pay your steady wins.
+  { id: 'strength', n: 'VIII', name: 'STRENGTH',
+    up:  { cost: 128, desc: '+2 more spins every night.', spins: 2, needs: ['maj_chariot'] },
+    rev: { desc: 'All wins x1.60. Two fewer spins every night.',
+           mult: 1.60, spins: -2, stack: true } },
 
-     They are boons, not charms, so they can never be shopped for — you only
-     ever meet one at the door, and you take it or you don't. ---- */
-  { id: 'curse_famished', name: 'FAMISHED', kind: 'CURSE', tier: '☠', cost: 0, boon: true,
-    desc: 'All wins x1.60. Two fewer spins every night.',
-    mult: 1.60, spins: -2, stack: true },
-  { id: 'curse_toll',  name: 'THE TOLL',   kind: 'CURSE', tier: '☠', cost: 0, boon: true,
-    desc: 'All wins x1.70. Spins cost 2 more.', mult: 1.70, spinCost: -2 },
-  { id: 'curse_hollow', name: 'HOLLOW HANDS', kind: 'CURSE', tier: '☠', cost: 0, boon: true,
-    desc: 'All wins x1.80. Start each night 30 coins down.',
-    mult: 1.80, head: -30, stack: true },
-  { id: 'curse_haste', name: 'THE HASTE',  kind: 'CURSE', tier: '☠', cost: 0, boon: true,
-    desc: 'All wins x1.55. Twelve seconds less before it breaks in.',
-    mult: 1.55, timer: -12, stack: true },
-  { id: 'curse_bleed', name: 'THE BLEEDING', kind: 'CURSE', tier: '☠', cost: 0, boon: true,
-    desc: 'All wins +45%. Dread rises much faster.',
-    all: 0.45, dread: 0.55, stack: true },
-  { id: 'curse_blind', name: 'BLIND FAITH', kind: 'CURSE', tier: '☠', cost: 0, boon: true,
-    desc: 'Pentagrams pay +200% and crowd the reels. Candles, moths and eyes all but vanish.',
-    sym: { pentagram: 2.0 },
-    symWeight: { pentagram: 8, candle: -16, moth: -14, eye: -6 } },
-  { id: 'curse_gamble', name: "THE GAMBLER'S DEBT", kind: 'CURSE', tier: '∞', cost: 0, boon: true,
-    desc: 'All wins x1.40, and dread climbs. Offered again and again.',
-    mult: 1.40, dread: 0.28, repeat: true },
+  { id: 'hermit', n: 'IX', name: 'THE HERMIT',
+    up:  { cost: 58, desc: 'Dread rises 25% slower, and +8s before it breaks in.',
+           dread: -0.25, timer: 8 },
+    rev: { desc: 'Dread rises 30% slower, and +10s before it breaks in.',
+           dread: -0.30, timer: 10, stack: true } },
 
-  /* ---- CULL. The other half of the reel-weight lever. Every charm above ADDS
-     presence to a symbol; these take it away. Because a symbol's odds are its
-     share of the total weight, thinning the commons lifts everything else
-     without touching it — which is the only way to make the rare, high-paying
-     end of the board show up often enough to matter.
+  { id: 'wheel', n: 'X', name: 'WHEEL OF FORTUNE',
+    up:  { cost: 70, desc: 'All wins x1.30. Take it again and again — each costs more.',
+           mult: 1.30, repeat: true, costGrow: 1.38, engine: true },
+    rev: { desc: 'All wins x1.25, and dread climbs. Dealt again and again.',
+           mult: 1.25, dread: 0.15, repeat: true, engine: true } },
 
-     The trade is real. Candles and moths are what pay your small, steady wins,
-     so a run that culls them is betting the night on landing the top end and
-     starving if it doesn't. That is the decision these exist to create. ---- */
-  { id: 'snuffed',   name: 'SNUFFED',     kind: 'CULL', tier: 'I', cost: 84,
-    desc: 'Candles land far less often.', symWeight: { candle: -18 } },
-  { id: 'mothbane',  name: 'MOTHBANE',    kind: 'CULL', tier: 'I', cost: 92,
-    desc: 'Moths land far less often.', symWeight: { moth: -14 } },
-  { id: 'sweptclean', name: 'SWEPT CLEAN', kind: 'CULL', tier: 'II', cost: 175,
-    desc: 'Candles and moths grow scarcer still.',
-    symWeight: { candle: -10, moth: -8 }, needs: ['snuffed', 'mothbane'] },
-  { id: 'thintheherd', name: 'THIN THE HERD', kind: 'CULL', tier: 'II', cost: 190,
-    desc: 'Eyes and spiders land less often, and all wins +8%.',
-    symWeight: { eye: -8, spider: -4 }, all: 0.08, needs: ['snuffed'] },
+  { id: 'justice', n: 'XI', name: 'JUSTICE',
+    up:  { cost: 96, desc: 'Spins cost 1 less.', spinCost: 1 },
+    rev: { desc: 'All wins x1.70. Spins cost 2 more.', mult: 1.70, spinCost: -2 } },
 
-  /* ---- FUSED. Two finished lines welded into one thing neither could do.
-     These are the reason to go deep on a pair rather than wide on everything,
-     and the `needs` gate means they can only ever show up once you have. ---- */
-  { id: 'wildclover', name: 'WILD CLOVER',   kind: 'FUSED', tier: '★', cost: 210,
-    desc: 'Clovers count as ANY symbol.', wild: true, needs: ['clover_2'] },
-  { id: 'nightvigil', name: 'NIGHT VIGIL',   kind: 'FUSED', tier: '★', cost: 165,
-    desc: 'Candles and moths both pay +80% on top.',
-    sym: { candle: 0.8, moth: 0.8 }, needs: ['candle_2', 'moth_2'] },
-  /* The fused charms that feed RARE symbols carry reel weight as well as pay.
-     Without it they were traps: BONE ORCHARD is five charms and 800 coins deep
-     and moved the average by half a coin a spin, because skulls and coffins
-     still almost never lined up. Pay alone cannot rescue a symbol you never
-     see — same lesson as the ladder tiers above. */
-  { id: 'boneorchard', name: 'BONE ORCHARD', kind: 'FUSED', tier: '★', cost: 235,
-    desc: 'Skulls and coffins pay +100% and crowd the reels.',
-    sym: { skull: 1.0, coffin: 1.0 }, symWeight: { skull: 7, coffin: 7 },
-    needs: ['skull_2', 'coffin_2'] },
-  { id: 'allseeing', name: 'ALL-SEEING',     kind: 'FUSED', tier: '★', cost: 220,
-    desc: 'Eyes pay +90%, land far more often, and EYE pays +4.0.',
-    sym: { eye: 0.9 }, symWeight: { eye: 8 }, pat: { EYE: 4 },
-    needs: ['eye_2', 'thirdeye'] },
-  { id: 'blackmass', name: 'BLACK MASS',     kind: 'FUSED', tier: '★', cost: 290,
-    desc: 'Pentagrams pay +150%, appear far more often, and all wins +10%.',
-    sym: { pentagram: 1.5 }, symWeight: { pentagram: 9 }, all: 0.10,
-    needs: ['pentagram_2'] },
-  { id: 'spinnersluck', name: "SPINNER'S LUCK", kind: 'FUSED', tier: '★', cost: 195,
-    desc: '+2 spins, and clovers land far more often.',
-    spins: 2, cloverWeight: 7, needs: ['clover_1', 'onemore'] },
+  { id: 'hanged', n: 'XII', name: 'THE HANGED MAN',
+    up:  { cost: 74, desc: 'All wins +1% per clover held (max +15%), and 3 coins a night per clover.',
+           perClover: 0.01, perCloverMax: 0.15, cloverCoins: 3 },
+    rev: { desc: 'All wins x1.80. Start each night 30 coins down.',
+           mult: 1.80, head: -30, stack: true } },
+
+  { id: 'death', n: 'XIII', name: 'DEATH',
+    up:  { cost: 235, desc: 'Skulls and coffins pay +100% and crowd the reels.',
+           sym: { skull: 1.0, coffin: 1.0 }, symWeight: { skull: 7, coffin: 7 },
+           needs: ['skull_2', 'coffin_2'] },
+    rev: { desc: 'All wins +45%. Dread rises much faster.',
+           all: 0.45, dread: 0.55, stack: true } },
+
+  /* Temperance is restraint, so upright it THINS the reels rather than filling
+     them. Because a symbol's odds are its share of the total weight, taking
+     presence off the commons lifts everything else without touching it — the
+     only lever in the deck that makes the rare, high-paying end show up often
+     enough to matter. The trade is real: candles and moths are what pay your
+     small steady wins, so a run that culls them is betting the night on
+     landing the top end and starving if it doesn't. */
+  { id: 'temperance', n: 'XIV', name: 'TEMPERANCE',
+    up:  { cost: 84, desc: 'Candles and moths land far less often.',
+           symWeight: { candle: -18, moth: -14 } },
+    rev: { desc: 'Eyes and spiders land less often, and all wins +8%.',
+           symWeight: { eye: -8, spider: -4 }, all: 0.08 } },
+
+  { id: 'devil', n: 'XV', name: 'THE DEVIL',
+    up:  { cost: 290, desc: 'Pentagrams pay +150%, appear far more often, and all wins +10%.',
+           sym: { pentagram: 1.5 }, symWeight: { pentagram: 9 }, all: 0.10,
+           needs: ['pentagram_2'] },
+    rev: { desc: 'All wins x1.40, and dread climbs. Dealt again and again.',
+           mult: 1.40, dread: 0.28, repeat: true, engine: true } },
+
+  { id: 'tower', n: 'XVI', name: 'THE TOWER',
+    up:  { cost: 88, desc: 'The power never cuts again.', power: true },
+    rev: { desc: 'Pentagrams pay +200% and crowd the reels. Candles, moths and eyes all but vanish.',
+           sym: { pentagram: 2.0 },
+           symWeight: { pentagram: 8, candle: -16, moth: -14, eye: -6 } } },
+
+  { id: 'star', n: 'XVII', name: 'THE STAR',
+    up:  { cost: 120, desc: 'Clovers land more often, and pay out from 2 on the grid.',
+           cloverWeight: 4, cloverFloor: 1 },
+    rev: { desc: 'Clovers crowd the reels.', cloverWeight: 6, stack: true } },
+
+  { id: 'moon', n: 'XVIII', name: 'THE MOON',
+    up:  { cost: 55, desc: 'DIAG, ZIG and ZAG all +0.8.',
+           pat: { DIAG: 0.8, ZIG: 0.8, ZAG: 0.8 } },
+    rev: { desc: 'DIAG, ZIG and ZAG all +1.5.',
+           pat: { DIAG: 1.5, ZIG: 1.5, ZAG: 1.5 }, stack: true } },
+
+  { id: 'sun', n: 'XIX', name: 'THE SUN',
+    up:  { cost: 54, desc: 'Start each night with 15 coins.', head: 15, stack: true },
+    rev: { desc: 'Start every night with 40 coins.', head: 40, stack: true } },
+
+  { id: 'judgement', n: 'XX', name: 'JUDGEMENT',
+    up:  { cost: 118, desc: 'ABOVE +2.0, BELOW +2.0.', pat: { ABOVE: 2, BELOW: 2 } },
+    rev: { desc: 'ABOVE +3.0, BELOW +3.0, EYE +3.0.',
+           pat: { ABOVE: 3, BELOW: 3, EYE: 3 }, stack: true } },
+
+  { id: 'world', n: 'XXI', name: 'THE WORLD',
+    up:  { cost: 90, desc: 'All wins +12%. Dread rises faster.', all: 0.12, dread: 0.35 },
+    rev: { desc: 'All wins +20%.', all: 0.20, stack: true } },
 ];
-const charmById = id => CHARMS.find(c => c.id === id);
 
-function hasCharm(id) { return MACHINES.some(m => m.charms.includes(id)); }
-/* how many copies you hold — stackable charms can be taken again */
-function charmCount(id) {
+const _major = [];
+for (const M of MAJORS) {
+  const shared = { arcana: M.id, num: M.n, tier: M.n, name: M.name };
+  _major.push({ ...shared, ...M.up,
+                id: 'maj_' + M.id, kind: 'MAJOR', pow: 2 });
+  _major.push({ ...shared, ...M.rev,
+                id: 'maj_' + M.id + '_r', kind: 'REVERSED',
+                rev: true, boon: true, cost: 0, pow: 3 });
+}
+
+const TAROT = [..._minor, ..._major];
+const cardById = id => TAROT.find(c => c.id === id);
+function hasCard(id) { return MACHINES.some(m => m.cards.includes(id)); }
+/* how many copies you hold — stackable cards can be dealt again */
+function cardCount(id) {
   let n = 0;
-  for (const m of MACHINES) for (const c of m.charms) if (c === id) n++;
+  for (const m of MACHINES) for (const c of m.cards) if (c === id) n++;
   return n;
 }
-/* One gate for every place a charm can be offered. A charm is available when
+/* One gate for every place a card can be offered. A card is available when
    it isn't already taken (unless it stacks) AND its prerequisites are all
    owned — that `needs` check is what turns the list into a ladder: tier II
    simply does not exist for you until tier I is on the rack. Cap the stacks so
    a run cannot become nothing but ONE MORE. */
 const STACK_CAP = 3;
-function charmAvailable(c) {
+function cardAvailable(c) {
   if (!c) return false;
-  /* `repeat` charms never leave the pool — they are the run's scaling engine
+  /* `repeat` cards never leave the pool — they are the run's scaling engine
      and the escalating price is what limits them, not a stack cap. */
-  if (!c.repeat && (c.stack ? charmCount(c.id) >= STACK_CAP : hasCharm(c.id))) return false;
-  if (c.needs && !c.needs.every(hasCharm)) return false;
+  if (!c.repeat && (c.stack ? cardCount(c.id) >= STACK_CAP : hasCard(c.id))) return false;
+  if (c.needs && !c.needs.every(hasCard)) return false;
   return true;
 }
 /* Two pools off one gate. The shop never stocks a RITE — they are the reward
    for getting through a night, and putting a price on one would turn it into
-   just another charm. */
-const charmPool  = () => CHARMS.filter(c => !c.boon && charmAvailable(c));
-const boonPool   = () => CHARMS.filter(c =>  c.boon && charmAvailable(c));
+   just another card. */
+const cardPool  = () => TAROT.filter(c => !c.boon && cardAvailable(c));
+const boonPool   = () => TAROT.filter(c =>  c.boon && cardAvailable(c));
 function buffMult(m) {
   let v = 1;
   if (!m) return 1;
-  for (const id of m.charms) {
-    const c = charmById(id);
+  for (const id of m.cards) {
+    const c = cardById(id);
     if (c && c.mult) v *= c.mult;
   }
   return v;
 }
-/* What the NEXT copy of a charm costs. Repeatable charms get more expensive
+/* What the NEXT copy of a card costs. Repeatable cards get more expensive
    each time, which is what stops one purchase a night from being automatic. */
-function charmCost(c) {
+function cardCost(c) {
   if (!c) return 0;
   if (!c.costGrow) return c.cost;
-  return Math.round(c.cost * Math.pow(c.costGrow, charmCount(c.id)));
+  return Math.round(c.cost * Math.pow(c.costGrow, cardCount(c.id)));
 }
 
 function buff(m, field, key) {
   let v = 0;
   if (!m) return 0;
-  for (const id of m.charms) {
-    const c = charmById(id);
+  for (const id of m.cards) {
+    const c = cardById(id);
     if (!c) continue;
     if (field === 'sym')        v += (c.sym && c.sym[key]) || 0;
     else if (field === 'pat')   v += (c.pat && c.pat[key]) || 0;
@@ -498,12 +442,12 @@ function buff(m, field, key) {
     else if (field === 'symWeight') v += (c.symWeight && c.symWeight[key]) || 0;
     else if (field === 'cloverCoins') v += c.cloverCoins || 0;
     else if (field === 'cloverFloor') v += c.cloverFloor || 0;
-    /* each LUCK charm contributes rate x clovers, capped per charm so a big
+    /* each perClover card contributes rate x clovers, capped per card so a big
        hoard cannot run away with the run */
     else if (field === 'perClover') {
       if (c.perClover) v += Math.min(c.perCloverMax || 99, c.perClover * (game.clovers || 0));
     }
-    /* stackable charms appear in m.charms once per copy, so these just add up */
+    /* stackable cards appear in m.cards once per copy, so these just add up */
     else if (field === 'spinCost') v += c.spinCost || 0;
     else if (field === 'timer')  v += c.timer || 0;
     else if (field === 'clovers') v += c.clovers || 0;
@@ -803,22 +747,28 @@ drawSymbolBoard = (g, w, h) => {
    ====================================================================== */
 
 /* ---- page state --------------------------------------------------------
-   `myMachine.charms` holds one entry PER COPY, exactly as the game does, so
-   stackable charms just appear more than once. */
+   `myMachine.cards` holds one entry PER COPY, exactly as the game does, so
+   stackable cards just appear more than once. */
 const SYM_C   = document.getElementById('symBoard');
 const PAT_C   = document.getElementById('patBoard');
-const KINDS   = ['RITE','CURSE','PAYOUT','PATTERN','TEMPO','LUCK','NERVE','CULL','GREED','COMPOUND','FUSED'];
-const KIND_HUE = { PAYOUT:'#d8b070', PATTERN:'#88b0d0', TEMPO:'#c0c8a0', NERVE:'#9aa8b0',
-                   GREED:'#e0b040', FUSED:'#c890e8', LUCK:'#7ed321', COMPOUND:'#ff7a3a',
-                   CULL:'#9a8fa4', RITE:'#ffe066', CURSE:'#e0455f' };
+/* The deck only has three KINDS, so grouping by kind would put twenty-four
+   suit cards in one heap. Group by LINE instead — the arcana, or the suit —
+   which is the same grouping the game deals a spread from. Majors and
+   reverseds are listed as themselves because each one is its own line. */
+const GROUPS = [
+  ...SUITS.map(([sym, suit]) => ({ key: suit, hue: SYMBOLS.find(s => s.id === sym).color,
+                                   list: TAROT.filter(c => c.suit === sym) })),
+  { key: 'MAJOR ARCANA', hue: '#ffd257', list: TAROT.filter(c => c.kind === 'MAJOR') },
+  { key: 'REVERSED', hue: '#e0455f', list: TAROT.filter(c => c.kind === 'REVERSED') },
+];
 
 function spend() {
-  /* replay the purchases in order so repeatable charms price up the way they
+  /* replay the purchases in order so repeatable cards price up the way they
      actually did on the night you bought them */
   const held = [];
   let total = 0;
-  for (const id of myMachine.charms) {
-    const c = charmById(id);
+  for (const id of myMachine.cards) {
+    const c = cardById(id);
     if (!c) continue;
     const n = held.filter(x => x === id).length;
     total += c.costGrow ? Math.round(c.cost * Math.pow(c.costGrow, n)) : c.cost;
@@ -830,44 +780,43 @@ function spend() {
 function redraw() {
   for (const [cv, draw] of [[SYM_C, drawSymbolBoard], [PAT_C, drawPatternBoard]])
     draw(cv.getContext('2d'), cv.width, cv.height);
-  renderCharms();
+  renderCards();
   document.getElementById('statSpent').textContent = spend().toLocaleString();
   document.getElementById('statMult').textContent  = 'x' + buffMult(myMachine).toFixed(2);
   document.getElementById('statAll').textContent   = '+' + Math.round((buff(myMachine,'all') + buff(myMachine,'perClover')) * 100) + '%';
   document.getElementById('statSpins').textContent = '+' + buff(myMachine, 'extraSpins');
-  document.getElementById('statCount').textContent = myMachine.charms.length;
-  document.getElementById('loadout').value = JSON.stringify(myMachine.charms);
+  document.getElementById('statCount').textContent = myMachine.cards.length;
+  document.getElementById('loadout').value = JSON.stringify(myMachine.cards);
 }
 
-function renderCharms() {
-  const host = document.getElementById('charms');
+function renderCards() {
+  const host = document.getElementById('cards');
   host.innerHTML = '';
-  for (const kind of KINDS) {
-    const list = CHARMS.filter(c => c.kind === kind);
-    if (!list.length) continue;
+  for (const grp of GROUPS) {
+    if (!grp.list.length) continue;
     const sec = document.createElement('div');
     sec.className = 'kind';
-    sec.innerHTML = '<h3 style="color:' + KIND_HUE[kind] + '">' + kind + '</h3>';
+    sec.innerHTML = '<h3 style="color:' + grp.hue + '">' + grp.key + '</h3>';
     const grid = document.createElement('div');
     grid.className = 'kgrid';
-    for (const c of list) {
-      const have = charmCount(c.id);
+    for (const c of grp.list) {
+      const have = cardCount(c.id);
       /* locked = its `needs` are unmet, which is the game's own ladder gate */
-      const locked = !!(c.needs && !c.needs.every(hasCharm));
+      const locked = !!(c.needs && !c.needs.every(hasCard));
       const capped = !c.repeat && (c.stack ? have >= STACK_CAP : have >= 1);
       const b = document.createElement('button');
-      b.className = 'charm' + (have ? ' on' : '') + (locked ? ' locked' : '');
+      b.className = 'tcard' + (have ? ' on' : '') + (locked ? ' locked' : '');
       b.disabled = locked || (capped && !have);
-      b.style.setProperty('--hue', KIND_HUE[kind]);
+      b.style.setProperty('--hue', grp.hue);
       b.innerHTML =
         '<span class="cn">' + c.name + (c.tier ? ' <i>' + c.tier + '</i>' : '') + '</span>' +
         '<span class="cd">' + c.desc + '</span>' +
-        '<span class="cc">' + charmCost(c) + 'c' +
-          (have ? '<b>' + (have > 1 ? '\u00d7' + have : 'fitted') + '</b>' : '') + '</span>' +
-        (locked ? '<span class="cl">needs ' + c.needs.map(n => (charmById(n)||{}).name || n).join(' + ') + '</span>' : '');
+        '<span class="cc">' + (c.rev ? 'dealt at the door' : cardCost(c) + 'c') +
+          (have ? '<b>' + (have > 1 ? '\u00d7' + have : 'held') + '</b>' : '') + '</span>' +
+        (locked ? '<span class="cl">needs ' + c.needs.map(n => (cardById(n)||{}).name || n).join(' + ') + '</span>' : '');
       b.onclick = e => {
-        if (e.shiftKey) { const i = myMachine.charms.lastIndexOf(c.id); if (i >= 0) myMachine.charms.splice(i, 1); }
-        else if (!capped) myMachine.charms.push(c.id);
+        if (e.shiftKey) { const i = myMachine.cards.lastIndexOf(c.id); if (i >= 0) myMachine.cards.splice(i, 1); }
+        else if (!capped) myMachine.cards.push(c.id);
         prune(); redraw();
       };
       grid.appendChild(b);
@@ -881,13 +830,13 @@ function renderCharms() {
    loadout the game would never let you hold. Repeat until nothing drops. */
 function prune() {
   for (;;) {
-    const before = myMachine.charms.length;
-    myMachine.charms = myMachine.charms.filter(id => {
-      const c = charmById(id);
+    const before = myMachine.cards.length;
+    myMachine.cards = myMachine.cards.filter(id => {
+      const c = cardById(id);
       if (!c || !c.needs) return true;
-      return c.needs.every(n => myMachine.charms.includes(n));
+      return c.needs.every(n => myMachine.cards.includes(n));
     });
-    if (myMachine.charms.length === before) return;
+    if (myMachine.cards.length === before) return;
   }
 }
 
@@ -896,11 +845,11 @@ document.getElementById('clovers').oninput = e => {
   document.getElementById('cloverN').textContent = game.clovers;
   redraw();
 };
-document.getElementById('reset').onclick = () => { myMachine.charms.length = 0; redraw(); };
+document.getElementById('reset').onclick = () => { myMachine.cards.length = 0; redraw(); };
 document.getElementById('loadout').onchange = e => {
   try {
     const v = JSON.parse(e.target.value);
-    if (Array.isArray(v)) { myMachine.charms = v.filter(id => charmById(id)); prune(); redraw(); }
+    if (Array.isArray(v)) { myMachine.cards = v.filter(id => cardById(id)); prune(); redraw(); }
   } catch (_) { /* leave the old loadout alone rather than blanking the boards */ }
 };
 for (const cv of [SYM_C, PAT_C]) cv.onclick = () => {
