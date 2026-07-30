@@ -138,7 +138,7 @@ footer{ margin:50px 0 40px; color:var(--dim); font-size:12.5px; text-align:cente
       <p><b>How to use a card:</b> copy its <b>prompt</b> → paste into <b>ChatGPT</b> (or any image AI) → you get one clear <b>reference picture</b> → send <b>just that picture</b> to Troper, who runs it through Tripo image-to-3D and drops the <code>.glb</code> in the Drive folder under the filename shown.</p>
       <p><b>Troper gets a picture and a filename — nothing else.</b> He isn't handed a list of rules to follow, so anything that matters has to be <i>visible in the picture itself</i>. That's what the card's <b>notes</b> are for: they're the checklist for <i>you</i>, before you send it. Look at what ChatGPT gave you and make sure it actually shows what the notes describe — a blank reel window, an empty shelf, the right proportions. If it doesn't, re-prompt until it does. <b>The only thing ever sent as words is animation</b> — cards that need it carry a <span class="animtag">🎬 needs animation</span> tag, and that gets passed on.</p>
       <p><b>Click the status button</b> on a card to cycle it <span class="muted">Not started → Working on it → Delivered</span>. Status is <b>shared</b> — everyone looking at this page sees the same thing, and it updates within a few seconds (the badge up top shows when you're connected). Finished <code>.glb</code> files still go in the shared Drive folder.</p>
-      <p>Start with the <span class="prio P0" style="padding:1px 6px">P0</span> cards — the characters and the slot machine are where real models help most. <span class="prio P1" style="padding:1px 6px">P1</span> charms are small collectible props. <span class="prio P2" style="padding:1px 6px">P2</span> are environment dressing — nice-to-have, the game already has placeholder versions.</p>
+      <p>Start with the <span class="prio P0" style="padding:1px 6px">P0</span> cards — the characters and the slot machine are where real models help most. <span class="prio P1" style="padding:1px 6px">P1</span> is the tarot deck art and second-pass props. <span class="prio P2" style="padding:1px 6px">P2</span> are environment dressing — nice-to-have, the game already has placeholder versions.</p>
     </div>
   </section>
 
@@ -170,7 +170,7 @@ footer{ margin:50px 0 40px; color:var(--dim); font-size:12.5px; text-align:cente
       The <b>rig + animate</b> step in Tripo has to actually be run before export; a normal Tripo export skips it.</p>
     <ul class="spec-list">
       <li><b>Clips the dealer needs</b>, named exactly (lowercase): <code>sit_idle</code>, <code>stand_up</code>, <code>walk</code>, <code>idle</code>.
-        He waits sat in a chair down a corridor, stands when the night's debt comes due, walks to the door, and sells you charms there.
+        He waits sat in a chair down a corridor, stands when the night's debt comes due, walks to the door, and deals you tarot cards there.
         If only one clip is possible, make it <code>walk</code>.</li>
       <li><b>NO root motion</b> — this one silently ruins it. Walk <b>on the spot</b>; the game drives where he actually moves.
         If the walk clip travels forward, he'll slide away from where the code puts him.</li>
@@ -183,8 +183,8 @@ footer{ margin:50px 0 40px; color:var(--dim); font-size:12.5px; text-align:cente
 
     <h3 style="color:var(--trim-bright)">⚠ The one rule for anything with a NUMBER on it</h3>
     <p class="muted" style="margin:0 0 10px">The two wall boards show what each symbol pays and how often it lands — and those numbers
-      <b>move during a run</b>. Buy a skull charm and skulls start paying more, and the wall has to say so, or the board is lying to the player.
-      The game does that by <b>repainting the boards from scratch every time a charm is fitted</b>.</p>
+      <b>move during a run</b>. Take a skull card and skulls start paying more, and the wall has to say so, or the board is lying to the player.
+      The game does that by <b>repainting the boards from scratch every time a card is taken</b>.</p>
     <p class="muted" style="margin:0 0 10px">Which means: <b>no number, percentage, symbol name or table row may be drawn into any image or baked onto any model.</b>
       A board that arrives with <code>SKULL 110 4%</code> painted on it is frozen at those numbers forever, and the live text just gets drawn on top of it. Split it instead:</p>
     <ul class="spec-list">
@@ -192,7 +192,7 @@ footer{ margin:50px 0 40px; color:var(--dim); font-size:12.5px; text-align:cente
       <li><b>Everything with a value</b> — the rows, names, pays, percentages, multipliers, the little payline grids — is drawn by the game, on top, live.</li>
     </ul>
     <p class="muted" style="margin:0 0 10px">Same reason the slot cabinet's reel window has to be blank. See it working:
-      <a href="paytable.html">the live paytable ↗</a> — tick a charm and watch both boards redraw.</p>
+      <a href="paytable.html">the live paytable ↗</a> — tick a card and watch both boards redraw.</p>
     <p class="muted" style="margin:0 0 0"><b>Where files go:</b> pictures and models both land in the same
       <a id="folderLink2" href="https://drive.google.com/drive/folders/15SYzI98xRehhKAURebuwkTZmr42H5k2_?usp=sharing" target="_blank" rel="noopener">shared Drive folder ↗</a>,
       named exactly what the card says — <code>symbols.png</code>, <code>watcher.glb</code>, and so on.</p>
@@ -201,10 +201,10 @@ footer{ margin:50px 0 40px; color:var(--dim); font-size:12.5px; text-align:cente
     <ul class="spec-list">
       <li><b>Get the PROPORTIONS right, ignore real-world size.</b> Never put centimetres or metres in a ChatGPT prompt — a picture cannot show scale, and the game rescales every model on import anyway, so a number there is wasted. What it cannot fix is <i>shape</i>: a table drawn tall and narrow stays tall and narrow after scaling. So the cards say things like "twice as wide as it is tall" — that is the bit that has to survive into the picture.</li>
       <li><b>Make it the right thing</b> — match the card's description. If Tripo offers a lower-poly / cleaner option, take it; if not, whatever it gives is fine.</li>
-      <li><b>Anything the game draws on has to be left blank</b> — that's the slot cabinet's reel window and lit belly panel, plus the two wall boards (<code>symbol_board</code>, <code>pattern_board</code>). Those are <b>empty frames</b>, not signs: the chart on them is repainted live every time a charm is fitted, so any writing baked into the middle just shows through underneath it. Their cards carry the exact panel size and how deep to recess it — those numbers aren't optional, the game paints onto a fixed rectangle.</li>
+      <li><b>Anything the game draws on has to be left blank</b> — that's the slot cabinet's reel window and lit belly panel, plus the two wall boards (<code>symbol_board</code>, <code>pattern_board</code>). Those are <b>empty frames</b>, not signs: the chart on them is repainted live every time a card is taken, so any writing baked into the middle just shows through underneath it. Their cards carry the exact panel size and how deep to recess it — those numbers aren't optional, the game paints onto a fixed rectangle.</li>
     </ul>
     <p class="muted" style="margin:12px 0 0">Reference images will fill in on the cards as they're added, so image-to-3D is the smoothest path.</p>
-    <p class="muted" style="margin:8px 0 0">Curious what actually lands on those two boards? <a href="paytable.html">Open the live paytable ↗</a> — it's the real game code drawing the real numbers, and you can fit charms and watch both boards change.</p>
+    <p class="muted" style="margin:8px 0 0">Curious what actually lands on those two boards? <a href="paytable.html">Open the live paytable ↗</a> — it's the real game code drawing the real numbers, and you can take cards and watch both boards change.</p>
   </div>
 
   <div class="controls">
@@ -248,7 +248,7 @@ const ASSETS = [
   /* ---- 2D. These are NOT modelled — the file itself goes straight into the
      game as a texture. The hard rule on all three is that no number, name or
      row may be drawn in: every value on the boards is painted by code so it
-     can move when a charm is fitted, and anything baked in sits underneath
+     can move when a card is taken, and anything baked in sits underneath
      that forever. ---- */
   { file:"symbols", ext:"png", name:"The 8 reel symbols (one sheet)", group:"2D art (drawings, not models)", prio:"P0",
     spec:"one 1024×1024 PNG · 4 across, 2 down · 256 per cell · TRUE transparency",
@@ -259,13 +259,13 @@ const ASSETS = [
   { file:"symbol_board_face", ext:"png", name:"Symbol board — frame & header only", group:"2D art (drawings, not models)", prio:"P0",
     spec:"560 × 760 PNG · portrait · everything below the header left EMPTY",
     flat:"Save the picture itself as symbol_board_face.png. It becomes the board's backdrop; the game draws the rows on top of it.",
-    notes:"DRAW: the outer frame/border, and one header strip across the top with the three words SYMBOL, PAYS and CHANCE — those three never change so they can be baked in. DRAW NOTHING ELSE. No symbols, no names, no numbers, no percentages, no row lines. The whole area under the header must be flat empty background, because the game paints all 8 rows onto it fresh every time a charm is fitted — that is what makes the pays and the odds on the wall actually track your run. Anything drawn down there ends up stuck underneath the live text forever.",
+    notes:"DRAW: the outer frame/border, and one header strip across the top with the three words SYMBOL, PAYS and CHANCE — those three never change so they can be baked in. DRAW NOTHING ELSE. No symbols, no names, no numbers, no percentages, no row lines. The whole area under the header must be flat empty background, because the game paints all 8 rows onto it fresh every time a card is taken — that is what makes the pays and the odds on the wall actually track your run. Anything drawn down there ends up stuck underneath the live text forever.",
     prompt:"A tall empty pixel-art sign board, portrait orientation, dark-fantasy horror: a thick ornate dark border frame with worn corners, and across the very top a weathered parchment-coloured header strip carrying only the three words SYMBOL, PAYS and CHANCE in a blocky pixel typeface. Everything below the header is plain flat near-black board, totally empty — no rows, no lines, no numbers, no pictures. Chunky pixels, grimy, candle-scorched." },
 
   { file:"pattern_board_face", ext:"png", name:"Pattern board — frame & header only", group:"2D art (drawings, not models)", prio:"P0",
     spec:"560 × 760 PNG · portrait · matches the symbol board · body left EMPTY",
     flat:"Save the picture itself as pattern_board_face.png. Same job as the symbol board face, for the opposite wall.",
-    notes:"Same rules as symbol_board_face, and it should look like its twin — same size, same frame style, so the two read as a matching pair on opposite walls. Header carries only the two words PATTERN and MULTIPLIER. Nothing below it: the game draws all 10 payline rows, their little 5×3 grid diagrams and their multipliers on top, and those multipliers move when pattern charms are fitted.",
+    notes:"Same rules as symbol_board_face, and it should look like its twin — same size, same frame style, so the two read as a matching pair on opposite walls. Header carries only the two words PATTERN and MULTIPLIER. Nothing below it: the game draws all 10 payline rows, their little 5×3 grid diagrams and their multipliers on top, and those multipliers move when pattern cards are taken.",
     prompt:"A tall empty pixel-art sign board, portrait orientation, matching a companion board in size and style but with a slightly different carved border pattern: thick ornate dark frame, and across the top a weathered parchment-coloured header strip carrying only the two words PATTERN and MULTIPLIER in a blocky pixel typeface. Everything below is plain flat near-black board, completely empty. Chunky pixels, dark-fantasy horror, grimy." },
 
   { file:"prisoner", name:"Prisoner (other player)", group:"Characters", prio:"P0",
@@ -286,7 +286,7 @@ const ASSETS = [
     prompt:"Just a single gaunt human head and shoulders, leaning/pressing forward as if peering through a gap in boards — wide bloodshot staring eyes, sunken grimy face, matted greasy hair, mouth slightly open. Only the head and upper bust, no body below the chest. Clammy pale hand-painted skin with baked grime and deep eye shadows." },
   { file:"slotmachine", name:"Slot machine (small, sits on a table)", group:"Slot machine", prio:"P0",
     spec:"REDO — squat now · about as wide as it is tall · stands ON a table",
-    notes:"THIS REPLACES THE TALL ONE ALREADY DELIVERED — the machine is being shrunk to a bar-top unit that sits on a table, so it needs remaking at the new proportions: roughly 80 cm tall, 55 cm wide, chunky and deep rather than tall and thin. NO legs, NO plinth, NO stand — it ends in a flat base that rests on a tabletop. Still keep the REEL WINDOW a flat, BLANK, slightly-recessed rectangle in the middle of the front, and the MARQUEE strip just above it flat and blank too — the game paints the live reels and the win readout straight onto those, so anything drawn there gets buried. The charm cabinet and chest are gone; charms live on a separate shelf now.",
+    notes:"THIS REPLACES THE TALL ONE ALREADY DELIVERED — the machine is being shrunk to a bar-top unit that sits on a table, so it needs remaking at the new proportions: roughly 80 cm tall, 55 cm wide, chunky and deep rather than tall and thin. NO legs, NO plinth, NO stand — it ends in a flat base that rests on a tabletop. Still keep the REEL WINDOW a flat, BLANK, slightly-recessed rectangle in the middle of the front, and the MARQUEE strip just above it flat and blank too — the game paints the live reels and the win readout straight onto those, so anything drawn there gets buried. The charm cabinet and chest are gone; tarot cards stand on a separate shelf now.",
     prompt:"A small ornate occult BAR-TOP slot machine that sits on a table, seen from the front: chunky and compact, wider and deeper than it is tall, dark lacquered wood with tarnished brass corners, a low hooded marquee strip across the top, a big recessed RECTANGULAR reel window filling the middle of the face, a small control deck with round buttons and a coin slot below it, gothic skull and eye carvings, candle-lit and grimy. Flat bottom, no legs and no stand. Leave the reel window and the marquee strip completely flat and blank. Hand-painted." },
 
   { file:"table", name:"Table (the machine sits on it)", group:"Slot machine", prio:"P0",
@@ -311,7 +311,7 @@ const ASSETS = [
     prompt:"A seat to sit on at a table in a dungeon gambling den: a grimy wooden chair or a low nailed-together stool, rickety and worn, dark stained wood with iron nails. Sturdy readable silhouette, normal chair height. Dark-fantasy horror, hand-painted." },
   { file:"symbol_board", name:"Symbol board frame (wall)", group:"Slot machine", prio:"P1",
     spec:"empty frame · centre opening 3 wide : 4 tall · game scales it to ~1.5 × 1.9 m",
-    notes:"IT IS AN EMPTY FRAME, NOT A SIGN — the game paints the chart onto it, live. Three things have to be right or it won't work: (1) the middle stays COMPLETELY BLANK — no writing, numbers, symbols, lines or grid, because the chart is repainted every time a charm is fitted and anything baked into the middle shows through underneath it; (2) the blank centre must be 3 wide to 4 tall (a hair taller than that is fine) — don't worry about real-world size, the game scales the whole thing, but that SHAPE has to be right or the chart comes out stretched; (3) RECESS the centre behind the front of the frame — a good visible step back, not flush — or the painted panel floats in front of the woodwork instead of sitting inside it. It hangs flat on a wall, so flat back, fairly shallow, and only the front is ever seen. All the carving goes on the surround. See exactly what lands on it at cindervaleidle.com/assets/paytable.html",
+    notes:"IT IS AN EMPTY FRAME, NOT A SIGN — the game paints the chart onto it, live. Three things have to be right or it won't work: (1) the middle stays COMPLETELY BLANK — no writing, numbers, symbols, lines or grid, because the chart is repainted every time a card is taken and anything baked into the middle shows through underneath it; (2) the blank centre must be 3 wide to 4 tall (a hair taller than that is fine) — don't worry about real-world size, the game scales the whole thing, but that SHAPE has to be right or the chart comes out stretched; (3) RECESS the centre behind the front of the frame — a good visible step back, not flush — or the painted panel floats in front of the woodwork instead of sitting inside it. It hangs flat on a wall, so flat back, fairly shallow, and only the front is ever seen. All the carving goes on the surround. See exactly what lands on it at cindervaleidle.com/assets/paytable.html",
     prompt:"An ornate empty wall-mounted BOARD FRAME for a paytable, seen straight on: a thick carved dark-wood and tarnished-brass surround, portrait orientation, slightly taller than it is wide, enclosing one big EMPTY recessed centre panel of plain dark slate — completely blank, no writing, no numbers, no symbols, no lines. Grimy, candle-scorched, dark-fantasy horror, hand-painted. Plain neutral background, whole object in frame." },
   { file:"pattern_board", name:"Pattern board frame (wall)", group:"Slot machine", prio:"P1",
     spec:"same size + shape as the symbol board · centre opening 3 wide : 4 tall",
@@ -448,7 +448,7 @@ async function syncReset(){
 
 let filter = "all";
 const board = document.getElementById("board");
-const GROUPS = ["2D art (drawings, not models)","Characters","Slot machine","Charm figurines","Environment","Room shell"];
+const GROUPS = ["2D art (drawings, not models)","Characters","Slot machine","Environment","Room shell"];
 
 /* 2D cards are delivered as .png, everything else as .glb */
 const fileOf = a => a.file + "." + (a.ext || "glb");
