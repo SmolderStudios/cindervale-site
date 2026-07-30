@@ -638,7 +638,8 @@ const esc = s => String(s == null ? '' : s)
   .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
 let sock = null, S = null, code = '', myName = '', mateName = '';
-let local = false, wantOpen = false, retries = 0, retryT = 0;
+let local = false, wantOpen = false, retries = 0, retryT = 0, retryFrom = 0;
+let idleT = 0, lastAct = Date.now();
 let needle = 50, locked = false, curtainFor = -1, lastPhase = '', lastRound = 0;
 let oppAim = null;                 // their needle, live, while they are still moving it
 let rounds = 10;
@@ -768,7 +769,7 @@ function enterGame(){
 
 function connect(c){
   code = c.toUpperCase();
-  local = false; wantOpen = true;
+  local = false; wantOpen = true; retries = 0; retryFrom = 0;
   location.hash = code;
   enterGame();
   $('stageTop').innerHTML =
@@ -782,33 +783,81 @@ function openSock(){
     sock = new WebSocket(WSU + '/room/' + code + '/ws?name=' + encodeURIComponent(myName));
   } catch (e){ return schedule(); }
   sock.onopen = () => {
-    retries = 0; conn('Connected');
+    retries = 0; retryFrom = 0; conn('Connected'); bumpIdle();
     if (sel.size) send({t:'cfg', cats:manifest(), rounds, dv:DV});   // host's settings win
   };
   sock.onmessage = ev => {
     let m; try { m = JSON.parse(ev.data); } catch (e){ return; }
+    lastAct = Date.now();                    // the other player moving keeps this alive
     if (m.t === 'state'){ S = m; render(); }
     else if (m.t === 'aim'){
       if (S && S.phase === 'guess' && S.you === S.psychic){ oppAim = m.v; paintGhost(); }
     }
     else if (m.t === 'chat') say(m.from, m.text, m.own);
+    else if (m.t === 'closed') roomGone(
+      'Nobody had touched it for a while, so the room closed itself.');
     else if (m.t === 'full'){ wantOpen = false; alert('That room already has two players in it.'); quit(); }
   };
   sock.onclose = () => { sock = null; if (wantOpen) schedule(); };
   sock.onerror = () => {};
 }
 
+/* Retry a dropped connection, but not forever — a tab left open on a room that
+   is never coming back used to reconnect every 8 seconds indefinitely. */
+const RETRY_WINDOW = 4 * 60 * 1000;
 function schedule(){
   if (!wantOpen) return;
   clearTimeout(retryT);
-  const wait = Math.min(1000 * Math.pow(1.6, retries++), 8000);
+  if (!retryFrom) retryFrom = Date.now();
+  if (Date.now() - retryFrom > RETRY_WINDOW){
+    return roomGone('Lost the connection and couldn’t get back in.', 1);
+  }
+  const wait = Math.min(1000 * Math.pow(1.6, retries++), 15000);
   conn('Connection lost — retrying…', true);
   retryT = setTimeout(openSock, wait);
 }
 
+/* The room is over: stop the socket, stop retrying, say so plainly. */
+function roomGone(why, canRetry){
+  wantOpen = false;
+  clearTimeout(retryT);
+  clearTimeout(idleT);
+  if (sock){ try { sock.close(); } catch (e){} sock = null; }
+  conn(null);
+  $('modal').innerHTML =
+    '<div class="eyebrow">Room closed</div><h2>' + esc(code || '') + ' is finished</h2>' +
+    '<p>' + esc(why) + '</p><div class="acts" style="justify-content:center">' +
+    (canRetry ? '<button class="btn prime" id="btnRetry">Try that room again</button>' : '') +
+    '<button class="btn ghost" id="btnGoHome">Back to the menu</button></div>';
+  $('veil').classList.remove('hide');
+  if ($('btnRetry')) $('btnRetry').onclick = () => {
+    $('veil').classList.add('hide');
+    retries = 0; retryFrom = 0; wantOpen = true;
+    bumpIdle(); openSock();
+  };
+  $('btnGoHome').onclick = quit;
+}
+
+/* And hang up on ourselves if this tab is the thing that got abandoned. The
+   server has its own, longer timer; this one just gets there first and explains. */
+const IDLE_MS = 30 * 60 * 1000;
+function idleCheck(){
+  if (local || !sock) return false;
+  if (Date.now() - lastAct <= IDLE_MS) return false;
+  roomGone('You were idle for half an hour, so this tab let the room go.', 1);
+  return true;
+}
+function bumpIdle(){
+  lastAct = Date.now();
+  if (!idleT) idleT = setInterval(idleCheck, 60000);
+}
+for (const ev of ['pointerdown','pointermove','keydown'])
+  window.addEventListener(ev, () => { lastAct = Date.now(); }, { passive:true });
+
 function quit(){
   wantOpen = false; local = false;
   clearTimeout(retryT);
+  clearInterval(idleT); idleT = 0; retryFrom = 0; retries = 0;
   if (sock){ try { sock.close(); } catch (e){} sock = null; }
   S = null;
   location.hash = '';
@@ -1332,7 +1381,12 @@ $('nameIn').addEventListener('keydown', e => { if (e.key === 'Enter') $('btnCrea
 window.__wl = {
   CATS, DV, TOTALCARDS, scoreOf, cardOf, dialSVG, vFromEvent, RATING,
   L, lview, localSend, render, pushAim, flushAim, paintNeedle,
+  idleCheck, schedule, roomGone, IDLE_MS, RETRY_WINDOW,
   get oppAim(){ return oppAim; },
+  get wantOpen(){ return wantOpen; },
+  get sock(){ return sock; },
+  set lastAct(v){ lastAct = v; },
+  set retryFrom(v){ retryFrom = v; },
   get S(){ return S; }, set S(v){ S = v; },
   get needle(){ return needle; }, set needle(v){ needle = v; },
   get local(){ return local; }, set local(v){ local = v; },

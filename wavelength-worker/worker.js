@@ -20,6 +20,12 @@ const CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ'; // no I/L/O — unambiguous
 const MAXTXT = 140;
 const MAXCLUE = 60;
 const SKIPS = 3;            // shared card swaps per game
+/* A room is memory-only, so two closed sockets already means the lobby is gone —
+   nothing accumulates. What DOESN'T go away on its own is a forgotten open tab:
+   its socket keeps this object resident (and billed) indefinitely. So the room
+   watches itself and hangs up. */
+const IDLE_MS  = 45 * 60 * 1000;   // nobody has done anything -> close it
+const CHECK_MS = 10 * 60 * 1000;   // how often the room looks at itself
 const EDGE = 10;            // target never lands where a band would fall off
 const BANDS = [[2.5, 4], [6, 3], [10, 2]];
 
@@ -32,10 +38,40 @@ const score = (guess, target) => {
 };
 
 export class Room {
-  constructor() {
+  constructor(ctx) {
+    this.ctx = ctx;
     this.seats = [];                    // up to 2: {ws,name}
     this.cfg = { cats: { gen: 1 }, rounds: 10, dv: 0 };
+    this.touched = Date.now();
     this.reset(true);
+  }
+
+  /* Keep exactly one alarm pending while anyone is here. An alarm outlives
+     eviction, so an emptied room still gets woken once to tidy up — and because
+     the tidy-up schedules nothing, that is the last we ever hear of it. */
+  touch() {
+    this.touched = Date.now();
+    if (!this.ctx || !this.ctx.storage) return;
+    Promise.resolve(this.ctx.storage.getAlarm())
+      .then(a => { if (a == null) return this.ctx.storage.setAlarm(Date.now() + CHECK_MS); })
+      .catch(() => {});
+  }
+
+  async alarm() {
+    const anyone = this.seats.some(live);
+    const idle = Date.now() - this.touched > IDLE_MS;
+    if (anyone && !idle) {
+      await this.ctx.storage.setAlarm(Date.now() + CHECK_MS);
+      return;
+    }
+    for (const s of this.seats) {
+      if (!live(s)) continue;
+      // tell them why, so the client stops trying to reconnect to a dead room
+      try { s.ws.send(JSON.stringify({ t: 'closed', why: 'idle' })); } catch (e) {}
+      try { s.ws.close(1000, 'idle'); } catch (e) {}
+    }
+    this.reset(true);
+    try { await this.ctx.storage.deleteAll(); } catch (e) {}
   }
 
   reset(hard) {
@@ -155,6 +191,7 @@ export class Room {
     ws.addEventListener('message', ev => this.onMsg(ws, ev));
     ws.addEventListener('close', () => this.push());
     ws.addEventListener('error', () => this.push());
+    this.touch();
     this.push();
   }
 
@@ -164,6 +201,7 @@ export class Room {
     if (!m || typeof m.t !== 'string') return;
     const me = this.seatOf(ws);
     if (!me) return;
+    this.touch();
     const i = this.seats.indexOf(me), opp = this.seats[1 - i];
     const host = i === 0;
     const lobby = this.phase === 'lobby' || this.phase === 'over';
