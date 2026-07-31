@@ -116,7 +116,7 @@
     D.NET.join(code, APP.name, {
       state: onState,
       status: function (s) { dot(s === 'open' ? 'on' : s === 'retry' ? 'wait' : 'off'); },
-      note: function (t) { D.toast(t); },
+      note: function (t) { D.toast(t, 'bad'); },
       full: function () {
         D.toast('That room already has two players', 'bad');
         show('vLogin');
@@ -151,17 +151,30 @@
   }
 
   function syncPicker() {
+    /* Games the SERVER did not accept. Happens when the client has shipped a
+       game the deployed worker has never heard of — previously they just
+       disappeared from the match with no explanation. */
+    var confirmed = (APP.mode === 'net' && APP.state && APP.state.games) ? APP.state.games : null;
+    var rejected = confirmed
+      ? APP.sel.filter(function (id) { return confirmed.indexOf(id) < 0; })
+      : [];
+
     D.$$('#gameSel .gtile').forEach(function (t) {
-      t.classList.toggle('sel', APP.sel.indexOf(t.dataset.id) >= 0);
+      var on = APP.sel.indexOf(t.dataset.id) >= 0;
+      t.classList.toggle('sel', on);
+      t.classList.toggle('bad', on && rejected.indexOf(t.dataset.id) >= 0);
     });
-    $('#selCount').textContent = APP.sel.length;
+    var live = APP.sel.length - rejected.length;
+    $('#selCount').textContent = APP.mode === 'net' ? live : APP.sel.length;
     var isHost = APP.mode === 'solo' || (APP.state && APP.state.you === 0);
     var two = APP.mode === 'solo' || (APP.state && APP.state.online && APP.state.online[0] && APP.state.online[1]);
-    $('#btnStart').disabled = !APP.sel.length || !isHost || !two;
+    var n = APP.mode === 'net' ? live : APP.sel.length;
+    $('#btnStart').disabled = !n || !isHost || !two;
     $('#startHint').textContent = !APP.sel.length ? 'Pick at least one game'
+      : rejected.length ? rejected.length + ' of these are not on the server yet — redeploy the worker'
       : !isHost ? 'Only the room host can start'
       : !two ? 'Waiting for your opponent to join'
-      : APP.sel.length + (APP.sel.length === 1 ? ' round' : ' rounds') + ', best score each';
+      : n + (n === 1 ? ' round' : ' rounds') + ', best score each';
     D.$$('#orderSeg button').forEach(function (b) {
       b.classList.toggle('on', (b.dataset.order === 'shuffle') === APP.shuffleOrder);
     });
