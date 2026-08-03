@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cindervale Idle — A Dark-Fantasy Idle RPG</title>
-<meta name="description" content="Cindervale Idle is a dark-fantasy idle & incremental RPG. Master 12 skills, delve 12 combat zones, tame familiars, raid bosses, and grow ever stronger — even while you're away. Coming soon to Steam.">
+<meta name="description" content="Cindervale Idle is a dark-fantasy idle & incremental RPG. Master 12 skills, delve 12 combat zones, chart 26 islands by sea, tame familiars, raid bosses, and grow ever stronger — even while you're away. Coming soon to Steam.">
 <meta name="theme-color" content="#0d0906">
-<link rel="canonical" href="https://smolderstudios.github.io/cindervale/">
+<link rel="canonical" href="https://cindervaleidle.com/">
 
 <!-- Open Graph / social -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Cindervale Idle — A Dark-Fantasy Idle RPG">
-<meta property="og:description" content="Master 12 skills, delve 12 combat zones, tame familiars, and raid bosses. Coming soon to Steam.">
-<meta property="og:url" content="https://smolderstudios.github.io/cindervale/">
+<meta property="og:description" content="Master 12 skills, delve 12 combat zones, chart 26 islands by sea, tame familiars, and raid bosses. Coming soon to Steam.">
+<meta property="og:url" content="https://cindervaleidle.com/">
 <meta property="og:site_name" content="Cindervale Idle">
 <meta name="twitter:card" content="summary_large_image">
 
@@ -218,7 +218,8 @@ a.cm-opt .cm-t{color:#8b9cff}
 .card p{margin:0; color:var(--muted); font-size:15.5px; line-height:1.6}
 
 /* ---------- STATS STRIP ---------- */
-.stats{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:8px}
+.stats{display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-top:8px}
+@media(max-width:900px){.stats{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}}
 .stat{text-align:center; padding:26px 12px; border:1px solid var(--line); border-radius:14px; background:rgba(20,13,7,.6)}
 .stat .n{font-family:var(--serif); font-size:clamp(34px,5vw,46px); line-height:1; color:var(--trim-bright)}
@@ -404,7 +405,7 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
       <div class="hero-meta">
         <span class="pill"><span class="dot"></span> Coming soon to Steam</span>
         <span class="pill">🖥️ Windows &middot; one-time purchase</span>
-        <span class="pill">🛠️ In development &middot; <span class="ver">v0.9.53</span></span>
+        <span class="pill">🛠️ In development &middot; <span class="ver">v0.9.80</span></span>
       </div>
     </div>
   </section>
@@ -442,7 +443,7 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
         <div class="card reveal">
           <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 11c0-3 2-5 5-5 2 0 3 1 3 1s1-1 3-1c3 0 5 2 5 5 0 4-8 9-8 9s-8-5-8-9z"/><circle cx="8.5" cy="10" r="1"/><circle cx="15.5" cy="10" r="1"/></svg></div>
           <h3>Pets &amp; Familiars</h3>
-          <p>Nine zone-bound familiars stalk the shadows as ultra-rare spawns. Hunt them down to complete your collection.</p>
+          <p>Twelve zone-bound familiars stalk the shadows as ultra-rare spawns — plus a storm petrel that follows a ship home. Hunt them all down.</p>
         </div>
 
         <div class="card reveal">
@@ -457,12 +458,31 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
           <p>Progress banks while you're gone. Come back to a richer inventory, higher levels, and new frontiers to conquer.</p>
         </div>
 
+        <div class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v14"/><path d="M12 17c-3.5 0-6-2.5-6-6l6-3 6 3c0 3.5-2.5 6-6 6z"/><path d="M4 20c1.5 1 2.5 1 4 0s2.5-1 4 0 2.5 1 4 0 2.5-1 4 0"/><circle cx="12" cy="4" r="1.6"/></svg></div>
+          <h3>Sailing &amp; Treasure Hunting</h3>
+          <p>Chart 26 islands across four archipelagos. Build seven ships, sign a crew, and send them out on real-time voyages that finish whether the game is open or not.</p>
+        </div>
+
+        <div class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l1.9 4.6 5 .4-3.8 3.3 1.2 4.9L12 13.7 7.7 16.2l1.2-4.9L5.1 8l5-.4z"/><path d="M8 19h8"/><path d="M12 16.5V21"/></svg></div>
+          <h3>Slayer Bounties</h3>
+          <p>Take contracts from four masters, bank Slayer Points on every streak, and spend them on perks — or on skipping the task you don't want.</p>
+        </div>
+
+        <div class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 5.5v15"/><path d="M8.5 7.5h6M8.5 11h4"/></svg></div>
+          <h3>A Collection to Complete</h3>
+          <p>Every monster, drop, island and sea find is catalogued the moment you see it. The Compendium is the long game behind all the others.</p>
+        </div>
+
       </div>
 
       <div class="stats" style="margin-top:44px">
         <div class="stat reveal"><div class="n">12</div><div class="l">Skilling Skills</div></div>
         <div class="stat reveal"><div class="n">12</div><div class="l">Combat Zones</div></div>
-        <div class="stat reveal"><div class="n">9</div><div class="l">Collectible Pets</div></div>
+        <div class="stat reveal"><div class="n">26</div><div class="l">Islands to Chart</div></div>
+        <div class="stat reveal"><div class="n">12</div><div class="l">Collectible Pets</div></div>
         <div class="stat reveal"><div class="n">33+</div><div class="l">Achievements</div></div>
       </div>
     </div>
@@ -480,9 +500,9 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
       </div>
       <div class="feature-slider reveal" data-fslider>
         <div class="fs-text">
-          <div class="fs-index"><b class="fs-cur">01</b> / 05</div>
-          <h3 class="fs-title">Raids</h3>
-          <p class="fs-desc">No-retreat gauntlets — clear every stage, or walk away with nothing.</p>
+          <div class="fs-index"><b class="fs-cur">01</b> / 07</div>
+          <h3 class="fs-title">Sailing</h3>
+          <p class="fs-desc">Chart the sea, pick a heading, send the ship out. It comes home on its own clock.</p>
           <div class="fs-controls">
             <button class="fs-arrow fs-prev" type="button" aria-label="Previous">&#8249;</button>
             <button class="fs-arrow fs-next" type="button" aria-label="Next">&#8250;</button>
@@ -491,7 +511,9 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
         </div>
         <div class="fs-media">
           <div class="fs-stage">
-            <img class="fs-img on" src="shots/raids.png" alt="A raid in progress — The Sunken Barrow gauntlet" data-title="Raids" data-desc="No-retreat gauntlets — clear every stage, or walk away with nothing.">
+            <img class="fs-img on" src="shots/sailing.png" alt="The Admiralty chart — 26 islands across four archipelagos" data-title="Sailing" data-desc="Chart the sea, pick a heading, send the ship out. It comes home on its own clock.">
+            <img class="fs-img" src="shots/shipyard.png" alt="The Emberwatch shipyard — seven hulls from raft to leviathan" data-title="The Shipyard" data-desc="Seven ships, built from salvage you can only bring back by sailing.">
+            <img class="fs-img" src="shots/raids.png" alt="A raid in progress — The Sunken Barrow gauntlet" data-title="Raids" data-desc="No-retreat gauntlets — clear every stage, or walk away with nothing.">
             <img class="fs-img" src="shots/combat.png" alt="The Combat Mastery tree" data-title="Combat" data-desc="A deep mastery tree that reshapes how you fight.">
             <img class="fs-img" src="shots/skilling.png" alt="Fishing — one of twelve skills" data-title="Skilling" data-desc="Twelve skills to level, each with its own loop.">
             <img class="fs-img" src="shots/trees.png" alt="A 98-point passive skill tree" data-title="Passive trees" data-desc="A 98-point passive tree behind every single skill.">
@@ -556,7 +578,7 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
         <div class="row"><span class="k">Genre</span><span class="v">Dark-Fantasy Idle RPG</span></div>
         <div class="row"><span class="k">Platform</span><span class="v">Windows &middot; Steam</span></div>
         <div class="row"><span class="k">Price</span><span class="v"><s>$4.99</s> $3.99 &middot; 20% launch discount</span></div>
-        <div class="row"><span class="k">Status</span><span class="v beta">● In development &middot; <span class="ver">v0.9.53</span></span></div>
+        <div class="row"><span class="k">Status</span><span class="v beta">● In development &middot; <span class="ver">v0.9.80</span></span></div>
         <div class="row"><span class="k">Steam</span><span class="v">Wishlist — coming soon</span></div>
       </div>
     </div>
