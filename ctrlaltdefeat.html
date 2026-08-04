@@ -841,9 +841,19 @@ readme:{t:'README.TXT',b:
 "   list. That list lives in the registry. There is no icon for the\r\n"+
 "   registry. You have to ASK for it by name. (Start > Run.)\r\n\r\n"+
 "3. It won't let go while it's running. You have to end the process\r\n"+
-"   first. Task Manager is also a Run-box word. So is a lot of stuff.\r\n"+
-"   Try things. Worst case it says 'Cannot find the file'. It says that\r\n"+
-"   a lot. It is the most honest part of this machine.\r\n\r\n"+
+"   first, and for that you need Task Manager. There is no icon for it\r\n"+
+"   anywhere. There are two ways in and nobody tells you either one:\r\n"+
+"\r\n"+
+"       * RIGHT-CLICK THE TASKBAR  (the grey strip along the bottom)\r\n"+
+"       * or Start > Run > type: taskmgr\r\n"+
+"\r\n"+
+"   Do NOT press Ctrl+Alt+Del. That combination belongs to the computer\r\n"+
+"   you are ACTUALLY sitting at, and it will take it personally.\r\n"+
+"\r\n"+
+"   While you're in the Run box: a lot of things live in there and\r\n"+
+"   nowhere else. Try words. Worst case it says 'Cannot find the file',\r\n"+
+"   which it says constantly, and which is the most honest thing on\r\n"+
+"   this machine.\r\n\r\n"+
 "4. I wrote proper notes. Then Gary deleted them, because he was\r\n"+
 "   'cleaning up'. Gary does not empty the Recycle Bin. Gary has never\r\n"+
 "   emptied anything in his life. Go and get them.\r\n\r\n"+
@@ -940,6 +950,8 @@ notes:{t:'NOTES.TXT  (recovered)',b:
 "It's in the process list right now, pretending to be a system file.\r\n"+
 "It's a good costume. Not a perfect one. Here is the tell:\r\n\r\n"+
 "    A LIBRARY IS NOT A PROGRAM.\r\n\r\n"+
+"(Task Manager, if you haven't found it: RIGHT-CLICK THE TASKBAR, or\r\n"+
+" Start > Run > taskmgr. There is no icon. There has never been an icon.)\r\n\r\n"+
 "Chumdows ships a famous library. Everyone knows its name. It ends in\r\n"+
 ".DLL, because that is what libraries end in. If you ever see that same\r\n"+
 "famous name wearing .EXE instead -- that is not Chumdows. That's it.\r\n"+
@@ -964,7 +976,8 @@ nukeread:{t:'NUKE.TXT',b:
 "WHAT IT DOES: removes the thing.\r\n"+
 "WHAT IT NEEDS, in this order, or it will just laugh at you:\r\n\r\n"+
 "  [1] The host process must be ENDED. It holds the registry key open.\r\n"+
-"      Use Task Manager. The impostor wears the wrong extension.\r\n\r\n"+
+"      Task Manager: right-click the taskbar, or Start > Run > taskmgr.\r\n"+
+"      The impostor wears the wrong extension.\r\n\r\n"+
 "  [2] The startup key must be DELETED. Use REGEDIT. It's under\r\n"+
 "      HKEY_LOCAL_MACHINE > SOFTWARE > Microsoft > Windows >\r\n"+
 "      CurrentVersion > Run. You'll know it when you see it.\r\n\r\n"+
@@ -2035,7 +2048,7 @@ var STEPS=[
  {id:'online', t:'Get the modem online.',                               h:'Dial-Up Networking. It will scream. That is normal.'},
  {id:'url',    t:'Find where Dave published his cleanup utility.',      h:'It is in his notes. It is also, weirdly, in a EULA.'},
  {id:'dl',     t:'Download NUKE.EXE.',                                  h:'Type the address into Internet Exploder. All of it.'},
- {id:'impostor',t:'End the process that is wearing a costume.',         h:'A library is not a program. Task Manager. Ask for it by name.'},
+ {id:'impostor',t:'End the process that is wearing a costume.',         h:'A library is not a program. Open Task Manager: right-click the taskbar, or Start > Run > taskmgr. (Ctrl+Alt+Del will not work — your real computer steals it. That is the joke and also the problem.)'},
  {id:'regkey', t:'Delete the startup key.',                             h:'Start > Run > regedit. HKEY_LOCAL_MACHINE, then keep going.'},
  {id:'nuke',   t:'Run NUKE.EXE and stand back.',                        h:'C:\\DOWNLOAD. Yes, that folder. This once.'}
 ];
@@ -2982,8 +2995,16 @@ function doRun(cmd){
   if(!c)return;
   var known={
     'regedit':function(){appReg();},
+    'regedt32':function(){appReg();},
+    'registry':function(){appReg();},
+    /* every near-miss a stuck player might reasonably type */
     'taskmgr':function(){appTask();},
     'taskman':function(){appTask();},
+    'taskmanager':function(){appTask();},
+    'task manager':function(){appTask();},
+    'close program':function(){appTask();},
+    'processes':function(){appTask();},
+    'tasks':function(){appTask();},
     'msconfig':function(){dialog('Run','Cannot find the file MSCONFIG.\n\nMSCONFIG does not exist yet. It arrives with the next version and it is going to be a huge relief to everybody.','error');},
     'notepad':function(){appNote('readme');},
     'explorer':function(){appExplorer('C:');},
@@ -3273,7 +3294,8 @@ var CLIPS=[
  {t:'Did you know Chumdows has a <b>Recycle Bin</b>?<br><br>Things people delete go in there. Sometimes on purpose. Sometimes because they were "cleaning up".',a:['…go on','Not now'],hint:'notes'},
  {t:'It looks like you\'re looking for a password.<br><br>People who write passwords down usually put them somewhere they can <b>see</b> them.',a:['Where?','Not now'],hint:'sticky'},
  {t:'It looks like you need the internet.<br><br>The internet lives in the <b>telephone</b>. You have to ask it, out loud, in dial tones.',a:['Right','Not now'],hint:'online'},
- {t:'It looks like you\'re hunting a process.<br><br>Here is a fact: a <b>library</b> ends in .DLL. A <b>program</b> ends in .EXE. They are not interchangeable. If you ever saw a famous library wearing .EXE, that would be strange, wouldn\'t it.',a:['…','Not now'],hint:'impostor'},
+ {t:'It looks like you\'re hunting a process.<br><br>You want <b>Task Manager</b>. <b>Right-click the taskbar</b>, or type <b>taskmgr</b> into Start &gt; Run. Do not press Ctrl+Alt+Del — your <i>real</i> computer will take that personally.',a:['Got it','Not now'],hint:'impostor'},
+ {t:'A fact, freely given: a <b>library</b> ends in .DLL. A <b>program</b> ends in .EXE. They are not interchangeable.<br><br>So if you ever saw a famous library wearing .EXE — that would be strange, wouldn\'t it.',a:['…','Not now'],hint:'impostor'},
  {t:'It looks like you want the <b>registry</b>.<br><br>There is no icon for it. You have to type its name into <b>Start &gt; Run</b>. It is called <b>regedit</b>. I am not supposed to tell you that.',a:['Thank you','Not now'],hint:'regkey'},
  {t:'It looks like you\'re nearly finished.<br><br>I have been here since 1995. I have watched four computer guys. You are the third-best.',a:['Third?','Not now']}
 ];
@@ -3465,13 +3487,86 @@ function boot(){
   initTrails();
   // start menu wiring
   $('#startbtn').onclick=function(e){ e.stopPropagation(); toggleStart(); };
-  document.addEventListener('click',function(){ closeStart(); });
+  initCtx();
+  document.addEventListener('click',function(){ closeStart(); closeCtx(); });
   document.addEventListener('mousedown',function(){ actx(); },{once:true});
   document.addEventListener('keydown',function(e){
     if(e.key==='Escape'){ closeStart(); }
     if(e.ctrlKey&&e.altKey&&(e.key==='Delete'||e.key==='Backspace')){ e.preventDefault(); if(S.phase==='desk'&&!S.ended)appTask(); }
   });
   runBios();
+}
+/* ── right-click menus ───────────────────────────────────────
+   Task Manager has no icon anywhere in Chumdows and Ctrl+Alt+Del is
+   swallowed by the player's REAL operating system, so the taskbar menu
+   is the one affordance that has to carry it. */
+function closeCtx(){ var m=$('#ctxmenu'); if(m)m.remove(); }
+function ctxMenu(x,y,items,up){
+  closeCtx();
+  var m=document.createElement('div'); m.id='ctxmenu'; m.className='submenu';
+  m.style.cssText='display:block;position:absolute;left:0;top:0;min-width:190px;z-index:'+(S.zc+3000);
+  m.innerHTML=items.map(function(it,i){
+    return it.sep?'<div class="smsep"></div>'
+      :'<div class="smi'+(it.dis?' dis':'')+'" data-i="'+i+'"><i>'+ic(it.ic||'exe',18)+'</i><span>'+it.t+'</span></div>';
+  }).join('');
+  $('#screen').appendChild(m);
+  m.style.left=clamp(x,2,SW-m.offsetWidth-4)+'px';
+  m.style.top=clamp(up?(y-m.offsetHeight):y,2,SH-m.offsetHeight-4)+'px';
+  $$('.smi',m).forEach(function(d){
+    var it=items[+d.getAttribute('data-i')];
+    if(!it||it.dis)return;
+    d.onclick=function(e){ e.stopPropagation(); closeCtx(); SFX.click(); if(it.act)it.act(); };
+  });
+  SFX.click();
+}
+function cascadeWins(){
+  var i=0;
+  Object.keys(S.wins).forEach(function(k){
+    var w=S.wins[k]; if(w.max)toggleMax(k);
+    w.min=false; w.el.classList.remove('min');
+    w.el.style.left=(20+i*26)+'px'; w.el.style.top=(20+i*24)+'px';
+    w.el.style.zIndex=(++S.zc); if(w.tb)w.tb.classList.remove('act');
+    i++;
+  });
+  if(!i)toast('There are no windows to cascade. There are only pop-ups, and they do not take instruction.');
+}
+function minimiseAll(){
+  var n=0;
+  Object.keys(S.wins).forEach(function(k){ var w=S.wins[k]; w.min=true; w.el.classList.add('min'); if(w.tb)w.tb.classList.remove('act'); n++; });
+  toast(n?('Minimised '+n+' window(s). The pop-ups stayed exactly where they were. They do not have a minimise button. You may have noticed.')
+         :'Nothing to minimise. The pop-ups do not count. The pop-ups never count.');
+}
+function initCtx(){
+  $('#taskbar').addEventListener('contextmenu',function(e){
+    e.preventDefault(); e.stopPropagation();
+    var p=stagePt(e);
+    ctxMenu(p.x, SH-TASKH-2, [
+      {t:'Cascade Windows',ic:'net',act:cascadeWins},
+      {t:'Minimize All Windows',ic:'gear',act:minimiseAll},
+      {sep:1},
+      {t:'Task Manager',ic:'task',act:function(){ appTask(); }},
+      {sep:1},
+      {t:'Properties',ic:'gear',act:function(){ gag('taskbar'); }}
+    ], true);
+  });
+  $('#desk').addEventListener('contextmenu',function(e){
+    if(e.target.closest('.win')||e.target.closest('.pop'))return;
+    e.preventDefault();
+    var p=stagePt(e);
+    ctxMenu(p.x,p.y,[
+      {t:'Arrange Icons',ic:'gear',act:function(){ toast('The icons are arranged. They were already arranged. Six of them arranged themselves.'); }},
+      {t:'Refresh',ic:'net',act:function(){ toast('Refreshed. It is exactly the same. It was always going to be exactly the same.'); }},
+      {sep:1},
+      {t:'New',ic:'folder',dis:1},
+      {sep:1},
+      {t:'Properties',ic:'net',act:function(){ gag('display'); }}
+    ]);
+  });
+  document.addEventListener('contextmenu',function(e){
+    /* never let the browser's own menu open over the illusion */
+    if(e.target.closest('#screen'))e.preventDefault();
+    if(!e.target.closest('#taskbar')&&!e.target.closest('#desk'))closeCtx();
+  });
 }
 function toggleStart(){
   var m=$('#startmenu'), b=$('#startbtn');
