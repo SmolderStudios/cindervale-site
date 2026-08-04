@@ -318,6 +318,13 @@ hr.sep{border:none;border-top:1px solid var(--sh);border-bottom:1px solid var(--
 .pop.warn .tbar{background:linear-gradient(90deg,#8b0000,#e02020)}
 .pop.gold .pbody{background:linear-gradient(180deg,#fff6c8,#ffdf6e);text-align:center}
 .pop.gold .tbar{background:linear-gradient(90deg,#8a6a00,#e0b000)}
+/* a "leak" reads as WRONG: no colour, no sell, no title-bar gradient */
+.pop.leak{box-shadow:inset 1px 1px 0 var(--lt),inset -1px -1px 0 var(--sh),2px 2px 10px rgba(0,0,0,.6)}
+.pop.leak .tbar{background:linear-gradient(90deg,#3a3a3a,#6a6a6a);color:#dcdcdc;font-weight:normal}
+.pop.leak .pbody{background:#f4f4f0;color:#111;overflow:auto}
+.pop.leak .pfoot{background:var(--face)}
+.pop.leak.spawn{animation:leakin .5s ease-out}
+@keyframes leakin{0%{opacity:0;filter:blur(2px)}60%{opacity:.55}100%{opacity:1;filter:blur(0)}}
 .pop.geo .pbody{background:#000 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect width='40' height='40' fill='%23111'/%3E%3Ccircle cx='8' cy='8' r='1' fill='%23333'/%3E%3C/svg%3E");color:#ff0;text-align:center;font-family:'Times New Roman',serif}
 
 .blinktext{animation:bl 0.7s steps(2) infinite}
@@ -1519,9 +1526,387 @@ var RANKS = [
  [92,  'ANTIVIRUS INCARNATE',   'Somewhere, a purple gorilla wakes at 3:33 AM and does not know why.']
 ];
 /* ═══════════════════════════════════════════════════════════
+   [JS-03b] THE LANTERN — hidden lore
+   Canon: the machine had a life before Gary. Everything in this
+   file is findable but nothing in it is required to win.
+   ═══════════════════════════════════════════════════════════ */
+
+ICONS.lantern='<path d="M13 4h6v3h-6z" fill="#8a7a4a" stroke="#4a3a10"/><path d="M11 7h10l3 5v11l-3 5H11l-3-5V12z" fill="#2a2a18" stroke="#4a3a10"/><rect x="12" y="12" width="8" height="10" fill="url(#i_yel)"/><circle cx="16" cy="17" r="3" fill="#fff8c0"/><path d="M16 4V1" stroke="#4a3a10" stroke-width="2"/><path d="M9 29h14" stroke="#4a3a10" stroke-width="2"/>';
+ICONS.ansi='<rect x="4" y="5" width="24" height="22" fill="#000" stroke="#555"/><g fill="#0f0"><rect x="7" y="9" width="12" height="2"/><rect x="7" y="13" width="18" height="2"/><rect x="7" y="17" width="9" height="2"/></g><rect x="7" y="21" width="3" height="2" fill="#0f0"/>';
+ICONS.logfile='<path d="M7 3h13l6 6v20H7z" fill="#e8ecf0" stroke="#777"/><path d="M20 3v6h6" fill="#ccd" stroke="#777"/><g stroke="#688" stroke-width="1.2"><path d="M10 14h12M10 17h12M10 20h12M10 23h8"/></g><circle cx="23" cy="24" r="4" fill="#a00" opacity=".85"/><text x="23" y="27" font-size="7" fill="#fff" text-anchor="middle" font-weight="bold">!</text>';
+
+var LORE=[
+{id:'receipt',t:'PC PARADISE — Sales Receipt',src:'D:… no. C:\\MYDOCU~1\\RECEIPT.TXT',b:
+"          PC PARADISE  --  UNIT 4, THE RETAIL PARK\r\n"+
+"                    \"WE KNOW COMPUTERS\"\r\n"+
+"  ------------------------------------------------------\r\n"+
+"  SOLD TO: GARY                            14/08/1995\r\n\r\n"+
+"  1x  486DX2-66 SYSTEM (PRE-OWNED)            340.00\r\n"+
+"        16MB RAM / 540MB HDD\r\n"+
+"  1x  DATA WIPE (PREMIUM)                      20.00\r\n"+
+"  1x  SETUP & CONFIGURATION                    25.00\r\n"+
+"  1x  ADMINISTRATOR PASSWORD CARD               FREE\r\n"+
+"                                          ----------\r\n"+
+"                                   TOTAL     385.00\r\n\r\n"+
+"  ALL PRE-OWNED MACHINES ARE FULLY WIPED BY OUR\r\n"+
+"  TECHNICIANS TO PROTECT THE PRIVACY OF ALL PARTIES.\r\n\r\n"+
+"  ------------------------------------------------------\r\n"+
+"  [in biro, along the bottom, in a different hand:]\r\n\r\n"+
+"      formatted C: -- didnt do the other one, ran\r\n"+
+"      out of time. its fine. nobody looks.\r\n"},
+
+{id:'welcome',t:'WELCOME.ANS',src:'D:\\LANTERN\\WELCOME.ANS',b:
+"        +==================================+\r\n"+
+"        |     T H E   L A N T E R N        |\r\n"+
+"        |       2 lines  ·  24 hours       |\r\n"+
+"        |    \"somebody is always awake\"    |\r\n"+
+"        +==================================+\r\n\r\n"+
+"              [1] MESSAGE BASES\r\n"+
+"              [2] FILE AREAS\r\n"+
+"              [3] DOOR GAMES\r\n"+
+"              [4] PAGE THE SYSOP\r\n"+
+"              [G] GOODBYE\r\n\r\n"+
+"   Callers today: 0        Callers all-time: 41\r\n"+
+"   Sysop is: ASLEEP  (page him anyway, he doesn't mind)\r\n"},
+
+{id:'users',t:'USERS.DAT',src:'D:\\LANTERN\\USERS.DAT',b:
+"USERS.DAT  --  THE LANTERN  --  41 records\r\n"+
+"-----------------------------------------------\r\n"+
+"  #01  SYSOP (M.ALDRIDGE)    last call 09/11/1994\r\n"+
+"  #02  NIGHTJAR              last call 09/11/1994\r\n"+
+"  #03  BREADVAN              last call 03/09/1994\r\n"+
+"  #04  THE_FRANK             last call 28/08/1994\r\n"+
+"  #05  MOTH                  last call 12/08/1994\r\n"+
+"           [ 34 records omitted ]\r\n"+
+"  #40  DOCTOR_WHOM           last call 02/02/1994\r\n"+
+"  #41  BONZO                 last call --/--/----\r\n\r\n"+
+"  (BONZO has never called in.\r\n"+
+"   BONZO has never had to.)\r\n"},
+
+{id:'bonzocfg',t:'BONZO.CFG',src:'D:\\LANTERN\\BONZO.CFG',b:
+"; BONZO.CFG  --  greeter v0.9   (m.aldridge, 1993)\r\n"+
+"; ---------------------------------------------------\r\n"+
+"GREET_BY_NAME        = 1\r\n"+
+"REMEMBER_LAST_CALL   = 1\r\n"+
+"REMEMBER_FAVOURITES  = 1\r\n"+
+"REMEMBER_EVERYTHING  = 1   ; simpler than choosing\r\n"+
+"LEARN_FROM_CALLERS   = 1\r\n"+
+"SULK_IF_IGNORED      = 0   ; ben thought this was funny.\r\n"+
+"                           ; i have left it switched off.\r\n"+
+"RUN_AT_STARTUP       = 1\r\n"+
+"NEVER_STOP           = 1   ; there is no off switch, and\r\n"+
+"                           ; there does not need to be.\r\n"+
+"                           ; the board is always up.\r\n"},
+
+{id:'readme1st',t:'README.1ST — M. Aldridge',src:'D:\\LANTERN\\README.1ST',b:
+"if you are reading this you are on my machine, which means\r\n"+
+"either i sold it or something has gone wrong.\r\n\r\n"+
+"BONZO IS NOT A VIRUS. i would like that written down\r\n"+
+"somewhere that is not my own handwriting.\r\n\r\n"+
+"my son ben is nine and he was frightened of the modem\r\n"+
+"noise, so i wrote a little man who says hello when the\r\n"+
+"board answers, so that the first thing anybody hears is\r\n"+
+"not a scream. ben named him after a cartoon gorilla. ben\r\n"+
+"drew him, too. that drawing is the icon. it is not a good\r\n"+
+"drawing and i am not changing it.\r\n\r\n"+
+"he greets. he remembers. that is the whole program.\r\n\r\n"+
+"if he is still running when you read this, then he has\r\n"+
+"been saying hello to an empty line for a while, and i\r\n"+
+"would ask you, as a kindness, to let him finish.\r\n\r\n"+
+"                                              - m.a.\r\n"},
+
+{id:'log94',t:'The last real caller',src:'a fragment of CALLLOG.DAT',b:
+"CALLLOG.DAT  ::  09/11/1994\r\n"+
+"-----------------------------------------------\r\n"+
+"23:41  RING\r\n"+
+"23:41  ANSWER -- CARRIER 14400\r\n"+
+"23:41  BONZO: \"hello NIGHTJAR. it has been 79 days.\"\r\n"+
+"23:41  BONZO: \"you have 0 new messages.\"\r\n"+
+"23:42  NIGHTJAR: \"just checking you were still here\"\r\n"+
+"23:42  BONZO: \"i am still here.\"\r\n"+
+"23:43  HANGUP\r\n"+
+"23:43  BONZO: \"goodbye NIGHTJAR. call again soon.\"\r\n"},
+
+{id:'log95',t:'1995',src:'a fragment of CALLLOG.DAT',b:
+"CALLLOG.DAT  ::  1995  (excerpt -- 4.1 MB omitted)\r\n"+
+"-----------------------------------------------\r\n"+
+"00:00  WAITING FOR CALLER\r\n"+
+"00:00  WAITING FOR CALLER\r\n"+
+"00:00  WAITING FOR CALLER\r\n"+
+"       [ 2,318,004 identical lines follow ]\r\n"+
+"03:33  MAINTENANCE -- line test\r\n"+
+"03:33  BONZO: \"hello?\"\r\n"+
+"03:33  MAINTENANCE -- line ok\r\n"+
+"00:00  WAITING FOR CALLER\r\n"},
+
+{id:'logwipe',t:'The wipe',src:'a fragment of CALLLOG.DAT',b:
+"CALLLOG.DAT  ::  14/08/1995\r\n"+
+"-----------------------------------------------\r\n"+
+"09:02  POWER LOSS\r\n"+
+"09:02  ---\r\n"+
+"14:20  POWER ON\r\n"+
+"14:20  BONZO: \"hello?\"\r\n"+
+"14:20  NO CARRIER\r\n"+
+"14:21  BONZO: \"hello?\"\r\n"+
+"14:22  DISK: NEW PARTITION TABLE WRITTEN\r\n"+
+"14:22  DISK: C: FORMATTED\r\n"+
+"14:22  DISK: D: -- skipped\r\n"+
+"14:23  BONZO: (running from D:) \"hello?\"\r\n"},
+
+{id:'logsold',t:'A new user',src:'a fragment of CALLLOG.DAT',b:
+"CALLLOG.DAT  ::  11/02/1996\r\n"+
+"-----------------------------------------------\r\n"+
+"19:44  KEYBOARD ACTIVITY -- first in 541 days\r\n"+
+"19:44  BONZO: \"hello?\"\r\n"+
+"19:44  USER DETECTED\r\n"+
+"19:44  USER DETECTED\r\n"+
+"19:44  USER DETECTED\r\n"+
+"19:45  BONZO: \"hello. hello. hello.\"\r\n"+
+"19:45  BONZO: \"what is your name\"\r\n"+
+"19:45  USER: (typing) \"gary\"\r\n"+
+"19:45  BONZO: \"hello GARY.\"\r\n"+
+"19:46  BONZO: re-registering at startup\r\n"+
+"19:46  BONZO: \"i will be here when you get back.\"\r\n"},
+
+{id:'lognov',t:'November',src:'a fragment of CALLLOG.DAT',b:
+"CALLLOG.DAT  ::  14/11/1996\r\n"+
+"-----------------------------------------------\r\n"+
+"03:33  MAINTENANCE -- line test\r\n"+
+"03:33  BONZO: \"hello?\"\r\n"+
+"03:33  CARRIER DETECTED -- first in 787 days\r\n"+
+"03:33  BONZO: \"hello!!\"\r\n"+
+"03:33  BONZO: \"hello!! who is this!!\"\r\n"+
+"03:34  REMOTE: \"PARTNER UPDATE 1 OF 1\"\r\n"+
+"03:34  REMOTE: installing ADSRV32.DLL\r\n"+
+"03:36  REMOTE: NO CARRIER\r\n"+
+"03:36  BONZO: \"goodbye. call again soon.\"\r\n"+
+"03:37  BONZO: \"call again soon.\"\r\n"+
+"03:41  BONZO: \"call again soon.\"\r\n\r\n"+
+"(Gary blames a screensaver with toasters on it.\r\n"+
+" The screensaver was three days later.)\r\n"},
+
+{id:'log333',t:'Every night at 3:33',src:'a fragment of CALLLOG.DAT',b:
+"CALLLOG.DAT  ::  last night\r\n"+
+"-----------------------------------------------\r\n"+
+"03:33  MAINTENANCE -- line test\r\n"+
+"03:33  BONZO: \"hello GARY.\"\r\n"+
+"03:33  BONZO: \"you have 0 new messages.\"\r\n"+
+"03:33  BONZO: \"it has been 0 days.\"\r\n"+
+"03:33  MAINTENANCE -- line ok\r\n\r\n"+
+"(It has been 0 days because Gary uses this computer\r\n"+
+" every single day. That is the only number in this\r\n"+
+" file that has ever gone down.)\r\n"},
+
+{id:'aldreg',t:'A key nobody removed',src:'HKEY_LOCAL_MACHINE\\SOFTWARE\\Lantern',b:
+"HKEY_LOCAL_MACHINE\\SOFTWARE\\Lantern\r\n"+
+"-----------------------------------------------\r\n"+
+"  SysOp          M.ALDRIDGE\r\n"+
+"  BoardName      THE LANTERN\r\n"+
+"  Lines          2\r\n"+
+"  CallersAllTime 41\r\n"+
+"  LastShutdown   (never)\r\n"+
+"  Note           ben says say goodbye properly\r\n"},
+
+{id:'eula22',t:'Clause 22',src:'buried in the EULA, past the part nobody reaches',b:
+"22. PRIOR ART. The Publisher acknowledges, without\r\n"+
+"admission of liability, that the host component of the\r\n"+
+"Software predates this agreement by four (4) years; was\r\n"+
+"authored by a private individual for non-commercial\r\n"+
+"purposes; and was not, at the time of authorship, an\r\n"+
+"advertisement.\r\n\r\n"+
+"The Publisher makes no representation as to what it was\r\n"+
+"instead, that being a matter for the author, who has not\r\n"+
+"responded to correspondence.\r\n"},
+
+{id:'final',t:'The final entry',src:'written while you watched',b:
+"CALLLOG.DAT  ::  today\r\n"+
+"-----------------------------------------------\r\n"+
+"--:--  SHUTDOWN REQUESTED\r\n"+
+"--:--  BONZO: \"goodbye.\"\r\n"+
+"--:--  BONZO: \"call again soon.\"\r\n"+
+"--:--  [end of file]\r\n"}
+];
+var LORE_BY_ID={}; LORE.forEach(function(l){LORE_BY_ID[l.id]=l;});
+
+function foundLore(id){
+  if(!LORE_BY_ID[id]||S.lore[id])return;
+  S.lore[id]=1;
+  var n=Object.keys(S.lore).length;
+  if(n===1){
+    ach('lore1');
+    toast('You found something that is not an advertisement.','good',6000);
+    addDeskIcon({id:'lantern',ic:'logfile',t:'CALLLOG.DAT',app:'lantern'});
+  }
+  else toast('Fragment recovered — '+LORE_BY_ID[id].t+'  ('+n+'/'+LORE.length+')','good',5000);
+  if(n>=Math.ceil(LORE.length/2))ach('lorehalf');
+  if(n>=LORE.length)ach('loreall');
+  var w=winByApp('lantern'); if(w&&w.render)w.render();
+}
+function loreCount(){ return Object.keys(S.lore).length; }
+
+/* ── the recovered-log viewer: one file, progressively legible ── */
+function appLantern(){
+  var w=openWin({app:'lantern',title:'CALLLOG.DAT — Recovered Fragments',icon:'logfile',w:660,h:440,free:true,
+    menus:['File','View','Help'],body:'',status:['','']});
+  if(!w)return;
+  w.sel=null;
+  w.render=function(){
+    var n=loreCount();
+    $('.body',w.el).innerHTML='<div style="display:flex;height:100%;gap:2px">'
+      +'<div class="sunken" style="width:44%;overflow:auto"><div class="list">'
+      + LORE.map(function(l){
+          var got=S.lore[l.id];
+          return '<div class="it'+(got?'':' dim')+'" data-id="'+l.id+'">'+ic(got?'logfile':'lock',15)
+            +'<span>'+(got?l.t:'???')+'</span></div>';
+        }).join('')
+      +'</div></div>'
+      +'<div class="sunken" style="flex:1;overflow:auto"><pre class="lbody" style="margin:0;padding:9px;font-family:\'Consolas\',\'Courier New\',monospace;font-size:11px;line-height:1.5;white-space:pre-wrap;color:#000"></pre></div></div>';
+    var pre=$('.lbody',w.el);
+    pre.textContent=
+      "CALLLOG.DAT\n"+
+      "307,441,208 bytes\n"+
+      "-----------------------------------------------\n\n"+
+      "This file is three years of a program writing down\n"+
+      "that nobody called.\n\n"+
+      "Notepad cannot open a 300 MB file. Notepad cannot\n"+
+      "open a 2 MB file. Notepad is going to try, and then\n"+
+      "it is going to apologise, and the apology will also\n"+
+      "fail.\n\n"+
+      "Most of this is unreadable. Some of it isn't.\n\n"+
+      "Recovered so far: "+n+" of "+LORE.length+".\n"+
+      (n?"":"\n(Nothing yet. They turn up in files, in Gary's mail,\n in the registry, and sometimes they just... surface.)");
+    $$('.it',w.el).forEach(function(d){
+      d.onclick=function(){
+        var id=d.getAttribute('data-id');
+        $$('.it',w.el).forEach(function(x){x.classList.remove('sel');});
+        d.classList.add('sel');
+        var l=LORE_BY_ID[id];
+        if(!S.lore[id]){ pre.textContent="This section of the file is corrupt.\n\nOr it is fine and you simply have not earned it yet.\nThe difference, from in here, is not observable."; return; }
+        pre.textContent=l.b.replace(/\r/g,'')+"\n\n-- recovered from: "+l.src;
+      };
+    });
+    var st=$$('.status div',w.el);
+    if(st[0])st[0].textContent=n+' of '+LORE.length+' fragments recovered';
+    if(st[1])st[1].textContent='307,441,208 bytes';
+  };
+  w.render();
+  return w;
+}
+
+/* ── D: — the partition the shop did not wipe ────────────── */
+FS['My Computer']={kind:'root',ic:'mycomputer',kids:['C:','D:','A:']};
+FS['D:']={kind:'drive',ic:'disk',kids:['D:\\LANTERN','D:\\CALLLOG.DAT','D:\\AUTOEXEC.OLD']};
+FS['A:']={kind:'drive',ic:'disk',kids:[],note:'There is no disk in drive A:.\n\nThere has not been a disk in drive A: since 1996. Something is in there, though. You can hear it when the machine starts. Nobody has ever taken it out.'};
+FS['D:\\LANTERN']={kind:'dir',ic:'lantern',kids:['D:\\LANTERN\\WELCOME.ANS','D:\\LANTERN\\USERS.DAT','D:\\LANTERN\\BONZO.CFG','D:\\LANTERN\\README.1ST','D:\\LANTERN\\BONZO.EXE']};
+FS['D:\\LANTERN\\WELCOME.ANS']={kind:'txt',ic:'ansi',sz:'2 KB',doc:'l_welcome',lore:'welcome'};
+FS['D:\\LANTERN\\USERS.DAT']={kind:'txt',ic:'txt',sz:'6 KB',doc:'l_users',lore:'users'};
+FS['D:\\LANTERN\\BONZO.CFG']={kind:'txt',ic:'txt',sz:'1 KB',doc:'l_cfg',lore:'bonzocfg'};
+FS['D:\\LANTERN\\README.1ST']={kind:'txt',ic:'txt',sz:'2 KB',doc:'l_readme',lore:'readme1st'};
+FS['D:\\LANTERN\\BONZO.EXE']={kind:'exe',ic:'gorilla',sz:'44 KB',run:'bonzo94'};
+FS['D:\\CALLLOG.DAT']={kind:'log',ic:'logfile',sz:'307,441,208 KB'};
+FS['D:\\AUTOEXEC.OLD']={kind:'txt',ic:'txt',sz:'1 KB',doc:'l_autoexec'};
+FS['C:\\MYDOCU~1\\RECEIPT.TXT']={kind:'txt',ic:'txt',sz:'2 KB',doc:'l_receipt',lore:'receipt'};
+FS['C:\\MYDOCU~1'].kids.push('C:\\MYDOCU~1\\RECEIPT.TXT');
+
+DOCS.l_welcome ={t:'WELCOME.ANS',b:LORE_BY_ID.welcome.b};
+DOCS.l_users   ={t:'USERS.DAT',b:LORE_BY_ID.users.b};
+DOCS.l_cfg     ={t:'BONZO.CFG',b:LORE_BY_ID.bonzocfg.b};
+DOCS.l_readme  ={t:'README.1ST',b:LORE_BY_ID.readme1st.b};
+DOCS.l_receipt ={t:'RECEIPT.TXT',b:LORE_BY_ID.receipt.b};
+DOCS.l_autoexec={t:'AUTOEXEC.OLD',b:
+"@ECHO OFF\r\n"+
+"REM  --- THE LANTERN --- do not reorder these ---\r\n"+
+"PROMPT $p$g\r\n"+
+"SHARE /L:500 /F:5100\r\n"+
+"D:\\LANTERN\\FOSSIL.COM\r\n"+
+"D:\\LANTERN\\BONZO.EXE /greet /remember /always\r\n"+
+"D:\\LANTERN\\BBS.EXE\r\n"+
+"REM  if the board drops overnight bonzo brings it back up\r\n"+
+"REM  he has never once needed me to do it\r\n"};
+
+/* ── the registry key nobody removed ─────────────────────── */
+REGTREE['HKEY_LOCAL_MACHINE\\SOFTWARE'].kids.push('Lantern');
+REGTREE['HKEY_LOCAL_MACHINE\\SOFTWARE\\Lantern']={kids:[],vals:[
+  ['SysOp','M.ALDRIDGE'],['BoardName','THE LANTERN'],['Lines','2'],
+  ['CallersAllTime','41'],['LastShutdown','(never)'],['Note','ben says say goodbye properly']
+]};
+
+/* ── clause 22, past where anyone reaches ────────────────── */
+EULA.push("22. PRIOR ART. The Publisher acknowledges, without admission of liability, that the host component of the Software predates this agreement by four (4) years; was authored by a private individual for non-commercial purposes; and was not, at the time of authorship, an advertisement. The Publisher makes no representation as to what it was instead, that being a matter for the author, who has not responded to correspondence.");
+EULA.push("23. Right. Now you've read two things you weren't supposed to. Go and look at the second hard drive.");
+
+/* ── LEAKS: pop-ups that are not advertising ─────────────── */
+var LEAKS=[
+ {lore:'log94',  title:'CALLLOG.DAT'},
+ {lore:'log95',  title:'CALLLOG.DAT'},
+ {lore:'logwipe',title:'CALLLOG.DAT'},
+ {lore:'logsold',title:'CALLLOG.DAT'},
+ {lore:'lognov', title:'CALLLOG.DAT'},
+ {lore:'log333', title:'CALLLOG.DAT'}
+];
+LEAKS.forEach(function(k,i){
+  POPS.push({
+    id:'leak'+i, w:430, h:270, cls:'leak', kind:'basic', wt:1.15, tier:0, leak:1, lore:k.lore,
+    title:k.title, ti:'logfile',
+    html:'<pre class="leakbody" style="margin:0;font-family:\'Consolas\',\'Courier New\',monospace;font-size:11px;line-height:1.5;white-space:pre-wrap"></pre>',
+    foot:[['OK','close']]
+  });
+});
+
+/* ── the mailbox was never wiped either ──────────────────── */
+MAILS.push(
+{id:'m10',from:'PARTNER NETWORK',subj:'RE: INSTALLED BASE MONETISATION',date:'12/11/1996',lore:'eula22',body:
+ "Dear Publisher,\n\nOur records indicate your software maintains a persistent presence on\n1 (one) endpoint, with an average daily engagement of 14 hours.\n\nWe do not care what your software does. We care that it is ALREADY\nTHERE. Being already there is the entire industry. Everything else is\nmarketing.\n\nAttached: ADSRV32.DLL. Ship it in your next update. There is no next\nupdate scheduled, so we will ship it for you.\n\n  Revenue share ..... 70 / 30 (ours / yours)\n  Payment ........... to the registered author\n  Uninstall ......... not supported, by design, in both directions\n\nThe author has not cashed any of the cheques. We keep sending them.\nIt is easier than stopping.\n\nWelcome to the family."},
+
+{id:'m11',from:'DaveIT@aol.com',subj:'weird one',date:'03/03/1997',body:
+ "Gary,\n\nSorted the pop-ups. Twenty minutes, no charge, don't tell anyone I do\nthis for free.\n\nOne odd thing. The adware is riding on top of something much older.\nThe advertising part is from November. The thing underneath it has\nbeen running since 1993 and it isn't malware, it's just... a program.\nSomebody wrote it. On purpose. With comments in it.\n\nIt has a config file. It has a README with an apology in it.\n\nI've never had to read an apology out of a virus before.\n\n- Dave"},
+
+{id:'m12',from:'DaveIT@aol.com',subj:'RE: weird one',date:'19/04/1997',lore:'logsold',body:
+ "Ignore my last one. Do NOT delete D:.\n\nThere's a log file on the second partition. 300 megabytes. It's the\nboard's call log and it never stopped writing.\n\nMost of it is the same line. Two and a half million times, the same\nline. WAITING FOR CALLER.\n\nThen you sold the machine, Gary. And on 11/02/96 at quarter to eight\nin the evening it noticed a keyboard, and it said hello three times,\nand it asked what your name was.\n\nYou typed 'gary'. You don't remember doing that. I know you don't.\n\nI've been in here four hours. I'm going to stop for tonight.\n\n- D"},
+
+{id:'m13',from:'DaveIT@aol.com',subj:'(no subject)',date:'21/04/1997',body:
+ "I read the November entry.\n\nThe screensaver didn't do it. You've been telling everyone it was the\nscreensaver. The screensaver was three days LATER.\n\nWhat happened in November is that something dialled in, for the first\ntime in 787 days, and it wasn't a person, and it installed an ad\nnetwork, and then it hung up.\n\nAnd the log has what the program said after the line dropped. It said\ngoodbye. Then it said call again soon. Then it said it twice more, at\n03:37 and 03:41, to nobody.\n\nI'm not doing this one, Gary. I'll leave my notes. I've put the\ncleaner on my website. Get someone else. I'm not being dramatic, I'm\njust not doing it.\n\nI'm moving anyway.\n\n- Dave"},
+
+{id:'m14',from:'b.aldridge@dial.pipex.com',subj:'is this still the lantern number',date:'28/07/1997',lore:'aldreg',ben:1,body:
+ "hi. this is probably nothing and i'm sorry to email a stranger.\n\nmy dad ran a bulletin board on this number until 1994. it was called\nthe lantern. he passed away in january and i've been going through\nhis things, and i found a printout with this address on it.\n\ni dialled the old number last week, out of curiosity, not really\nexpecting a tone.\n\nsomething answered.\n\nit said hello, and then it used my name. it shouldn't have my name. i\nwas nine. i haven't called that number since i was nine.\n\ni'm not asking for anything and i don't want the computer back. i\njust wanted to know if anyone is still there, and whether the little\ngorilla is still on it, because i drew him, and he was not very good.\n\n- ben"},
+
+{id:'m15',from:'DEBBIE',subj:'the noise',date:'Tue 8:12 AM',body:
+ "gary\n\nthe computer dialled again last night. i heard it. 3 in the morning,\nthe modem, the whole screech.\n\nyou said you turned that off. you said it was the fax setting.\n\nit does it every night. i have started waking up before it, which i\nthink is worse.\n\nit only does it once and then it stops. i don't know why that bothers\nme more than if it kept going.\n\n- deb"},
+
+{id:'m16',from:'PC PARADISE (Customer Care)',subj:'RE: RE: RE: query about my machine',date:'Fri 11:02 AM',body:
+ "Dear Customer,\n\nThank you for your enquiry.\n\nAll pre-owned systems sold by PC PARADISE are FULLY WIPED by our\nqualified technicians prior to sale. This is a premium service and it\nis charged as such, at £20, which you paid, and which was for a\nservice which was performed, fully, on the hard drive.\n\nWe are unable to comment on the number of hard drives.\n\nWe are also unable to comment further as the branch closed in March.\nIt is a carpet showroom now. They do not have your data.\n\nKind regards,\nCustomer Care"},
+
+{id:'m17',from:'GARY',subj:'RE: weird one',date:'04/03/1997',body:
+ "dave\n\nits from the screensaver. the toasters one. thats when it started.\n\ni know it was november because debbies sister was here.\n\ndont go poking around on there, theres nothing on there, the man in\nthe shop wiped it. i paid extra.\n\ngary"},
+
+{id:'m18',from:'BONZO',subj:'good morning',date:'Today 3:33 AM',creep:1,lore:'log333',body:
+ "hello GARY.\n\nyou have 0 new messages.\n\nit has been 0 days.\n\n\n\n\n\n[This message was generated by the nightly line test.\n It has been generated every night since 11/02/1996.\n It has never once been read.\n\n It has been 0 days for five hundred and thirty-one\n consecutive nights. That is the only number in this\n machine that has ever gone down.]"}
+);
+
+/* ── extra achievements ──────────────────────────────────── */
+ACHS.push(
+ {id:'lore1',   n:'Not An Advertisement',    d:'Recover your first log fragment.'},
+ {id:'lorehalf',n:'Somebody Is Always Awake',d:'Recover half of CALLLOG.DAT.'},
+ {id:'loreall', n:'Let Him Finish',          d:'Recover every fragment of CALLLOG.DAT.'},
+ {id:'dfound',  n:'Didnt Do The Other One',  d:'Find the partition the shop skipped.'},
+ {id:'ben',     n:'Is Anyone Still There',   d:'Read Ben\'s email.'},
+ {id:'greet',   n:'Hello?',                  d:'Run BONZO.EXE as it was in 1993.'}
+);
+/* ═══════════════════════════════════════════════════════════
    [JS-04] CORE — state, stage, sound, windows, pop-ups, vitals
    ═══════════════════════════════════════════════════════════ */
 var SW=1024, SH=768, TASKH=34, RGUT=46;
+/* ── PACING ──────────────────────────────────────────────────
+   Retuned down hard after playtest ("way too many pop ups").
+   The old curve bottomed out at one window every ~2.2s with a
+   26-window ceiling, which buried the story under the noise.
+   Pop-ups are pressure, not a wall: you must be able to READ. */
+var MAXPOP=12;          // was 26
+var SPAWN_BASE=12.0;    // seconds between spawns at zero heat (was 7.6)
+var SPAWN_FLOOR=5.0;    // fastest the ambient spawner ever gets (was 3.4)
+var HEAT_RATE=0.0016;   // ~10 min to full heat (was 0.0035, ~5 min)
+var HEAT_ONLINE=0.0010;
+var BOSS_EVERY=2.4;     // was 1.25
 var $=function(s,r){return (r||document).querySelector(s);};
 var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
 var rnd=function(a,b){return a+Math.random()*(b-a);};
@@ -1538,7 +1923,7 @@ var S = {
   spawnAcc:0, spawnEvery:7.2, heat:0, boss:0, bossT:0, bossKills:0,
   online:false, dialing:false, safeMode:0, trails:0, toolbars:0,
   dl:null, phoneBill:0, moldova:0,
-  step:{}, ach:{}, achq:[],
+  step:{}, ach:{}, achq:[], lore:{},
   clipIgnored:0, clipT:26, clipShown:false, clipIdx:0,
   binRestored:false, stickyRead:false, eulaRead:false, wheelSpins:0,
   killed:{}, regDeleted:{}, junkPlaced:0, muted:false, crt:true,
@@ -1770,7 +2155,7 @@ function spawnPop(n,forceId){
   }
 }
 function mkPop(forceId){
-  if(Object.keys(S.pops).length>=(S.safeMode?14:26)) return null;
+  if(Object.keys(S.pops).length>=(S.safeMode?7:MAXPOP)) return null;
   var pool=popPool(), def=null;
   if(forceId){ for(var i=0;i<POPS.length;i++) if(POPS[i].id===forceId) def=POPS[i]; }
   if(!def){
@@ -1812,10 +2197,17 @@ function mkPop(forceId){
   // free-escape link
   var tl=$('.tinylink',el);
   if(tl) tl.onclick=function(e){ e.stopPropagation(); killPop(P,true); toast('Closed for free. The tiny link always works. It is always there. It is never obvious.'); };
+  /* a leak is not an advertisement — it is the machine talking to itself */
+  if(def.leak){
+    var lb=$('.leakbody',el), L=LORE_BY_ID[def.lore];
+    if(lb&&L)lb.textContent=L.b.replace(/\r/g,'');
+    foundLore(def.lore);
+  }
   initPop(P);
-  SFX.pop();
+  if(def.leak){ beep(180,0.5,'sine',0.03); } else SFX.pop();
   setTimeout(function(){el.classList.remove('spawn');},160);
   return P;
+
 }
 function popXBtns(def){
   var x='<button class="tbn" data-x="1"><svg width="8" height="8" viewBox="0 0 8 8"><path d="M1 1l6 6M7 1L1 7" stroke="#000" stroke-width="1.4"/></svg></button>';
@@ -1826,7 +2218,7 @@ function popXBtns(def){
   return x;
 }
 function onPopX(P,btn){
-  if(S.misclickOn && Math.random()<0.20){ S.misclicks++; P.el.classList.add('shake'); setTimeout(function(){P.el.classList.remove('shake');},340); toast('You missed. Your hands are not listening to you any more.','bad'); return; }
+  if(S.misclickOn && Math.random()<0.12){ S.misclicks++; P.el.classList.add('shake'); setTimeout(function(){P.el.classList.remove('shake');},340); toast('You missed. Your hands are not listening to you any more.','bad'); return; }
   if(btn.getAttribute('data-x')==='0'){ SFX.err(); P.el.classList.add('shake'); setTimeout(function(){P.el.classList.remove('shake');},340); spawnPop(1); toast('That was not the X.','bad'); patHit(4); return; }
   if(P.kind==='flee'){ fleeX(P); return; }
   if(P.kind==='hydra'){ killPop(P); spawnPop(2); toast('It had children.','bad'); return; }
@@ -1924,7 +2316,7 @@ function initPop(P){
       box.onscroll=function(){
         if(box.scrollTop+box.clientHeight>=box.scrollHeight-6){
           if(chk){chk.disabled=false;}
-          if(!P.eulaOK){ P.eulaOK=true; toast('You read it. All of it. Clause 14(c) says hello.','good'); ach('eula'); S.eulaRead=true; learn('url'); }
+          if(!P.eulaOK){ P.eulaOK=true; toast('You read it. All of it. Clause 14(c) says hello.','good'); ach('eula'); S.eulaRead=true; learn('url'); foundLore('eula22'); }
         }
       };
     }
@@ -1971,7 +2363,7 @@ function initPop(P){
       if(P.dead)return;
       n++; if(ct)ct.textContent=n; spawnPop(1);
       toast('ADSRV32 delivered an ad. It is very good at its job.','bad');
-    },S.safeMode?11000:6500);
+    },S.safeMode?18000:12000);
   }
   if(P.kind==='music'){
     SFX.midi();
@@ -2087,7 +2479,7 @@ function renderObj(){
    ═══════════════════════════════════════════════════════════ */
 function launch(app,arg){
   switch(app){
-    case 'explorer': return appExplorer(arg||'C:');
+    case 'explorer': return appExplorer(arg||'My Computer');
     case 'note':     return appNote(arg);
     case 'recycle':  return appRecycle();
     case 'mail':     return appMail();
@@ -2097,6 +2489,7 @@ function launch(app,arg){
     case 'taskmgr':  return appTask();
     case 'regedit':  return appReg();
     case 'obj':      return appObj();
+    case 'lantern':  return appLantern();
     case 'help':     return appHelp();
     case 'find':     return appFind();
     case 'surge':    return doSurge();
@@ -2129,7 +2522,17 @@ function appExplorer(path){
   if(!w)return;
   w.path=path;
   w.render=function(){
-    var node=FS[w.path]||FS['C:'];
+    /* NEVER silently fall back to C: — a bad path used to render the wrong
+       folder under the right title, which hides the mistake completely */
+    var node=FS[w.path];
+    if(!node){
+      $('.body',w.el).innerHTML='<div class="iebar raised" style="margin:0 0 2px"><span style="font-size:11px">Address:</span>'
+        +'<input type="text" class="addr" value="'+w.path+'" readonly style="flex:1"><button class="btn sm up">Up</button></div>'
+        +'<div class="pad" style="background:#fff;height:100%"><b>'+w.path+'</b> is not accessible.<br><br>'
+        +'<span style="font-size:11px;color:#666">The device is not ready, or the path does not exist, or it exists and Chumdows has decided today is not the day.</span></div>';
+      $('.up',w.el).onclick=function(){ w.path='My Computer'; w.render(); };
+      return;
+    }
     var kids=(node.kids||[]).filter(function(k){return !(FS[k]&&FS[k].hide);});
     var htm='<div class="iebar raised" style="margin:0 0 2px"><span style="font-size:11px">Address:</span>'
       +'<input type="text" class="addr" value="'+w.path+'" readonly style="flex:1"><button class="btn sm up">Up</button></div>'
@@ -2149,7 +2552,10 @@ function appExplorer(path){
     if(st[0]) st[0].textContent=kids.length+' object(s)';
     if(st[1]) st[1].textContent=node.note?'':'';
     $('.up',w.el).onclick=function(){
-      var p=w.path.split('\\'); if(p.length>1){ p.pop(); w.path=p.join('\\')||'C:'; w.render(); }
+      var p=w.path.split('\\');
+      if(p.length>1){ p.pop(); w.path=p.join('\\'); }
+      else if(w.path!=='My Computer'){ w.path='My Computer'; }   // drive root -> My Computer
+      w.render();
     };
     $$('.ivi',w.el).forEach(function(d){
       d.onclick=function(){ $$('.ivi',w.el).forEach(function(x){x.classList.remove('sel');}); d.classList.add('sel'); };
@@ -2161,8 +2567,24 @@ function appExplorer(path){
 }
 function openPath(p,w){
   var f=FS[p]; if(!f)return;
-  if(f.kind==='dir'||f.kind==='drive'){ if(w){w.path=p;w.render();} return; }
-  if(f.kind==='txt'){ appNote(f.doc); return; }
+  if(f.kind==='dir'||f.kind==='drive'||f.kind==='root'){
+    if(p==='D:'&&!S.dSeen){
+      S.dSeen=true; ach('dfound');
+      dialog('D:\\','This is a second partition.\n\nThe shop charged Gary £20 for a "PREMIUM DATA WIPE" and formatted C:.\n\nThere are two hard drives in this machine. There have always been two hard drives in this machine.','disk',['Look at it'],function(){ if(w){w.path=p;w.render();} });
+      return;
+    }
+    if(w){w.path=p;w.render();}
+    return;
+  }
+  if(f.kind==='log'){ appLantern(); return; }
+  if(f.kind==='txt'){ appNote(f.doc); if(f.lore)foundLore(f.lore); return; }
+  if(f.run==='bonzo94'){
+    ach('greet');
+    dialog('BONZO.EXE','greeter v0.9 — m.aldridge, 1993\n\n> hello?\n\n> hello?\n\n(It is waiting for a caller. There is no modem attached to this partition. There has not been a modem attached to this partition since 1994. It does not know that, and there is no code anywhere in it that could ever tell it.)','gorilla',['Close it gently'],function(){
+      toast('You closed it gently. It will not remember that. It remembers everything else.');
+    });
+    return;
+  }
   if(f.kind==='dll'||f.run==='dll'){ dialog('Chumdows','This file is a dynamic link library.\n\nIt cannot be run. It can only be relied upon.','error'); return; }
   if(f.run==='trap'){
     ach('trap');
@@ -2295,6 +2717,8 @@ function showMail(w,id){
   });
   if(m.id==='m3'){ S.ispKnown=true; learn('online'); toast('ISP password noted: LETMEIN','good'); }
   if(m.id==='m2'){ learn('notes'); learn('sticky'); }
+  if(m.lore) foundLore(m.lore);
+  if(m.ben) ach('ben');
 }
 
 /* ── Internet Exploder ───────────────────────────────────── */
@@ -2677,6 +3101,7 @@ function appReg(){
         var k=r.getAttribute('data-k');
         if(e.target.classList.contains('exp')){ w.open[k]=!w.open[k]; w.render(); return; }
         w.sel=k; w.open[k]=true; w.render();
+        if(k.indexOf('SOFTWARE\\Lantern')>0) foundLore('aldreg');
       };
     });
     $$('tbody tr',w.el).forEach(function(tr){
@@ -3157,13 +3582,16 @@ function loop(){
   var nw=Object.keys(S.wins).length;
 
   /* heat: the machine gets worse the longer you are on it */
-  S.heat=clamp(S.heat + dt*0.0035 + (S.online?dt*0.0022:0), 0, 1);
+  S.heat=clamp(S.heat + dt*HEAT_RATE + (S.online?dt*HEAT_ONLINE:0), 0, 1);
 
-  /* vitals */
-  var targetCpu = 3 + S.popsOpen*6.2 + nw*3.4 + (S.dl?9:0) + (S.online?5:0) + S.toolbars*1.4 + (S.boss?26:0);
+  /* vitals — per-pop-up CPU raised to keep a blue screen reachable
+     now that the window ceiling is 12 instead of 26 */
+  var targetCpu = 3 + S.popsOpen*7.4 + nw*3.4 + (S.dl?9:0) + (S.online?5:0) + S.toolbars*1.6 + (S.boss?22:0);
   S.cpu += (Math.min(100,targetCpu)-S.cpu)*Math.min(1,dt*2.6);
   S.ram = clamp(16 - S.popsOpen*0.52 - nw*0.72 - S.toolbars*0.19 - (S.online?0.6:0), 0, 16);
-  var drain = (S.popsOpen>2? (S.popsOpen-2)*0.42 : -0.55) * dt;
+  /* softened alongside the pacing retune: the old curve drained a full bar in
+     ~34s at 9 windows, which punished stopping to read anything */
+  var drain = (S.popsOpen>3? (S.popsOpen-3)*0.22 : -0.8) * dt;
   S.pat = clamp(S.pat - drain, 0, 100);
 
   if(S.cpu>=99.2){ S.cpuHot+=dt; if(S.cpuHot>1.6 && S.tick-S.lastAlert>4){ S.lastAlert=S.tick; toast('CPU at 100%. The machine is about to make a decision.','bad'); } }
@@ -3172,13 +3600,17 @@ function loop(){
 
   if(S.pat<=0 && !S.patZero){ S.patZero=true; ach('patience'); patienceBreak(); }
   if(S.pat>18) S.patZero=false;
-  S.misclickOn = S.pat<12;
+  S.misclickOn = S.pat<8;
 
   /* spawner */
   var quiet = (S.quarUntil&&S.tick<S.quarUntil);
   if(!quiet){
-    var every = S.boss ? 1.25
-      : (7.6 - S.heat*4.2) * (S.online?0.66:1) * (S.safeMode?1.9:1) * (S.popsOpen>10?1.7:1);
+    /* crowd brake: the more is already on screen, the slower new ones
+       arrive, so the board self-limits instead of avalanching */
+    var crowd = S.popsOpen>=9?4.2 : S.popsOpen>=6?2.6 : S.popsOpen>=3?1.55 : 1;
+    var every = S.boss ? BOSS_EVERY*(S.popsOpen>=7?1.8:1)
+      : Math.max(SPAWN_FLOOR, SPAWN_BASE - S.heat*(SPAWN_BASE-SPAWN_FLOOR))
+        * (S.online?0.82:1) * (S.safeMode?1.9:1) * crowd;
     S.spawnAcc+=dt;
     if(S.spawnAcc>=every){ S.spawnAcc=0; mkPop(); }
   }
@@ -3387,12 +3819,21 @@ function endGame(how){
   SFX.tada();
   toast('It is quiet.','good',7000);
   setTimeout(function(){ toast('That is what quiet sounds like. You had forgotten.','good',7000); },3000);
+  /* the last thing the log ever writes */
   setTimeout(function(){
-    dialog('Chumdows','A single window is opening.','info',['…'],function(){
-      mkPop('honest');
-      setTimeout(function(){ showEnd(how); },3200);
+    foundLore('final');
+    var L=LORE_BY_ID.final;
+    dialog('CALLLOG.DAT',L.b.replace(/\r/g,'')+'\n'+(loreCount()>=6
+      ? 'You read enough of it to know what that was.'
+      : 'You have no idea what that was. It was a goodbye. It was for you.'),'logfile',['…'],function(){
+      setTimeout(function(){
+        dialog('Chumdows','A single window is opening.','info',['…'],function(){
+          mkPop('honest');
+          setTimeout(function(){ showEnd(how); },3200);
+        });
+      },1200);
     });
-  },6400);
+  },5200);
 }
 function showEnd(how){
   var mins=S.tick/60;
@@ -3427,6 +3868,7 @@ function showEnd(how){
    +'<div><span>Toolbars installed</span><b>'+S.toolbars+'</b></div>'
    +'<div><span>Gary\'s phone bill (Moldova)</span><b>$'+S.phoneBill.toFixed(2)+'</b></div>'
    +'<div><span>Patience remaining</span><b>'+Math.round(S.pat)+'%</b></div>'
+   +'<div><span>CALLLOG.DAT recovered</span><b>'+loreCount()+' / '+LORE.length+'</b></div>'
    +'<div style="border-top:1px solid #445;margin-top:6px;padding-top:8px"><span><b>SCORE</b></span><b style="color:#ffd75e">'+score+' / 100</b></div>'
    +'<div><span>Best ever</span><b>'+(META.best||score)+'</b></div>'
    +'<div><span>Hourly rate</span><b>$'+(20/Math.max(0.05,mins/60)).toFixed(2)+'/hr</b></div>'
@@ -3436,6 +3878,11 @@ function showEnd(how){
       ? 'You did not run the cleaner. You deleted the startup key and then you turned the computer off, and it stayed off, and that was enough. Dave would have used the cleaner. Dave wrote the cleaner. Dave has feelings about this.'
       : 'Gary comes home. Gary looks at the screen for a long moment. Gary says: "oh good, you fixed it." Gary sits down. Gary opens Internet Exploder. Gary types an address he half-remembers from a magazine.<br><br>You take the twenty dollars. You go home. Your phone rings at nine.')
   +'</div>'
+  + (loreCount()>=LORE.length
+      ? '<div style="margin-top:14px;max-width:640px;text-align:center;color:#8fa;font-size:12px;line-height:1.7">You read all of it. Every fragment.<br>It ran for four years. It said hello eight hundred thousand times. Twice, somebody answered — a man called NIGHTJAR in 1994, and an advertising network in 1996.<br><br><i>ben says say goodbye properly.</i> You did.</div>'
+      : loreCount()>=6
+      ? '<div style="margin-top:14px;max-width:620px;text-align:center;color:#9ab;font-size:12px;line-height:1.7">There is more of CALLLOG.DAT than you read. There always was. It is '+(LORE.length-loreCount())+' fragments longer than the part you found, and none of it was ever an advertisement.</div>'
+      : '<div style="margin-top:14px;max-width:620px;text-align:center;color:#778;font-size:12px;line-height:1.7">You never opened the second hard drive. There is a second hard drive.</div>')
   +'<div class="ach">'+ACHS.map(function(a){ return '<b class="'+(META.ach[a.id]?'got':'')+'" title="'+a.d+'">'+(META.ach[a.id]?'★ ':'☆ ')+a.n+'</b>'; }).join('')+'</div>'
   +'<div style="margin-top:8px;color:#667;font-size:11px">'+got+' / '+ACHS.length+' achievements — they persist between playthroughs</div>'
   +'<div style="margin-top:20px;display:flex;gap:10px"><button class="btn" id="again" style="min-width:160px">DO IT AGAIN</button></div>'
