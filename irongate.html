@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#05070d">
-<meta name="description" content="IRONGATE — a calisthenics RPG. Level up by training. Solo leveling for your own body.">
+<meta name="description" content="IRONGATE — a calisthenics RPG. A guided path from your first wall push-up to a front lever.">
 <title>IRONGATE</title>
 <!-- Saved to a home screen this opens fullscreen, which is how it actually gets
      used: one hand, between sets. -->
@@ -12,352 +12,371 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23070c16'/%3E%3Cpath d='M14 54V28a18 18 0 0136 0v26' fill='none' stroke='%2358c8ff' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M32 54V30' fill='none' stroke='%238fe1ff' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 /* ==========================================================================
-   [CSS-01]  TOKENS + RESET
+   [CSS-01]  TOKENS
+   --------------------------------------------------------------------------
+   Three typefaces doing three jobs. Everything used to be monospace and
+   letterspaced, which is the single biggest reason the old UI read as generic:
+   mono for DATA, a condensed display face for HEADINGS and numbers, and a plain
+   sans for anything you actually read as a sentence.
    ========================================================================== */
 :root{
-  --bg:#05070d; --bg2:#080d18;
-  --panel:rgba(11,20,36,.86); --panel2:rgba(16,27,46,.9);
-  --line:#24425f; --line2:#17293f;
-  --cy:#58c8ff; --cy2:#8fe1ff; --cydim:#2f7ba8;
-  --txt:#d3e7f7; --mut:#7e9cba; --mut2:#5b7590;
-  --gold:#ffc14d; --red:#ff5d6c; --grn:#6fe0a0; --vio:#a98bff;
+  --bg:#05070d;
+  --pan:#0b1220; --pan2:#101a2c; --pan3:#16233a;
+  --line:#1e344f; --line2:#152640;
+  --cy:#5cc6ff; --cy2:#9fe6ff; --cydim:#2c6f9c;
+  --em:#ff9540; --em2:#ffc074;
+  --vio:#a98bff; --grn:#5fd39a; --red:#ff5f6d; --gold:#ffc14d;
+  --txt:#dceaf6; --mut:#8fa9c2; --mut2:#61809c;
   --rank:#8a94a6;
-  --w:640px;
-  --sh:0 0 22px rgba(40,130,200,.16);
+  --w:620px;
+  --disp:"Bahnschrift","Oswald","Arial Narrow",system-ui,sans-serif;
+  --body:"Segoe UI",system-ui,-apple-system,sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --clip:polygon(0 9px,9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
-body{
-  background:var(--bg); color:var(--txt);
-  font:15px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif;
-  min-height:100dvh; overscroll-behavior-y:none;
-}
-button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:.02em}
-a{color:var(--cy)}
+body{background:var(--bg);color:var(--txt);font:15px/1.6 var(--body);
+  min-height:100dvh;overscroll-behavior-y:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+h1,h2,h3{margin:0;font-family:var(--disp);font-weight:700;letter-spacing:.01em}
 
-/* The backdrop: the rank hall, dimmed hard so text always wins. */
-/* The hall has to be visible or there was no point rendering six of them, but
-   text always wins: the scrim is heavy enough that no panel ever fights it. */
-#bg{position:fixed;inset:0;z-index:-2;background:var(--bg) center/cover no-repeat;
-  filter:saturate(.8) brightness(.72); transition:background-image .5s, opacity .5s}
-#bgv{position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background:
-    radial-gradient(130% 85% at 50% 8%,transparent 26%,rgba(5,7,13,.5) 80%),
-    linear-gradient(180deg,rgba(5,7,13,.34),rgba(5,7,13,.72) 52%,rgba(5,7,13,.88));
-}
-/* Faint scanlines. Off when the user asks for less motion/effect. */
-body:not(.rm) #bgv::after{content:"";position:absolute;inset:0;opacity:.35;
-  background:repeating-linear-gradient(180deg,rgba(120,200,255,.045) 0 1px,transparent 1px 3px)}
+#bg{position:fixed;inset:0;z-index:-3;background:var(--bg) center/cover no-repeat;
+  filter:saturate(.85) brightness(.62);transition:background-image .5s}
+#bgv{position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:radial-gradient(135% 90% at 50% 4%,transparent 22%,rgba(5,7,13,.62) 82%),
+    linear-gradient(180deg,rgba(5,7,13,.42),rgba(5,7,13,.8) 52%,rgba(5,7,13,.94))}
+/* Grain. A perfectly clean gradient is the other half of the generic look. */
+body:not(.rm) #bgv::after{content:"";position:absolute;inset:0;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E")}
+
+.wrap{max-width:var(--w);margin:0 auto;padding:0 11px 92px}
+.hide{display:none!important}
 
 /* ==========================================================================
-   [CSS-02]  SYSTEM WINDOW  — the panel chrome everything is built from
+   [CSS-02]  PANEL  — angled corners and a rank-coloured spine
    ========================================================================== */
-.win{position:relative;background:var(--panel);border:1px solid var(--line);
-  border-radius:2px;box-shadow:var(--sh),inset 0 1px 0 rgba(140,210,255,.07);
-  backdrop-filter:blur(3px);margin:0 0 12px}
-.win::before,.win::after{content:"";position:absolute;width:11px;height:11px;pointer-events:none;
-  border:2px solid var(--cy);opacity:.85}
-.win::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
-.win::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
-.win>.wt{display:flex;align-items:center;gap:8px;padding:9px 12px;
-  border-bottom:1px solid var(--line2);background:linear-gradient(180deg,rgba(50,120,180,.16),transparent)}
-.win>.wt h2{font:600 12px/1 var(--mono);letter-spacing:.22em;color:var(--cy2);text-transform:uppercase}
-.win>.wt .sub{margin-left:auto;font:500 11px/1 var(--mono);color:var(--mut2);letter-spacing:.1em}
-.wb{padding:12px}
-
-.wrap{max-width:var(--w);margin:0 auto;padding:0 12px 96px}
+.p{position:relative;background:linear-gradient(180deg,rgba(16,26,44,.92),rgba(9,15,27,.94));
+  clip-path:var(--clip);margin:0 0 10px;
+  box-shadow:0 2px 20px rgba(0,0,0,.5)}
+.p::before{content:"";position:absolute;left:0;top:9px;bottom:0;width:2px;background:var(--rank);opacity:.75}
+.p.cy::before{background:var(--cy)}
+.p.em::before{background:var(--em)}
+.p.vi::before{background:var(--vio)}
+.ph{display:flex;align-items:center;gap:9px;padding:10px 13px 8px}
+.ph h2{font-size:16px;letter-spacing:.04em;text-transform:uppercase;line-height:1}
+.ph .t{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.16em;color:var(--mut2)}
+.pb{padding:0 13px 13px}
+.pb.tight{padding-bottom:9px}
+hr{border:0;height:1px;background:var(--line2);margin:11px 0}
 
 /* ==========================================================================
-   [CSS-03]  HEADER  — identity, level, XP
+   [CSS-03]  HEADER
    ========================================================================== */
-#hdr{position:sticky;top:0;z-index:40;background:linear-gradient(180deg,rgba(5,7,13,.97),rgba(5,7,13,.82));
-  border-bottom:1px solid var(--line2);backdrop-filter:blur(8px)}
-#hdr .in{max-width:var(--w);margin:0 auto;padding:8px 12px 9px;display:flex;align-items:center;gap:10px}
-.sigil{width:38px;height:38px;flex:0 0 38px;border-radius:3px;border:1px solid var(--line);
-  background:#0a1220 center/86% no-repeat;box-shadow:0 0 12px rgba(60,150,220,.2)}
-.hid{min-width:0;flex:1}
-.hname{font:700 14px/1.15 var(--mono);letter-spacing:.14em;color:var(--txt);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hsub{font:500 10.5px/1.4 var(--mono);letter-spacing:.1em;color:var(--mut2)}
-.hsub b{color:var(--rank)}
-.hnum{text-align:right;font:700 11px/1.3 var(--mono);letter-spacing:.08em}
-.hnum .lv{font-size:21px;color:var(--cy2);line-height:1}
-.hnum .es{color:var(--gold)}
-.xpbar{height:3px;background:#0c1523;position:relative;overflow:hidden}
-.xpbar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--cydim),var(--cy2));
-  box-shadow:0 0 8px rgba(90,200,255,.7);transition:width .5s}
-
-/* Streak / penalty strip */
-.strip{max-width:var(--w);margin:0 auto;padding:5px 12px;display:flex;gap:8px;align-items:center;
-  font:600 10.5px/1 var(--mono);letter-spacing:.1em;color:var(--mut2)}
-.strip .fl{color:var(--gold)}
-.strip .pen{color:var(--red)}
+#hdr{position:sticky;top:0;z-index:40;
+  background:linear-gradient(180deg,rgba(5,7,13,.98),rgba(5,7,13,.86));
+  border-bottom:1px solid var(--line2);backdrop-filter:blur(9px)}
+#hdr .in{max-width:var(--w);margin:0 auto;padding:7px 11px 8px;display:flex;align-items:center;gap:9px}
+.sigil{width:36px;height:36px;flex:0 0 36px;background:#0a1220 center/84% no-repeat;
+  clip-path:polygon(50% 0,100% 26%,100% 74%,50% 100%,0 74%,0 26%);
+  border:0;box-shadow:0 0 14px rgba(70,160,230,.22)}
+.hn{min-width:0;flex:1}
+.hn .a{font:700 15px/1.1 var(--disp);letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hn .b{font:600 10px/1.5 var(--mono);letter-spacing:.13em;color:var(--mut2)}
+.hn .b b{color:var(--rank)}
+.hr2{text-align:right;line-height:1}
+.hr2 .lv{font:700 24px/1 var(--disp);color:var(--cy2)}
+.hr2 .es{font:600 10px/1.6 var(--mono);letter-spacing:.08em;color:var(--em2)}
+.xpb{height:3px;background:#0a1220;position:relative;overflow:hidden}
+.xpb i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--cydim),var(--cy2));
+  box-shadow:0 0 9px rgba(90,200,255,.8);transition:width .5s}
+.strip{max-width:var(--w);margin:0 auto;padding:5px 11px;display:flex;gap:7px;align-items:center;
+  font:600 10px/1 var(--mono);letter-spacing:.1em;color:var(--mut2);flex-wrap:wrap}
+.strip .f{color:var(--em2)}
+.strip .pn{color:var(--red)}
 
 /* ==========================================================================
-   [CSS-04]  BOTTOM NAV
+   [CSS-04]  NAV  — four tabs, not six. TODAY is the app; the rest support it.
    ========================================================================== */
 #nav{position:fixed;left:0;right:0;bottom:0;z-index:50;
-  background:linear-gradient(180deg,rgba(6,10,18,.9),rgba(4,6,12,.99));
-  border-top:1px solid var(--line);backdrop-filter:blur(10px);
-  padding-bottom:env(safe-area-inset-bottom)}
-#nav .in{max-width:var(--w);margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
-#nav button{padding:8px 2px 9px;display:flex;flex-direction:column;align-items:center;gap:4px;
-  font:600 9px/1 var(--mono);letter-spacing:.1em;color:var(--mut2);position:relative;transition:color .15s}
-#nav button svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;
+  background:linear-gradient(180deg,rgba(7,11,20,.94),rgba(4,6,12,.99));
+  border-top:1px solid var(--line);backdrop-filter:blur(10px);padding-bottom:env(safe-area-inset-bottom)}
+#nav .in{max-width:var(--w);margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+#nav button{padding:9px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;
+  font:700 10px/1 var(--disp);letter-spacing:.16em;color:var(--mut2);position:relative;transition:color .15s}
+#nav button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;
   stroke-linecap:round;stroke-linejoin:round}
 #nav button.on{color:var(--cy2)}
-#nav button.on::before{content:"";position:absolute;top:0;left:22%;right:22%;height:2px;
-  background:var(--cy);box-shadow:0 0 8px var(--cy)}
-#nav .dot{position:absolute;top:5px;right:calc(50% - 16px);width:6px;height:6px;border-radius:50%;
-  background:var(--gold);box-shadow:0 0 6px var(--gold)}
+#nav button.on::before{content:"";position:absolute;top:0;left:26%;right:26%;height:2px;
+  background:var(--cy);box-shadow:0 0 9px var(--cy)}
+#nav .dot{position:absolute;top:6px;right:calc(50% - 17px);width:6px;height:6px;border-radius:50%;
+  background:var(--em);box-shadow:0 0 7px var(--em)}
 
 /* ==========================================================================
-   [CSS-05]  COMMON PARTS
+   [CSS-05]  PARTS
    ========================================================================== */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
-  padding:10px 16px;border:1px solid var(--line);background:rgba(30,64,100,.35);
-  font:600 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--cy2);
-  border-radius:2px;transition:.15s}
-.btn:hover{background:rgba(46,102,158,.5);border-color:var(--cy)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;
+  background:linear-gradient(180deg,rgba(38,74,112,.6),rgba(22,44,70,.6));
+  border:1px solid var(--line);clip-path:polygon(0 7px,7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%);
+  font:700 13px/1 var(--disp);letter-spacing:.14em;text-transform:uppercase;color:var(--cy2);transition:.15s}
+.btn:hover{background:linear-gradient(180deg,rgba(54,104,154,.7),rgba(30,60,96,.7))}
 .btn:active{transform:translateY(1px)}
-.btn.pri{background:linear-gradient(180deg,rgba(50,140,210,.5),rgba(30,90,150,.5));
-  border-color:var(--cy);color:#eaf8ff;box-shadow:0 0 16px rgba(60,170,240,.28)}
-.btn.pri:hover{background:linear-gradient(180deg,rgba(70,170,240,.6),rgba(40,110,180,.6))}
-.btn.gh{background:transparent;color:var(--mut)}
-.btn:disabled{opacity:.38;cursor:default;transform:none}
-.btn.sm{padding:7px 11px;font-size:10.5px}
-.btn.wide{width:100%}
-.btn.dgr{border-color:#6c2b34;color:#ff97a2;background:rgba(90,26,34,.3)}
+.btn.go{background:linear-gradient(180deg,var(--cy),#2a86c4);color:#03121d;border-color:var(--cy2);
+  box-shadow:0 0 24px rgba(70,180,250,.36);font-size:15px;padding:15px 18px}
+.btn.go:hover{background:linear-gradient(180deg,#7ad5ff,#3a9ada)}
+.btn.em{background:linear-gradient(180deg,var(--em),#c96a1c);color:#1a0c02;border-color:var(--em2);
+  box-shadow:0 0 22px rgba(255,150,60,.3)}
+.btn.gh{background:transparent;border-color:var(--line2);color:var(--mut)}
+.btn.dgr{background:rgba(90,26,34,.34);border-color:#6c2b34;color:#ff9aa4}
+.btn:disabled{opacity:.36;cursor:default;transform:none;box-shadow:none}
+.btn.sm{padding:8px 12px;font-size:11px}
+.btn.w{width:100%}
 
+.lab{font:700 10px/1 var(--mono);letter-spacing:.22em;color:var(--mut2);text-transform:uppercase}
+.mut{color:var(--mut)}.dim{color:var(--mut2)}
+.sml{font-size:12.5px;line-height:1.6;color:var(--mut)}
+.num{font-family:var(--disp);font-weight:700}
 .row{display:flex;align-items:center;gap:10px}
 .grow{flex:1;min-width:0}
-.mut{color:var(--mut)}
-.dim{color:var(--mut2)}
-.tiny{font:500 11px/1.45 var(--mono);letter-spacing:.06em}
-.lab{font:600 10px/1 var(--mono);letter-spacing:.2em;color:var(--mut2);text-transform:uppercase}
-.big{font:700 26px/1 var(--mono);color:var(--cy2)}
-.sep{height:1px;background:var(--line2);margin:11px 0}
-.warn{border-left:2px solid var(--gold);background:rgba(120,90,20,.14);padding:9px 11px;
-  font-size:12.5px;color:#f0dca8;border-radius:2px}
-.danger{border-left:2px solid var(--red);background:rgba(120,25,35,.16);padding:9px 11px;
-  font-size:12.5px;color:#ffc3ca;border-radius:2px}
 
-.bar{height:6px;background:#0b1524;border:1px solid var(--line2);border-radius:2px;overflow:hidden}
+.bar{height:5px;background:#0a1220;overflow:hidden}
 .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cydim),var(--cy2));transition:width .4s}
-.bar.g i{background:linear-gradient(90deg,#2f8f5f,var(--grn))}
-.bar.o i{background:linear-gradient(90deg,#a8791f,var(--gold))}
+.bar.e i{background:linear-gradient(90deg,#b06520,var(--em2))}
+.bar.g i{background:linear-gradient(90deg,#2c8a60,var(--grn))}
 
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{padding:6px 10px;border:1px solid var(--line2);background:rgba(18,32,52,.6);
-  font:600 10.5px/1 var(--mono);letter-spacing:.1em;color:var(--mut);border-radius:2px;
-  text-transform:uppercase;transition:.14s;white-space:nowrap}
-.chip.on{border-color:var(--cy);color:var(--cy2);background:rgba(40,96,150,.4)}
+.note{padding:9px 11px;font-size:12.5px;line-height:1.55;border-left:2px solid var(--em);
+  background:rgba(90,58,16,.24);color:#f2d9b0}
+.note.bad{border-color:var(--red);background:rgba(96,22,32,.26);color:#ffc0c6}
+.note.ok{border-color:var(--grn);background:rgba(22,74,52,.24);color:#bdf0d6}
 
-/* ==========================================================================
-   [CSS-06]  STATUS SCREEN
-   ========================================================================== */
-/* The rank hall as a hero band. Behind the panels it was only ever visible in
-   the gutters, which wasted six backdrops and made rank-up feel like a number
-   changing rather than a promotion. */
-.hero{position:relative;height:158px;border:1px solid var(--line);border-radius:2px;
-  overflow:hidden;margin-bottom:12px;background:#080d16 center/cover no-repeat}
-.hero::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(6,10,18,.1) 30%,rgba(6,10,18,.92))}
-.hero .hh{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:11px 13px;display:flex;align-items:flex-end;gap:11px}
-.hero .rl{font:700 46px/.82 var(--mono);text-shadow:0 3px 18px #000}
-.hero .rt{flex:1;min-width:0}
-.hero .rt .a{font:700 13px/1.2 var(--mono);letter-spacing:.2em;text-shadow:0 2px 8px #000}
-.hero .rt .b{font:500 11px/1.4 var(--mono);letter-spacing:.1em;color:#a8c4dd;text-shadow:0 1px 6px #000}
-.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.stat{border:1px solid var(--line2);background:rgba(14,25,42,.6);padding:9px 11px;border-radius:2px}
-.stat .n{font:600 10px/1 var(--mono);letter-spacing:.18em;color:var(--mut2);text-transform:uppercase}
-.stat .v{font:700 20px/1.2 var(--mono);color:var(--txt);display:flex;align-items:baseline;gap:6px}
-.stat .v small{font-size:10px;color:var(--cy);letter-spacing:.08em}
-.stat button{margin-left:auto;width:24px;height:24px;border:1px solid var(--cy);color:var(--cy2);
-  font:700 14px/1 var(--mono);border-radius:2px;background:rgba(40,100,160,.35)}
-.vitals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
-.vitals div .k{font:700 19px/1.2 var(--mono);color:var(--cy2)}
-.vitals div .l{font:600 9px/1.4 var(--mono);letter-spacing:.14em;color:var(--mut2);text-transform:uppercase}
+.chips{display:flex;gap:5px;flex-wrap:wrap}
+.chip{padding:6px 10px;border:1px solid var(--line2);background:rgba(20,34,54,.6);
+  font:700 10px/1 var(--disp);letter-spacing:.13em;color:var(--mut);text-transform:uppercase;transition:.14s}
+.chip.on{border-color:var(--cy);color:var(--cy2);background:rgba(40,98,152,.45)}
 
 /* ==========================================================================
-   [CSS-07]  QUESTS
+   [CSS-06]  CHAPTER STRIP + SESSION CARD  — the spine of TODAY
    ========================================================================== */
-.qitem{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line2)}
-.qitem:last-child{border-bottom:0}
-.qitem .qn{font:600 12.5px/1.3 var(--mono);letter-spacing:.06em}
-.qitem .qd{font-size:11.5px;color:var(--mut2);margin-top:2px}
-.qitem .qv{margin-left:auto;text-align:right;font:700 13px/1.2 var(--mono);white-space:nowrap}
-.qitem.ok .qv{color:var(--grn)}
-.qitem.ok .qn{color:var(--grn)}
-.tick{width:17px;height:17px;flex:0 0 17px;border:1px solid var(--line);border-radius:2px;
-  display:grid;place-items:center;color:transparent;font-size:11px}
-.qitem.ok .tick{border-color:var(--grn);color:var(--grn);background:rgba(50,140,90,.22)}
+.chapbar{position:relative;clip-path:var(--clip);margin-bottom:10px;overflow:hidden;
+  background:#0a1120 center/cover no-repeat}
+.chapbar::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,10,18,.94) 34%,rgba(6,10,18,.5))}
+.chapbar .c{position:relative;z-index:2;padding:10px 13px}
+.chapbar .k{font:700 9.5px/1 var(--mono);letter-spacing:.24em;color:var(--em2)}
+.chapbar .n{font:700 21px/1.1 var(--disp);letter-spacing:.02em;margin:3px 0 6px;text-shadow:0 2px 10px #000}
+.chapbar .pr{display:flex;align-items:center;gap:8px}
+.chapbar .pr .bar{flex:1}
+.chapbar .pr span{font:600 10px/1 var(--mono);letter-spacing:.1em;color:var(--mut)}
+
+.sess{position:relative;clip-path:var(--clip);overflow:hidden;margin-bottom:10px;
+  background:linear-gradient(180deg,rgba(18,32,54,.95),rgba(8,14,26,.97));
+  border-top:2px solid var(--cy)}
+.sess .top{display:flex;align-items:flex-start;gap:11px;padding:13px 13px 0}
+.sess .k{font:700 9.5px/1 var(--mono);letter-spacing:.24em;color:var(--cy)}
+.sess .n{font:700 27px/1.05 var(--disp);letter-spacing:.01em;margin:5px 0 3px}
+.sess .f{font-size:13px;color:var(--mut)}
+.sess .meta{margin-left:auto;text-align:right;flex:0 0 auto}
+.sess .meta .m{font:700 22px/1 var(--disp);color:var(--cy2)}
+.sess .meta .s{font:600 9px/1.6 var(--mono);letter-spacing:.14em;color:var(--mut2)}
+.sess .list{padding:11px 13px 0}
+.sess .li{display:flex;align-items:center;gap:9px;padding:5px 0;font-size:13.5px}
+.sess .li i{width:5px;height:5px;background:var(--cy);flex:0 0 5px;transform:rotate(45deg)}
+.sess .li .r{margin-left:auto;font:700 12px/1 var(--mono);color:var(--mut)}
+.sess .act{padding:12px 13px 13px}
+.sess.rec{border-top-color:var(--grn)}
+.sess.rec .k{color:var(--grn)}
+.sess.done{border-top-color:var(--grn)}
+
+/* ==========================================================================
+   [CSS-07]  OBJECTIVES + QUEST ROWS
+   ========================================================================== */
+.ob{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line2)}
+.ob:last-child{border-bottom:0}
+.tick{width:18px;height:18px;flex:0 0 18px;border:1px solid var(--line);
+  display:grid;place-items:center;color:transparent;font-size:11px;
+  clip-path:polygon(0 5px,5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%)}
+.ob.ok .tick{border-color:var(--grn);color:var(--grn);background:rgba(40,130,86,.3)}
+.ob .n{font-size:13.5px;line-height:1.35}
+.ob.ok .n{color:var(--grn)}
+.ob .s{font-size:11.5px;color:var(--mut2);margin-top:2px}
+.ob .v{margin-left:auto;text-align:right;font:700 13px/1.2 var(--mono);white-space:nowrap;color:var(--mut)}
+.ob.ok .v{color:var(--grn)}
 
 /* ==========================================================================
    [CSS-08]  GATES
    ========================================================================== */
-/* text-align:left is load-bearing — these cards are <button>s, which centre
-   their text by default and made every gate description read like a poster. */
-.gate{position:relative;border:1px solid var(--line);border-radius:2px;overflow:hidden;
-  margin-bottom:10px;background:#080e18;transition:.16s;text-align:left}
-.gate:hover{border-color:var(--cy)}
-.gate .art{height:118px;background:#0a1119 center/cover no-repeat;position:relative}
-.gate .art::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(8,14,24,.15),rgba(8,14,24,.94))}
-.gate .gi{position:absolute;left:0;right:0;bottom:0;padding:9px 11px;z-index:2}
-.gate .gn{font:700 14px/1.2 var(--mono);letter-spacing:.08em;text-shadow:0 2px 8px #000}
-.gate .gd{font-size:11.5px;color:#a9c4dc;margin-top:3px;text-shadow:0 1px 6px #000}
-.gate .rk{position:absolute;top:8px;right:8px;z-index:2;padding:3px 8px;border:1px solid;
-  font:700 10px/1 var(--mono);letter-spacing:.14em;border-radius:2px;background:rgba(6,10,18,.8)}
-.gate .cl{position:absolute;top:8px;left:8px;z-index:2;font:600 10px/1 var(--mono);
-  letter-spacing:.1em;color:var(--grn);background:rgba(6,10,18,.8);padding:3px 8px;border:1px solid #2c6a48}
-.gate.lock{filter:grayscale(.85) brightness(.55)}
-.gate.lock .art::after{background:linear-gradient(180deg,rgba(8,14,24,.5),rgba(8,14,24,.96))}
+.gate{position:relative;clip-path:var(--clip);overflow:hidden;margin-bottom:9px;
+  background:#080e18;width:100%;display:block;transition:.16s;border-left:2px solid transparent}
+/* min-height, not height: the caption sits inside .art and a long description
+   must push the art taller rather than spilling out of it. */
+.gate .art{min-height:112px;background:#0a1119 center/cover no-repeat;position:relative;
+  display:flex;flex-direction:column;justify-content:flex-end}
+.gate .art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,14,24,.1),rgba(8,14,24,.95))}
+.gate .gi{position:relative;padding:9px 12px;z-index:2}
+.gate .gn{font:700 17px/1.15 var(--disp);letter-spacing:.02em;text-shadow:0 2px 9px #000}
+.gate .gd{font-size:12px;color:#a6c2da;margin-top:2px;text-shadow:0 1px 6px #000}
+.gate .tags{display:flex;gap:8px;margin-top:6px;font:600 9.5px/1 var(--mono);letter-spacing:.11em;color:var(--cy)}
+.gate .rk{position:absolute;top:8px;right:9px;z-index:2;padding:3px 8px;border:1px solid;
+  font:700 11px/1 var(--disp);letter-spacing:.16em;background:rgba(6,10,18,.85)}
+.gate .cl{position:absolute;top:8px;left:9px;z-index:2;font:700 10px/1 var(--mono);letter-spacing:.1em;
+  color:var(--grn);background:rgba(6,10,18,.85);padding:4px 8px;border:1px solid #2c6a48}
+.gate.lock{filter:grayscale(.9) brightness(.5)}
+.gate.next{border-left-color:var(--cy);box-shadow:0 0 22px rgba(60,160,230,.2)}
+/* Two stacked lines, not one wrapping row — inline the reason and the hint
+   collided mid-phrase ("Clear The Iron Gallery / first · Gates open in / order"). */
+.locknote{display:flex;gap:9px;align-items:flex-start;padding:8px 12px;background:rgba(10,16,28,.92);
+  border-top:1px solid var(--line2)}
+.locknote .ic{flex:0 0 auto;font-size:12px;line-height:1.3}
+.locknote b{display:block;font:700 12px/1.35 var(--disp);letter-spacing:.06em;color:var(--em2)}
+.locknote span{display:block;font:600 10px/1.5 var(--mono);letter-spacing:.08em;color:var(--mut2)}
 
 /* ==========================================================================
    [CSS-09]  CODEX
    ========================================================================== */
 .exrow{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--line2);
-  border-radius:2px;margin-bottom:6px;background:rgba(12,22,38,.55);transition:.14s;width:100%;text-align:left}
-.exrow:hover{border-color:var(--cy);background:rgba(20,42,68,.6)}
-.exrow canvas{width:62px;height:46px;flex:0 0 62px;background:rgba(6,12,22,.7);
-  border:1px solid var(--line2);border-radius:2px}
-.exrow .en{font:600 13px/1.25 var(--mono);letter-spacing:.03em}
-.exrow .em{font-size:11px;color:var(--mut2);margin-top:2px}
-.exrow .ep{margin-left:auto;text-align:right;font:600 10.5px/1.4 var(--mono);color:var(--mut2);white-space:nowrap}
-.exrow.lk{opacity:.5}
-.exrow.lk:hover{border-color:var(--line2)}
-.exrow .mst{color:var(--gold)}
-.ladder{display:flex;align-items:center;gap:4px;margin:0 0 8px;flex-wrap:wrap}
-.rung{width:22px;height:5px;background:#12203a;border:1px solid var(--line2)}
+  margin-bottom:5px;background:rgba(14,24,40,.6);transition:.14s;width:100%;
+  clip-path:polygon(0 6px,6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%)}
+.exrow:hover{border-color:var(--cy);background:rgba(24,48,76,.65)}
+.exrow canvas{width:60px;height:44px;flex:0 0 60px;background:rgba(6,12,22,.75);border:1px solid var(--line2)}
+.exrow .en{font:700 14px/1.2 var(--disp);letter-spacing:.02em}
+.exrow .em2{font-size:11.5px;color:var(--mut2);margin-top:1px}
+.exrow .ep{margin-left:auto;text-align:right;font:600 10px/1.5 var(--mono);color:var(--mut2);white-space:nowrap}
+.exrow.lk{opacity:.48}
+.exrow .mst{color:var(--em2)}
+.ladder{display:flex;align-items:center;gap:3px;margin:0 0 8px;flex-wrap:wrap}
+.rung{width:20px;height:5px;background:#12203a;border:1px solid var(--line2)}
 .rung.done{background:var(--cydim);border-color:var(--cy)}
 .rung.cur{background:var(--cy2);border-color:var(--cy2);box-shadow:0 0 8px var(--cy)}
 
 /* ==========================================================================
-   [CSS-10]  SHEET  — the exercise detail / runner overlay
+   [CSS-10]  SHEET  — exercise detail / session runner
    ========================================================================== */
-#sheet{position:fixed;inset:0;z-index:80;display:none;background:rgba(3,5,10,.86);
-  backdrop-filter:blur(4px);overflow-y:auto;overscroll-behavior:contain}
+#sheet{position:fixed;inset:0;z-index:80;display:none;background:rgba(3,5,10,.9);
+  backdrop-filter:blur(5px);overflow-y:auto;overscroll-behavior:contain}
 #sheet.on{display:block}
-#sheet .sh{max-width:var(--w);margin:0 auto;padding:12px 12px 40px;min-height:100%}
-.demo{position:relative;height:190px;background:radial-gradient(120% 100% at 50% 20%,#0f1e33,#060b14);
-  border:1px solid var(--line);border-radius:2px;overflow:hidden}
+#sheet .sh{max-width:var(--w);margin:0 auto;padding:11px 11px 40px;min-height:100%}
+.demo{position:relative;height:186px;overflow:hidden;
+  background:radial-gradient(120% 100% at 50% 22%,#12243c,#060b14);border:1px solid var(--line)}
 .demo canvas{position:absolute;inset:0;width:100%;height:100%}
-.demo .gearlab{position:absolute;left:9px;top:8px;font:600 10px/1 var(--mono);letter-spacing:.12em;
-  color:var(--mut2);text-transform:uppercase}
-.demo .tempo{position:absolute;right:9px;top:8px;font:600 10px/1 var(--mono);letter-spacing:.12em;color:var(--cydim)}
-.cue{display:flex;gap:9px;padding:7px 0;font-size:13.5px;line-height:1.5}
-.cue b{flex:0 0 19px;height:19px;border:1px solid var(--cy);color:var(--cy2);border-radius:2px;
-  font:700 10px/17px var(--mono);text-align:center}
-.err{display:flex;gap:9px;padding:5px 0;font-size:12.5px;line-height:1.5;color:#e9b9bf}
-/* first-child only — a bare `.err span` also hit the text span and squeezed it
-   to 12px, which broke every mistake list onto one word per line. */
+.demo .g1{position:absolute;left:9px;top:8px;font:700 9.5px/1 var(--mono);letter-spacing:.14em;color:var(--mut2);text-transform:uppercase}
+.demo .g2{position:absolute;right:9px;top:8px;font:700 9.5px/1 var(--mono);letter-spacing:.14em;color:var(--cydim)}
+.cue{display:flex;gap:10px;padding:6px 0;font-size:13.5px;line-height:1.55}
+.cue b{flex:0 0 20px;height:20px;border:1px solid var(--cy);color:var(--cy2);
+  font:700 11px/18px var(--mono);text-align:center}
+.err{display:flex;gap:9px;padding:5px 0;font-size:12.5px;line-height:1.55;color:#e9b8be}
 .err>span:first-child{flex:0 0 12px;color:var(--red);font-weight:700}
 
-.counter{display:flex;align-items:center;gap:10px;justify-content:center;margin:12px 0}
-.counter button{width:52px;height:52px;border:1px solid var(--line);background:rgba(24,48,78,.5);
-  font:700 22px/1 var(--mono);color:var(--cy2);border-radius:2px}
-.counter button:active{background:rgba(46,102,158,.7)}
-.counter .num{font:700 46px/1 var(--mono);color:#eaf7ff;min-width:112px;text-align:center;
-  text-shadow:0 0 22px rgba(90,200,255,.45)}
-.counter .num small{display:block;font-size:10px;letter-spacing:.2em;color:var(--mut2);margin-top:6px}
+.cnt{display:flex;align-items:center;gap:10px;justify-content:center;margin:14px 0}
+.cnt button{width:56px;height:56px;border:1px solid var(--line);background:rgba(28,54,86,.55);
+  font:700 24px/1 var(--disp);color:var(--cy2);
+  clip-path:polygon(0 8px,8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%)}
+.cnt button:active{background:rgba(50,108,164,.75)}
+.cnt .v{font:700 52px/1 var(--disp);color:#eaf8ff;min-width:118px;text-align:center;
+  text-shadow:0 0 26px rgba(90,200,255,.5)}
+.cnt .v small{display:block;font:600 9.5px/1 var(--mono);letter-spacing:.22em;color:var(--mut2);margin-top:7px}
 
 /* ==========================================================================
-   [CSS-11]  GATE RUNNER
+   [CSS-11]  RUNNER
    ========================================================================== */
-.floors{display:flex;gap:3px;margin-bottom:10px;flex-wrap:wrap}
-.floors i{flex:1;min-width:8px;height:4px;background:#12203a;border:1px solid var(--line2)}
+.floors{display:flex;gap:3px;margin-bottom:11px;flex-wrap:wrap}
+.floors i{flex:1;min-width:7px;height:4px;background:#12203a;border:1px solid var(--line2)}
 .floors i.done{background:var(--cydim);border-color:var(--cy)}
 .floors i.cur{background:var(--cy2);border-color:var(--cy2);box-shadow:0 0 7px var(--cy)}
 .floors i.boss{background:#3a1430;border-color:#7a2a5e}
 .floors i.boss.done{background:var(--vio);border-color:var(--vio)}
 .rest{text-align:center;padding:18px 0}
-.rest .t{font:700 54px/1 var(--mono);color:var(--cy2);text-shadow:0 0 26px rgba(90,200,255,.5)}
-.rest .l{font:600 10px/1 var(--mono);letter-spacing:.22em;color:var(--mut2);margin-top:8px}
-/* Several bosses and every shadow are deliberately near-black shapes, and a
-   near-black shape on a near-black panel is nothing at all. The fix is LIGHT,
-   not keying: a glow pool behind, and a coloured drop-shadow that traces the
-   silhouette from outside. */
-.bossart{height:190px;position:relative;border:1px solid #5c2a52;border-radius:2px;
+.rest .t{font:700 58px/1 var(--disp);color:var(--cy2);text-shadow:0 0 28px rgba(90,200,255,.5)}
+.rest .l{font:700 10px/1 var(--mono);letter-spacing:.24em;color:var(--mut2);margin-top:8px}
+.bossart{height:186px;position:relative;border:1px solid #5c2a52;
   background:radial-gradient(90% 75% at 50% 62%,rgba(150,55,140,.34),rgba(10,13,22,.9) 72%),#0a0d16}
 .bossart img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:6px;
   filter:drop-shadow(0 0 9px rgba(190,120,255,.75)) drop-shadow(0 4px 16px rgba(0,0,0,.8))}
 
 /* ==========================================================================
-   [CSS-12]  ARMY / SHADOWS
+   [CSS-12]  HUNTER  — stats, shadows, titles, log
    ========================================================================== */
-.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.shadow{border:1px solid var(--line2);background:rgba(12,20,36,.7);border-radius:2px;overflow:hidden;
-  text-align:center;padding-bottom:9px}
-.shadow .im{height:104px;position:relative;
-  background:radial-gradient(72% 62% at 50% 58%,rgba(120,80,210,.34),rgba(8,12,21,0) 72%),#080c15}
-.shadow .im img{width:100%;height:100%;object-fit:contain;padding:5px;
-  filter:drop-shadow(0 0 6px rgba(180,130,255,.85))}
-.shadow .nm{font:700 12px/1 var(--mono);letter-spacing:.16em;color:var(--vio);margin-top:4px}
-.shadow .tt{font:500 10px/1.4 var(--mono);letter-spacing:.1em;color:var(--mut2)}
-.shadow .bn{font-size:11px;color:var(--cy);margin-top:5px;padding:0 7px}
-.shadow.empty{opacity:.4}
-.shadow.empty .im{display:grid;place-items:center;color:var(--mut2);font:700 30px/1 var(--mono)}
-.title{display:flex;gap:9px;align-items:center;padding:8px;border:1px solid var(--line2);
-  border-radius:2px;margin-bottom:6px;background:rgba(12,22,38,.5);width:100%;text-align:left}
-.title.on{border-color:var(--gold);background:rgba(70,54,16,.35)}
-.title.lk{opacity:.45}
+.hero{position:relative;height:150px;clip-path:var(--clip);overflow:hidden;margin-bottom:10px;
+  background:#080d16 center/cover no-repeat}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,10,18,.08) 28%,rgba(6,10,18,.93))}
+.hero .hh{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:11px 13px;display:flex;align-items:flex-end;gap:11px}
+.hero .rl{font:700 48px/.8 var(--disp);text-shadow:0 3px 16px #000}
+.hero .rt{flex:1;min-width:0}
+.hero .rt .a{font:700 15px/1.2 var(--disp);letter-spacing:.14em;text-shadow:0 2px 8px #000}
+.hero .rt .b{font-size:12px;color:#a8c4dd;text-shadow:0 1px 6px #000}
 
-/* ==========================================================================
-   [CSS-13]  LOG / CALENDAR
-   ========================================================================== */
-/* Weeks run down the columns, like a contribution graph. Seven columns of
-   day-of-week made each cell ~100px tall and ate the whole screen. */
-.calwrap{display:flex;gap:4px;align-items:stretch}
-.cal{flex:1;display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;
-  grid-auto-columns:1fr;gap:3px}
-.cal i{aspect-ratio:1;background:#0c1523;border:1px solid var(--line2);border-radius:1px}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.stat{border:1px solid var(--line2);background:rgba(16,28,46,.6);padding:8px 10px}
+.stat .n{font:700 9.5px/1 var(--mono);letter-spacing:.18em;color:var(--mut2);text-transform:uppercase}
+.stat .v{font:700 22px/1.25 var(--disp);display:flex;align-items:baseline;gap:6px}
+.stat .v small{font:600 10px/1 var(--mono);color:var(--cy)}
+.stat button{margin-left:auto;width:25px;height:25px;border:1px solid var(--cy);color:var(--cy2);
+  font:700 15px/1 var(--disp);background:rgba(42,102,160,.4)}
+.vit{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.vit .k{font:700 21px/1.2 var(--disp);color:var(--cy2)}
+.vit .l{font:700 9px/1.5 var(--mono);letter-spacing:.13em;color:var(--mut2);text-transform:uppercase}
+
+.shgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.shadow{border:1px solid var(--line2);background:rgba(14,22,38,.7);text-align:center;padding-bottom:8px;
+  clip-path:polygon(0 7px,7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%)}
+.shadow .im{height:100px;position:relative;
+  background:radial-gradient(72% 62% at 50% 58%,rgba(120,80,210,.34),rgba(8,12,21,0) 72%),#080c15}
+.shadow .im img{width:100%;height:100%;object-fit:contain;padding:5px;filter:drop-shadow(0 0 6px rgba(180,130,255,.85))}
+.shadow .nm{font:700 14px/1 var(--disp);letter-spacing:.14em;color:var(--vio);margin-top:5px}
+.shadow .tt{font:600 9.5px/1.5 var(--mono);letter-spacing:.1em;color:var(--mut2)}
+.shadow .bn{font-size:11px;color:var(--cy);margin-top:4px;padding:0 6px;line-height:1.4}
+.shadow.empty{opacity:.38}
+.shadow.empty .im{display:grid;place-items:center;color:var(--mut2);font:700 28px/1 var(--disp)}
+.title{display:flex;gap:9px;align-items:center;padding:8px 9px;border:1px solid var(--line2);
+  margin-bottom:5px;background:rgba(14,24,40,.55);width:100%}
+.title.on{border-color:var(--em);background:rgba(74,50,14,.4)}
+.title.lk{opacity:.42}
+
+.calwrap{display:flex;gap:4px}
+.cal{flex:1;display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;grid-auto-columns:1fr;gap:3px}
+.cal i{aspect-ratio:1;background:#0b1421;border:1px solid var(--line2)}
 .cal i.l1{background:#123048}.cal i.l2{background:#1a5578}.cal i.l3{background:#2589bd}
 .cal i.l4{background:#4fc4ff;box-shadow:0 0 6px rgba(80,196,255,.5)}
-.cal i.today{border-color:var(--gold)}
+.cal i.today{border-color:var(--em)}
 .caldow{display:grid;grid-template-rows:repeat(7,1fr);gap:3px}
-.caldow span{display:grid;place-items:center;font:600 9px/1 var(--mono);color:var(--mut2);width:11px}
+.caldow span{display:grid;place-items:center;font:700 9px/1 var(--mono);color:var(--mut2);width:10px}
 
 /* ==========================================================================
-   [CSS-14]  TOASTS + LEVEL UP
+   [CSS-13]  TOASTS + BURST
    ========================================================================== */
-#toasts{position:fixed;left:0;right:0;top:64px;z-index:90;pointer-events:none;
-  display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 12px}
-.toast{max-width:var(--w);width:100%;background:rgba(10,20,36,.96);border:1px solid var(--cy);
-  border-radius:2px;padding:9px 12px;font:600 12px/1.4 var(--mono);letter-spacing:.06em;
-  box-shadow:0 0 24px rgba(50,150,220,.3);animation:tin .3s ease-out}
-.toast.gold{border-color:var(--gold);color:#ffe6ab;box-shadow:0 0 24px rgba(220,170,60,.28)}
+#toasts{position:fixed;left:0;right:0;top:62px;z-index:90;pointer-events:none;
+  display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 11px}
+.toast{max-width:var(--w);width:100%;background:rgba(10,20,36,.97);border:1px solid var(--cy);
+  padding:9px 12px;font:700 12.5px/1.4 var(--disp);letter-spacing:.06em;
+  box-shadow:0 0 24px rgba(50,150,220,.3);animation:ti .3s ease-out}
+.toast.gold{border-color:var(--em);color:#ffe2b8;box-shadow:0 0 24px rgba(230,150,50,.3)}
 .toast.vio{border-color:var(--vio);color:#dccdff;box-shadow:0 0 24px rgba(150,110,240,.3)}
-@keyframes tin{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes ti{from{opacity:0;transform:translateY(-9px)}to{opacity:1;transform:none}}
 
-#burst{position:fixed;inset:0;z-index:95;display:none;place-items:center;background:rgba(3,5,10,.9);
-  backdrop-filter:blur(6px);text-align:center;padding:20px}
+#burst{position:fixed;inset:0;z-index:95;display:none;place-items:center;background:rgba(3,5,10,.93);
+  backdrop-filter:blur(7px);text-align:center;padding:20px}
 #burst.on{display:grid}
 #burst .k{font:700 11px/1 var(--mono);letter-spacing:.4em;color:var(--cy);margin-bottom:14px}
-#burst .v{font:700 62px/1 var(--mono);color:#eaf8ff;text-shadow:0 0 40px rgba(90,200,255,.7)}
-#burst .s{font-size:14px;color:var(--mut);margin-top:14px;max-width:380px}
-#burst .im{width:170px;height:170px;margin:0 auto 10px;object-fit:contain;
+#burst .v{font:700 66px/1 var(--disp);color:#eaf8ff;text-shadow:0 0 42px rgba(90,200,255,.7)}
+#burst .s{font-size:14px;color:var(--mut);margin-top:14px;max-width:400px;line-height:1.6}
+#burst .im{width:168px;height:168px;margin:0 auto 8px;object-fit:contain;
   filter:drop-shadow(0 0 14px rgba(180,130,255,.8))}
 
 /* ==========================================================================
-   [CSS-15]  ONBOARDING / TITLE
+   [CSS-14]  TITLE SCREEN
    ========================================================================== */
 #title{position:fixed;inset:0;z-index:100;display:grid;place-items:center;text-align:center;
   padding:24px;background:var(--bg) center/cover no-repeat}
-#title .ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,7,13,.7),rgba(5,7,13,.94))}
-#title .c{position:relative;z-index:2;max-width:420px;width:100%}
-#title h1{font:700 40px/1 var(--mono);letter-spacing:.3em;color:#eaf8ff;
-  text-shadow:0 0 40px rgba(90,200,255,.6);margin-bottom:6px}
-#title .tag{font:600 10px/1.6 var(--mono);letter-spacing:.28em;color:var(--cy);margin-bottom:26px}
-#title p{color:#a8c3dc;font-size:13.5px;margin:0 0 22px}
-#title input{width:100%;padding:11px 13px;background:rgba(10,20,36,.8);border:1px solid var(--line);
-  color:var(--txt);font:600 14px/1 var(--mono);letter-spacing:.16em;text-align:center;border-radius:2px}
+#title .ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,7,13,.66),rgba(5,7,13,.95))}
+#title .c{position:relative;z-index:2;max-width:400px;width:100%}
+#title h1{font:700 44px/1 var(--disp);letter-spacing:.26em;color:#eaf8ff;
+  text-shadow:0 0 44px rgba(90,200,255,.6);margin-bottom:6px}
+#title .tag{font:700 10px/1.6 var(--mono);letter-spacing:.3em;color:var(--cy);margin-bottom:24px}
+#title p{color:#a8c3dc;font-size:14px;margin:0 0 20px;line-height:1.65}
+#title input{width:100%;padding:12px 13px;background:rgba(10,20,36,.85);border:1px solid var(--line);
+  color:var(--txt);font:700 15px/1 var(--disp);letter-spacing:.18em;text-align:center}
 #title input:focus{outline:0;border-color:var(--cy)}
 
-.hide{display:none!important}
-@media(max-width:400px){ .counter .num{font-size:38px;min-width:92px} #title h1{font-size:31px} }
+@media(max-width:390px){ .cnt .v{font-size:42px;min-width:96px} #title h1{font-size:34px}
+  .sess .n{font-size:23px} }
 </style>
 
 <div id="bg"></div><div id="bgv"></div>
@@ -365,16 +384,13 @@ body:not(.rm) #bgv::after{content:"";position:absolute;inset:0;opacity:.35;
 <header id="hdr">
   <div class="in">
     <div class="sigil" id="hSigil"></div>
-    <div class="hid">
-      <div class="hname" id="hName">HUNTER</div>
-      <div class="hsub" id="hSub">E &middot; AWAKENED</div>
+    <div class="hn">
+      <div class="a" id="hName">HUNTER</div>
+      <div class="b" id="hSub"><b>E</b> · AWAKENED</div>
     </div>
-    <div class="hnum">
-      <div class="lv" id="hLv">1</div>
-      <div class="es" id="hEss">0 ES</div>
-    </div>
+    <div class="hr2"><div class="lv" id="hLv">1</div><div class="es" id="hEss">0 ES</div></div>
   </div>
-  <div class="xpbar"><i id="hXp" style="width:0"></i></div>
+  <div class="xpb"><i id="hXp" style="width:0"></i></div>
   <div class="strip" id="hStrip"></div>
 </header>
 
@@ -392,9 +408,9 @@ body:not(.rm) #bgv::after{content:"";position:absolute;inset:0;opacity:.35;
     <div class="tag">THE SYSTEM IS WATCHING</div>
     <p>Gates opened. Most people ran.<br>You started training.</p>
     <input id="tName" maxlength="14" placeholder="ENTER YOUR NAME" autocomplete="off" spellcheck="false">
-    <div style="height:14px"></div>
-    <button class="btn pri wide" id="tGo">Begin at Level 1</button>
-    <div class="tiny dim" style="margin-top:16px">Everything here is bodyweight only.<br>No equipment is required to start.</div>
+    <div style="height:13px"></div>
+    <button class="btn go w" id="tGo">Begin at Level 1</button>
+    <div class="sml" style="margin-top:16px">Bodyweight only. No equipment to start.<br>The System will tell you what to do each day.</div>
   </div>
 </div>
 
@@ -670,7 +686,7 @@ const EX = [
 /* ---------------------------------------------------------------- PULL ---
    The half almost everyone skips. The bottom of this ladder is deliberately
    long because there is no such thing as "just do a pull-up". */
-{ id:'dead_hang', n:'Dead Hang', cat:'pull', line:'pull', tier:1, lv:2, unit:'sec', xp:0.5,
+{ id:'dead_hang', n:'Dead Hang', cat:'pull', line:'pull', tier:1, lv:1, unit:'sec', xp:0.5,
   st:{end:1}, gear:'A pull-up bar', goal:45, next:'scap_pull',
   d:'Hang and do nothing. It builds the grip and the connective tissue that every other pulling movement depends on, and almost nobody gives it the weeks it deserves.',
   cues:['Grip the bar about shoulder width, palms facing away, thumbs wrapped around.',
@@ -1545,7 +1561,7 @@ const EX = [
        'Doing it once a week instead of before every session on your hands.'],
   br:'Slow relaxed breathing.' },
 
-{ id:'shoulder_pass', n:'Shoulder Pass-Through', cat:'mob', line:'mob', tier:2, lv:2, unit:'rep', xp:0.6,
+{ id:'shoulder_pass', n:'Shoulder Pass-Through', cat:'mob', line:'mob', tier:2, lv:1, unit:'rep', xp:0.6,
   st:{mob:1}, gear:'A broom, towel or belt', goal:20, next:'cat_cow',
   d:'Opens the overhead range that every pressing and hanging movement depends on. Cheap and effective.',
   cues:['Hold a broom or a towel in both hands, much wider than your shoulders.',
@@ -1557,7 +1573,7 @@ const EX = [
        'Going too narrow too early.'],
   br:'Out as the arms travel back, in as they return.' },
 
-{ id:'cat_cow', n:'Cat-Cow', cat:'mob', line:'mob', tier:3, lv:2, unit:'rep', xp:0.5,
+{ id:'cat_cow', n:'Cat-Cow', cat:'mob', line:'mob', tier:3, lv:1, unit:'rep', xp:0.5,
   st:{mob:1}, gear:'Floor', goal:20, next:'deep_squat_hold',
   d:'Segmental spine movement. Two minutes of this before training makes everything else feel better.',
   cues:['On all fours, hands under shoulders and knees under hips.',
@@ -1569,7 +1585,7 @@ const EX = [
        'Holding your breath — the breath drives the movement.'],
   br:'Out on the round, in on the arch.' },
 
-{ id:'deep_squat_hold', n:'Deep Squat Hold', cat:'mob', line:'mob', tier:4, lv:2, unit:'sec', xp:0.5,
+{ id:'deep_squat_hold', n:'Deep Squat Hold', cat:'mob', line:'mob', tier:4, lv:1, unit:'sec', xp:0.5,
   st:{mob:2}, gear:'Floor', goal:120, next:'hip_flexor_stretch',
   d:'Sit at the bottom of a squat and stay there. It is the single best fix for the ankle and hip range that blocks squats and pistols.',
   cues:['Squat down as low as you can with your feet flat and hold the position.',
@@ -1581,7 +1597,7 @@ const EX = [
        'Bouncing to force depth.'],
   br:'Slow, deep, relaxed breathing.' },
 
-{ id:'hip_flexor_stretch', n:'Hip Flexor Stretch', cat:'mob', line:'mob', tier:5, lv:4, unit:'sec', xp:0.5,
+{ id:'hip_flexor_stretch', n:'Hip Flexor Stretch', cat:'mob', line:'mob', tier:5, lv:1, unit:'sec', xp:0.5,
   st:{mob:2}, gear:'Floor', goal:60, next:'pike_stretch',
   d:'Counteracts sitting and lets your glutes actually fire. Tight hip flexors quietly cap your squat and your bridge.',
   cues:['Half-kneel with one knee down and the other foot forward, both bent about 90°.',
@@ -1593,7 +1609,7 @@ const EX = [
        'Bouncing.'],
   br:'Slow deep breathing, easing further on each exhale.' },
 
-{ id:'pike_stretch', n:'Seated Pike Stretch', cat:'mob', line:'mob', tier:6, lv:6, unit:'sec', xp:0.5,
+{ id:'pike_stretch', n:'Seated Pike Stretch', cat:'mob', line:'mob', tier:6, lv:1, unit:'sec', xp:0.5,
   st:{mob:2}, gear:'Floor', goal:90, next:'short_bridge',
   d:'Hamstring range. It gates the L-sit, the V-sit and every straight-leg raise in the game.',
   cues:['Sit with both legs straight out in front, feet together, toes pulled back.',
@@ -2316,6 +2332,36 @@ const GATES = [
       shadow: 'sh_king' } },
 ];
 
+/* Gates are a CHAIN, not a menu. A level number alone told the player nothing
+   about order or readiness, so each gate also names the one before it, roughly
+   how long it takes, and what it actually trains. Merged in rather than written
+   inline so the chain is readable as a chain. */
+const GATE_CHAIN = {
+  cellar: 'threshold', yard: 'cellar', stair: 'yard',
+  gallery: 'stair', pit: 'stair', colonnade: 'gallery',
+  vault: 'colonnade', ascent: 'pit', spire: 'colonnade',
+  silent: 'vault', keep: 'spire', court: 'keep',
+};
+const GATE_INFO = {
+  threshold: { mins: 14, trains: 'Push · Legs · Core' },
+  cellar:    { mins: 15, trains: 'Core · Conditioning' },
+  yard:      { mins: 22, trains: 'Full body' },
+  stair:     { mins: 24, trains: 'Push · Dips · Overhead' },
+  gallery:   { mins: 22, trains: 'Pull · Grip · Core' },
+  pit:       { mins: 20, trains: 'Conditioning · Jumping' },
+  colonnade: { mins: 32, trains: 'Full body' },
+  vault:     { mins: 24, trains: 'Holds · Balance' },
+  ascent:    { mins: 26, trains: 'Legs' },
+  spire:     { mins: 30, trains: 'Pull · Push · Levers' },
+  silent:    { mins: 30, trains: 'Skill · Straight-arm' },
+  keep:      { mins: 38, trains: 'Full body · Long' },
+  court:     { mins: 46, trains: 'Everything' },
+};
+GATES.forEach(g => {
+  g.prereq = GATE_CHAIN[g.id] || null;
+  Object.assign(g, GATE_INFO[g.id] || { mins: 20, trains: 'Full body' });
+});
+
 /* -------------------------------------------------------------- SHADOWS ---
    Extracted from a boss the first time you beat it. Each is a small permanent
    passive; ascending one with Essence raises its value. */
@@ -2406,6 +2452,335 @@ const SHOP = [
   { id: 'rest',    n: 'Rest Token',          cost: 140, d: 'Excuse one missed day. Your streak survives and no penalty lands.', repeat: true },
   { id: 'ward',    n: 'Penalty Ward',        cost: 260, d: 'Clears the Penalty Zone immediately.', repeat: true },
   { id: 'ascend',  n: 'Ascend a Shadow',     cost: 300, d: 'Raise one shadow, increasing its passive by half again.', repeat: true },
+];
+
+/* ==========================================================================
+   [DATA-04]  THE PATH  —  chapters, objectives and prescribed sessions
+   --------------------------------------------------------------------------
+   This is the spine of the game. Without it the app is a library and a
+   scoreboard and the player has to design their own training, which is exactly
+   the thing a beginner cannot do yet.
+
+   CHAPTERS are the campaign. Each is a themed arc with a handful of concrete,
+   checkable objectives — the build-up guide. They never block content; they
+   tell you what is worth doing next and pay you for doing it.
+
+   PROGRAMS are the weekly plan. Each has a rotation of sessions; the app
+   prescribes the next one in the rotation, and the rotation advances only when
+   you finish a session — so missing a week never desyncs you.
+
+   Session blocks use the same shape as gate floors, so buildRun() drives both:
+     line   the ladder to resolve against the rung you currently own
+     ex     pin a specific movement instead
+     sets   how many
+     reps   a number, 'goal' for the rung's mastery target, or a fraction of it
+     rest   seconds between sets
+   ========================================================================== */
+
+const CHAPTERS = [
+  { id: 'c1', n: 'Awakening', lv: 1, art: 'bg_rank_e',
+    quote: 'The System has registered you.',
+    d: 'It will not give you anything yet. First it wants to see whether you move at all. '
+     + 'Nothing in this chapter is hard on purpose — the only thing being tested is that you show up and finish what you start.',
+    obj: [
+      { t: 'session', n: 1, d: 'Complete your first session' },
+      { t: 'variety', n: 3, d: 'Train three different movements' },
+      { t: 'pr', ex: 'plank', n: 20, d: 'Hold a plank for 20 seconds' },
+      { t: 'daily', n: 1, d: 'Complete a Daily Quest' },
+      { t: 'gate', g: 'threshold', d: 'Clear The Cracked Threshold' },
+    ], xp: 240, ess: 80 },
+
+  { id: 'c2', n: 'The Four Patterns', lv: 3, art: 'bg_rank_e',
+    quote: 'Everything is built from four movements.',
+    d: 'Push something away. Pull something toward you. Stand up from the bottom. Refuse to bend in the middle. '
+     + 'Every movement in the codex is one of those four wearing a harder coat. Own the easiest version of each before you touch the next rung.',
+    obj: [
+      { t: 'master', ex: 'wall_pushup', d: 'Master the Wall Push-Up' },
+      { t: 'master', ex: 'assisted_squat', d: 'Master the Assisted Squat' },
+      { t: 'master', ex: 'dead_hang', d: 'Master the Dead Hang' },
+      { t: 'streak', n: 3, d: 'Train three days in a row' },
+      { t: 'gate', g: 'cellar', d: 'Clear The Hollow Cellar' },
+    ], xp: 400, ess: 120 },
+
+  { id: 'c3', n: 'Off The Ground', lv: 6, art: 'bg_rank_d',
+    quote: 'The floor stops helping you now.',
+    d: 'Knees come off the ground, the squat loses its handrail, and your own bodyweight starts to be the whole load. '
+     + 'This is the chapter where most people quietly stop. Finishing it is the actual milestone.',
+    obj: [
+      { t: 'master', ex: 'knee_pushup', d: 'Master the Knee Push-Up' },
+      { t: 'master', ex: 'bw_squat', d: 'Master the Bodyweight Squat' },
+      { t: 'master', ex: 'inverted_row', d: 'Master the Inverted Row' },
+      { t: 'pr', ex: 'hollow_hold', n: 30, d: 'Hold a hollow body for 30 seconds' },
+      { t: 'gate', g: 'yard', d: 'Clear The Rusted Yard' },
+      { t: 'streak', n: 7, d: 'Reach a 7 day streak' },
+    ], xp: 700, ess: 180 },
+
+  { id: 'c4', n: 'Ironbound', lv: 10, art: 'bg_rank_d',
+    quote: 'D rank. The first one anybody else notices.',
+    d: 'A full push-up and a first pull-up are the two benchmarks that separate "training" from "starting". '
+     + 'Both are close now. The pull-up will take longer than you want it to — that is normal, and negatives are how it arrives.',
+    obj: [
+      { t: 'master', ex: 'pushup', d: 'Master the Push-Up' },
+      { t: 'master', ex: 'negative_pullup', d: 'Master the Negative Pull-Up' },
+      { t: 'master', ex: 'split_squat', d: 'Master the Split Squat' },
+      { t: 'daily', n: 10, d: 'Complete 10 Daily Quests' },
+      { t: 'gate', g: 'stair', d: 'Clear The Ashen Stair' },
+    ], xp: 1100, ess: 260 },
+
+  { id: 'c5', n: 'First Flight', lv: 15, art: 'bg_rank_c',
+    quote: 'Chin over the bar.',
+    d: 'The pull-up lands in this chapter, and with it every hanging movement in the game opens up. '
+     + 'Dips arrive alongside it so your pushing keeps pace — a back that outgrows its shoulders is how people get hurt.',
+    obj: [
+      { t: 'master', ex: 'chinup', d: 'Master the Chin-Up' },
+      { t: 'master', ex: 'pullup', d: 'Master the Pull-Up' },
+      { t: 'master', ex: 'bulgarian_split', d: 'Master the Bulgarian Split Squat' },
+      { t: 'master', ex: 'parallel_dip', d: 'Master the Parallel Bar Dip' },
+      { t: 'gate', g: 'gallery', d: 'Clear The Iron Gallery' },
+    ], xp: 1700, ess: 340 },
+
+  { id: 'c6', n: 'Ascendant', lv: 20, art: 'bg_rank_c',
+    quote: 'C rank. You are no longer a beginner.',
+    d: 'From here the ladders get long and the rungs get slow. Volume stops being the answer and position starts being it. '
+     + 'The first true support hold — the L-sit — is the gate into everything that comes after.',
+    obj: [
+      { t: 'master', ex: 'diamond_pushup', d: 'Master the Diamond Push-Up' },
+      { t: 'master', ex: 'hanging_leg_raise', d: 'Master the Hanging Leg Raise' },
+      { t: 'pr', ex: 'tuck_lsit', n: 30, d: 'Hold a tuck L-sit for 30 seconds' },
+      { t: 'streak', n: 21, d: 'Reach a 21 day streak' },
+      { t: 'gate', g: 'colonnade', d: 'Clear The Broken Colonnade' },
+    ], xp: 2600, ess: 460 },
+
+  { id: 'c7', n: 'The Long Climb', lv: 28, art: 'bg_rank_b',
+    quote: 'Single leg, single arm, upside down.',
+    d: 'Three directions at once: legs go one-sided, pulling goes wide, and you start spending real time on your hands. '
+     + 'Handstands are a skill, not a strength move — short sets, often, fresh. Never at the end of a session.',
+    obj: [
+      { t: 'master', ex: 'box_pistol', d: 'Master the Box Pistol Squat' },
+      { t: 'master', ex: 'wide_pullup', d: 'Master the Wide Pull-Up' },
+      { t: 'pr', ex: 'wall_handstand', n: 60, d: 'Hold a chest-to-wall handstand for 60 seconds' },
+      { t: 'gate', g: 'ascent', d: 'Clear The Ember Ascent' },
+      { t: 'gate', g: 'vault', d: 'Clear The Vault of Still Air' },
+    ], xp: 3800, ess: 620 },
+
+  { id: 'c8', n: 'Gatebreaker', lv: 35, art: 'bg_rank_b',
+    quote: 'B rank. The levers begin.',
+    d: 'Straight-arm work enters the game and it loads elbows in a way nothing before it did. Build it slowly and stop at the first ache. '
+     + 'The pistol squat and the archer push-up are the last steps before genuinely one-sided strength.',
+    obj: [
+      { t: 'master', ex: 'archer_pushup', d: 'Master the Archer Push-Up' },
+      { t: 'master', ex: 'pistol_squat', d: 'Master the Pistol Squat' },
+      { t: 'pr', ex: 'tuck_front_lever', n: 25, d: 'Hold a tuck front lever for 25 seconds' },
+      { t: 'streak', n: 50, d: 'Reach a 50 day streak' },
+      { t: 'gate', g: 'spire', d: 'Clear The Spire of Nails' },
+    ], xp: 5400, ess: 820 },
+
+  { id: 'c9', n: 'Sovereign', lv: 50, art: 'bg_rank_a',
+    quote: 'A rank. Over the bar.',
+    d: 'The muscle-up and the freestanding handstand are the two things non-training people actually recognise. '
+     + 'Both are years of accumulated work arriving at once. Everything below them stays in the programme — nothing here is finished with.',
+    obj: [
+      { t: 'master', ex: 'muscle_up', d: 'Master the Muscle-Up' },
+      { t: 'pr', ex: 'lsit', n: 20, d: 'Hold an L-sit for 20 seconds' },
+      { t: 'pr', ex: 'free_handstand', n: 30, d: 'Hold a freestanding handstand for 30 seconds' },
+      { t: 'shadows', n: 8, d: 'Extract eight shadows' },
+      { t: 'gate', g: 'keep', d: 'Clear The Obsidian Keep' },
+    ], xp: 9000, ess: 1300 },
+
+  { id: 'c10', n: 'Monarch', lv: 70, art: 'bg_rank_s',
+    quote: 'S rank. There is no floor after this one.',
+    d: 'The front lever, the one-arm push-up and the straddle planche are the far end of what a body does without equipment. '
+     + 'Nobody arrives here quickly. If you are reading this having done the work, the game has very little left to teach you.',
+    obj: [
+      { t: 'pr', ex: 'front_lever', n: 10, d: 'Hold a full front lever for 10 seconds' },
+      { t: 'master', ex: 'oa_pushup', d: 'Master the One-Arm Push-Up' },
+      { t: 'pr', ex: 'straddle_planche', n: 10, d: 'Hold a straddle planche for 10 seconds' },
+      { t: 'gate', g: 'court', d: "Clear The Monarch's Court" },
+      { t: 'level', n: 100, d: 'Reach level 100' },
+    ], xp: 20000, ess: 3000 },
+];
+
+/* --------------------------------------------------------------- PROGRAMS ---
+   The prescribed rotation. Highest one you qualify for is the one you are on. */
+const PROGRAMS = [
+  { id: 'p_found', n: 'Foundation Protocol', lv: 1,
+    d: 'Three short full-body sessions and a recovery day. Everything is trained every time, because at this stage frequency '
+     + 'teaches the movement faster than volume does. Aim for a session every other day.',
+    days: [
+      { n: 'Full Body A', focus: 'Push, squat and brace', mins: 18, blocks: [
+        { line: 'mob', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'push', sets: 3, reps: 0.6, rest: 60 },
+        { line: 'squat', sets: 3, reps: 0.6, rest: 60 },
+        { line: 'core', sets: 2, reps: 0.7, rest: 45 },
+      ] },
+      { n: 'Recovery', focus: 'Mobility only — this still counts as training', mins: 10, rec: true, blocks: [
+        { ex: 'cat_cow', sets: 1, reps: 'goal', rest: 15 },
+        { ex: 'deep_squat_hold', sets: 2, reps: 0.6, rest: 20 },
+        { ex: 'hip_flexor_stretch', sets: 2, reps: 'goal', rest: 15 },
+        { ex: 'shoulder_pass', sets: 2, reps: 'goal', rest: 15 },
+      ] },
+      { n: 'Full Body B', focus: 'Push, pull and brace', mins: 20, blocks: [
+        { line: 'mob', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'push', sets: 3, reps: 0.7, rest: 60 },
+        { line: 'pull', sets: 3, reps: 0.6, rest: 75 },
+        { line: 'core', sets: 2, reps: 0.7, rest: 45 },
+      ] },
+      { n: 'Full Body C', focus: 'Legs, conditioning and brace', mins: 20, blocks: [
+        { line: 'mob', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'squat', sets: 3, reps: 0.7, rest: 60 },
+        { line: 'cond', sets: 2, reps: 0.6, rest: 45 },
+        { line: 'core', sets: 3, reps: 0.7, rest: 45 },
+      ] },
+    ] },
+
+  { id: 'p_iron', n: 'Ironbound Split', lv: 10,
+    d: 'Pushing and pulling get their own days so each can take real volume, with a legs and core day between them. '
+     + 'Four sessions in the rotation; three a week is plenty at this level.',
+    days: [
+      { n: 'Push Day', focus: 'Chest, shoulders and triceps', mins: 26, blocks: [
+        { line: 'mob', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'push', sets: 4, reps: 0.75, rest: 75 },
+        { line: 'dip', sets: 3, reps: 0.7, rest: 60 },
+        { line: 'vpush', sets: 3, reps: 0.6, rest: 60 },
+        { line: 'core', sets: 2, reps: 0.7, rest: 45 },
+      ] },
+      { n: 'Pull Day', focus: 'Back, biceps and grip', mins: 26, blocks: [
+        { line: 'mob', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'pull', sets: 4, reps: 0.75, rest: 90 },
+        { ex: 'dead_hang', sets: 2, reps: 0.8, rest: 60 },
+        { line: 'core', sets: 3, reps: 0.75, rest: 45 },
+      ] },
+      { n: 'Legs & Core', focus: 'Everything below the waist', mins: 24, blocks: [
+        { line: 'mob', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'squat', sets: 4, reps: 0.75, rest: 75 },
+        { line: 'hinge', sets: 3, reps: 0.7, rest: 60 },
+        { line: 'calf', sets: 2, reps: 0.8, rest: 45 },
+        { line: 'core', sets: 2, reps: 0.75, rest: 45 },
+      ] },
+      { n: 'Recovery', focus: 'Mobility and easy conditioning', mins: 14, rec: true, blocks: [
+        { ex: 'cat_cow', sets: 1, reps: 'goal', rest: 15 },
+        { ex: 'deep_squat_hold', sets: 2, reps: 0.7, rest: 20 },
+        { ex: 'pike_stretch', sets: 2, reps: 'goal', rest: 20 },
+        { line: 'bridge', sets: 2, reps: 0.7, rest: 20 },
+        { line: 'cond', sets: 2, reps: 0.4, rest: 45 },
+      ] },
+    ] },
+
+  { id: 'p_asc', n: 'Ascendant Cycle', lv: 20,
+    d: 'The split plus a dedicated skill day. Balance and straight-arm work belong at the START of a session while you are fresh — '
+     + 'that is why they get their own slot instead of being tacked onto the end of a push day.',
+    days: [
+      { n: 'Push Day', focus: 'Pressing volume', mins: 30, blocks: [
+        { line: 'mob', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'push', sets: 4, reps: 0.8, rest: 75 },
+        { line: 'dip', sets: 4, reps: 0.75, rest: 75 },
+        { line: 'vpush', sets: 3, reps: 0.7, rest: 60 },
+        { line: 'core', sets: 2, reps: 0.8, rest: 45 },
+      ] },
+      { n: 'Pull Day', focus: 'Pulling volume', mins: 30, blocks: [
+        { line: 'mob', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'pull', sets: 4, reps: 0.8, rest: 90 },
+        { line: 'mu', sets: 3, reps: 0.7, rest: 90 },
+        { line: 'core', sets: 3, reps: 0.8, rest: 45 },
+      ] },
+      { n: 'Skill Day', focus: 'Fresh, short sets, no fatigue', mins: 24, blocks: [
+        { ex: 'wrist_prep', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'hs', sets: 4, reps: 0.7, rest: 75 },
+        { line: 'lsit', sets: 3, reps: 0.75, rest: 60 },
+        { line: 'planche', sets: 3, reps: 0.6, rest: 75 },
+      ] },
+      { n: 'Legs & Core', focus: 'Single leg strength', mins: 26, blocks: [
+        { line: 'mob', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'squat', sets: 4, reps: 0.8, rest: 75 },
+        { line: 'hinge', sets: 3, reps: 0.75, rest: 60 },
+        { line: 'jump', sets: 3, reps: 0.7, rest: 60 },
+        { line: 'core', sets: 3, reps: 0.8, rest: 45 },
+      ] },
+      { n: 'Recovery', focus: 'Mobility and bridging', mins: 16, rec: true, blocks: [
+        { ex: 'cat_cow', sets: 1, reps: 'goal', rest: 15 },
+        { ex: 'deep_squat_hold', sets: 2, reps: 0.8, rest: 20 },
+        { ex: 'pike_stretch', sets: 2, reps: 'goal', rest: 20 },
+        { line: 'bridge', sets: 3, reps: 0.8, rest: 25 },
+      ] },
+    ] },
+
+  { id: 'p_gate', n: 'Gatebreaker Regimen', lv: 35,
+    d: 'Straight-arm work is now a first-class citizen and it gets paired with the pull it belongs to. '
+     + 'Elbows are the limiting factor at this level, not muscle — if they ache, take the lever blocks out for a fortnight and nothing else changes.',
+    days: [
+      { n: 'Push & Planche', focus: 'Pressing plus straight-arm push', mins: 34, blocks: [
+        { ex: 'wrist_prep', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'planche', sets: 3, reps: 0.7, rest: 90 },
+        { line: 'push', sets: 4, reps: 0.85, rest: 75 },
+        { line: 'dip', sets: 4, reps: 0.8, rest: 75 },
+        { line: 'vpush', sets: 3, reps: 0.75, rest: 75 },
+      ] },
+      { n: 'Pull & Levers', focus: 'Pulling plus straight-arm pull', mins: 34, blocks: [
+        { line: 'mob', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'fl', sets: 3, reps: 0.75, rest: 90 },
+        { line: 'pull', sets: 4, reps: 0.85, rest: 90 },
+        { line: 'mu', sets: 3, reps: 0.8, rest: 90 },
+        { line: 'bl', sets: 2, reps: 0.7, rest: 75 },
+      ] },
+      { n: 'Legs', focus: 'Single leg and posterior chain', mins: 28, blocks: [
+        { line: 'mob', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'squat', sets: 4, reps: 0.85, rest: 90 },
+        { line: 'hinge', sets: 3, reps: 0.8, rest: 75 },
+        { line: 'jump', sets: 3, reps: 0.8, rest: 60 },
+        { line: 'calf', sets: 3, reps: 0.9, rest: 45 },
+      ] },
+      { n: 'Core & Conditioning', focus: 'The middle, and the lungs', mins: 26, blocks: [
+        { line: 'mob', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'lsit', sets: 3, reps: 0.8, rest: 60 },
+        { line: 'core', sets: 4, reps: 0.85, rest: 45 },
+        { line: 'cond', sets: 4, reps: 0.8, rest: 45 },
+      ] },
+      { n: 'Recovery', focus: 'Mobility and bridging', mins: 16, rec: true, blocks: [
+        { ex: 'cat_cow', sets: 1, reps: 'goal', rest: 15 },
+        { ex: 'deep_squat_hold', sets: 2, reps: 0.9, rest: 20 },
+        { ex: 'pike_stretch', sets: 2, reps: 'goal', rest: 20 },
+        { line: 'bridge', sets: 3, reps: 0.9, rest: 25 },
+      ] },
+    ] },
+
+  { id: 'p_mon', n: 'Monarch Protocol', lv: 50,
+    d: 'Skill first, always, and everything at the top of its ladder. At this level the programme is less about what to do and '
+     + 'more about not doing too much of it — the hardest blocks are deliberately short.',
+    days: [
+      { n: 'Skill & Push', focus: 'Planche and pressing', mins: 38, blocks: [
+        { ex: 'wrist_prep', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'hs', sets: 3, reps: 0.8, rest: 90 },
+        { line: 'planche', sets: 4, reps: 0.85, rest: 90 },
+        { line: 'push', sets: 4, reps: 0.9, rest: 90 },
+        { line: 'dip', sets: 3, reps: 0.85, rest: 75 },
+      ] },
+      { n: 'Skill & Pull', focus: 'Levers and pulling', mins: 38, blocks: [
+        { line: 'mob', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'fl', sets: 4, reps: 0.85, rest: 90 },
+        { line: 'pull', sets: 4, reps: 0.9, rest: 90 },
+        { line: 'mu', sets: 3, reps: 0.85, rest: 90 },
+        { line: 'flag', sets: 3, reps: 0.75, rest: 90 },
+      ] },
+      { n: 'Legs', focus: 'Single leg strength', mins: 30, blocks: [
+        { line: 'mob', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'squat', sets: 5, reps: 0.9, rest: 90 },
+        { line: 'hinge', sets: 4, reps: 0.85, rest: 75 },
+        { line: 'jump', sets: 3, reps: 0.85, rest: 60 },
+      ] },
+      { n: 'Core & Conditioning', focus: 'The middle, and the lungs', mins: 28, blocks: [
+        { line: 'mob', sets: 1, reps: 'goal', rest: 20 },
+        { line: 'lsit', sets: 3, reps: 0.85, rest: 75 },
+        { line: 'core', sets: 4, reps: 0.9, rest: 60 },
+        { line: 'bl', sets: 3, reps: 0.8, rest: 75 },
+        { line: 'cond', sets: 3, reps: 0.85, rest: 45 },
+      ] },
+      { n: 'Recovery', focus: 'Mobility and bridging', mins: 18, rec: true, blocks: [
+        { ex: 'cat_cow', sets: 1, reps: 'goal', rest: 15 },
+        { ex: 'deep_squat_hold', sets: 2, reps: 1, rest: 20 },
+        { ex: 'pike_stretch', sets: 2, reps: 'goal', rest: 20 },
+        { line: 'bridge', sets: 3, reps: 1, rest: 25 },
+      ] },
+    ] },
 ];
 </script>
 <script>/* ==========================================================================
@@ -2718,13 +3093,14 @@ const G = {
       rest: 2, restWeek: weekKey(today),
       shadows: {}, titles: {}, title: null,
       gates: {},
-      history: [], lifetime: { xp: 0, sets: 0, reps: 0, days: 0 },
+      chapter: 0, chapDone: {}, prog: { id: null, idx: 0 },
+      history: [], lifetime: { xp: 0, sets: 0, reps: 0, days: 0, dailies: 0, sessions: 0 },
       settings: { dayStart: 4, reduceMotion: false, restBeep: true },
       seen: {},
     };
   },
   freshDay() {
-    return { sets: [], vol: {}, exIds: {}, gates: [], prs: 0, xp: 0, daily: null, side: null, recovery: false };
+    return { sets: [], vol: {}, exIds: {}, gates: [], prs: 0, xp: 0, daily: null, side: null, session: null };
   },
 };
 
@@ -2742,8 +3118,9 @@ function load() {
 function normalize(s) {
   const d = G.fresh();
   const out = Object.assign({}, d, s);
-  for (const k of ['alloc', 'earned', 'settings', 'lifetime']) out[k] = Object.assign({}, d[k], s[k] || {});
-  for (const k of ['pr', 'mastered', 'shadows', 'titles', 'gates', 'seen']) out[k] = Object.assign({}, s[k] || {});
+  for (const k of ['alloc', 'earned', 'settings', 'lifetime', 'prog']) out[k] = Object.assign({}, d[k], s[k] || {});
+  for (const k of ['pr', 'mastered', 'shadows', 'titles', 'gates', 'chapDone', 'seen']) out[k] = Object.assign({}, s[k] || {});
+  out.chapter = Math.max(0, Math.min(CHAPTERS.length - 1, out.chapter | 0));
   out.today = Object.assign({}, G.freshDay(), s.today || {});
   if (!Array.isArray(out.history)) out.history = [];
   if (!Array.isArray(out.today.sets)) out.today.sets = [];
@@ -2800,8 +3177,15 @@ function rollover() {
    A movement is available when you are the right level AND you have mastered
    the rung below it. Mastery is one honest set at the listed target — that is
    the whole gating system, and it is why the codex reads as a ladder. */
+/* Mobility is NOT a strict ladder. There is no reason to make someone master a
+   cat-cow before they are allowed to stretch a hip flexor, and gating it that
+   way meant every Recovery session prescribed movements the player could not
+   open. Mobility is level-gated only; everything else earns its next rung. */
+const freeLine = ex => ex.cat === 'mob';
+
 function unlocked(ex) {
   if (G.s.lv < ex.lv) return false;
+  if (freeLine(ex)) return true;
   const line = LINES[ex.line];
   const i = line.indexOf(ex);
   if (i <= 0) return true;
@@ -2809,6 +3193,7 @@ function unlocked(ex) {
 }
 function lockReason(ex) {
   if (G.s.lv < ex.lv) return 'Requires level ' + ex.lv;
+  if (freeLine(ex)) return '';
   const line = LINES[ex.line], i = line.indexOf(ex);
   if (i > 0 && !G.s.mastered[line[i - 1].id]) {
     const p = line[i - 1];
@@ -2816,12 +3201,15 @@ function lockReason(ex) {
   }
   return '';
 }
-/* The rung you are working on in a line right now: the hardest unlocked one. */
+/* The rung you are working on in a line right now: the hardest unlocked one.
+   Returns NULL when the line has nothing open yet — the old fallback to tier 1
+   handed back a LOCKED movement, which is how programs ended up prescribing
+   work the player could not do. Callers must skip a null line. */
 function currentIn(line) {
   const l = LINES[line] || [];
   let best = null;
   for (const e of l) if (unlocked(e)) best = e;
-  return best || l[0];
+  return best;
 }
 
 /* ------------------------------------------------------------- bonuses --- */
@@ -2937,11 +3325,13 @@ const DAILY_LINES = [
 ];
 
 function makeDaily() {
-  const items = DAILY_LINES.map(d => {
+  const items = [];
+  for (const d of DAILY_LINES) {
     const ex = currentIn(d.line);
+    if (!ex) continue;                 // nothing open in that ladder yet
     const target = Math.max(1, Math.round(ex.goal * (d.line === 'mob' ? 1 : 1.5)));
-    return { line: d.line, label: d.label, ex: ex.id, target, got: 0 };
-  });
+    items.push({ line: d.line, label: d.label, ex: ex.id, target, got: 0 });
+  }
   return { items, done: false, claimed: false };
 }
 
@@ -3002,6 +3392,7 @@ function claimDaily() {
   const ess = Math.round((40 + G.s.lv * 4) * (1 + shadowVal('essence') / 100));
   G.s.xp += xp; G.s.ess += ess; G.s.today.xp += xp; G.s.lifetime.xp += xp;
   G.s.free += 1;
+  G.s.lifetime.dailies = (G.s.lifetime.dailies || 0) + 1;
   if (wasPenalty) { G.s.penalty = false; G.s.penaltyDays = 0; grantTitle('t_penalty'); }
   const ev = levelUp(); checkTitles(); ev.push(...pendingTitles.splice(0));
   save();
@@ -3019,14 +3410,113 @@ function claimSide(i) {
   return { xp, ess, ev };
 }
 
+/* -------------------------------------------------------------- the path ---
+   Chapters are the guide: a handful of concrete objectives that tell a player
+   what is worth doing next. They gate nothing — they explain. */
+function curChapter() { return CHAPTERS[G.s.chapter] || CHAPTERS[CHAPTERS.length - 1]; }
+
+/* Progress toward one objective, as {got, need}. Everything is derived from
+   existing state so an objective can never disagree with the rest of the app. */
+function objProgress(o) {
+  const s = G.s;
+  switch (o.t) {
+    case 'session':  return { got: s.lifetime.sessions || 0, need: o.n };
+    case 'daily':    return { got: s.lifetime.dailies || 0, need: o.n };
+    case 'variety':  return { got: Object.keys(s.pr).length, need: o.n };
+    case 'streak':   return { got: Math.max(s.streak, s.best), need: o.n };
+    case 'level':    return { got: s.lv, need: o.n };
+    case 'shadows':  return { got: Object.keys(s.shadows).length, need: o.n };
+    case 'master':   return { got: s.mastered[o.ex] ? 1 : 0, need: 1 };
+    case 'pr':       return { got: Math.min(s.pr[o.ex] || 0, o.n), need: o.n };
+    case 'gate':     return { got: s.gates[o.g] ? 1 : 0, need: 1 };
+    default:         return { got: 0, need: 1 };
+  }
+}
+const objDone = o => { const p = objProgress(o); return p.got >= p.need; };
+function chapterProgress(c) {
+  const done = c.obj.filter(objDone).length;
+  return { done, total: c.obj.length, all: done === c.obj.length };
+}
+function claimChapter() {
+  const c = curChapter();
+  if (G.s.chapDone[c.id] || !chapterProgress(c).all) return null;
+  G.s.chapDone[c.id] = 1;
+  G.s.xp += c.xp; G.s.ess += c.ess; G.s.today.xp += c.xp; G.s.lifetime.xp += c.xp;
+  const ev = levelUp();
+  const more = G.s.chapter < CHAPTERS.length - 1;
+  if (more) { G.s.chapter++; ev.push({ t: 'chapter', chapter: CHAPTERS[G.s.chapter] }); }
+  checkTitles(); ev.push(...pendingTitles.splice(0));
+  save();
+  return { xp: c.xp, ess: c.ess, ev, chapter: c };
+}
+
+/* ------------------------------------------------------------- programs ---
+   The prescribed rotation. The rotation index advances only when a session is
+   FINISHED, so skipping a week never leaves you out of step with the plan. */
+function curProgram() {
+  let p = PROGRAMS[0];
+  for (const x of PROGRAMS) if (G.s.lv >= x.lv) p = x;
+  if (G.s.prog.id !== p.id) { G.s.prog = { id: p.id, idx: 0 }; }
+  return p;
+}
+function todaySessionIdx() { const p = curProgram(); return ((G.s.prog.idx % p.days.length) + p.days.length) % p.days.length; }
+function todaySession() { return curProgram().days[todaySessionIdx()]; }
+/* A session already finished today should not be re-prescribed as if it were
+   still owed — the player is told they are done and offered an extra instead. */
+function sessionDoneToday() { return !!G.s.today.session; }
+
+function buildSession(day) {
+  const run = buildRun({ id: '__session', floors: day.blocks, boss: null });
+  run.session = day.n;
+  run.gate = null;
+  run.boss = null;
+  return run;
+}
+function finishSession(day, run) {
+  const done = run.done.filter(Boolean).length;
+  const xp = Math.round((40 + G.s.lv * 6) * (done / Math.max(1, run.floors.length)) * streakMult());
+  const ess = Math.round((12 + G.s.lv * 1.5) * (done / Math.max(1, run.floors.length)));
+  G.s.xp += xp; G.s.ess += ess; G.s.today.xp += xp; G.s.lifetime.xp += xp;
+  G.s.lifetime.sessions++;
+  G.s.today.session = day.n;
+  G.s.prog.idx++;
+  const ev = levelUp();
+  progressQuests(); checkTitles(); ev.push(...pendingTitles.splice(0));
+  save();
+  return { xp, ess, ev, done, total: run.floors.length };
+}
+
 /* ---------------------------------------------------------------- gates ---
    Floors name a LINE and resolve to whatever rung the player owns, so one
-   written gate stays correct across the whole ladder. */
-function gateOpen(g) { return G.s.lv >= g.lv; }
+   written gate stays correct across the whole ladder.
+   A gate needs BOTH a level and the gate before it in the chain — "level 20"
+   on its own never told anyone what order to do them in. */
+function gateOpen(g) {
+  if (G.s.lv < g.lv) return false;
+  if (g.prereq && !G.s.gates[g.prereq]) return false;
+  return true;
+}
+function gateLock(g) {
+  if (G.s.lv < g.lv) return { why: 'Level ' + g.lv + ' required', sub: 'You are level ' + G.s.lv };
+  if (g.prereq && !G.s.gates[g.prereq]) {
+    const p = GATES.find(x => x.id === g.prereq);
+    return { why: 'Clear ' + (p ? p.n : g.prereq) + ' first', sub: 'Gates open in order' };
+  }
+  return null;
+}
 function buildRun(g) {
   const floors = [];
   for (const f of g.floors) {
-    const ex = f.ex ? EX_BY_ID[f.ex] : currentIn(f.line);
+    /* A pinned movement the player has not opened yet falls back to whatever
+       rung they DO own in that ladder; a ladder with nothing open is skipped
+       entirely rather than prescribing something locked. */
+    let ex = f.ex ? EX_BY_ID[f.ex] : null;
+    if (ex && !unlocked(ex)) ex = currentIn(ex.line);
+    /* An unpinned mobility block is a WARM-UP, and mobility is no longer a
+       ladder — so "the hardest rung you own" is the wrong selector and picked
+       a seated pike stretch to start a beginner's first ever session. */
+    if (!ex && f.line === 'mob') ex = EX_BY_ID['cat_cow'];
+    if (!ex) ex = currentIn(f.line);
     if (!ex) continue;
     let reps;
     if (f.reps === 'goal') reps = ex.goal;
@@ -3034,8 +3524,15 @@ function buildRun(g) {
     else reps = Math.max(1, Math.round(ex.goal * f.reps));
     for (let i = 0; i < f.sets; i++) floors.push({ ex: ex.id, reps, rest: f.rest, set: i + 1, of: f.sets });
   }
-  const bex = g.boss.ex ? EX_BY_ID[g.boss.ex] : currentIn(g.boss.line);
-  return { gate: g.id, floors, i: 0, done: [], boss: { ex: bex.id, mode: g.boss.mode, time: g.boss.time || 0 }, started: Date.now() };
+  /* Prescribed sessions reuse this builder and have no boss. */
+  let boss = null;
+  if (g.boss) {
+    let bex = g.boss.ex ? EX_BY_ID[g.boss.ex] : null;
+    if (bex && !unlocked(bex)) bex = currentIn(bex.line);
+    if (!bex) bex = currentIn(g.boss.line) || currentIn('push');
+    boss = { ex: bex.id, mode: g.boss.mode, time: g.boss.time || 0 };
+  }
+  return { gate: g.id, floors, i: 0, done: [], boss, started: Date.now() };
 }
 /* Rating is honest: it compares what you actually logged against what the gate
    asked for, and the boss counts double because it is the part that hurts. */
@@ -3134,8 +3631,14 @@ function spendStat(id) {
 }
 
 /* ==========================================================================
-   [JS-04]  UI  —  screens, the exercise sheet, the gate runner
-   All rules live in core.js; this file only draws and collects input.
+   [JS-04]  UI  —  four screens, the runner, the exercise sheet
+   --------------------------------------------------------------------------
+   TODAY is the app. It answers one question — what do I do right now — with a
+   prescribed session, and everything else supports that. PATH is the guide
+   (chapters and the gate chain), CODEX is the library, HUNTER is the record.
+
+   Six equal tabs with no spine is what made the old build feel like a set of
+   panels rather than a game.
    ========================================================================== */
 const $ = id => document.getElementById(id);
 const el = (tag, cls, html) => { const n = document.createElement(tag); if (cls) n.className = cls; if (html != null) n.innerHTML = html; return n; };
@@ -3145,19 +3648,17 @@ const nf = n => Math.round(n).toLocaleString();
 const unitS = (ex, n) => n + (ex.unit === 'sec' ? 's' : '');
 
 const ICONS = {
-  status: '<svg viewBox="0 0 24 24"><path d="M12 3l7 4v6c0 4-3 7-7 8-4-1-7-4-7-8V7z"/><path d="M9 12l2 2 4-4"/></svg>',
-  quest: '<svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M9 10h6M9 14h6"/></svg>',
-  gate: '<svg viewBox="0 0 24 24"><path d="M4 20V9a8 8 0 0116 0v11"/><path d="M9 20v-9a3 3 0 016 0v9"/></svg>',
+  today: '<svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',
+  path:  '<svg viewBox="0 0 24 24"><path d="M4 20V9a8 8 0 0116 0v11"/><path d="M9 20v-9a3 3 0 016 0v9"/></svg>',
   codex: '<svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h13v18H6a2 2 0 01-2-2z"/><path d="M8 8h7M8 12h7"/></svg>',
-  army: '<svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M5 21v-2a5 5 0 015-5h4a5 5 0 015 5v2"/></svg>',
-  log: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="1"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  hunter:'<svg viewBox="0 0 24 24"><path d="M12 3l7 4v6c0 4-3 7-7 8-4-1-7-4-7-8V7z"/><path d="M9 12l2 2 4-4"/></svg>',
 };
 const TABS = [
-  { id: 'status', n: 'Status' }, { id: 'quest', n: 'Quests' }, { id: 'gate', n: 'Gates' },
-  { id: 'codex', n: 'Codex' }, { id: 'army', n: 'Army' }, { id: 'log', n: 'Log' },
+  { id: 'today', n: 'TODAY' }, { id: 'path', n: 'PATH' },
+  { id: 'codex', n: 'CODEX' }, { id: 'hunter', n: 'HUNTER' },
 ];
 
-const U = { tab: 'status', cat: 'all', run: null, restT: null };
+const U = { tab: 'today', cat: 'all', run: null, runDay: null, restT: null };
 
 /* ------------------------------------------------------------- chrome --- */
 function paintHeader() {
@@ -3167,21 +3668,17 @@ function paintHeader() {
   $('hSub').innerHTML = '<b>' + r.n + '</b> &middot; ' + r.label.toUpperCase();
   $('hLv').textContent = s.lv;
   $('hEss').textContent = nf(s.ess) + ' ES';
-  const need = xpToNext(s.lv);
-  $('hXp').style.width = Math.min(100, s.xp / need * 100) + '%';
+  $('hXp').style.width = Math.min(100, s.xp / xpToNext(s.lv) * 100) + '%';
   const sg = art(r.sigil);
   $('hSigil').style.backgroundImage = sg ? 'url(' + sg + ')' : 'none';
 
-  const bits = [];
-  bits.push('<span class="fl">&#9650; ' + s.streak + ' DAY STREAK</span>');
-  bits.push('<span>x' + streakMult().toFixed(2) + ' XP</span>');
+  const bits = ['<span class="f">&#9650; ' + s.streak + ' DAY STREAK</span>',
+    '<span>x' + streakMult().toFixed(2) + ' XP</span>'];
   if (s.rest > 0) bits.push('<span>' + s.rest + ' REST</span>');
-  if (s.penalty) bits.push('<span class="pen">&#9888; PENALTY ZONE</span>');
+  if (s.penalty) bits.push('<span class="pn">&#9888; PENALTY</span>');
   $('hStrip').innerHTML = bits.join('<span class="dim">|</span>');
 
-  /* The backdrop answers to context before rank: the Penalty Zone should look
-     like somewhere you do not want to be. */
-  const bgId = s.penalty ? 'bg_penalty' : (U.tab === 'gate' ? 'bg_gate' : r.bg);
+  const bgId = s.penalty ? 'bg_penalty' : (U.tab === 'path' ? 'bg_gate' : r.bg);
   const bg = art(bgId) || art(r.bg);
   $('bg').style.backgroundImage = bg ? 'url(' + bg + ')' : 'none';
   document.body.classList.toggle('rm', !!s.settings.reduceMotion);
@@ -3189,10 +3686,10 @@ function paintHeader() {
 
 function paintNav() {
   const n = $('navIn'); n.innerHTML = '';
-  const pending = questsPending();
   for (const t of TABS) {
-    const b = el('button', U.tab === t.id ? 'on' : '', ICONS[t.id] + '<span>' + t.n.toUpperCase() + '</span>');
-    if (t.id === 'quest' && pending) b.appendChild(el('span', 'dot'));
+    const b = el('button', U.tab === t.id ? 'on' : '', ICONS[t.id] + '<span>' + t.n + '</span>');
+    if (t.id === 'today' && questsPending()) b.appendChild(el('span', 'dot'));
+    if (t.id === 'path' && chapterProgress(curChapter()).all && !G.s.chapDone[curChapter().id]) b.appendChild(el('span', 'dot'));
     b.onclick = () => go(t.id);
     n.appendChild(b);
   }
@@ -3209,7 +3706,16 @@ function render() {
   rollover();
   paintHeader(); paintNav();
   const v = $('view'); v.innerHTML = '';
-  ({ status: scStatus, quest: scQuest, gate: scGate, codex: scCodex, army: scArmy, log: scLog })[U.tab](v);
+  ({ today: scToday, path: scPath, codex: scCodex, hunter: scHunter })[U.tab](v);
+}
+
+function panel(title, tag, cls) {
+  const p = el('div', 'p' + (cls ? ' ' + cls : ''));
+  p.appendChild(el('div', 'ph', '<h2>' + title + '</h2>' + (tag ? '<span class="t">' + tag + '</span>' : '')));
+  const b = el('div', 'pb');
+  p.appendChild(b);
+  p.body = b;
+  return p;
 }
 
 /* -------------------------------------------------------------- toasts --- */
@@ -3226,14 +3732,14 @@ function burst(kicker, value, sub, img) {
     $('burst').classList.add('on');
     const close = () => { $('burst').classList.remove('on'); $('burst').onclick = null; res(); };
     $('burst').onclick = close;
-    setTimeout(close, 2400);
+    setTimeout(close, 2500);
   });
 }
-/* Events queue so a set that levels you AND unlocks a movement shows both. */
 async function showEvents(ev) {
   for (const e of ev || []) {
-    if (e.t === 'level') await burst('LEVEL UP', String(e.lv), 'Three stat points to assign.');
+    if (e.t === 'level') await burst('LEVEL UP', String(e.lv), 'Three attribute points to assign.');
     else if (e.t === 'rank') await burst('RANK UP', e.rank.n, 'You are ' + e.rank.label + ' now. New gates have opened.', art(e.rank.sigil));
+    else if (e.t === 'chapter') await burst('NEW CHAPTER', e.chapter.n.toUpperCase(), e.chapter.quote);
     else if (e.t === 'master') toast('&#10003; MASTERED &mdash; ' + e.ex.n.toUpperCase(), 'gold');
     else if (e.t === 'unlock') toast('&#9670; UNLOCKED &mdash; ' + e.ex.n.toUpperCase(), 'gold');
     else if (e.t === 'pr') toast('&#9733; NEW RECORD &mdash; ' + e.ex.n.toUpperCase() + ' ' + e.to, 'gold');
@@ -3243,9 +3749,642 @@ async function showEvents(ev) {
 }
 
 /* ==========================================================================
-   STATUS
+   TODAY  —  the prescribed session, then the day's quests
    ========================================================================== */
-function scStatus(v) {
+function chapterBar() {
+  const c = curChapter();
+  const pr = chapterProgress(c);
+  const bar = el('button', 'chapbar');
+  bar.style.width = '100%';
+  const a = art(c.art);
+  if (a) bar.style.backgroundImage = 'url(' + a + ')';
+  bar.innerHTML = '<div class="c"><div class="k">CHAPTER ' + (G.s.chapter + 1) + ' OF ' + CHAPTERS.length + '</div>' +
+    '<div class="n">' + esc(c.n) + '</div><div class="pr">' +
+    '<div class="bar e"><i style="width:' + (pr.done / pr.total * 100) + '%"></i></div>' +
+    '<span>' + pr.done + ' / ' + pr.total + '</span></div></div>';
+  bar.onclick = () => go('path');
+  return bar;
+}
+
+function scToday(v) {
+  const s = G.s;
+  v.appendChild(chapterBar());
+
+  if (s.penalty) {
+    const n = el('div', 'note bad');
+    n.innerHTML = '<b>PENALTY ZONE.</b> A day passed with no training at all. XP is down 25% and the streak is back to zero. ' +
+      'Complete today\'s Daily Quest and it lifts immediately.';
+    v.appendChild(n);
+    v.appendChild(el('div', '', '<div style="height:10px"></div>'));
+  }
+
+  v.appendChild(sessionCard());
+
+  /* Daily quest */
+  progressQuests();
+  const t = s.today;
+  const dp = panel('Daily Quest', t.daily.done ? 'COMPLETE' : 'IN PROGRESS', t.daily.done ? '' : 'em');
+  dp.body.appendChild(el('div', 'sml', 'Five lines, scaled to the rungs you own right now. Any movement in a line counts, and the session above covers most of it.'));
+  dp.body.appendChild(el('hr'));
+  for (const it of t.daily.items) {
+    const ex = EX_BY_ID[it.ex];
+    const ok = it.got >= it.target;
+    dp.body.appendChild(el('div', 'ob' + (ok ? ' ok' : ''),
+      '<div class="tick">&#10003;</div><div class="grow"><div class="n">' + it.label +
+      '</div><div class="s">e.g. ' + esc(ex.n) + '</div></div>' +
+      '<div class="v">' + Math.min(it.got, it.target) + '/' + it.target + '<div class="s">' + (ex.unit === 'sec' ? 'sec' : 'reps') + '</div></div>'));
+  }
+  dp.body.appendChild(el('hr'));
+  if (t.daily.done && !t.daily.claimed) {
+    const c = el('button', 'btn em w', 'Claim reward');
+    c.onclick = async () => { const r = claimDaily(); if (r) { toast('+' + nf(r.xp) + ' XP &nbsp; +' + nf(r.ess) + ' ES', 'gold'); await showEvents(r.ev); render(); } };
+    dp.body.appendChild(c);
+  } else if (t.daily.claimed) {
+    dp.body.appendChild(el('div', 'note ok', '&#10003; Claimed. The streak is secured for today.'));
+  } else {
+    dp.body.appendChild(el('div', 'sml', 'Miss this and tomorrow opens in the Penalty Zone. Training <i>anything</i> today still protects the streak, even unfinished.'));
+  }
+  v.appendChild(dp);
+
+  /* Side quests */
+  const sp = panel('Side Quests', 'OPTIONAL');
+  (t.side || []).forEach((q, i) => {
+    const tpl = SIDEQ.find(x => x.id === q.tid); if (!tpl) return;
+    const row = el('div', 'ob' + (q.done ? ' ok' : ''));
+    row.innerHTML = '<div class="tick">&#10003;</div><div class="grow"><div class="n">' + tpl.n +
+      '</div><div class="s">' + esc(tpl.d(q.amt)) + '</div></div>';
+    const right = el('div', 'v');
+    if (q.claimed) right.innerHTML = '<span class="dim">DONE</span>';
+    else if (q.done) {
+      const c = el('button', 'btn sm em', 'Claim');
+      c.onclick = async () => { const r = claimSide(i); if (r) { toast('+' + nf(r.xp) + ' XP &nbsp; +' + nf(r.ess) + ' ES'); await showEvents(r.ev); render(); } };
+      right.appendChild(c);
+    } else {
+      right.innerHTML = Math.min(q.got, q.amt) + '/' + q.amt + '<div class="s">+' + Math.round(tpl.xp * (1 + G.s.lv * 0.06)) + ' XP</div>';
+    }
+    row.appendChild(right);
+    sp.body.appendChild(row);
+  });
+  v.appendChild(sp);
+
+  /* Free training, demoted below the plan on purpose. */
+  const qp = panel('Train Something Else', 'FREE');
+  qp.body.appendChild(el('div', 'sml', 'Off-plan work still earns XP and counts toward quests. These are the hardest rungs you currently own.'));
+  qp.body.appendChild(el('hr'));
+  const seen = {};
+  for (const ln of ['push', 'pull', 'squat', 'core', 'cond', 'mob']) {
+    const ex = currentIn(ln);
+    if (!ex || seen[ex.id]) continue;
+    seen[ex.id] = 1;
+    qp.body.appendChild(exRow(ex, true));
+  }
+  v.appendChild(qp);
+}
+
+/* The session card is the single most important thing on screen: it says what
+   to do, how long it takes, and starts it in one tap. */
+function sessionCard() {
+  const day = todaySession();
+  const done = sessionDoneToday();
+  const prog = curProgram();
+  const run = buildSession(day);
+
+  const c = el('div', 'sess' + (day.rec ? ' rec' : '') + (done ? ' done' : ''));
+  const groups = [];
+  const seen = {};
+  run.floors.forEach(f => {
+    const k = f.ex + '|' + f.reps;
+    if (seen[k]) { seen[k].n++; return; }
+    seen[k] = { n: 1, ex: EX_BY_ID[f.ex], reps: f.reps };
+    groups.push(seen[k]);
+  });
+
+  c.innerHTML = '<div class="top"><div class="grow">' +
+    '<div class="k">' + (done ? 'SESSION COMPLETE' : "TODAY'S SESSION") + '</div>' +
+    '<div class="n">' + esc(day.n) + '</div>' +
+    '<div class="f">' + esc(day.focus) + '</div></div>' +
+    '<div class="meta"><div class="m">' + day.mins + '</div><div class="s">MINUTES</div></div></div>' +
+    '<div class="list">' + groups.map(g =>
+      '<div class="li"><i></i><span>' + esc(g.ex.n) + '</span><span class="r">' + g.n + ' &times; ' + unitS(g.ex, g.reps) + '</span></div>'
+    ).join('') + '</div>';
+
+  const act = el('div', 'act');
+  if (done) {
+    act.appendChild(el('div', 'note ok', '&#10003; ' + esc(G.s.today.session) + ' finished today. Rest is part of the plan &mdash; the next session is waiting whenever you are.'));
+    const again = el('button', 'btn gh w', 'Train it again anyway');
+    again.style.marginTop = '8px';
+    again.onclick = () => startSession(day);
+    act.appendChild(again);
+  } else {
+    const b = el('button', 'btn go w', 'Begin session');
+    b.onclick = () => startSession(day);
+    act.appendChild(b);
+    const alt = el('button', 'btn gh w', 'Choose a different session');
+    alt.style.marginTop = '8px';
+    alt.onclick = () => pickSession(prog);
+    act.appendChild(alt);
+  }
+  c.appendChild(act);
+  return c;
+}
+
+function pickSession(prog) {
+  const sh = $('sheetIn'); sh.innerHTML = '';
+  const p = panel(esc(prog.n), 'ROTATION', 'cy');
+  p.body.appendChild(el('div', 'sml', esc(prog.d)));
+  p.body.appendChild(el('hr'));
+  prog.days.forEach((d, i) => {
+    const row = el('button', 'exrow');
+    row.appendChild(el('div', 'grow', '<div class="en">' + esc(d.n) + '</div><div class="em2">' + esc(d.focus) + '</div>'));
+    row.appendChild(el('div', 'ep', d.mins + ' MIN' + (i === todaySessionIdx() ? '<br><span style="color:var(--cy)">PRESCRIBED</span>' : '')));
+    row.onclick = () => startSession(d);
+    p.body.appendChild(row);
+  });
+  const back = el('button', 'btn gh w', 'Back');
+  back.style.marginTop = '10px'; back.onclick = closeSheet;
+  p.body.appendChild(back);
+  sh.appendChild(p);
+  $('sheet').classList.add('on');
+  $('sheet').scrollTop = 0;
+}
+
+function startSession(day) {
+  U.run = buildSession(day);
+  U.runDay = day;
+  runStep();
+}
+
+/* ==========================================================================
+   PATH  —  the guide: this chapter's objectives, then the gate chain
+   ========================================================================== */
+function scPath(v) {
+  const c = curChapter();
+  const pr = chapterProgress(c);
+
+  const hero = el('div', 'hero');
+  const a = art(c.art);
+  if (a) hero.style.backgroundImage = 'url(' + a + ')';
+  hero.innerHTML = '<div class="hh"><div class="rl" style="color:var(--em2)">' + (G.s.chapter + 1) + '</div>' +
+    '<div class="rt"><div class="a">' + esc(c.n.toUpperCase()) + '</div><div class="b">' + esc(c.quote) + '</div></div></div>';
+  v.appendChild(hero);
+
+  const p = panel('This Chapter', pr.done + ' / ' + pr.total, 'em');
+  p.body.appendChild(el('div', 'sml', esc(c.d)));
+  p.body.appendChild(el('hr'));
+  for (const o of c.obj) {
+    const st = objProgress(o);
+    const ok = st.got >= st.need;
+    p.body.appendChild(el('div', 'ob' + (ok ? ' ok' : ''),
+      '<div class="tick">&#10003;</div><div class="grow"><div class="n">' + esc(o.d) + '</div></div>' +
+      '<div class="v">' + (st.need > 1 ? Math.min(st.got, st.need) + '/' + st.need : (ok ? '&#10003;' : '&mdash;')) + '</div>'));
+  }
+  p.body.appendChild(el('hr'));
+  if (pr.all && !G.s.chapDone[c.id]) {
+    const b = el('button', 'btn em w', 'Complete chapter &nbsp; +' + nf(c.xp) + ' XP');
+    b.onclick = async () => { const r = claimChapter(); if (r) { toast('CHAPTER COMPLETE &mdash; +' + nf(r.xp) + ' XP', 'gold'); await showEvents(r.ev); render(); } };
+    p.body.appendChild(b);
+  } else {
+    p.body.appendChild(el('div', 'sml', 'Finish every objective to close the chapter and open the next one. Nothing here is on a timer.'));
+  }
+  v.appendChild(p);
+
+  /* Programme summary — the player should be able to see the whole plan. */
+  const prog = curProgram();
+  const pp = panel('Your Programme', prog.n.toUpperCase(), 'cy');
+  pp.body.appendChild(el('div', 'sml', esc(prog.d)));
+  pp.body.appendChild(el('hr'));
+  prog.days.forEach((d, i) => {
+    pp.body.appendChild(el('div', 'ob' + (i === todaySessionIdx() ? ' ok' : ''),
+      '<div class="tick">' + (i === todaySessionIdx() ? '&#9654;' : '') + '</div>' +
+      '<div class="grow"><div class="n">' + esc(d.n) + '</div><div class="s">' + esc(d.focus) + '</div></div>' +
+      '<div class="v">' + d.mins + '<div class="s">min</div></div>'));
+  });
+  const nextP = PROGRAMS.find(x => x.lv > G.s.lv);
+  if (nextP) pp.body.appendChild(el('div', 'sml', '<div style="margin-top:8px">Next programme: <b>' + esc(nextP.n) + '</b> at level ' + nextP.lv + '.</div>'));
+  v.appendChild(pp);
+
+  /* Gates, in chain order, with the requirement spelled out. */
+  const cleared = Object.keys(G.s.gates).length;
+  const gp = panel('Gates', cleared + ' / ' + GATES.length + ' CLEARED');
+  gp.body.appendChild(el('div', 'sml', 'Harder one-off sessions that end in a boss. They open in order &mdash; each needs a level and the gate before it. First clear of a boss extracts its shadow.'));
+  v.appendChild(gp);
+
+  let nextShown = false;
+  for (const g of GATES) {
+    const open = gateOpen(g);
+    const lock = gateLock(g);
+    const clearedN = G.s.gates[g.id] || 0;
+    const rk = RANKS.find(r => r.id === g.rank);
+    const isNext = open && !clearedN && !nextShown;
+    if (isNext) nextShown = true;
+
+    const card = el('button', 'gate' + (open ? '' : ' lock') + (isNext ? ' next' : ''));
+    const ga = art(g.art);
+    /* The caption lives INSIDE .art. As a sibling it anchored to the bottom of
+       the whole card, so on a locked gate it printed straight over the lock
+       note underneath. */
+    card.innerHTML =
+      '<div class="art" style="' + (ga ? 'background-image:url(' + ga + ')' : '') + '">' +
+        '<div class="rk" style="color:' + rk.col + ';border-color:' + rk.col + '">' + rk.n + '</div>' +
+        (clearedN ? '<div class="cl">&#10003; ' + clearedN + '</div>' : (isNext ? '<div class="cl" style="color:var(--cy);border-color:var(--cy)">NEXT</div>' : '')) +
+        '<div class="gi"><div class="gn">' + esc(g.n) + '</div><div class="gd">' + esc(g.d) + '</div>' +
+        '<div class="tags"><span>' + g.mins + ' MIN</span><span>' + esc(g.trains) + '</span></div></div>' +
+      '</div>';
+    if (lock) card.appendChild(el('div', 'locknote',
+      '<span class="ic">&#128274;</span><div><b>' + esc(lock.why) + '</b><span>' + esc(lock.sub) + '</span></div>'));
+    card.onclick = () => open ? openGate(g) : toast(lock.why);
+    v.appendChild(card);
+  }
+
+  /* Chapters already behind you, for context. */
+  if (G.s.chapter > 0) {
+    const hp = panel('Chapters Behind You', G.s.chapter + ' DONE');
+    for (let i = 0; i < G.s.chapter; i++) {
+      const ch = CHAPTERS[i];
+      hp.body.appendChild(el('div', 'ob ok', '<div class="tick">&#10003;</div>' +
+        '<div class="grow"><div class="n">' + esc(ch.n) + '</div><div class="s">' + esc(ch.quote) + '</div></div>'));
+    }
+    v.appendChild(hp);
+  }
+}
+
+/* ==========================================================================
+   RUNNER  —  drives both prescribed sessions and gates
+   ========================================================================== */
+function floorBar(run, phase) {
+  let h = '<div class="floors">';
+  for (let i = 0; i < run.floors.length; i++)
+    h += '<i class="' + (run.done[i] ? 'done' : (phase === 'floor' && i === run.i ? 'cur' : '')) + '"></i>';
+  if (run.boss) h += '<i class="boss' + (phase === 'result' ? ' done' : (phase === 'boss' ? ' cur' : '')) + '"></i>';
+  return h + '</div>';
+}
+
+function runStep() {
+  const run = U.run; if (!run) return;
+  if (run.i >= run.floors.length) return run.boss ? runBoss() : runResult(0);
+  const f = run.floors[run.i];
+  const ex = EX_BY_ID[f.ex];
+  const g = run.gate ? GATES.find(x => x.id === run.gate) : null;
+  const title = g ? g.n : run.session;
+
+  const sh = $('sheetIn'); sh.innerHTML = '';
+  const p = panel(esc(title), 'STEP ' + (run.i + 1) + ' / ' + run.floors.length, 'cy');
+  p.body.innerHTML = floorBar(run, 'floor');
+  p.body.appendChild(demoBlock(ex));
+  p.body.appendChild(el('div', 'row', '<div class="grow"><div class="lab">Movement</div>' +
+    '<div style="font:700 19px/1.25 var(--disp)">' + esc(ex.n) + '</div></div>' +
+    '<div style="text-align:right"><div class="lab">Set ' + f.set + ' of ' + f.of + '</div>' +
+    '<div style="font:700 26px/1 var(--disp);color:var(--cy2)">' + unitS(ex, f.reps) + '</div></div>'));
+  p.body.appendChild(el('hr'));
+  p.body.appendChild(counterBlock(ex, f.reps, n => {
+    const r = logSet(ex.id, n);
+    run.done[run.i] = { n };
+    run.i++;
+    if (r) toast('+' + nf(r.xp) + ' XP');
+    showEvents(r ? r.ev : []).then(() => {
+      const last = run.i >= run.floors.length;
+      const next = last ? (run.boss ? runBoss : () => runResult(0)) : runStep;
+      runRest(last && !run.boss ? 0 : f.rest, next);
+    });
+  }));
+  p.body.appendChild(el('hr'));
+  p.body.appendChild(el('div', 'lab', 'Form'));
+  ex.cues.forEach((c, i) => p.body.appendChild(el('div', 'cue', '<b>' + (i + 1) + '</b><span>' + esc(c) + '</span>')));
+  const bail = el('button', 'btn gh w', run.gate ? 'Leave the gate' : 'End session early');
+  bail.style.marginTop = '12px';
+  bail.onclick = () => {
+    if (!confirm('Sets you already logged are kept. ' + (run.gate ? 'The gate will not count as cleared.' : 'The session will not count as finished.'))) return;
+    U.run = null; closeSheet(); render();
+  };
+  p.body.appendChild(bail);
+  sh.appendChild(p);
+  $('sheet').classList.add('on');
+  $('sheet').scrollTop = 0;
+}
+
+function runRest(sec, next) {
+  if (!sec) return next();
+  const sh = $('sheetIn'); sh.innerHTML = '';
+  const p = panel('Rest', 'RECOVER', 'cy');
+  p.body.appendChild(el('div', 'rest', '<div class="t" id="rT">' + sec + '</div><div class="l">SECONDS</div>'));
+  p.body.appendChild(el('div', 'sml', 'Rest is part of the set, not a gap between sets. Come back able to do the next one properly.'));
+  const skip = el('button', 'btn w', 'Skip rest');
+  skip.style.marginTop = '12px';
+  p.body.appendChild(skip);
+  sh.appendChild(p);
+
+  let left = sec;
+  const done = () => { clearInterval(U.restT); U.restT = null; next(); };
+  skip.onclick = done;
+  clearInterval(U.restT);
+  U.restT = setInterval(() => {
+    left--;
+    const t = $('rT'); if (!t) return done();
+    t.textContent = Math.max(0, left);
+    if (left <= 0) done();
+  }, 1000);
+}
+
+function runBoss() {
+  const run = U.run; if (!run) return;
+  const g = GATES.find(x => x.id === run.gate);
+  const ex = EX_BY_ID[run.boss.ex];
+  const sh = $('sheetIn'); sh.innerHTML = '';
+  const p = panel(esc(g.boss.n), 'BOSS', 'vi');
+  p.body.innerHTML = floorBar(run, 'boss');
+  const ba = art(g.boss.art);
+  const bx = el('div', 'bossart');
+  if (ba) bx.innerHTML = '<img src="' + ba + '" alt="">';
+  p.body.appendChild(bx);
+  p.body.appendChild(el('div', 'sml', '<div style="margin-top:8px">' + esc(g.boss.d) + '</div>'));
+  p.body.appendChild(el('hr'));
+  p.body.appendChild(el('div', 'lab', run.boss.mode === 'amrap' ? 'As many as possible' : 'Maximum hold'));
+  p.body.appendChild(el('div', '', '<div style="font:700 19px/1.3 var(--disp)">' + esc(ex.n) + '</div>'));
+  p.body.appendChild(demoBlock(ex));
+  p.body.appendChild(counterBlock(ex, Math.max(1, Math.round(ex.goal * 0.8)), n => {
+    const r = logSet(ex.id, n);
+    if (r) toast('+' + nf(r.xp) + ' XP');
+    showEvents(r ? r.ev : []).then(() => runResult(n));
+  }, run.boss.mode === 'amrap' ? run.boss.time : 0));
+  sh.appendChild(p);
+  $('sheet').classList.add('on');
+  $('sheet').scrollTop = 0;
+}
+
+async function runResult(bossAmount) {
+  const run = U.run; if (!run) return;
+  U.run = null;
+  const sh = $('sheetIn'); sh.innerHTML = '';
+
+  if (!run.gate) {
+    const res = finishSession(U.runDay, run);
+    const p = panel('Session Complete', esc(run.session), 'cy');
+    p.body.innerHTML = '<div class="vit" style="margin:6px 0 4px">' +
+      '<div><div class="k">' + res.done + '/' + res.total + '</div><div class="l">Sets</div></div>' +
+      '<div><div class="k">+' + nf(res.xp) + '</div><div class="l">XP</div></div>' +
+      '<div><div class="k">+' + nf(res.ess) + '</div><div class="l">Essence</div></div></div>';
+    p.body.appendChild(el('hr'));
+    const nx = todaySession();
+    p.body.appendChild(el('div', 'sml', 'Next in the rotation: <b>' + esc(nx.n) + '</b>. Take a day off before it if you need one &mdash; recovery is when you actually get stronger.'));
+    const d = el('button', 'btn go w', 'Done');
+    d.style.marginTop = '12px';
+    d.onclick = () => { closeSheet(); go('today'); };
+    p.body.appendChild(d);
+    sh.appendChild(p);
+    $('sheet').scrollTop = 0;
+    await showEvents(res.ev);
+    return;
+  }
+
+  const g = GATES.find(x => x.id === run.gate);
+  const res = finishGate(g, run, bossAmount);
+  const p = panel('Gate Cleared', esc(g.n), 'em');
+  p.body.innerHTML = '<div style="text-align:center;padding:6px 0 12px">' +
+    '<div class="lab">Rating</div><div style="font:700 70px/1 var(--disp);color:var(--em2);text-shadow:0 0 36px rgba(255,180,80,.45)">' + res.rate.r + '</div>' +
+    '<div class="sml">' + Math.round(res.rate.pct * 100) + '% of the gate\'s target volume</div></div>' +
+    '<div class="vit"><div><div class="k">+' + nf(res.xp) + '</div><div class="l">XP</div></div>' +
+    '<div><div class="k">+' + nf(res.ess) + '</div><div class="l">Essence</div></div>' +
+    '<div><div class="k">' + G.s.gates[g.id] + '</div><div class="l">Clears</div></div></div>';
+  if (res.first) p.body.appendChild(el('div', 'note', 'First clear &mdash; double rewards.'));
+  const d = el('button', 'btn go w', 'Return');
+  d.style.marginTop = '12px';
+  d.onclick = () => { closeSheet(); go('path'); };
+  p.body.appendChild(d);
+  sh.appendChild(p);
+  $('sheet').scrollTop = 0;
+  await showEvents(res.ev);
+}
+
+function openGate(g) {
+  const run = buildRun(g);
+  const sh = $('sheetIn'); sh.innerHTML = '';
+  const p = panel(esc(g.n), RANKS.find(r => r.id === g.rank).n + ' RANK', 'em');
+  const a = art(g.art);
+  if (a) {
+    const im = el('div', 'gate'); im.style.marginBottom = '10px';
+    im.innerHTML = '<div class="art" style="background-image:url(' + a + ')"></div>';
+    p.body.appendChild(im);
+  }
+  p.body.appendChild(el('div', '', esc(g.d)));
+  p.body.appendChild(el('div', 'row sml', '<span>' + g.mins + ' minutes</span><span class="grow"></span><span>' + esc(g.trains) + '</span>'));
+  p.body.appendChild(el('hr'));
+  p.body.appendChild(el('div', 'lab', 'Floors &mdash; ' + run.floors.length + ' sets'));
+  const seen = {}, groups = [];
+  run.floors.forEach(f => {
+    const k = f.ex + '|' + f.reps;
+    if (seen[k]) { seen[k].n++; return; }
+    seen[k] = { n: 1, ex: EX_BY_ID[f.ex], reps: f.reps }; groups.push(seen[k]);
+  });
+  groups.forEach(o => p.body.appendChild(el('div', 'ob',
+    '<div class="grow"><div class="n">' + esc(o.ex.n) + '</div><div class="s">' + esc(o.ex.gear) + '</div></div>' +
+    '<div class="v">' + o.n + ' &times; ' + unitS(o.ex, o.reps) + '</div>')));
+  p.body.appendChild(el('hr'));
+  p.body.appendChild(el('div', 'lab', 'Boss'));
+  const bex = EX_BY_ID[run.boss.ex];
+  p.body.appendChild(el('div', 'ob', '<div class="grow"><div class="n" style="color:var(--vio)">' + esc(g.boss.n) +
+    '</div><div class="s">' + esc(g.boss.d) + '</div></div>'));
+  p.body.appendChild(el('div', 'sml', run.boss.mode === 'amrap'
+    ? 'As many ' + esc(bex.n) + ' as you can in ' + run.boss.time + ' seconds.'
+    : 'Hold a ' + esc(bex.n) + ' for as long as you can.'));
+  p.body.appendChild(el('hr'));
+  const start = el('button', 'btn go w', 'Enter the gate');
+  start.onclick = () => { U.run = run; U.runDay = null; runStep(); };
+  p.body.appendChild(start);
+  const back = el('button', 'btn gh w', 'Back');
+  back.style.marginTop = '8px'; back.onclick = closeSheet;
+  p.body.appendChild(back);
+  sh.appendChild(p);
+  $('sheet').classList.add('on');
+  $('sheet').scrollTop = 0;
+}
+
+/* ==========================================================================
+   CODEX
+   ========================================================================== */
+function scCodex(v) {
+  const p = panel('Codex', Object.keys(G.s.mastered).length + ' / ' + EX.length + ' MASTERED', 'cy');
+  p.body.appendChild(el('div', 'sml', 'Every movement in the game, arranged as ladders. Master the rung you are on &mdash; one honest set at the listed target &mdash; and the next one opens.'));
+  const chips = el('div', 'chips'); chips.style.marginTop = '10px';
+  const mk = (id, n) => { const c = el('button', 'chip' + (U.cat === id ? ' on' : ''), n); c.onclick = () => { U.cat = id; render(); }; return c; };
+  chips.appendChild(mk('all', 'All'));
+  chips.appendChild(mk('open', 'Available now'));
+  CATS.forEach(c => chips.appendChild(mk(c.id, c.n)));
+  p.body.appendChild(chips);
+  v.appendChild(p);
+
+  const lines = {};
+  EX.forEach(e => {
+    if (U.cat === 'open' && (!unlocked(e) || G.s.mastered[e.id])) return;
+    if (U.cat !== 'all' && U.cat !== 'open' && e.cat !== U.cat) return;
+    (lines[e.line] = lines[e.line] || []).push(e);
+  });
+
+  for (const ln in lines) {
+    const list = lines[ln], full = LINES[ln];
+    const cat = CATS.find(c => c.id === list[0].cat);
+    const p2 = el('div', 'p');
+    p2.style.setProperty('--rank', cat.col);
+    p2.appendChild(el('div', 'ph', '<h2 style="color:' + cat.col + '">' + cat.n + '</h2><span class="t">' +
+      full.filter(e => G.s.mastered[e.id]).length + ' / ' + full.length + '</span>'));
+    const b2 = el('div', 'pb');
+    const lad = el('div', 'ladder');
+    const cur = currentIn(ln);
+    full.forEach(e => lad.appendChild(el('i', 'rung' + (G.s.mastered[e.id] ? ' done' : (cur && cur.id === e.id ? ' cur' : '')))));
+    b2.appendChild(lad);
+    list.forEach(e => b2.appendChild(exRow(e)));
+    p2.appendChild(b2);
+    v.appendChild(p2);
+  }
+}
+
+function exRow(ex, compact) {
+  const open = unlocked(ex);
+  const row = el('button', 'exrow' + (open ? '' : ' lk'));
+  const cv = document.createElement('canvas');
+  row.appendChild(cv);
+  row.appendChild(el('div', 'grow', '<div class="en">' + esc(ex.n) + '</div>' +
+    '<div class="em2">' + (open ? esc(ex.gear) : esc(lockReason(ex))) + '</div>'));
+  const pr = G.s.pr[ex.id] || 0;
+  row.appendChild(el('div', 'ep', compact ? 'LOG &rsaquo;'
+    : ((G.s.mastered[ex.id] ? '<span class="mst">&#9733; MASTERED</span><br>' : 'Lv ' + ex.lv + '<br>') +
+       (pr ? 'PR ' + unitS(ex, pr) : 'goal ' + unitS(ex, ex.goal)))));
+  row.onclick = () => openEx(ex);
+  const paint = () => { if (POSE[ex.id]) FIG.still(cv, POSE[ex.id], 1); };
+  requestAnimationFrame(paint); setTimeout(paint, 30);
+  return row;
+}
+
+function demoBlock(ex) {
+  const d = el('div', 'demo');
+  const cv = document.createElement('canvas');
+  d.appendChild(cv);
+  d.appendChild(el('div', 'g1', esc(ex.gear)));
+  d.appendChild(el('div', 'g2', ex.unit === 'sec' ? 'HOLD' : 'TEMPO ' + (POSE[ex.id] ? POSE[ex.id].tempo.toFixed(1) : '2.0') + 's'));
+  setTimeout(() => { if (POSE[ex.id]) FIG.animate(cv, POSE[ex.id]); }, 20);
+  return d;
+}
+
+function counterBlock(ex, suggested, onDone, amrapSecs) {
+  const box = el('div', '');
+  let n = suggested || 0;
+  const isTime = ex.unit === 'sec';
+
+  if (isTime && !amrapSecs) {
+    let running = false, t0 = 0, acc = 0, iv = null;
+    const c = el('div', 'cnt');
+    const val = el('div', 'v', '0<small>SECONDS</small>');
+    c.appendChild(val); box.appendChild(c);
+    const paint = () => val.innerHTML = Math.floor(acc + (running ? (Date.now() - t0) / 1000 : 0)) + '<small>SECONDS</small>';
+    const go2 = el('button', 'btn go w', 'Start hold');
+    const fin = el('button', 'btn w', 'Log this hold');
+    go2.onclick = () => {
+      if (!running) { running = true; t0 = Date.now(); iv = setInterval(paint, 100); go2.textContent = 'Stop'; }
+      else { running = false; acc += (Date.now() - t0) / 1000; clearInterval(iv); paint(); go2.textContent = 'Resume'; fin.disabled = false; }
+    };
+    box.appendChild(go2);
+    fin.style.marginTop = '8px'; fin.disabled = true;
+    fin.onclick = () => { if (running) { running = false; acc += (Date.now() - t0) / 1000; clearInterval(iv); } onDone(Math.round(acc)); };
+    box.appendChild(fin);
+    box.appendChild(el('div', 'sml', '<div style="margin-top:8px">Target ' + unitS(ex, suggested) + '. Stop the moment the shape breaks &mdash; a short honest hold beats a long ugly one.</div>'));
+    return box;
+  }
+
+  if (amrapSecs) {
+    let left = amrapSecs, started = false, iv = null;
+    n = 0;
+    const c = el('div', 'cnt');
+    const minus = el('button', '', '&minus;'), plus = el('button', '', '+');
+    const val = el('div', 'v', '0<small>REPS</small>');
+    c.appendChild(minus); c.appendChild(val); c.appendChild(plus);
+    box.appendChild(el('div', 'rest', '<div class="t" id="amT">' + amrapSecs + '</div><div class="l">SECONDS LEFT</div>'));
+    box.appendChild(c);
+    const paint = () => val.innerHTML = n + '<small>' + (isTime ? 'SECONDS' : 'REPS') + '</small>';
+    minus.onclick = () => { n = Math.max(0, n - 1); paint(); };
+    plus.onclick = () => {
+      n++; paint();
+      if (!started) {
+        started = true;
+        iv = setInterval(() => {
+          left--; const t = $('amT'); if (!t) return clearInterval(iv);
+          t.textContent = Math.max(0, left);
+          if (left <= 0) { clearInterval(iv); t.style.color = 'var(--red)'; }
+        }, 1000);
+      }
+    };
+    const fin = el('button', 'btn go w', 'Finish');
+    fin.onclick = () => { clearInterval(iv); onDone(n); };
+    box.appendChild(fin);
+    box.appendChild(el('div', 'sml', '<div style="margin-top:8px">The clock starts on your first rep. Count every honest one.</div>'));
+    return box;
+  }
+
+  const c = el('div', 'cnt');
+  const minus = el('button', '', '&minus;'), plus = el('button', '', '+');
+  const val = el('div', 'v', n + '<small>REPS</small>');
+  const paint = () => val.innerHTML = n + '<small>REPS</small>';
+  minus.onclick = () => { n = Math.max(0, n - 1); paint(); };
+  plus.onclick = () => { n++; paint(); };
+  c.appendChild(minus); c.appendChild(val); c.appendChild(plus);
+  box.appendChild(c);
+  const fin = el('button', 'btn go w', 'Log this set');
+  fin.onclick = () => { if (n > 0) onDone(n); };
+  box.appendChild(fin);
+  if (suggested) box.appendChild(el('div', 'sml', '<div style="margin-top:8px">Target ' + suggested + '. Log what you actually did &mdash; the app scores honest reps.</div>'));
+  return box;
+}
+
+function openEx(ex) {
+  const open = unlocked(ex);
+  const sh = $('sheetIn'); sh.innerHTML = '';
+  const cat = CATS.find(c => c.id === ex.cat);
+  const p = el('div', 'p');
+  p.style.setProperty('--rank', cat.col);
+  p.appendChild(el('div', 'ph', '<h2 style="color:' + cat.col + '">' + cat.n + '</h2><span class="t">RUNG ' + ex.tier + ' / ' + LINES[ex.line].length + '</span>'));
+  const b = el('div', 'pb');
+  b.appendChild(el('div', '', '<div style="font:700 23px/1.2 var(--disp);letter-spacing:.02em;margin-bottom:8px">' + esc(ex.n) + '</div>'));
+  b.appendChild(demoBlock(ex));
+  b.appendChild(el('div', 'row sml', '<span>' + esc(ex.gear) + '</span><span class="grow"></span><span>' +
+    ex.xp + ' XP / ' + (ex.unit === 'sec' ? 'sec' : 'rep') + '</span>'));
+  b.appendChild(el('hr'));
+  b.appendChild(el('div', '', esc(ex.d)));
+  b.appendChild(el('hr'));
+  b.appendChild(el('div', 'lab', 'How to do it'));
+  ex.cues.forEach((c, i) => b.appendChild(el('div', 'cue', '<b>' + (i + 1) + '</b><span>' + esc(c) + '</span>')));
+  b.appendChild(el('div', 'sml', '<div style="margin-top:6px"><b>Breathing.</b> ' + esc(ex.br) + '</div>'));
+  b.appendChild(el('hr'));
+  b.appendChild(el('div', 'lab', 'What goes wrong'));
+  ex.err.forEach(c => b.appendChild(el('div', 'err', '<span>&#9679;</span><span>' + esc(c) + '</span>')));
+  b.appendChild(el('hr'));
+  const pr = G.s.pr[ex.id] || 0;
+  b.appendChild(el('div', 'vit',
+    '<div><div class="k">' + unitS(ex, ex.goal) + '</div><div class="l">Mastery</div></div>' +
+    '<div><div class="k">' + (pr ? unitS(ex, pr) : '&mdash;') + '</div><div class="l">Your best</div></div>' +
+    '<div><div class="k">' + (G.s.mastered[ex.id] ? '&#9733;' : 'Lv ' + ex.lv) + '</div><div class="l">' + (G.s.mastered[ex.id] ? 'Mastered' : 'Unlocks') + '</div></div>'));
+  b.appendChild(el('hr'));
+  if (open) {
+    b.appendChild(el('div', 'lab', 'Log a set'));
+    b.appendChild(counterBlock(ex, Math.max(1, pr || Math.round(ex.goal * 0.6)), async n => {
+      const r = logSet(ex.id, n);
+      if (r) { toast('+' + nf(r.xp) + ' XP &nbsp; +' + nf(r.ess) + ' ES'); await showEvents(r.ev); }
+      closeSheet(); render();
+    }));
+  } else {
+    b.appendChild(el('div', 'note bad', '<b>Locked.</b> ' + esc(lockReason(ex))));
+  }
+  const back = el('button', 'btn gh w', 'Close');
+  back.style.marginTop = '12px'; back.onclick = closeSheet;
+  b.appendChild(back);
+  p.appendChild(b); sh.appendChild(p);
+  $('sheet').classList.add('on');
+  $('sheet').scrollTop = 0;
+}
+
+function closeSheet() { FIG.stopAll(); clearInterval(U.restT); $('sheet').classList.remove('on'); $('sheetIn').innerHTML = ''; }
+
+/* ==========================================================================
+   HUNTER  —  status, attributes, shadows, titles, log, system
+   ========================================================================== */
+function scHunter(v) {
   const s = G.s, r = rankOf(s.lv), nr = nextRank(s.lv);
 
   const hero = el('div', 'hero');
@@ -3254,132 +4393,179 @@ function scStatus(v) {
   hero.innerHTML = '<div class="hh"><div class="rl" style="color:' + (s.penalty ? 'var(--red)' : r.col) + '">' +
     (s.penalty ? '!' : r.n) + '</div><div class="rt"><div class="a" style="color:' + (s.penalty ? 'var(--red)' : r.col) + '">' +
     (s.penalty ? 'PENALTY ZONE' : r.label.toUpperCase()) + '</div><div class="b">' +
-    (s.penalty ? 'Clear a Daily Quest to get out' : (nr ? 'Rank ' + nr.n + ' at level ' + nr.lv : 'The summit')) +
-    '</div></div></div>';
+    (s.penalty ? 'Clear a Daily Quest to get out' : (nr ? 'Rank ' + nr.n + ' at level ' + nr.lv : 'The summit')) + '</div></div></div>';
   v.appendChild(hero);
 
-  const w = el('div', 'win');
-  w.appendChild(el('div', 'wt', '<h2>Status</h2><span class="sub">' + s.created + '</span>'));
-  const b = el('div', 'wb');
-  b.innerHTML =
-    '<div class="row" style="align-items:flex-start">' +
-      '<div class="grow"><div class="lab">Hunter</div><div class="big" style="font-size:20px;margin:2px 0 6px">' + esc(s.name) + '</div>' +
-      '<div class="tiny mut">' + (s.title && TITLES.find(t => t.id === s.title) ? TITLES.find(t => t.id === s.title).n : 'No title worn') + '</div></div>' +
-      '<div style="text-align:right"><div class="lab">Rank</div><div class="big" style="color:' + r.col + '">' + r.n + '</div></div>' +
-    '</div><div class="sep"></div>' +
-    '<div class="row tiny"><span class="mut">LEVEL ' + s.lv + '</span><span class="grow"></span>' +
-      '<span class="dim">' + nf(s.xp) + ' / ' + nf(xpToNext(s.lv)) + ' XP</span></div>' +
-    '<div class="bar" style="margin-top:5px"><i style="width:' + Math.min(100, s.xp / xpToNext(s.lv) * 100) + '%"></i></div>';
-  w.appendChild(b); v.appendChild(w);
+  const p = panel(esc(s.name), 'SINCE ' + s.created);
+  p.body.innerHTML = '<div class="row"><div class="grow"><div class="lab">Title</div>' +
+    '<div style="font:700 16px/1.3 var(--disp)">' + (s.title && TITLES.find(t => t.id === s.title) ? esc(TITLES.find(t => t.id === s.title).n) : 'None worn') + '</div></div>' +
+    '<div style="text-align:right"><div class="lab">Level</div><div style="font:700 30px/1 var(--disp);color:var(--cy2)">' + s.lv + '</div></div></div>' +
+    '<div class="row sml" style="margin-top:9px"><span>' + nf(s.xp) + ' / ' + nf(xpToNext(s.lv)) + ' XP</span></div>' +
+    '<div class="bar" style="margin-top:4px"><i style="width:' + Math.min(100, s.xp / xpToNext(s.lv) * 100) + '%"></i></div>';
+  v.appendChild(p);
 
-  /* Today */
-  const t = G.s.today;
-  const w2 = el('div', 'win');
-  w2.appendChild(el('div', 'wt', '<h2>Today</h2><span class="sub">' + s.day + '</span>'));
-  const b2 = el('div', 'wb');
-  b2.innerHTML = '<div class="vitals">' +
-    '<div><div class="k">' + t.sets.length + '</div><div class="l">Sets</div></div>' +
-    '<div><div class="k">' + nf(t.xp) + '</div><div class="l">XP</div></div>' +
-    '<div><div class="k">' + Object.keys(t.exIds).length + '</div><div class="l">Movements</div></div></div>';
-  if (s.penalty) {
-    b2.appendChild(el('div', 'sep'));
-    b2.appendChild(el('div', 'danger', '<b>PENALTY ZONE.</b> A day went by with no training. All XP is reduced by 25% until you complete a Daily Quest. Your streak is back to zero &mdash; start it again today.'));
-  } else if (!t.sets.length) {
-    b2.appendChild(el('div', 'sep'));
-    b2.appendChild(el('div', 'warn', 'Nothing logged yet today. Any training at all keeps the streak alive &mdash; even a recovery session of mobility work.'));
+  const tp = panel('Today', s.day, 'cy');
+  tp.body.innerHTML = '<div class="vit"><div><div class="k">' + s.today.sets.length + '</div><div class="l">Sets</div></div>' +
+    '<div><div class="k">' + nf(s.today.xp) + '</div><div class="l">XP</div></div>' +
+    '<div><div class="k">' + Object.keys(s.today.exIds).length + '</div><div class="l">Movements</div></div></div>';
+  if (s.today.sets.length) {
+    tp.body.appendChild(el('hr'));
+    const agg = {};
+    s.today.sets.forEach(st => { (agg[st.ex] = agg[st.ex] || []).push(st.n); });
+    for (const id in agg) {
+      const ex = EX_BY_ID[id]; if (!ex) continue;
+      tp.body.appendChild(el('div', 'ob', '<div class="grow"><div class="n">' + esc(ex.n) + '</div>' +
+        '<div class="s">' + agg[id].join(' &middot; ') + '</div></div>' +
+        '<div class="v">' + unitS(ex, agg[id].reduce((a, x) => a + x, 0)) + '</div>'));
+    }
   }
-  w2.appendChild(b2); v.appendChild(w2);
+  v.appendChild(tp);
 
-  /* Quick log — the rung you are currently on in each line, one tap away.
-     A workout app that needs three taps to record a set does not get used
-     between sets, which is the only moment that matters. */
-  const wq = el('div', 'win');
-  wq.appendChild(el('div', 'wt', '<h2>Quick Log</h2><span class="sub">CURRENT RUNGS</span>'));
-  const bq = el('div', 'wb');
-  const seenEx = {};
-  for (const ln of ['push', 'pull', 'squat', 'core', 'cond', 'mob', 'dip', 'vpush']) {
-    const ex = currentIn(ln);
-    if (!ex || seenEx[ex.id]) continue;
-    seenEx[ex.id] = 1;
-    const row = el('button', 'exrow');
-    const cv = document.createElement('canvas');
-    row.appendChild(cv);
-    row.appendChild(el('div', 'grow', '<div class="en">' + esc(ex.n) + '</div><div class="em">' +
-      (CATS.find(c => c.id === ex.cat) || {}).n + ' &middot; goal ' + unitS(ex, ex.goal) + '</div>'));
-    row.appendChild(el('div', 'ep', 'LOG &rsaquo;'));
-    row.onclick = () => openEx(ex);
-    setTimeout(() => { if (POSE[ex.id]) FIG.still(cv, POSE[ex.id], 1); }, 20);
-    bq.appendChild(row);
-  }
-  wq.appendChild(bq); v.appendChild(wq);
-
-  /* Stats */
-  const w3 = el('div', 'win');
-  w3.appendChild(el('div', 'wt', '<h2>Attributes</h2><span class="sub">' + (s.free > 0 ? s.free + ' UNSPENT' : 'ALLOCATED') + '</span>'));
-  const b3 = el('div', 'wb');
-  const gr = el('div', 'statgrid');
+  /* Attributes */
+  const ap = panel('Attributes', s.free > 0 ? s.free + ' UNSPENT' : 'ALLOCATED', s.free > 0 ? 'em' : '');
+  const gr = el('div', 'sgrid');
   for (const st of STATS) {
     const cell = el('div', 'stat');
-    const total = statTotal(st.id);
     cell.innerHTML = '<div class="n">' + st.n + '</div>';
-    const row = el('div', 'v', total + (s.alloc[st.id] ? ' <small>+' + s.alloc[st.id] + '</small>' : ''));
+    const row = el('div', 'v', statTotal(st.id) + (s.alloc[st.id] ? ' <small>+' + s.alloc[st.id] + '</small>' : ''));
     if (s.free > 0) {
       const plus = el('button', '', '+');
-      plus.title = 'Assign a point to ' + st.n;
-      plus.onclick = () => { if (spendStat(st.id)) { render(); } };
+      plus.onclick = () => { if (spendStat(st.id)) render(); };
       row.appendChild(plus);
     }
     cell.appendChild(row);
-    cell.appendChild(el('div', 'tiny dim', st.d));
+    cell.appendChild(el('div', 'sml', st.d));
     gr.appendChild(cell);
   }
-  b3.appendChild(gr);
-  w3.appendChild(b3); v.appendChild(w3);
+  ap.body.appendChild(gr);
+  v.appendChild(ap);
 
-  /* Lifetime */
-  const w4 = el('div', 'win');
-  w4.appendChild(el('div', 'wt', '<h2>Record</h2>'));
-  w4.appendChild(el('div', 'wb', '<div class="vitals">' +
+  /* Shadows */
+  const sp = panel('Shadow Army', Object.keys(s.shadows).length + ' / ' + SHADOWS.length, 'vi');
+  sp.body.appendChild(el('div', 'sml', 'Each gate boss leaves one behind the first time it falls. Their bonuses are permanent and they stack.'));
+  const sg = el('div', 'shgrid'); sg.style.marginTop = '9px';
+  for (const sh of SHADOWS) {
+    const owned = s.shadows[sh.id];
+    const card = el('div', 'shadow' + (owned ? '' : ' empty'));
+    const a = art(sh.id);
+    const lv = owned ? (owned.lv || 1) : 1;
+    card.innerHTML = (owned && a ? '<div class="im"><img src="' + a + '" alt=""></div>' : '<div class="im">?</div>') +
+      '<div class="nm">' + (owned ? sh.n : 'UNKNOWN') + '</div>' +
+      '<div class="tt">' + (owned ? sh.t + (lv > 1 ? ' &middot; LV' + lv : '') : 'Not extracted') + '</div>' +
+      (owned ? '<div class="bn">' + SHADOW_BONUS[sh.bonus].fmt(Math.round(sh.val * (1 + 0.5 * (lv - 1)) * 10) / 10) + '</div>' : '');
+    if (owned) { card.style.cursor = 'pointer'; card.onclick = () => burst('SHADOW', sh.n, sh.d, a); }
+    sg.appendChild(card);
+  }
+  sp.body.appendChild(sg);
+  v.appendChild(sp);
+
+  /* Titles */
+  const tp2 = panel('Titles', Object.keys(s.titles).length + ' / ' + TITLES.length, 'em');
+  tp2.body.appendChild(el('div', 'sml', 'One is worn at a time for its bonus. Tap to wear.'));
+  tp2.body.appendChild(el('hr'));
+  for (const t of TITLES) {
+    const have = s.titles[t.id];
+    const row = el('button', 'title' + (have ? (s.title === t.id ? ' on' : '') : ' lk'));
+    row.innerHTML = '<div class="grow"><div class="n" style="font:700 14px/1.2 var(--disp)">' + esc(t.n) + '</div>' +
+      '<div class="s" style="font-size:11.5px;color:var(--mut2)">' + esc(t.d) + '</div></div>' +
+      '<div style="text-align:right;font:700 12px/1.3 var(--mono);color:var(--cy)">+' + t.val + '%<div style="font-size:9px;color:var(--mut2)">' + (t.bonus === 'xp' ? 'XP' : 'ESS') + '</div></div>';
+    if (have) row.onclick = () => { s.title = s.title === t.id ? null : t.id; save(); render(); };
+    tp2.body.appendChild(row);
+  }
+  v.appendChild(tp2);
+
+  /* Essence shop */
+  const shp = panel('Essence', nf(s.ess) + ' ES', 'em');
+  for (const it of SHOP) {
+    if (it.id === 'reroll') continue;
+    const row = el('div', 'ob');
+    row.innerHTML = '<div class="grow"><div class="n">' + esc(it.n) + '</div><div class="s">' + esc(it.d) + '</div></div>';
+    const bt = el('button', 'btn sm', nf(it.cost));
+    bt.disabled = s.ess < it.cost;
+    bt.onclick = () => {
+      if (it.id === 'ascend') {
+        const ids = Object.keys(s.shadows).filter(k => (s.shadows[k].lv || 1) < 5);
+        if (!ids.length) return toast('No shadow can be ascended further');
+        const sh = SHADOWS.find(x => x.id === ids[0]);
+        if (!confirm('Ascend ' + sh.n + ' to level ' + ((s.shadows[sh.id].lv || 1) + 1) + ' for ' + it.cost + ' Essence?')) return;
+        const r = buy('ascend', sh.id); toast(r.ok ? sh.n + ' ascended' : r.why, r.ok ? 'vio' : '');
+      } else {
+        const r = buy(it.id); toast(r.ok ? it.n + ' purchased' : r.why, r.ok ? 'gold' : '');
+      }
+      render();
+    };
+    row.appendChild(bt);
+    shp.body.appendChild(row);
+  }
+  v.appendChild(shp);
+
+  /* Log */
+  const lp = panel('Training Log', s.lifetime.days + ' DAYS', 'cy');
+  const today = dayNum(s.day);
+  const start = today - 118 - ((today + 3) % 7);
+  const byDay = {};
+  s.history.forEach(h => byDay[h.d] = h);
+  if (s.today.sets.length) byDay[s.day] = { d: s.day, xp: s.today.xp, sets: s.today.sets.length, daily: s.today.daily && s.today.daily.done };
+  const wrap = el('div', 'calwrap');
+  const dow = el('div', 'caldow');
+  ['M', 'T', 'W', 'T', 'F', 'S', 'S'].forEach(d => dow.appendChild(el('span', '', d)));
+  wrap.appendChild(dow);
+  const cal = el('div', 'cal');
+  for (let d = start; d <= today; d++) {
+    const k = keyFromNum(d), h = byDay[k];
+    let cls = '';
+    if (h) cls = h.daily ? 'l4' : (h.sets >= 6 ? 'l3' : (h.sets >= 3 ? 'l2' : 'l1'));
+    if (k === s.day) cls += ' today';
+    const i = el('i', cls);
+    i.title = k + (h ? ' — ' + h.sets + ' sets, ' + nf(h.xp) + ' XP' : ' — rest');
+    cal.appendChild(i);
+  }
+  wrap.appendChild(cal);
+  lp.body.appendChild(wrap);
+  lp.body.appendChild(el('div', 'sml', '<div style="margin-top:8px">Brightest days are the ones where the Daily Quest fell.</div>'));
+  lp.body.appendChild(el('hr'));
+  lp.body.appendChild(el('div', 'vit',
     '<div><div class="k">' + nf(s.lifetime.reps) + '</div><div class="l">Total reps</div></div>' +
-    '<div><div class="k">' + nf(s.lifetime.sets) + '</div><div class="l">Total sets</div></div>' +
-    '<div><div class="k">' + s.best + '</div><div class="l">Best streak</div></div>' +
-    '<div><div class="k">' + Object.keys(s.mastered).length + '</div><div class="l">Mastered</div></div>' +
-    '<div><div class="k">' + Object.keys(s.gates).length + '</div><div class="l">Gates</div></div>' +
-    '<div><div class="k">' + s.lifetime.days + '</div><div class="l">Days trained</div></div></div>'));
-  v.appendChild(w4);
+    '<div><div class="k">' + nf(s.lifetime.sessions || 0) + '</div><div class="l">Sessions</div></div>' +
+    '<div><div class="k">' + s.best + '</div><div class="l">Best streak</div></div>'));
+  v.appendChild(lp);
 
-  const w5 = el('div', 'win');
-  w5.appendChild(el('div', 'wt', '<h2>System</h2>'));
-  const b5 = el('div', 'wb');
+  /* Records */
+  const rp = panel('Personal Records');
+  const prs = Object.keys(s.pr).map(id => EX_BY_ID[id]).filter(Boolean)
+    .sort((a, b) => (b.xp * s.pr[b.id]) - (a.xp * s.pr[a.id]));
+  if (!prs.length) rp.body.appendChild(el('div', 'sml', 'Log a set and your first record lands here.'));
+  prs.slice(0, 20).forEach(ex => rp.body.appendChild(el('div', 'ob',
+    '<div class="grow"><div class="n">' + esc(ex.n) + '</div><div class="s">' +
+    (s.mastered[ex.id] ? 'Mastered' : 'goal ' + unitS(ex, ex.goal)) + '</div></div>' +
+    '<div class="v">' + unitS(ex, s.pr[ex.id]) + '</div>')));
+  v.appendChild(rp);
+
+  /* System */
+  const yp = panel('System');
+  const chips = el('div', 'chips');
   const rm = el('button', 'btn sm', (s.settings.reduceMotion ? '&#10003; ' : '') + 'Reduce effects');
   rm.onclick = () => { s.settings.reduceMotion = !s.settings.reduceMotion; save(); render(); };
-  const ex = el('button', 'btn sm', 'Export save');
-  ex.onclick = exportSave;
-  const im = el('button', 'btn sm', 'Import save');
-  im.onclick = importSave;
+  const ex2 = el('button', 'btn sm', 'Export save'); ex2.onclick = exportSave;
+  const im = el('button', 'btn sm', 'Import save'); im.onclick = importSave;
   const rs = el('button', 'btn sm dgr', 'Erase and restart');
   rs.onclick = () => {
     if (!confirm('This erases every level, record and shadow permanently. Are you sure?')) return;
     if (!confirm('Last chance. There is no undo.')) return;
     localStorage.removeItem(SAVE_KEY); location.reload();
   };
-  const row = el('div', 'chips'); [rm, ex, im, rs].forEach(x => row.appendChild(x));
-  b5.appendChild(row);
-  b5.appendChild(el('div', 'sep'));
-  b5.appendChild(el('div', 'tiny dim', 'The day rolls over at 4am, so a late session still counts as that day. Saves live in this browser only &mdash; export before clearing site data.'));
-  w5.appendChild(b5); v.appendChild(w5);
+  [rm, ex2, im, rs].forEach(x => chips.appendChild(x));
+  yp.body.appendChild(chips);
+  yp.body.appendChild(el('hr'));
+  yp.body.appendChild(el('div', 'sml', 'The day rolls over at 4am, so a late session still counts as that day. Saves live in this browser only &mdash; export before clearing site data.'));
+  v.appendChild(yp);
 
-  v.appendChild(disclaimer());
-}
-
-function disclaimer() {
-  const w = el('div', 'win');
-  w.appendChild(el('div', 'wt', '<h2>Before you train</h2>'));
-  w.appendChild(el('div', 'wb', '<div class="tiny mut" style="line-height:1.7">' +
-    'This is a game wrapped around real training, and the training is real. Warm up before every session and stop a set the moment your form breaks &mdash; the app scores honest reps, and so should you.<br><br>' +
+  const dp = panel('Before You Train');
+  dp.body.appendChild(el('div', 'sml',
+    'This is a game wrapped around real training, and the training is real. Warm up first and stop a set the moment your form breaks &mdash; the app scores honest reps, and so should you.<br><br>' +
     'Sharp pain is not effort; it is a signal to stop. Nothing here is medical advice. If you have an injury, a health condition, or you have been away from exercise for a long time, talk to a doctor or a qualified coach before starting, and let them set the pace.<br><br>' +
-    'Rest days are part of the programme, not a failure of it. Recovery is when you actually get stronger.</div>'));
-  return w;
+    'Rest days are part of the programme, not a failure of it. Recovery is when you actually get stronger.'));
+  v.appendChild(dp);
 }
 
 function exportSave() {
@@ -3409,622 +4595,6 @@ function importSave() {
 }
 
 /* ==========================================================================
-   QUESTS
-   ========================================================================== */
-function scQuest(v) {
-  const t = G.s.today;
-  progressQuests();
-
-  const w = el('div', 'win');
-  w.appendChild(el('div', 'wt', '<h2>Daily Quest</h2><span class="sub">' + (t.daily.done ? 'COMPLETE' : 'IN PROGRESS') + '</span>'));
-  const b = el('div', 'wb');
-  b.appendChild(el('div', 'tiny dim', 'Scaled to the rungs you currently own. Any movement in the line counts &mdash; harder rungs included. Split it over as many sets as you like.'));
-  b.appendChild(el('div', 'sep'));
-  for (const it of t.daily.items) {
-    const ex = EX_BY_ID[it.ex];
-    const ok = it.got >= it.target;
-    const row = el('div', 'qitem' + (ok ? ' ok' : ''));
-    row.innerHTML = '<div class="tick">&#10003;</div><div class="grow">' +
-      '<div class="qn">' + it.label.toUpperCase() + '</div>' +
-      '<div class="qd">e.g. ' + esc(ex.n) + '</div></div>' +
-      '<div class="qv">' + Math.min(it.got, it.target) + ' / ' + it.target + '<div class="qd">' + (ex.unit === 'sec' ? 'seconds' : 'reps') + '</div></div>';
-    b.appendChild(row);
-  }
-  b.appendChild(el('div', 'sep'));
-  if (t.daily.done && !t.daily.claimed) {
-    const c = el('button', 'btn pri wide', 'Claim reward');
-    c.onclick = async () => { const r = claimDaily(); if (r) { toast('+' + nf(r.xp) + ' XP &nbsp; +' + nf(r.ess) + ' ES', 'gold'); await showEvents(r.ev); render(); } };
-    b.appendChild(c);
-  } else if (t.daily.claimed) {
-    b.appendChild(el('div', 'tiny', '<span style="color:var(--grn)">&#10003; Claimed. Streak secured for today.</span>'));
-  } else {
-    b.appendChild(el('div', 'warn', 'Fail this and tomorrow opens in the <b>Penalty Zone</b>: &minus;25% XP and the streak resets. Training <i>anything</i> today still protects the streak, even if the quest goes unfinished.'));
-  }
-  w.appendChild(b); v.appendChild(w);
-
-  const w2 = el('div', 'win');
-  w2.appendChild(el('div', 'wt', '<h2>Side Quests</h2><span class="sub">' + G.s.day + '</span>'));
-  const b2 = el('div', 'wb');
-  (t.side || []).forEach((q, i) => {
-    const tpl = SIDEQ.find(x => x.id === q.tid); if (!tpl) return;
-    const row = el('div', 'qitem' + (q.done ? ' ok' : ''));
-    row.innerHTML = '<div class="tick">&#10003;</div><div class="grow">' +
-      '<div class="qn">' + tpl.n.toUpperCase() + '</div>' +
-      '<div class="qd">' + esc(tpl.d(q.amt)) + '</div></div>';
-    const right = el('div', 'qv');
-    if (q.claimed) right.innerHTML = '<span class="dim">CLAIMED</span>';
-    else if (q.done) {
-      const c = el('button', 'btn sm pri', 'Claim');
-      c.onclick = async () => { const r = claimSide(i); if (r) { toast('+' + nf(r.xp) + ' XP &nbsp; +' + nf(r.ess) + ' ES'); await showEvents(r.ev); render(); } };
-      right.appendChild(c);
-    } else {
-      right.innerHTML = Math.min(q.got, q.amt) + ' / ' + q.amt +
-        '<div class="qd">+' + Math.round(tpl.xp * (1 + G.s.lv * 0.06)) + ' XP</div>';
-      const rr = el('button', 'btn sm gh', 'Reroll 25');
-      rr.style.marginTop = '4px';
-      rr.onclick = () => { const r = buy('reroll', i); if (!r.ok) toast(r.why); render(); };
-      right.appendChild(rr);
-    }
-    row.appendChild(right);
-    b2.appendChild(row);
-  });
-  w2.appendChild(b2); v.appendChild(w2);
-
-  /* Shop */
-  const w3 = el('div', 'win');
-  w3.appendChild(el('div', 'wt', '<h2>Essence</h2><span class="sub">' + nf(G.s.ess) + ' ES</span>'));
-  const b3 = el('div', 'wb');
-  for (const it of SHOP) {
-    if (it.id === 'reroll') continue;
-    const row = el('div', 'qitem');
-    row.innerHTML = '<div class="grow"><div class="qn">' + it.n.toUpperCase() + '</div><div class="qd">' + it.d + '</div></div>';
-    const bt = el('button', 'btn sm', nf(it.cost));
-    bt.disabled = G.s.ess < it.cost;
-    bt.onclick = () => {
-      if (it.id === 'ascend') {
-        const ids = Object.keys(G.s.shadows).filter(k => (G.s.shadows[k].lv || 1) < 5);
-        if (!ids.length) return toast('No shadow can be ascended further');
-        const sh = SHADOWS.find(s => s.id === ids[0]);
-        if (!confirm('Ascend ' + sh.n + ' to level ' + ((G.s.shadows[sh.id].lv || 1) + 1) + ' for ' + it.cost + ' Essence?')) return;
-        const r = buy('ascend', sh.id); toast(r.ok ? sh.n + ' ascended' : r.why, r.ok ? 'vio' : '');
-      } else {
-        const r = buy(it.id); toast(r.ok ? it.n + ' purchased' : r.why, r.ok ? 'gold' : '');
-      }
-      render();
-    };
-    row.appendChild(bt);
-    b3.appendChild(row);
-  }
-  w3.appendChild(b3); v.appendChild(w3);
-}
-
-/* ==========================================================================
-   GATES
-   ========================================================================== */
-function scGate(v) {
-  const hero = el('div', 'hero');
-  const ha = art('bg_gate');
-  if (ha) hero.style.backgroundImage = 'url(' + ha + ')';
-  const open = GATES.filter(gateOpen).length;
-  hero.innerHTML = '<div class="hh"><div class="rt"><div class="a" style="color:var(--cy2)">GATES OPEN</div>' +
-    '<div class="b">' + open + ' of ' + GATES.length + ' will let you in at level ' + G.s.lv + '</div></div></div>';
-  v.appendChild(hero);
-
-  const w = el('div', 'win');
-  w.appendChild(el('div', 'wt', '<h2>Gates</h2><span class="sub">' + Object.keys(G.s.gates).length + ' / ' + GATES.length + ' CLEARED</span>'));
-  w.appendChild(el('div', 'wb', '<div class="tiny dim">A gate is a full guided session. Each floor resolves to the rung you currently own, so a gate stays correct as you get stronger. Clearing a boss for the first time extracts its shadow.</div>'));
-  v.appendChild(w);
-
-  for (const g of GATES) {
-    const open = gateOpen(g);
-    const cleared = G.s.gates[g.id] || 0;
-    const rk = RANKS.find(r => r.id === g.rank);
-    const card = el('button', 'gate' + (open ? '' : ' lock'));
-    card.style.display = 'block'; card.style.width = '100%';
-    const a = art(g.art);
-    card.innerHTML =
-      '<div class="art" style="' + (a ? 'background-image:url(' + a + ')' : '') + '"></div>' +
-      '<div class="rk" style="color:' + rk.col + ';border-color:' + rk.col + '">' + rk.n + '</div>' +
-      (cleared ? '<div class="cl">&#10003; ' + cleared + '</div>' : '') +
-      '<div class="gi"><div class="gn">' + esc(g.n) + '</div><div class="gd">' +
-        (open ? esc(g.d) : 'Sealed &mdash; requires level ' + g.lv) + '</div></div>';
-    if (open) card.onclick = () => openGate(g);
-    else card.onclick = () => toast('Sealed until level ' + g.lv);
-    v.appendChild(card);
-  }
-}
-
-function openGate(g) {
-  const run = buildRun(g);
-  const total = run.floors.length;
-  const sh = $('sheetIn'); sh.innerHTML = '';
-  const w = el('div', 'win');
-  w.appendChild(el('div', 'wt', '<h2>' + esc(g.n) + '</h2><span class="sub">' + RANKS.find(r => r.id === g.rank).n + ' RANK</span>'));
-  const b = el('div', 'wb');
-  const a = art(g.art);
-  if (a) { const im = el('div', 'gate'); im.innerHTML = '<div class="art" style="background-image:url(' + a + ')"></div>'; b.appendChild(im); }
-  b.appendChild(el('div', '', esc(g.d)));
-  b.appendChild(el('div', 'sep'));
-  b.appendChild(el('div', 'lab', 'Floors &mdash; ' + total + ' sets'));
-  const list = el('div', '');
-  const seen = {};
-  run.floors.forEach(f => {
-    const ex = EX_BY_ID[f.ex];
-    if (seen[f.ex + f.reps]) { seen[f.ex + f.reps].n++; return; }
-    seen[f.ex + f.reps] = { n: 1, ex, reps: f.reps };
-  });
-  for (const k in seen) {
-    const o = seen[k];
-    list.appendChild(el('div', 'qitem', '<div class="grow"><div class="qn">' + esc(o.ex.n) + '</div>' +
-      '<div class="qd">' + o.ex.gear + '</div></div><div class="qv">' + o.n + ' &times; ' + unitS(o.ex, o.reps) + '</div>'));
-  }
-  b.appendChild(list);
-  b.appendChild(el('div', 'sep'));
-  b.appendChild(el('div', 'lab', 'Boss'));
-  const bex = EX_BY_ID[run.boss.ex];
-  b.appendChild(el('div', 'qitem', '<div class="grow"><div class="qn" style="color:var(--vio)">' + esc(g.boss.n) + '</div>' +
-    '<div class="qd">' + esc(g.boss.d) + '</div></div>'));
-  b.appendChild(el('div', 'tiny mut', run.boss.mode === 'amrap'
-    ? 'As many ' + bex.n + ' as you can in ' + run.boss.time + ' seconds.'
-    : 'Hold a ' + bex.n + ' for as long as you can.'));
-  b.appendChild(el('div', 'sep'));
-  const start = el('button', 'btn pri wide', 'Enter the gate');
-  start.onclick = () => { U.run = run; runStep(); };
-  b.appendChild(start);
-  const cancel = el('button', 'btn gh wide', 'Back');
-  cancel.style.marginTop = '8px';
-  cancel.onclick = closeSheet;
-  b.appendChild(cancel);
-  w.appendChild(b); sh.appendChild(w);
-  $('sheet').classList.add('on');
-}
-
-function floorBar(run, phase) {
-  const n = run.floors.length;
-  let h = '<div class="floors">';
-  for (let i = 0; i < n; i++) h += '<i class="' + (run.done[i] ? 'done' : (phase === 'floor' && i === run.i ? 'cur' : '')) + '"></i>';
-  h += '<i class="boss' + (phase === 'result' ? ' done' : (phase === 'boss' ? ' cur' : '')) + '"></i></div>';
-  return h;
-}
-
-/* The runner is a small state machine: floor -> rest -> floor ... -> boss -> result. */
-function runStep() {
-  const run = U.run; if (!run) return;
-  if (run.i >= run.floors.length) return runBoss();
-  const f = run.floors[run.i];
-  const ex = EX_BY_ID[f.ex];
-  const g = GATES.find(x => x.id === run.gate);
-
-  const sh = $('sheetIn'); sh.innerHTML = '';
-  const w = el('div', 'win');
-  w.appendChild(el('div', 'wt', '<h2>' + esc(g.n) + '</h2><span class="sub">FLOOR ' + (run.i + 1) + ' / ' + run.floors.length + '</span>'));
-  const b = el('div', 'wb');
-  b.innerHTML = floorBar(run, 'floor');
-  b.appendChild(demoBlock(ex));
-  b.appendChild(el('div', 'row', '<div class="grow"><div class="lab">Movement</div><div style="font:700 16px/1.3 var(--mono)">' +
-    esc(ex.n) + '</div></div><div style="text-align:right"><div class="lab">Set ' + f.set + ' of ' + f.of + '</div>' +
-    '<div class="big">' + unitS(ex, f.reps) + '</div></div>'));
-  b.appendChild(el('div', 'sep'));
-  b.appendChild(counterBlock(ex, f.reps, (n) => {
-    const r = logSet(ex.id, n);
-    run.done[run.i] = { n };
-    run.i++;
-    if (r) toast('+' + nf(r.xp) + ' XP');
-    showEvents(r ? r.ev : []).then(() => {
-      if (run.i >= run.floors.length) runRest(f.rest, runBoss);
-      else runRest(f.rest, runStep);
-    });
-  }));
-  const cues = el('div', '');
-  cues.appendChild(el('div', 'sep'));
-  cues.appendChild(el('div', 'lab', 'Form'));
-  ex.cues.forEach((c, i) => cues.appendChild(el('div', 'cue', '<b>' + (i + 1) + '</b><span>' + esc(c) + '</span>')));
-  b.appendChild(cues);
-  const bail = el('button', 'btn gh wide', 'Leave the gate');
-  bail.style.marginTop = '12px';
-  bail.onclick = () => { if (confirm('Leave? Sets you already logged are kept, but the gate will not count as cleared.')) { U.run = null; closeSheet(); render(); } };
-  b.appendChild(bail);
-  w.appendChild(b); sh.appendChild(w);
-  $('sheet').classList.add('on');
-  document.getElementById('sheet').scrollTop = 0;
-}
-
-function runRest(sec, next) {
-  if (!sec) return next();
-  const sh = $('sheetIn'); sh.innerHTML = '';
-  const w = el('div', 'win');
-  w.appendChild(el('div', 'wt', '<h2>Rest</h2><span class="sub">RECOVER</span>'));
-  const b = el('div', 'wb');
-  const box = el('div', 'rest', '<div class="t" id="rT">' + sec + '</div><div class="l">SECONDS</div>');
-  b.appendChild(box);
-  b.appendChild(el('div', 'tiny dim', 'Rest is part of the set, not a gap between sets. Come back to the next one able to do it properly.'));
-  const skip = el('button', 'btn wide', 'Skip rest');
-  skip.style.marginTop = '12px';
-  b.appendChild(skip);
-  w.appendChild(b); sh.appendChild(w);
-
-  let left = sec;
-  const done = () => { clearInterval(U.restT); U.restT = null; next(); };
-  skip.onclick = done;
-  clearInterval(U.restT);
-  U.restT = setInterval(() => {
-    left--;
-    const t = $('rT'); if (!t) return done();
-    t.textContent = Math.max(0, left);
-    if (left <= 0) done();
-  }, 1000);
-}
-
-function runBoss() {
-  const run = U.run; if (!run) return;
-  const g = GATES.find(x => x.id === run.gate);
-  const ex = EX_BY_ID[run.boss.ex];
-  const sh = $('sheetIn'); sh.innerHTML = '';
-  const w = el('div', 'win');
-  w.appendChild(el('div', 'wt', '<h2>' + esc(g.boss.n) + '</h2><span class="sub">BOSS</span>'));
-  const b = el('div', 'wb');
-  b.innerHTML = floorBar(run, 'boss');
-  const ba = art(g.boss.art);
-  const bx = el('div', 'bossart');
-  if (ba) bx.innerHTML = '<img src="' + ba + '" alt="">';
-  b.appendChild(bx);
-  b.appendChild(el('div', '', esc(g.boss.d)));
-  b.appendChild(el('div', 'sep'));
-  b.appendChild(el('div', 'lab', run.boss.mode === 'amrap' ? 'As many as possible' : 'Maximum hold'));
-  b.appendChild(el('div', 'row', '<div class="grow" style="font:700 16px/1.3 var(--mono)">' + esc(ex.n) + '</div>'));
-  b.appendChild(demoBlock(ex));
-  b.appendChild(el('div', 'sep'));
-  b.appendChild(counterBlock(ex, Math.max(1, Math.round(ex.goal * 0.8)), (n) => {
-    const r = logSet(ex.id, n);
-    if (r) toast('+' + nf(r.xp) + ' XP');
-    showEvents(r ? r.ev : []).then(() => runResult(n));
-  }, run.boss.mode === 'amrap' ? run.boss.time : 0));
-  w.appendChild(b); sh.appendChild(w);
-  $('sheet').classList.add('on');
-  $('sheet').scrollTop = 0;
-}
-
-async function runResult(bossAmount) {
-  const run = U.run; if (!run) return;
-  const g = GATES.find(x => x.id === run.gate);
-  const res = finishGate(g, run, bossAmount);
-  U.run = null;
-
-  const sh = $('sheetIn'); sh.innerHTML = '';
-  const w = el('div', 'win');
-  w.appendChild(el('div', 'wt', '<h2>Gate Cleared</h2><span class="sub">' + esc(g.n) + '</span>'));
-  const b = el('div', 'wb');
-  b.innerHTML = '<div style="text-align:center;padding:8px 0 14px">' +
-    '<div class="lab">Rating</div><div style="font:700 66px/1 var(--mono);color:var(--gold);text-shadow:0 0 34px rgba(255,190,80,.45)">' + res.rate.r + '</div>' +
-    '<div class="tiny dim">' + Math.round(res.rate.pct * 100) + '% of the gate\'s target volume</div></div>' +
-    '<div class="vitals"><div><div class="k">+' + nf(res.xp) + '</div><div class="l">XP</div></div>' +
-    '<div><div class="k">+' + nf(res.ess) + '</div><div class="l">Essence</div></div>' +
-    '<div><div class="k">' + (G.s.gates[g.id]) + '</div><div class="l">Clears</div></div></div>';
-  if (res.first) b.appendChild(el('div', 'warn', 'First clear &mdash; double rewards.'));
-  const done = el('button', 'btn pri wide', 'Return');
-  done.style.marginTop = '14px';
-  done.onclick = () => { closeSheet(); go('gate'); };
-  b.appendChild(done);
-  w.appendChild(b); sh.appendChild(w);
-  await showEvents(res.ev);
-}
-
-/* ==========================================================================
-   CODEX
-   ========================================================================== */
-function scCodex(v) {
-  const w = el('div', 'win');
-  w.appendChild(el('div', 'wt', '<h2>Codex</h2><span class="sub">' + Object.keys(G.s.mastered).length + ' / ' + EX.length + ' MASTERED</span>'));
-  const b = el('div', 'wb');
-  b.appendChild(el('div', 'tiny dim', 'Every movement in the game. Master the rung you are on &mdash; one honest set at the listed target &mdash; and the next one opens.'));
-  const chips = el('div', 'chips'); chips.style.marginTop = '10px';
-  const mk = (id, n) => { const c = el('button', 'chip' + (U.cat === id ? ' on' : ''), n); c.onclick = () => { U.cat = id; render(); }; return c; };
-  chips.appendChild(mk('all', 'All'));
-  CATS.forEach(c => chips.appendChild(mk(c.id, c.n)));
-  chips.appendChild(mk('open', 'Available'));
-  b.appendChild(chips);
-  w.appendChild(b); v.appendChild(w);
-
-  const lines = {};
-  EX.forEach(e => {
-    if (U.cat === 'open' && (!unlocked(e) || G.s.mastered[e.id])) return;
-    if (U.cat !== 'all' && U.cat !== 'open' && e.cat !== U.cat) return;
-    (lines[e.line] = lines[e.line] || []).push(e);
-  });
-
-  for (const ln in lines) {
-    const list = lines[ln];
-    const full = LINES[ln];
-    const cat = CATS.find(c => c.id === list[0].cat);
-    const w2 = el('div', 'win');
-    w2.appendChild(el('div', 'wt', '<h2 style="color:' + cat.col + '">' + cat.n + '</h2><span class="sub">' +
-      full.filter(e => G.s.mastered[e.id]).length + ' / ' + full.length + '</span>'));
-    const b2 = el('div', 'wb');
-    const lad = el('div', 'ladder');
-    full.forEach(e => {
-      const cur = currentIn(ln);
-      lad.appendChild(el('i', 'rung' + (G.s.mastered[e.id] ? ' done' : (cur && cur.id === e.id ? ' cur' : ''))));
-    });
-    b2.appendChild(lad);
-    list.forEach(e => b2.appendChild(exRow(e)));
-    w2.appendChild(b2); v.appendChild(w2);
-  }
-}
-
-function exRow(ex) {
-  const open = unlocked(ex);
-  const row = el('button', 'exrow' + (open ? '' : ' lk'));
-  const cv = document.createElement('canvas');
-  row.appendChild(cv);
-  const mid = el('div', 'grow');
-  mid.innerHTML = '<div class="en">' + esc(ex.n) + '</div>' +
-    '<div class="em">' + (open ? esc(ex.gear) : esc(lockReason(ex))) + '</div>';
-  row.appendChild(mid);
-  const pr = G.s.pr[ex.id] || 0;
-  row.appendChild(el('div', 'ep', (G.s.mastered[ex.id] ? '<span class="mst">&#9733; MASTERED</span><br>' : 'Lv ' + ex.lv + '<br>') +
-    (pr ? 'PR ' + unitS(ex, pr) : 'goal ' + unitS(ex, ex.goal))));
-  row.onclick = () => openEx(ex);
-  requestAnimationFrame(() => { if (POSE[ex.id]) FIG.still(cv, POSE[ex.id], 1); });
-  setTimeout(() => { if (POSE[ex.id]) FIG.still(cv, POSE[ex.id], 1); }, 30);
-  return row;
-}
-
-function demoBlock(ex) {
-  const d = el('div', 'demo');
-  const cv = document.createElement('canvas');
-  d.appendChild(cv);
-  d.appendChild(el('div', 'gearlab', esc(ex.gear)));
-  d.appendChild(el('div', 'tempo', ex.unit === 'sec' ? 'HOLD' : 'TEMPO ' + (POSE[ex.id] ? POSE[ex.id].tempo.toFixed(1) : '2.0') + 's'));
-  setTimeout(() => { if (POSE[ex.id]) FIG.animate(cv, POSE[ex.id]); }, 20);
-  return d;
-}
-
-/* The counter: reps with +/- buttons, or a live timer for holds. Both end in
-   the same "log this set" call. */
-function counterBlock(ex, suggested, onDone, amrapSecs) {
-  const box = el('div', '');
-  let n = suggested || 0;
-  const isTime = ex.unit === 'sec';
-
-  if (isTime && !amrapSecs) {
-    let running = false, t0 = 0, acc = 0, iv = null;
-    const c = el('div', 'counter');
-    const num = el('div', 'num', '0<small>SECONDS</small>');
-    c.appendChild(num); box.appendChild(c);
-    const paint = () => { num.innerHTML = Math.floor(acc + (running ? (Date.now() - t0) / 1000 : 0)) + '<small>SECONDS</small>'; };
-    const go2 = el('button', 'btn pri wide', 'Start hold');
-    go2.onclick = () => {
-      if (!running) { running = true; t0 = Date.now(); iv = setInterval(paint, 100); go2.textContent = 'Stop'; }
-      else { running = false; acc += (Date.now() - t0) / 1000; clearInterval(iv); paint(); go2.textContent = 'Resume'; fin.disabled = false; }
-    };
-    box.appendChild(go2);
-    const fin = el('button', 'btn wide', 'Log this hold');
-    fin.style.marginTop = '8px'; fin.disabled = true;
-    fin.onclick = () => { if (running) { running = false; acc += (Date.now() - t0) / 1000; clearInterval(iv); } onDone(Math.round(acc)); };
-    box.appendChild(fin);
-    box.appendChild(el('div', 'tiny dim', '<div style="margin-top:8px">Target ' + unitS(ex, suggested) + '. Stop the moment the shape breaks &mdash; a short honest hold beats a long ugly one.</div>'));
-    return box;
-  }
-
-  if (amrapSecs) {
-    let left = amrapSecs, started = false, iv = null;
-    const c = el('div', 'counter');
-    const minus = el('button', '', '&minus;'), plus = el('button', '', '+');
-    const num = el('div', 'num', '0<small>REPS</small>');
-    c.appendChild(minus); c.appendChild(num); c.appendChild(plus);
-    box.appendChild(el('div', 'rest', '<div class="t" id="amT">' + amrapSecs + '</div><div class="l">SECONDS LEFT</div>'));
-    box.appendChild(c);
-    n = 0;
-    const paint = () => num.innerHTML = n + '<small>' + (ex.unit === 'sec' ? 'SECONDS' : 'REPS') + '</small>';
-    minus.onclick = () => { n = Math.max(0, n - 1); paint(); };
-    plus.onclick = () => {
-      n++; paint();
-      if (!started) {
-        started = true;
-        iv = setInterval(() => {
-          left--; const t = $('amT'); if (!t) return clearInterval(iv);
-          t.textContent = Math.max(0, left);
-          if (left <= 0) { clearInterval(iv); t.style.color = 'var(--red)'; }
-        }, 1000);
-      }
-    };
-    const fin = el('button', 'btn pri wide', 'Finish');
-    fin.onclick = () => { clearInterval(iv); onDone(n); };
-    box.appendChild(fin);
-    box.appendChild(el('div', 'tiny dim', '<div style="margin-top:8px">The clock starts on your first rep. Count every honest one.</div>'));
-    return box;
-  }
-
-  const c = el('div', 'counter');
-  const minus = el('button', '', '&minus;'), plus = el('button', '', '+');
-  const num = el('div', 'num', n + '<small>REPS</small>');
-  const paint = () => num.innerHTML = n + '<small>REPS</small>';
-  minus.onclick = () => { n = Math.max(0, n - 1); paint(); };
-  plus.onclick = () => { n++; paint(); };
-  c.appendChild(minus); c.appendChild(num); c.appendChild(plus);
-  box.appendChild(c);
-  const fin = el('button', 'btn pri wide', 'Log this set');
-  fin.onclick = () => { if (n > 0) onDone(n); };
-  box.appendChild(fin);
-  if (suggested) box.appendChild(el('div', 'tiny dim', '<div style="margin-top:8px">Target ' + suggested + '. Log what you actually did &mdash; the app scores honest reps.</div>'));
-  return box;
-}
-
-function openEx(ex) {
-  const open = unlocked(ex);
-  const sh = $('sheetIn'); sh.innerHTML = '';
-  const cat = CATS.find(c => c.id === ex.cat);
-
-  const w = el('div', 'win');
-  w.appendChild(el('div', 'wt', '<h2 style="color:' + cat.col + '">' + cat.n + '</h2><span class="sub">TIER ' + ex.tier + '</span>'));
-  const b = el('div', 'wb');
-  b.appendChild(el('div', '', '<div style="font:700 20px/1.2 var(--mono);letter-spacing:.04em">' + esc(ex.n) + '</div>'));
-  b.appendChild(demoBlock(ex));
-  /* Gear is already printed in the demo's corner — repeating it here just made
-     the same four words appear twice in a row. */
-  b.appendChild(el('div', 'row tiny', '<span class="mut">Tier ' + ex.tier + ' of ' +
-    LINES[ex.line].length + ' on this ladder</span><span class="grow"></span>' +
-    '<span class="dim">' + ex.xp + ' XP / ' + (ex.unit === 'sec' ? 'sec' : 'rep') + '</span>'));
-  b.appendChild(el('div', 'sep'));
-  b.appendChild(el('div', '', esc(ex.d)));
-
-  b.appendChild(el('div', 'sep'));
-  b.appendChild(el('div', 'lab', 'How to do it'));
-  ex.cues.forEach((c, i) => b.appendChild(el('div', 'cue', '<b>' + (i + 1) + '</b><span>' + esc(c) + '</span>')));
-  b.appendChild(el('div', 'tiny mut', '<div style="margin-top:6px"><b>Breathing.</b> ' + esc(ex.br) + '</div>'));
-
-  b.appendChild(el('div', 'sep'));
-  b.appendChild(el('div', 'lab', 'What goes wrong'));
-  ex.err.forEach(c => b.appendChild(el('div', 'err', '<span>&#9679;</span><span>' + esc(c) + '</span>')));
-
-  b.appendChild(el('div', 'sep'));
-  const pr = G.s.pr[ex.id] || 0;
-  b.appendChild(el('div', 'vitals',
-    '<div><div class="k">' + unitS(ex, ex.goal) + '</div><div class="l">Mastery</div></div>' +
-    '<div><div class="k">' + (pr ? unitS(ex, pr) : '&mdash;') + '</div><div class="l">Your best</div></div>' +
-    '<div><div class="k">' + (G.s.mastered[ex.id] ? '&#9733;' : 'Lv ' + ex.lv) + '</div><div class="l">' + (G.s.mastered[ex.id] ? 'Mastered' : 'Unlocks') + '</div></div>'));
-
-  b.appendChild(el('div', 'sep'));
-  if (open) {
-    b.appendChild(el('div', 'lab', 'Log a set'));
-    b.appendChild(counterBlock(ex, Math.max(1, pr || Math.round(ex.goal * 0.6)), async (n) => {
-      const r = logSet(ex.id, n);
-      if (r) { toast('+' + nf(r.xp) + ' XP &nbsp; +' + nf(r.ess) + ' ES'); await showEvents(r.ev); }
-      closeSheet(); render();
-    }));
-  } else {
-    b.appendChild(el('div', 'danger', '<b>Locked.</b> ' + esc(lockReason(ex))));
-  }
-  const back = el('button', 'btn gh wide', 'Close');
-  back.style.marginTop = '12px'; back.onclick = closeSheet;
-  b.appendChild(back);
-  w.appendChild(b); sh.appendChild(w);
-  $('sheet').classList.add('on');
-  $('sheet').scrollTop = 0;
-}
-
-function closeSheet() { FIG.stopAll(); clearInterval(U.restT); $('sheet').classList.remove('on'); $('sheetIn').innerHTML = ''; }
-
-/* ==========================================================================
-   ARMY
-   ========================================================================== */
-function scArmy(v) {
-  const w = el('div', 'win');
-  w.appendChild(el('div', 'wt', '<h2>Shadow Army</h2><span class="sub">' + Object.keys(G.s.shadows).length + ' / ' + SHADOWS.length + '</span>'));
-  const b = el('div', 'wb');
-  b.appendChild(el('div', 'tiny dim', 'Each gate boss leaves one behind the first time it falls. Their bonuses are permanent and they stack.'));
-  const gr = el('div', 'sgrid'); gr.style.marginTop = '10px';
-  for (const sh of SHADOWS) {
-    const owned = G.s.shadows[sh.id];
-    const card = el('div', 'shadow' + (owned ? '' : ' empty'));
-    const a = art(sh.id);
-    const lv = owned ? (owned.lv || 1) : 1;
-    const val = sh.val * (1 + 0.5 * (lv - 1));
-    card.innerHTML = (owned && a ? '<div class="im"><img src="' + a + '" alt=""></div>' : '<div class="im">?</div>') +
-      '<div class="nm">' + (owned ? sh.n : 'UNKNOWN') + '</div>' +
-      '<div class="tt">' + (owned ? sh.t + (lv > 1 ? ' &middot; LV' + lv : '') : 'Not extracted') + '</div>' +
-      (owned ? '<div class="bn">' + SHADOW_BONUS[sh.bonus].fmt(Math.round(val * 10) / 10) + '</div>' : '');
-    if (owned) { card.style.cursor = 'pointer'; card.onclick = () => burst('SHADOW', sh.n, sh.d, a); }
-    gr.appendChild(card);
-  }
-  b.appendChild(gr);
-  w.appendChild(b); v.appendChild(w);
-
-  const w2 = el('div', 'win');
-  w2.appendChild(el('div', 'wt', '<h2>Titles</h2><span class="sub">' + Object.keys(G.s.titles).length + ' / ' + TITLES.length + '</span>'));
-  const b2 = el('div', 'wb');
-  b2.appendChild(el('div', 'tiny dim', 'One title is worn at a time for its bonus. Tap to wear.'));
-  b2.appendChild(el('div', 'sep'));
-  for (const t of TITLES) {
-    const have = G.s.titles[t.id];
-    const row = el('button', 'title' + (have ? (G.s.title === t.id ? ' on' : '') : ' lk'));
-    row.innerHTML = '<div class="grow"><div class="qn">' + esc(t.n) + '</div><div class="qd">' + esc(t.d) + '</div></div>' +
-      '<div class="qv tiny" style="color:var(--cy)">+' + t.val + '%<div class="qd">' + (t.bonus === 'xp' ? 'XP' : 'ESS') + '</div></div>';
-    if (have) row.onclick = () => { G.s.title = G.s.title === t.id ? null : t.id; save(); render(); };
-    b2.appendChild(row);
-  }
-  w2.appendChild(b2); v.appendChild(w2);
-}
-
-/* ==========================================================================
-   LOG
-   ========================================================================== */
-function scLog(v) {
-  const s = G.s;
-  const w = el('div', 'win');
-  w.appendChild(el('div', 'wt', '<h2>Training Log</h2><span class="sub">' + s.lifetime.days + ' DAYS</span>'));
-  const b = el('div', 'wb');
-
-  /* Seventeen weeks back, starting on a Monday so the rows line up with the
-     day-of-week labels down the left. */
-  const today = dayNum(s.day);
-  const start = today - 118 - ((today + 3) % 7);
-  const byDay = {};
-  s.history.forEach(h => byDay[h.d] = h);
-  if (s.today.sets.length) byDay[s.day] = { d: s.day, xp: s.today.xp, sets: s.today.sets.length, daily: s.today.daily && s.today.daily.done };
-  const wrap = el('div', 'calwrap');
-  const dow = el('div', 'caldow');
-  ['M', 'T', 'W', 'T', 'F', 'S', 'S'].forEach(d => dow.appendChild(el('span', '', d)));
-  wrap.appendChild(dow);
-  const cal = el('div', 'cal');
-  for (let d = start; d <= today; d++) {
-    const k = keyFromNum(d), h = byDay[k];
-    let cls = '';
-    if (h) cls = h.daily ? 'l4' : (h.sets >= 6 ? 'l3' : (h.sets >= 3 ? 'l2' : 'l1'));
-    if (k === s.day) cls += ' today';
-    const i = el('i', cls);
-    i.title = k + (h ? ' — ' + h.sets + ' sets, ' + nf(h.xp) + ' XP' : ' — rest');
-    cal.appendChild(i);
-  }
-  wrap.appendChild(cal);
-  b.appendChild(wrap);
-  b.appendChild(el('div', 'tiny dim', '<div style="margin-top:8px">Brightest days are the ones where the Daily Quest fell.</div>'));
-  w.appendChild(b); v.appendChild(w);
-
-  /* Today's sets */
-  const w2 = el('div', 'win');
-  w2.appendChild(el('div', 'wt', '<h2>Today</h2><span class="sub">' + s.today.sets.length + ' SETS</span>'));
-  const b2 = el('div', 'wb');
-  if (!s.today.sets.length) b2.appendChild(el('div', 'tiny dim', 'Nothing yet.'));
-  else {
-    const agg = {};
-    s.today.sets.forEach(st => { (agg[st.ex] = agg[st.ex] || []).push(st.n); });
-    for (const id in agg) {
-      const ex = EX_BY_ID[id]; if (!ex) continue;
-      b2.appendChild(el('div', 'qitem', '<div class="grow"><div class="qn">' + esc(ex.n) + '</div>' +
-        '<div class="qd">' + agg[id].join(' &middot; ') + '</div></div>' +
-        '<div class="qv">' + unitS(ex, agg[id].reduce((a, x) => a + x, 0)) + '</div>'));
-    }
-  }
-  w2.appendChild(b2); v.appendChild(w2);
-
-  /* Records */
-  const w3 = el('div', 'win');
-  w3.appendChild(el('div', 'wt', '<h2>Personal Records</h2>'));
-  const b3 = el('div', 'wb');
-  const prs = Object.keys(s.pr).map(id => EX_BY_ID[id]).filter(Boolean)
-    .sort((a, b) => (b.xp * s.pr[b.id]) - (a.xp * s.pr[a.id]));
-  if (!prs.length) b3.appendChild(el('div', 'tiny dim', 'Log a set and your first record lands here.'));
-  prs.slice(0, 24).forEach(ex => {
-    b3.appendChild(el('div', 'qitem', '<div class="grow"><div class="qn">' + esc(ex.n) + '</div>' +
-      '<div class="qd">' + (G.s.mastered[ex.id] ? 'Mastered' : 'goal ' + unitS(ex, ex.goal)) + '</div></div>' +
-      '<div class="qv">' + unitS(ex, s.pr[ex.id]) + '</div>'));
-  });
-  w3.appendChild(b3); v.appendChild(w3);
-
-  /* Recent days */
-  const w4 = el('div', 'win');
-  w4.appendChild(el('div', 'wt', '<h2>History</h2>'));
-  const b4 = el('div', 'wb');
-  const hist = s.history.slice(-14).reverse();
-  if (!hist.length) b4.appendChild(el('div', 'tiny dim', 'Your first completed day appears here tomorrow.'));
-  hist.forEach(h => b4.appendChild(el('div', 'qitem', '<div class="grow"><div class="qn">' + h.d + '</div>' +
-    '<div class="qd">' + h.sets + ' sets' + (h.daily ? ' &middot; daily quest cleared' : '') + '</div></div>' +
-    '<div class="qv">' + nf(h.xp) + ' XP</div>')));
-  w4.appendChild(b4); v.appendChild(w4);
-}
-
-/* ==========================================================================
    BOOT
    ========================================================================== */
 function boot() {
@@ -4037,17 +4607,17 @@ function boot() {
     render();
   } else {
     $('tName').value = G.s.name === 'HUNTER' ? '' : G.s.name;
-    $('tGo').onclick = () => {
+    $('tGo').onclick = async () => {
       const n = ($('tName').value || '').trim().toUpperCase().slice(0, 14);
       G.s.name = n || 'HUNTER';
       G.s.seen.intro = 1; save();
       $('title').classList.add('hide');
       render();
+      await burst('CHAPTER 1', CHAPTERS[0].n.toUpperCase(), CHAPTERS[0].quote);
     };
     $('tName').onkeydown = e => { if (e.key === 'Enter') $('tGo').click(); };
   }
 
-  /* The day can roll over while the tab is open overnight. */
   setInterval(() => { if (G.s.day !== dayKey()) render(); }, 60000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden && G.s.day !== dayKey()) render(); });
 }
@@ -4057,12 +4627,14 @@ document.addEventListener('DOMContentLoaded', boot);
    window — so the validation harness (and the browser console) would see none of
    it. Export deliberately rather than downgrading the declarations. */
 Object.assign(window, {
-  G, EX, EX_BY_ID, LINES, POSE, ART, FIG,
-  RANKS, STATS, CATS, GATES, SHADOWS, SHADOW_BONUS, TITLES, SIDEQ, SHOP,
+  G, EX, EX_BY_ID, LINES, POSE, ART, FIG, U,
+  RANKS, STATS, CATS, GATES, SHADOWS, SHADOW_BONUS, TITLES, SIDEQ, SHOP, CHAPTERS, PROGRAMS,
   SAVE_KEY, save, load, normalize, rollover, dayKey, dayNum, keyFromNum, weekKey,
   xpToNext, rankOf, nextRank, unlocked, lockReason, currentIn, statTotal, streakMult, fatigueMult,
   logSet, makeDaily, makeSide, ensureQuests, progressQuests, claimDaily, claimSide,
-  gateOpen, buildRun, rateRun, finishGate, buy, spendStat, checkTitles,
-  go, render, openEx, openGate, closeSheet, toast, showEvents,
+  gateOpen, gateLock, buildRun, rateRun, finishGate, buy, spendStat, checkTitles,
+  curChapter, objProgress, objDone, chapterProgress, claimChapter,
+  curProgram, todaySession, todaySessionIdx, sessionDoneToday, buildSession, finishSession,
+  go, render, openEx, openGate, closeSheet, toast, showEvents, startSession, runStep, runBoss,
 });
 </script>
