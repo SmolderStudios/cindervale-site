@@ -84,6 +84,11 @@ hr{border:0;height:1px;background:var(--line2);margin:11px 0}
 .hn .a{font:700 15px/1.1 var(--disp);letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hn .b{font:600 10px/1.5 var(--mono);letter-spacing:.13em;color:var(--mut2)}
 .hn .b b{color:var(--rank)}
+.hhelp{width:24px;height:24px;flex:0 0 24px;border:1px solid var(--line);color:var(--mut);
+  font:700 13px/1 var(--disp);display:grid;place-items:center;background:rgba(24,44,70,.5)}
+.hhelp:hover{border-color:var(--cy);color:var(--cy2)}
+.helprow{display:flex;gap:11px;padding:7px 0;font-size:13.5px;line-height:1.55}
+.helprow b{flex:0 0 62px;font:700 12px/1.5 var(--mono);letter-spacing:.12em;color:var(--cy2)}
 .hr2{text-align:right;line-height:1}
 .hr2 .lv{font:700 24px/1 var(--disp);color:var(--cy2)}
 .hr2 .es{font:600 10px/1.6 var(--mono);letter-spacing:.08em;color:var(--em2)}
@@ -181,6 +186,8 @@ hr{border:0;height:1px;background:var(--line2);margin:11px 0}
 .sess .li{display:flex;align-items:center;gap:9px;padding:5px 0;font-size:13.5px}
 .sess .li i{width:5px;height:5px;background:var(--cy);flex:0 0 5px;transform:rotate(45deg)}
 .sess .li .r{margin-left:auto;font:700 12px/1 var(--mono);color:var(--mut)}
+.sess .hint{margin:10px 13px 0;padding:8px 10px;background:rgba(30,60,96,.4);
+  border-left:2px solid var(--cy);font-size:12.5px;line-height:1.5;color:#bcd9ef}
 .sess .act{padding:12px 13px 13px}
 .sess.rec{border-top-color:var(--grn)}
 .sess.rec .k{color:var(--grn)}
@@ -401,6 +408,7 @@ hr{border:0;height:1px;background:var(--line2);margin:11px 0}
       <div class="a" id="hName">HUNTER</div>
       <div class="b" id="hSub"><b>E</b> · AWAKENED</div>
     </div>
+    <button class="hhelp" id="hHelp" title="How this works" aria-label="How this works">?</button>
     <div class="hr2"><div class="lv" id="hLv">1</div><div class="es" id="hEss">0 ES</div></div>
   </div>
   <div class="xpb"><i id="hXp" style="width:0"></i></div>
@@ -3433,6 +3441,7 @@ const G = {
       shadows: {}, titles: {}, title: null,
       gates: {},
       chapter: 0, chapDone: {}, prog: { id: null, idx: 0 },
+      savedAt: 0,
       history: [], lifetime: { xp: 0, sets: 0, reps: 0, days: 0, dailies: 0, sessions: 0 },
       settings: { dayStart: 4, reduceMotion: false, restBeep: true },
       seen: {},
@@ -3443,13 +3452,96 @@ const G = {
   },
 };
 
-function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(G.s)); } catch (e) { /* private mode */ } }
+/* --------------------------------------------------------------- saving ---
+   localStorage on its own is not good enough on a phone. iOS Safari treats it as
+   cache and will throw it away — the 7 day eviction rule for sites you have not
+   revisited, storage pressure, and "clear website data" all wipe it, and it is
+   capped small. That is why progress vanished after closing the tab.
+
+   So every save is written to BOTH localStorage and IndexedDB, and load takes
+   whichever copy is newer. IndexedDB survives on iOS where localStorage does not,
+   and asking for persistent storage tells the browser not to evict us at all.
+   Saves also fire when the page is hidden, because on a phone you do not close an
+   app, you swipe away from it. */
+const DB_NAME = 'irongate', DB_STORE = 'save';
+let _db = null, _dbTried = false;
+
+function openDB() {
+  if (_dbTried) return Promise.resolve(_db);
+  _dbTried = true;
+  return new Promise(res => {
+    try {
+      const r = indexedDB.open(DB_NAME, 1);
+      r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains(DB_STORE)) r.result.createObjectStore(DB_STORE); };
+      r.onsuccess = () => { _db = r.result; res(_db); };
+      r.onerror = () => res(null);
+    } catch (e) { res(null); }
+  });
+}
+function dbPut(val) {
+  return openDB().then(db => {
+    if (!db) return;
+    try { db.transaction(DB_STORE, 'readwrite').objectStore(DB_STORE).put(val, 'state'); } catch (e) { }
+  });
+}
+function dbGet() {
+  return openDB().then(db => new Promise(res => {
+    if (!db) return res(null);
+    try {
+      const r = db.transaction(DB_STORE, 'readonly').objectStore(DB_STORE).get('state');
+      r.onsuccess = () => res(r.result || null);
+      r.onerror = () => res(null);
+    } catch (e) { res(null); }
+  }));
+}
+
+let lastSaved = 0;
+function save() {
+  G.s.savedAt = Date.now();
+  const json = JSON.stringify(G.s);
+  try { localStorage.setItem(SAVE_KEY, json); } catch (e) { /* full or private mode */ }
+  dbPut(json);
+  lastSaved = G.s.savedAt;
+}
+
+/* Synchronous first paint from localStorage so the app never waits on IndexedDB,
+   then an async reconciliation that adopts the IndexedDB copy if it is newer —
+   which is exactly the case where localStorage has been evicted and reset. */
 function load() {
   let raw = null;
   try { raw = localStorage.getItem(SAVE_KEY); } catch (e) { }
-  G.s = raw ? normalize(JSON.parse(raw)) : G.fresh();
+  let parsed = null;
+  if (raw) { try { parsed = JSON.parse(raw); } catch (e) { } }
+  G.s = parsed ? normalize(parsed) : G.fresh();
   rollover();
   return G.s;
+}
+
+/* Called once at boot, after the first render. */
+function reconcile() {
+  return dbGet().then(json => {
+    if (!json) { if (G.s.seen.intro) save(); return false; }   // seed IndexedDB
+    let other = null;
+    try { other = JSON.parse(json); } catch (e) { return false; }
+    const mine = G.s.savedAt || 0, theirs = other.savedAt || 0;
+    /* Only adopt a clearly newer copy, and never clobber a session the player
+       has already put work into this launch. */
+    if (theirs > mine && !G.s.today.sets.length) {
+      G.s = normalize(other);
+      rollover();
+      return true;
+    }
+    save();
+    return false;
+  }).catch(() => false);
+}
+
+/* Ask the browser not to evict us. Silently unsupported on some platforms. */
+function requestPersist() {
+  try {
+    if (navigator.storage && navigator.storage.persist) return navigator.storage.persist().catch(() => false);
+  } catch (e) { }
+  return Promise.resolve(false);
 }
 
 /* Non-destructive migration. Anything missing gets a sane default; nothing
@@ -4087,6 +4179,38 @@ async function showEvents(ev) {
   }
 }
 
+/* Shown once on the first launch, and any time from the ? in the header. Four
+   tabs with game-flavoured names are not self-explanatory, and the honest fix is
+   to just say what each one is for in plain words. */
+function showHelp() {
+  const sh = $('sheetIn'); sh.innerHTML = '';
+  const p = panel('How this works', 'READ ONCE', 'cy');
+  p.body.innerHTML =
+    '<div style="font-size:15px;line-height:1.65;margin-bottom:4px">' +
+    'You do not have to plan anything. Open the app, do the workout it gives you, close the app.' +
+    '</div><hr>' +
+    '<div class="helprow"><b>TODAY</b><span>Your workout for today. One button starts it and walks you through every set, ' +
+    'with a rest timer between them. Everything else on that page fills in by itself while you train.</span></div>' +
+    '<div class="helprow"><b>PATH</b><span>The plan. Which chapter you are on and what to aim for next, the weekly ' +
+    'routine you are following, and the gates &mdash; longer one-off workouts with a boss at the end.</span></div>' +
+    '<div class="helprow"><b>CODEX</b><span>Every exercise in the game with an animation and how to do it. ' +
+    'Look things up here. You never need to visit it to train.</span></div>' +
+    '<div class="helprow"><b>HUNTER</b><span>Your level, attributes, shadows, records, calendar and settings.</span></div>' +
+    '<hr>' +
+    '<div class="lab">The two things worth knowing</div>' +
+    '<div class="helprow"><b>XP</b><span>You earn it for every set you log. Enough of it and you level up, ' +
+    'which unlocks harder exercises and new gates.</span></div>' +
+    '<div class="helprow"><b>STREAK</b><span>Train on any given day and your streak grows, which multiplies your XP. ' +
+    'Skip a whole day with nothing logged and it resets.</span></div>';
+  const b = el('button', 'btn go w', 'Got it');
+  b.style.marginTop = '14px';
+  b.onclick = () => { G.s.seen.help = 1; save(); closeSheet(); };
+  p.body.appendChild(b);
+  sh.appendChild(p);
+  $('sheet').classList.add('on');
+  $('sheet').scrollTop = 0;
+}
+
 /* ==========================================================================
    TODAY  —  the prescribed session, then the day's quests
    ========================================================================== */
@@ -4122,8 +4246,8 @@ function scToday(v) {
   /* Daily quest */
   progressQuests();
   const t = s.today;
-  const dp = panel('Daily Quest', t.daily.done ? 'COMPLETE' : 'IN PROGRESS', t.daily.done ? '' : 'em');
-  dp.body.appendChild(el('div', 'sml', 'Five lines, scaled to the rungs you own right now. Any movement in a line counts, and the session above covers most of it.'));
+  const dp = panel('Daily Goals', t.daily.done ? 'DONE' : 'FILLING IN', t.daily.done ? '' : 'em');
+  dp.body.appendChild(el('div', 'sml', '<b>You don\'t do these separately.</b> They tick off on their own while you do the workout above. Anything you train counts.'));
   dp.body.appendChild(el('hr'));
   for (const it of t.daily.items) {
     const ex = EX_BY_ID[it.ex];
@@ -4139,14 +4263,16 @@ function scToday(v) {
     c.onclick = async () => { const r = claimDaily(); if (r) { toast('+' + nf(r.xp) + ' XP &nbsp; +' + nf(r.ess) + ' ES', 'gold'); await showEvents(r.ev); render(); } };
     dp.body.appendChild(c);
   } else if (t.daily.claimed) {
-    dp.body.appendChild(el('div', 'note ok', '&#10003; Claimed. The streak is secured for today.'));
+    dp.body.appendChild(el('div', 'note ok', '&#10003; Claimed. Your streak is safe for today.'));
   } else {
-    dp.body.appendChild(el('div', 'sml', 'Miss this and tomorrow opens in the Penalty Zone. Training <i>anything</i> today still protects the streak, even unfinished.'));
+    dp.body.appendChild(el('div', 'sml', 'Hit all five and you get a bonus plus an attribute point. Miss the whole day and you lose your streak &mdash; but any training at all protects it, even if these do not finish.'));
   }
   v.appendChild(dp);
 
   /* Side quests */
-  const sp = panel('Side Quests', 'OPTIONAL');
+  const sp = panel('Bonus Objectives', 'OPTIONAL');
+  sp.body.appendChild(el('div', 'sml', 'Three every day, for extra XP. Ignore them if you like &mdash; they cost nothing to skip.'));
+  sp.body.appendChild(el('hr'));
   (t.side || []).forEach((q, i) => {
     const tpl = SIDEQ.find(x => x.id === q.tid); if (!tpl) return;
     const row = el('div', 'ob' + (q.done ? ' ok' : ''));
@@ -4166,9 +4292,9 @@ function scToday(v) {
   });
   v.appendChild(sp);
 
-  /* Free training, demoted below the plan on purpose. */
-  const qp = panel('Train Something Else', 'FREE');
-  qp.body.appendChild(el('div', 'sml', 'Off-plan work still earns XP and counts toward quests. These are the hardest rungs you currently own.'));
+  /* Free training, deliberately last — the plan comes first. */
+  const qp = panel('Train Something Else', 'OPTIONAL');
+  qp.body.appendChild(el('div', 'sml', 'Only if you want to. Tap one to log a set of it. This is the hardest version of each movement you have unlocked so far.'));
   qp.body.appendChild(el('hr'));
   const seen = {};
   for (const ln of ['push', 'pull', 'squat', 'core', 'cond', 'mob']) {
@@ -4199,26 +4325,27 @@ function sessionCard() {
   });
 
   c.innerHTML = '<div class="top"><div class="grow">' +
-    '<div class="k">' + (done ? 'SESSION COMPLETE' : "TODAY'S SESSION") + '</div>' +
+    '<div class="k">' + (done ? 'FINISHED TODAY' : "TODAY'S WORKOUT") + '</div>' +
     '<div class="n">' + esc(day.n) + '</div>' +
     '<div class="f">' + esc(day.focus) + '</div></div>' +
     '<div class="meta"><div class="m">' + day.mins + '</div><div class="s">MINUTES</div></div></div>' +
     '<div class="list">' + groups.map(g =>
       '<div class="li"><i></i><span>' + esc(g.ex.n) + '</span><span class="r">' + g.n + ' &times; ' + unitS(g.ex, g.reps) + '</span></div>'
-    ).join('') + '</div>';
+    ).join('') + '</div>' +
+    (done ? '' : '<div class="hint">Tap Start. It shows you each exercise, counts your sets and times your rests. Nothing else on this page needs doing.</div>');
 
   const act = el('div', 'act');
   if (done) {
-    act.appendChild(el('div', 'note ok', '&#10003; ' + esc(G.s.today.session) + ' finished today. Rest is part of the plan &mdash; the next session is waiting whenever you are.'));
-    const again = el('button', 'btn gh w', 'Train it again anyway');
+    act.appendChild(el('div', 'note ok', '&#10003; You did ' + esc(G.s.today.session) + ' today. Take a rest day if you want one &mdash; the next workout waits for you.'));
+    const again = el('button', 'btn gh w', 'Do another one anyway');
     again.style.marginTop = '8px';
     again.onclick = () => startSession(day);
     act.appendChild(again);
   } else {
-    const b = el('button', 'btn go w', 'Begin session');
+    const b = el('button', 'btn go w', 'Start workout');
     b.onclick = () => startSession(day);
     act.appendChild(b);
-    const alt = el('button', 'btn gh w', 'Choose a different session');
+    const alt = el('button', 'btn gh w', 'Pick a different one');
     alt.style.marginTop = '8px';
     alt.onclick = () => pickSession(prog);
     act.appendChild(alt);
@@ -5024,7 +5151,18 @@ function scHunter(v) {
   [rm, ex2, im, rs].forEach(x => chips.appendChild(x));
   yp.body.appendChild(chips);
   yp.body.appendChild(el('hr'));
-  yp.body.appendChild(el('div', 'sml', 'The day rolls over at 4am, so a late session still counts as that day. Saves live in this browser only &mdash; export before clearing site data.'));
+  /* Saving is invisible when it works and disastrous when it doesn't, so it gets
+     a status line you can actually check. */
+  const st = el('div', 'sml', 'Checking saved progress&hellip;');
+  yp.body.appendChild(st);
+  dbGet().then(json => {
+    const when = s.savedAt ? new Date(s.savedAt).toLocaleString() : 'not yet';
+    const dbOk = !!json;
+    st.innerHTML = '<b>Progress saves automatically.</b> Last save: ' + when + '.<br>' +
+      'Backup copy in this browser\'s database: ' + (dbOk ? '<span style="color:var(--grn)">yes</span>'
+        : '<span style="color:var(--red)">no &mdash; export your save regularly</span>') + '.<br>' +
+      'The day rolls over at 4am, so a late session still counts as that day.';
+  });
   v.appendChild(yp);
 
   const dp = panel('Before You Train');
@@ -5069,9 +5207,12 @@ function boot() {
   const t = art('bg_title');
   if (t) $('title').style.backgroundImage = 'url(' + t + ')';
 
+  $('hHelp').onclick = showHelp;
+
   if (G.s.seen.intro) {
     $('title').classList.add('hide');
     render();
+    if (!G.s.seen.help) showHelp();
   } else {
     $('tName').value = G.s.name === 'HUNTER' ? '' : G.s.name;
     $('tGo').onclick = async () => {
@@ -5081,12 +5222,26 @@ function boot() {
       $('title').classList.add('hide');
       render();
       await burst('CHAPTER 1', CHAPTERS[0].n.toUpperCase(), CHAPTERS[0].quote);
+      showHelp();
     };
     $('tName').onkeydown = e => { if (e.key === 'Enter') $('tGo').click(); };
   }
 
   setInterval(() => { if (G.s.day !== dayKey()) render(); }, 60000);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && G.s.day !== dayKey()) render(); });
+
+  /* On a phone you never close an app, you swipe away from it — and iOS often
+     kills the tab without firing unload. Save on every hide, and reconcile
+     against IndexedDB on every return in case localStorage was evicted while we
+     were in the background. */
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { save(); return; }
+    reconcile().then(changed => { if (changed || G.s.day !== dayKey()) render(); });
+  });
+  window.addEventListener('pagehide', save);
+  window.addEventListener('blur', save);
+
+  requestPersist();
+  reconcile().then(changed => { if (changed) render(); });
 }
 document.addEventListener('DOMContentLoaded', boot);
 
@@ -5096,12 +5251,13 @@ document.addEventListener('DOMContentLoaded', boot);
 Object.assign(window, {
   G, EX, EX_BY_ID, LINES, POSE, ART, POSEART, FIG, ANIM, U,
   RANKS, STATS, CATS, GATES, SHADOWS, SHADOW_BONUS, TITLES, SIDEQ, SHOP, CHAPTERS, PROGRAMS,
-  SAVE_KEY, save, load, normalize, rollover, dayKey, dayNum, keyFromNum, weekKey,
+  SAVE_KEY, save, load, normalize, rollover, reconcile, requestPersist, dbGet, dbPut,
+  dayKey, dayNum, keyFromNum, weekKey,
   xpToNext, rankOf, nextRank, unlocked, lockReason, currentIn, statTotal, streakMult, fatigueMult,
   logSet, makeDaily, makeSide, ensureQuests, progressQuests, claimDaily, claimSide,
   gateOpen, gateLock, buildRun, rateRun, finishGate, buy, spendStat, checkTitles,
   curChapter, objProgress, objDone, chapterProgress, claimChapter,
   curProgram, todaySession, todaySessionIdx, sessionDoneToday, buildSession, finishSession,
-  go, render, openEx, openGate, closeSheet, toast, showEvents, startSession, runStep, runBoss,
+  go, render, openEx, openGate, closeSheet, toast, showEvents, startSession, runStep, runBoss, showHelp,
 });
 </script>
