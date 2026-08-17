@@ -254,9 +254,16 @@ hr{border:0;height:1px;background:var(--line2);margin:11px 0}
   backdrop-filter:blur(5px);overflow-y:auto;overscroll-behavior:contain}
 #sheet.on{display:block}
 #sheet .sh{max-width:var(--w);margin:0 auto;padding:11px 11px 40px;min-height:100%}
-.demo{position:relative;height:186px;overflow:hidden;
+.dwrap{margin:0 auto}
+.demo{position:relative;height:236px;overflow:hidden;
   background:radial-gradient(120% 100% at 50% 22%,#12243c,#060b14);border:1px solid var(--line)}
 .demo canvas{position:absolute;inset:0;width:100%;height:100%}
+.dctl{display:flex;align-items:center;gap:9px;padding:7px 9px;
+  background:rgba(10,17,30,.92);border:1px solid var(--line);border-top:0}
+.dbtn{width:32px;height:26px;border:1px solid var(--line);background:rgba(32,64,100,.55);
+  color:var(--cy2);font:10px/1 var(--mono);display:grid;place-items:center;flex:0 0 auto}
+.dctl input[type=range]{flex:1;height:4px;accent-color:var(--cy);background:transparent;margin:0}
+.dctl .dph{font:700 9px/1 var(--mono);letter-spacing:.16em;color:var(--mut2);flex:0 0 auto}
 .demo .g1{position:absolute;left:9px;top:8px;font:700 9.5px/1 var(--mono);letter-spacing:.14em;color:var(--mut2);text-transform:uppercase}
 .demo .g2{position:absolute;right:9px;top:8px;font:700 9.5px/1 var(--mono);letter-spacing:.14em;color:var(--cydim)}
 .cue{display:flex;gap:10px;padding:6px 0;font-size:13.5px;line-height:1.55}
@@ -1778,77 +1785,79 @@ ring_dip: { tempo: 2.8, props: [['post', 100, 8, 106], ['post', 140, 8, 106]],
 
 /* ------------------------------------------------------------------ PULL -- */
 /* Every bar hang keys off one number: a straight arm is 54, so a dead hang puts
-   the pelvis at bar + 54 + 38 = 118 and the chin clears the bar at 80. The first
-   draft hung from 108, which bent the elbows on a "dead" hang and then had to bend
-   the knees to keep the feet on a floor they should never have reached. Knees stay
-   softly folded back — what everyone actually does under a bar this height. */
+   the pelvis at bar + 54 + 38 = 118 and the chin clears the bar at 80. An earlier
+   draft hung from 108, which bent the elbows on a "dead" hang, and then bent the
+   KNEES as well so the feet would stay above the drawn floor at y=176. Both were
+   workarounds for a fixed stage. Auto-framing measures the pose and fits to it, so
+   a hanging body can now hang straight and the feet simply extend past the old
+   floor line — which is where they actually are. */
 dead_hang: { tempo: 4, props: [['bar', 60, 180, 26]],
-  kf: [K([118, 118], -90, [118, 26], [98, 170], { ft: 190, kb: -1 }),
-       K([118, 120], -90, [118, 26], [98, 172], { ft: 190, kb: -1 })] },
+  kf: [K([118, 118], -90, [118, 26], [124, 196], { ft: 8, kb: -1 }),
+       K([118, 120], -90, [118, 26], [124, 198], { ft: 8, kb: -1 })] },
 
 scap_pull: { tempo: 2.6, props: [['bar', 60, 180, 26]],
-  kf: [K([118, 120], -90, [118, 26], [98, 172], { ft: 190, kb: -1 }),
-       K([118, 108], -90, [118, 26], [98, 160], { ft: 190, kb: -1 })] },
+  kf: [K([118, 120], -90, [118, 26], [124, 198], { ft: 8, kb: -1 }),
+       K([118, 108], -90, [118, 26], [124, 186], { ft: 8, kb: -1 })] },
 
 inverted_row: { tempo: 2.6, props: [['floor'], ['bar', 62, 176, 116]],
   kf: [K([108, 150], 4, [148, 116], [40, 172], { ft: -35, kb: 1 }),
        K([108, 138], 4, [148, 116], [40, 172], { ft: -35, kb: 1 })] },
 
 negative_pullup: { tempo: 4, props: [['bar', 60, 180, 26]],
-  kf: [K([118, 80], -90, [122, 26], [98, 132], { ft: 190, kb: -1 }),
-       K([118, 118], -90, [122, 26], [98, 170], { ft: 190, kb: -1 })] },
+  kf: [K([118, 80], -90, [122, 26], [124, 158], { ft: 8, kb: -1 }),
+       K([118, 118], -90, [122, 26], [124, 196], { ft: 8, kb: -1 })] },
 
 chinup: { tempo: 2.8, props: [['bar', 60, 180, 26]],
-  kf: [K([118, 118], -90, [120, 26], [98, 170], { ft: 190, kb: -1 }),
-       K([118, 80], -90, [120, 26], [98, 132], { ft: 190, kb: -1, eb: -1 })] },
+  kf: [K([118, 118], -90, [120, 26], [124, 196], { ft: 8, kb: -1 }),
+       K([118, 80], -90, [120, 26], [124, 158], { ft: 8, kb: -1, eb: -1 })] },
 
 pullup: { tempo: 2.8, props: [['bar', 60, 180, 26]],
-  kf: [K([118, 118], -90, [116, 26], [98, 170], { ft: 190, kb: -1 }),
-       K([118, 80], -90, [116, 26], [98, 132], { ft: 190, kb: -1 })] },
+  kf: [K([118, 118], -90, [116, 26], [124, 196], { ft: 8, kb: -1 }),
+       K([118, 80], -90, [116, 26], [124, 158], { ft: 8, kb: -1 })] },
 
 wide_pullup: { tempo: 2.8, props: [['bar', 60, 180, 26]],
-  kf: [K([118, 118], -90, [100, 26], [98, 170], { hand2: [140, 26], ft: 190, kb: -1 }),
-       K([118, 86], -90, [100, 26], [98, 138], { hand2: [140, 26], ft: 190, kb: -1 })] },
+  kf: [K([118, 118], -90, [100, 26], [124, 196], { hand2: [140, 26], ft: 8, kb: -1 }),
+       K([118, 86], -90, [100, 26], [124, 164], { hand2: [140, 26], ft: 8, kb: -1 })] },
 
 archer_pullup: { tempo: 3.2, props: [['bar', 60, 180, 26]],
-  kf: [K([118, 118], -90, [100, 26], [98, 170], { hand2: [150, 26], ft: 190, kb: -1 }),
-       K([102, 88], -84, [94, 26], [84, 140], { hand2: [158, 26], ft: 190, kb: -1 })] },
+  kf: [K([118, 118], -90, [100, 26], [124, 196], { hand2: [150, 26], ft: 8, kb: -1 }),
+       K([102, 88], -84, [94, 26], [108, 166], { hand2: [158, 26], ft: 8, kb: -1 })] },
 
 typewriter_pullup: { tempo: 3.4, props: [['bar', 60, 180, 26]],
-  kf: [K([102, 88], -84, [94, 26], [84, 140], { hand2: [158, 26], ft: 190, kb: -1 }),
-       K([136, 88], -96, [144, 26], [116, 140], { hand2: [80, 26], ft: 190, kb: -1 })] },
+  kf: [K([102, 88], -84, [94, 26], [108, 166], { hand2: [158, 26], ft: 8, kb: -1 }),
+       K([136, 88], -96, [144, 26], [142, 166], { hand2: [80, 26], ft: 8, kb: -1 })] },
 
 oa_pullup_negative: { tempo: 4.2, props: [['bar', 60, 180, 26]],
-  kf: [K([116, 82], -88, [120, 26], [96, 134], { hand2: [92, 96], ft: 190, kb: -1, eb2: -1 }),
-       K([116, 118], -88, [120, 26], [96, 170], { hand2: [92, 132], ft: 190, kb: -1, eb2: -1 })] },
+  kf: [K([116, 82], -88, [120, 26], [122, 160], { hand2: [92, 96], ft: 8, kb: -1, eb2: -1 }),
+       K([116, 118], -88, [120, 26], [122, 196], { hand2: [92, 132], ft: 8, kb: -1, eb2: -1 })] },
 
 oa_pullup: { tempo: 3.4, props: [['bar', 60, 180, 26]],
-  kf: [K([116, 118], -88, [120, 26], [96, 170], { hand2: [92, 132], ft: 190, kb: -1, eb2: -1 }),
-       K([116, 82], -88, [120, 26], [96, 134], { hand2: [92, 96], ft: 190, kb: -1, eb2: -1 })] },
+  kf: [K([116, 118], -88, [120, 26], [122, 196], { hand2: [92, 132], ft: 8, kb: -1, eb2: -1 }),
+       K([116, 82], -88, [120, 26], [122, 160], { hand2: [92, 96], ft: 8, kb: -1, eb2: -1 })] },
 
 /* Muscle-up line. The top of a muscle-up is drawn as the TRANSITION rather than
    the finished support: a true support would need the pelvis 16 above the bar,
    which at this bar height sits off the top of the stage. The transition is the
    part that matters anyway — it is where the movement is won or lost. */
 explosive_pullup: { tempo: 2.2, props: [['bar', 60, 180, 26]],
-  kf: [K([118, 118], -90, [116, 26], [98, 170], { ft: 190, kb: -1 }),
-       K([118, 74], -90, [116, 26], [98, 126], { ft: 190, kb: -1 })] },
+  kf: [K([118, 118], -90, [116, 26], [124, 196], { ft: 8, kb: -1 }),
+       K([118, 74], -90, [116, 26], [124, 152], { ft: 8, kb: -1 })] },
 
 ctb_pullup: { tempo: 2.8, props: [['bar', 60, 180, 26]],
-  kf: [K([120, 118], -88, [116, 26], [100, 170], { ft: 190, kb: -1 }),
-       K([122, 78], -80, [114, 26], [100, 132], { ft: 190, kb: -1 })] },
+  kf: [K([120, 118], -88, [116, 26], [126, 196], { ft: 8, kb: -1 }),
+       K([122, 78], -80, [114, 26], [128, 156], { ft: 8, kb: -1 })] },
 
 baby_muscle_up: { tempo: 3.2, props: [['floor'], ['bar', 60, 180, 92]],
   kf: [K([114, 172], -80, [118, 92], [168, 176], { ft: 0, kb: -1 }),
        K([124, 116], -62, [118, 92], [150, 176], { ft: 0, kb: -1 })] },
 
 muscle_up: { tempo: 3.4, props: [['bar', 60, 180, 26]],
-  kf: [K([118, 118], -90, [116, 26], [98, 170], { ft: 190, kb: -1 }),
-       K([124, 84], -60, [118, 26], [104, 138], { ft: 190, kb: -1 })] },
+  kf: [K([118, 118], -90, [116, 26], [124, 196], { ft: 8, kb: -1 }),
+       K([124, 84], -60, [118, 26], [130, 162], { ft: 8, kb: -1 })] },
 
 strict_muscle_up: { tempo: 4.2, props: [['bar', 60, 180, 26]],
-  kf: [K([118, 118], -90, [116, 26], [98, 170], { ft: 190, kb: -1 }),
-       K([124, 82], -56, [118, 26], [104, 136], { ft: 190, kb: -1 })] },
+  kf: [K([118, 118], -90, [116, 26], [124, 196], { ft: 8, kb: -1 }),
+       K([124, 82], -56, [118, 26], [130, 160], { ft: 8, kb: -1 })] },
 
 /* ------------------------------------------------------------------ LEGS -- */
 assisted_squat: { tempo: 3, props: [['floor'], ['post', 176, 40, 176]],
@@ -1904,9 +1913,11 @@ nordic_curl: { tempo: 3.4, props: FLOOR,
   kf: [K([104, 134], -88, [130, 128], [92, 176], { ft: 170, kb: 1 }),
        K([118, 154], -36, [162, 172], [92, 176], { ft: 170, kb: 1 })] },
 
+/* Hands held a little off the hip: hanging dead straight they merged into the
+   torso silhouette and the figure looked armless. */
 calf_raise: { tempo: 2.2, props: FLOOR,
-  kf: [K([110, 98], -90, [108, 114], [112, 176], { ft: 0 }),
-       K([110, 84], -90, [108, 100], [112, 160], { ft: 58 })] },
+  kf: [K([110, 98], -90, [124, 112], [112, 176], { ft: 0 }),
+       K([110, 84], -90, [124, 98], [112, 160], { ft: 58 })] },
 
 sl_calf_raise: { tempo: 2.4, props: [['floor'], ['box', 92, 166, 56, 10]],
   kf: [K([112, 92], -90, [110, 108], [114, 168], { foot2: [140, 140], ft: 0, kb2: -1 }),
@@ -1944,7 +1955,7 @@ hollow_hold: { tempo: 4.5, props: FLOOR,
        K([110, 168], 172, [56, 154], [174, 154], { kb: -1, ft: 20 })] },
 
 hanging_knee_raise: { tempo: 3, props: [['bar', 60, 180, 26]],
-  kf: [K([118, 118], -90, [118, 26], [110, 172], { ft: 190, kb: -1 }),
+  kf: [K([118, 118], -90, [118, 26], [124, 196], { ft: 8, kb: -1 }),
        K([118, 118], -90, [118, 26], [156, 138], { ft: 20, kb: -1 })] },
 
 hanging_leg_raise: { tempo: 3.2, props: [['bar', 60, 180, 26]],
@@ -2081,7 +2092,7 @@ burpee: { tempo: 2.6, props: FLOOR,
 
 burpee_pullup: { tempo: 3.2, props: [['floor'], ['bar', 60, 180, 34]],
   kf: [K([120, 162], -9, [150, 176], [48, 172], { ft: 150 }),
-       K([118, 88], -90, [116, 34], [98, 140], { ft: 190, kb: -1 })] },
+       K([118, 88], -90, [116, 34], [124, 166], { ft: 8, kb: -1 })] },
 
 /* ------------------------------------------------------------- MOBILITY -- */
 wrist_prep: { tempo: 3, props: FLOOR,
@@ -2092,9 +2103,13 @@ shoulder_pass: { tempo: 3.6, props: FLOOR,
   kf: [K([110, 98], -90, [148, 84], [112, 176], { hand2: [72, 84], ft: 0 }),
        K([110, 98], -90, [126, 34], [112, 176], { hand2: [94, 34], ft: 0 })] },
 
+/* Cat-cow is spinal FLEXION, and this rig has a single rigid torso segment — it
+   cannot curve a back. So the intent is carried by a wide swing of the trunk
+   angle plus a 60 degree head swing (nose lifted, then chin tucked), with hips
+   and hands pinned so the knees stay planted. The written cues carry the rest. */
 cat_cow: { tempo: 3.6, props: FLOOR,
-  kf: [K([96, 132], -10, [142, 176], [72, 176], { ft: 130, kb: 1, head: 24 }),
-       K([96, 124], 4, [142, 176], [72, 176], { ft: 130, kb: 1, head: -26 })] },
+  kf: [K([96, 134], -22, [140, 176], [78, 140], { ft: 150, kb: -1, head: -23 }),
+       K([96, 134], 8, [140, 176], [78, 140], { ft: 150, kb: -1, head: 37 })] },
 
 deep_squat_hold: { tempo: 5, props: FLOOR,
   kf: [K([104, 142], -72, [140, 136], [114, 176], { ft: 0 }),
@@ -2784,44 +2799,66 @@ const PROGRAMS = [
 ];
 </script>
 <script>/* ==========================================================================
-   [JS-02]  THE FIGURE ENGINE  —  authored movement demos
+   [JS-02]  THE FIGURE ENGINE  —  a cel-shaded character, driven by real joints
    --------------------------------------------------------------------------
-   Why this exists instead of generated art: two probes through the local image
-   model produced clean, confident, WRONG body positions — roughly two of twelve
-   were the movement actually asked for. A picture that teaches a movement has to
-   be right every single time, so the demos are constructed rather than sampled.
+   Why this is drawn and not generated: two probes through the local image model
+   produced clean, confident, WRONG body positions — roughly two of twelve were
+   the movement actually asked for. A picture that teaches a movement has to be
+   right every single time.
 
-   A pose is authored as CONTACT POINTS, not joint angles: where the pelvis is,
-   which way the spine points, and where the hands and feet are. A two-bone IK
-   solver works out the elbows and knees. That is the whole trick — it means a
-   push-up's hands are ON the floor and a hang's hands are ON the bar by
-   construction, which is exactly what makes an exercise diagram readable.
+   So the pose is CONSTRUCTED. A keyframe is authored as contact points — where
+   the pelvis is, which way the spine points, where the hands and feet are — and
+   a two-bone IK solver finds the elbows and knees. That is what guarantees a
+   push-up's hands are ON the floor and a hang's hands are ON the bar.
+
+   On top of that skeleton this file draws an actual character: tapered limbs,
+   hard cel shadows from a fixed light, a dark ink outline, athletic wear, hair
+   that lags behind the motion, and a cyan rim light. Same guarantee, and it
+   looks like a person instead of a diagram.
+
+   Readability aids matter as much as the art. A movement is legible because
+   you can see BOTH ends of it at once, so the opposite keyframe is drawn as a
+   ghost and an arc arrow points from there to here.
 
    Stage is 240 x 200 with the floor at y=176. The figure faces right.
    Angles are degrees in a y-down space: -90 is up, 0 is right, 90 is down.
    ========================================================================== */
 const FIG = (function () {
 
-  /* Segment lengths. Roughly 7.5 heads tall, which reads as athletic without
-     drifting into the heroic proportions that make positions ambiguous. */
+  /* DO NOT change ua/fa/th/sh/torso without re-authoring every pose. Those four
+     are the IK reach, and the whole "hands are ON the bar" guarantee is authored
+     against them — shortening the arm by 4 units silently stops a dead hang from
+     reaching the bar. `neck` and `headR` are leaves, so the head can be scaled
+     to anime proportions (about a fifth of total height) for free. */
   const L = {
-    torso: 44,    // pelvis -> neck
-    neck: 12,     // neck -> centre of head
-    headR: 10,
-    ua: 28, fa: 26,        // upper arm, forearm
-    th: 40, sh: 38,        // thigh, shin
-    foot: 13,
-    shOff: 6,     // shoulder sits this far down the spine from the neck
+    torso: 44, neck: 12, headR: 11,
+    ua: 28, fa: 26, th: 40, sh: 38, foot: 13, shOff: 6,
   };
   const D2R = Math.PI / 180;
   const FLOOR = 176;
 
-  /* Two-bone IK. Returns the joint (elbow/knee) and the end point actually
-     reached — the target is clamped to what the limb can span, so an
-     over-reaching authored pose bends gracefully instead of tearing apart. */
+  /* Light comes from up and slightly in front. Every cel shadow and rim light
+     in the figure is derived from this one vector, which is what keeps the
+     shading coherent across a moving body. */
+  const LX = -0.5, LY = -0.866;
+
+  const PAL = {
+    skin: '#f0c8a4', skin2: '#c9977a',
+    ink: '#080c14',
+    rim: '#8fdcff',
+    top: '#1b2740', top2: '#111a2c',
+    short: '#2b3a58', short2: '#1a2440',
+    hair: '#1a2336', hair2: '#0e1523',
+    shoe: '#39445c', shoe2: '#222b3d',
+    ghost: 'rgba(120,190,240,.22)',
+    prop: '#5d8ab9', propFill: 'rgba(38,64,100,.5)',
+  };
+
+  /* ---- skeleton --------------------------------------------------------- */
+
   function ik(ox, oy, tx, ty, l1, l2, sign) {
-    let dx = tx - ox, dy = ty - oy;
-    let raw = Math.hypot(dx, dy) || 0.0001;
+    const dx = tx - ox, dy = ty - oy;
+    const raw = Math.hypot(dx, dy) || 0.0001;
     const max = l1 + l2 - 0.01, min = Math.abs(l1 - l2) + 0.01;
     const d = Math.min(max, Math.max(min, raw));
     const ux = dx / raw, uy = dy / raw;
@@ -2832,7 +2869,6 @@ const FIG = (function () {
     return { jx: mx + sign * h * -uy, jy: my + sign * h * ux, ex, ey };
   }
 
-  /* Turn an authored keyframe into concrete points. */
   function solve(k, depth) {
     const dx = depth ? (k.dep === undefined ? 5 : k.dep) : 0;
     const dy = depth ? 2 : 0;
@@ -2850,35 +2886,27 @@ const FIG = (function () {
 
     const arm = ik(sho[0], sho[1], hand[0] + dx, hand[1] + dy, L.ua, L.fa, eb);
     const leg = ik(px, py, foot[0] + dx, foot[1] + dy, L.th, L.sh, kb);
-
-    /* Foot direction: explicit when it matters (toes planted in a plank point
-       very differently to a standing foot), otherwise square to the shin. */
     const shinA = Math.atan2(leg.ey - leg.jy, leg.ex - leg.jx) / D2R;
     const fa2 = (k.ft !== undefined ? k.ft : shinA - 90) * D2R;
 
     return {
-      pel: [px, py], neck, sho, head,
+      pel: [px, py], neck, sho, head, headAng: ha,
       elb: [arm.jx, arm.jy], hand: [arm.ex, arm.ey],
       kne: [leg.jx, leg.jy], ankle: [leg.ex, leg.ey],
       toe: [leg.ex + Math.cos(fa2) * L.foot, leg.ey + Math.sin(fa2) * L.foot],
+      footAng: fa2,
     };
   }
 
   const lerp = (a, b, u) => a + (b - a) * u;
   const lerpP = (a, b, u) => [lerp(a[0], b[0], u), lerp(a[1], b[1], u)];
 
-  /* Blend two authored keyframes. Bend signs and explicit foot angles are
-     discrete choices, so they snap at the halfway point rather than smearing
-     through an impossible in-between. */
   function blend(a, b, u) {
     const o = {
-      pel: lerpP(a.pel, b.pel, u),
-      tor: lerp(a.tor, b.tor, u),
+      pel: lerpP(a.pel, b.pel, u), tor: lerp(a.tor, b.tor, u),
       head: lerp(a.head || 0, b.head || 0, u),
-      hand: lerpP(a.hand, b.hand, u),
-      foot: lerpP(a.foot, b.foot, u),
-      eb: u < 0.5 ? a.eb : b.eb,
-      kb: u < 0.5 ? a.kb : b.kb,
+      hand: lerpP(a.hand, b.hand, u), foot: lerpP(a.foot, b.foot, u),
+      eb: u < 0.5 ? a.eb : b.eb, kb: u < 0.5 ? a.kb : b.kb,
       dep: lerp(a.dep === undefined ? 5 : a.dep, b.dep === undefined ? 5 : b.dep, u),
     };
     if (a.hand2 || b.hand2) o.hand2 = lerpP(a.hand2 || a.hand, b.hand2 || b.hand, u);
@@ -2891,92 +2919,328 @@ const FIG = (function () {
 
   const ease = u => u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
 
-  /* Ping-pong through the keyframes. One "cycle" is out and back, which is what
-     a rep actually is — and it means a two-keyframe exercise animates correctly
-     with no extra authoring. Holds get a slow near-identical second frame so
-     they breathe instead of sitting frozen. */
   function frameAt(kf, phase) {
     if (kf.length === 1) return kf[0];
     const span = kf.length - 1;
-    const p = phase % 2;                       // 0..2, second half is the return
-    const fwd = p < 1;
-    const local = (fwd ? p : 2 - p) * span;
-    let i = Math.min(span - 1, Math.floor(local));
+    const p = ((phase % 2) + 2) % 2;
+    const local = (p < 1 ? p : 2 - p) * span;
+    const i = Math.min(span - 1, Math.floor(local));
     return blend(kf[i], kf[i + 1], ease(local - i));
   }
 
-  /* ---- drawing ---------------------------------------------------------- */
+  /* ---- drawing primitives ---------------------------------------------- */
 
-  function limb(ctx, pts, w, style) {
-    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  /* A tapered capsule: the shape a limb actually is. Round caps at both ends so
+     joints read as joints rather than as mitred corners. */
+  function capsule(ctx, p0, p1, w0, w1) {
+    const dx = p1[0] - p0[0], dy = p1[1] - p0[1];
+    const d = Math.hypot(dx, dy) || 0.0001;
+    const ux = dx / d, uy = dy / d, nx = -uy, ny = ux;
+    const a0 = Math.atan2(ny, nx), a1 = Math.atan2(-ny, -nx);
     ctx.beginPath();
-    ctx.moveTo(pts[0][0], pts[0][1]);
-    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
-    ctx.lineWidth = w + 5; ctx.strokeStyle = style.glow; ctx.stroke();
-    ctx.lineWidth = w; ctx.strokeStyle = style.core; ctx.stroke();
+    ctx.arc(p0[0], p0[1], w0, a0, a1);
+    ctx.lineTo(p1[0] - nx * w1, p1[1] - ny * w1);
+    ctx.arc(p1[0], p1[1], w1, a1, a0);
+    ctx.closePath();
   }
 
-  function body(ctx, s, style, alpha) {
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.shadowColor = style.glow; ctx.shadowBlur = alpha > 0.6 ? 12 : 5;
+  function blob(ctx, p, rx, ry, ang) {
+    ctx.beginPath();
+    ctx.ellipse(p[0], p[1], rx, ry, ang, 0, Math.PI * 2);
+  }
 
-    limb(ctx, [s.pel, s.kne, s.ankle], 10, style);
-    limb(ctx, [s.ankle, s.toe], 7, style);
-    limb(ctx, [s.sho, s.elb, s.hand], 8, style);
+  /* Half-plane on the far side of the light, used as a clip to lay down a hard
+     cel shadow. The boundary runs through the part's own centre, which is what
+     gives each limb its own shading rather than one flat wash. */
+  function shadeHalf(ctx, cx, cy, away) {
+    const s = away ? 1 : -1;
+    const px = -LY, py = LX, D = 460;
+    ctx.beginPath();
+    ctx.moveTo(cx + px * D, cy + py * D);
+    ctx.lineTo(cx - px * D, cy - py * D);
+    ctx.lineTo(cx - px * D + s * LX * D, cy - py * D + s * LY * D);
+    ctx.lineTo(cx + px * D + s * LX * D, cy + py * D + s * LY * D);
+    ctx.closePath();
+  }
 
-    /* Torso as a tapered slab so the trunk reads as a mass, not a stick. */
+  /* One body part: fill, hard cel shadow, ink outline, and a rim light on the
+     lit edge only. `far` parts skip the rim and get pushed toward shadow so the
+     two sides of the body read apart. */
+  function part(ctx, build, fill, shade, far, outline) {
+    build();
+    ctx.fillStyle = far ? shade : fill;
+    ctx.fill();
+
+    if (!far) {
+      ctx.save();
+      build(); ctx.clip();
+      const b = pathCentre;
+      shadeHalf(ctx, b[0], b[1], true);
+      ctx.fillStyle = shade; ctx.fill();
+      ctx.restore();
+    }
+
+    build();
+    ctx.lineWidth = outline === undefined ? 2.4 : outline;
+    ctx.strokeStyle = PAL.ink;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    if (!far) {
+      ctx.save();
+      build(); ctx.clip();
+      shadeHalf(ctx, pathCentre[0], pathCentre[1], false);
+      ctx.clip();
+      build();
+      ctx.lineWidth = 2.2; ctx.strokeStyle = PAL.rim;
+      ctx.globalAlpha = 0.85;
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  /* The cel-shadow boundary needs a point to pivot on. Rather than compute a
+     path centroid, each caller sets this to the part's midpoint first. */
+  let pathCentre = [0, 0];
+  const mid = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+
+  function limb(ctx, p0, p1, w0, w1, fill, shade, far) {
+    pathCentre = mid(p0, p1);
+    part(ctx, () => capsule(ctx, p0, p1, w0, w1), fill, shade, far);
+  }
+
+  /* ---- the character ---------------------------------------------------- */
+
+  function drawArm(ctx, s, far) {
+    /* Shoulder cap first, so the deltoid sits UNDER the upper arm — drawn on top
+       it read as a ball bearing stuck to the shoulder. */
+    pathCentre = s.sho;
+    part(ctx, () => blob(ctx, s.sho, 5.6, 5.2, 0), PAL.top, PAL.top2, far, 2.2);
+    limb(ctx, s.sho, s.elb, 6.2, 5, PAL.skin, PAL.skin2, far);
+    limb(ctx, s.elb, s.hand, 4.8, 3.6, PAL.skin, PAL.skin2, far);
+    pathCentre = s.hand;
+    const a = Math.atan2(s.hand[1] - s.elb[1], s.hand[0] - s.elb[0]);
+    part(ctx, () => blob(ctx, s.hand, 4.6, 3.6, a), PAL.skin, PAL.skin2, far, 2);
+  }
+
+  function drawLeg(ctx, s, far) {
+    limb(ctx, s.pel, s.kne, 8, 5.8, PAL.short, PAL.short2, far);     // thigh in shorts
+    limb(ctx, s.kne, s.ankle, 5.6, 3.8, PAL.skin, PAL.skin2, far);   // bare shin
+    /* Shoe: a wedge from the ankle along the foot direction. */
+    const t = s.toe;
+    pathCentre = mid(s.ankle, t);
+    part(ctx, () => {
+      const ax = s.ankle[0], ay = s.ankle[1];
+      const ux = t[0] - ax, uy = t[1] - ay;
+      const d = Math.hypot(ux, uy) || 1;
+      const nx = -uy / d, ny = ux / d;
+      ctx.beginPath();
+      ctx.moveTo(ax + nx * 4.2, ay + ny * 4.2);
+      ctx.lineTo(t[0] + nx * 2.6, t[1] + ny * 2.6);
+      ctx.lineTo(t[0] - nx * 2.6, t[1] - ny * 2.6);
+      ctx.lineTo(ax - nx * 4.6, ay - ny * 4.6);
+      ctx.closePath();
+    }, PAL.shoe, PAL.shoe2, far, 2.2);
+  }
+
+  function drawTorso(ctx, s, far) {
     const a = Math.atan2(s.neck[1] - s.pel[1], s.neck[0] - s.pel[0]);
     const nx = Math.cos(a + Math.PI / 2), ny = Math.sin(a + Math.PI / 2);
-    const hw = 8, sw = 12;
-    ctx.beginPath();
-    ctx.moveTo(s.pel[0] + nx * hw, s.pel[1] + ny * hw);
-    ctx.lineTo(s.sho[0] + nx * sw, s.sho[1] + ny * sw);
-    ctx.lineTo(s.sho[0] - nx * sw, s.sho[1] - ny * sw);
-    ctx.lineTo(s.pel[0] - nx * hw, s.pel[1] - ny * hw);
-    ctx.closePath();
-    ctx.fillStyle = style.core; ctx.fill();
-    ctx.lineWidth = 4; ctx.lineJoin = 'round';
-    ctx.strokeStyle = style.glow; ctx.stroke();
+    const P = (t, w) => [s.pel[0] + (s.neck[0] - s.pel[0]) * t + nx * w,
+                         s.pel[1] + (s.neck[1] - s.pel[1]) * t + ny * w];
+    /* Hips first, so the shorts sit under the top. */
+    pathCentre = s.pel;
+    part(ctx, () => {
+      ctx.beginPath();
+      const a1 = P(-0.06, 8.6), b1 = P(0.3, 8.2), b2 = P(0.3, -8.2), a2 = P(-0.06, -8.6);
+      ctx.moveTo(a1[0], a1[1]); ctx.lineTo(b1[0], b1[1]);
+      ctx.lineTo(b2[0], b2[1]); ctx.lineTo(a2[0], a2[1]);
+      ctx.closePath();
+    }, PAL.short, PAL.short2, far, 2.2);
 
-    ctx.beginPath();
-    ctx.arc(s.head[0], s.head[1], L.headR, 0, Math.PI * 2);
-    ctx.fillStyle = style.core; ctx.fill();
-    ctx.lineWidth = 3; ctx.strokeStyle = style.glow; ctx.stroke();
+    /* Torso: narrow at the waist, broad at the chest. */
+    pathCentre = mid(s.pel, s.neck);
+    part(ctx, () => {
+      ctx.beginPath();
+      const pts = [P(0.16, 7.4), P(0.5, 7.2), P(0.82, 10.2), P(1.0, 9.4),
+                   P(1.0, -9.4), P(0.82, -10.2), P(0.5, -7.2), P(0.16, -7.4)];
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+      ctx.closePath();
+    }, PAL.top, PAL.top2, far, 2.4);
 
+    if (!far) {
+      /* One fold line down the front of the top. Cheap, and it stops the torso
+         reading as a flat slab. */
+      const c1 = P(0.28, 3.2), c2 = P(0.78, 4.4);
+      ctx.beginPath();
+      ctx.moveTo(c1[0], c1[1]); ctx.lineTo(c2[0], c2[1]);
+      ctx.lineWidth = 1.5; ctx.strokeStyle = PAL.top2; ctx.stroke();
+    }
+  }
+
+  function drawHead(ctx, s, far, lag) {
+    const a = s.headAng;
+    const fx = Math.cos(a), fy = Math.sin(a);          // up the spine, toward the crown
+    const sx = -fy, sy = fx;                           // across the head, toward the face
+    const c = s.head;
+
+    /* Neck */
+    limb(ctx, s.neck, [c[0] - fx * 3, c[1] - fy * 3], 4.2, 4.4, PAL.skin, PAL.skin2, far);
+
+    /* Hair mass behind and over the skull, offset against the motion so it
+       trails the head instead of being welded to it. Kept close to the skull —
+       a generous halo of hair is what made the head read as chibi. */
+    const lx = (lag ? lag[0] : 0), ly = (lag ? lag[1] : 0);
+    pathCentre = [c[0] - sx * 3, c[1] - sy * 3];
+    part(ctx, () => {
+      ctx.beginPath();
+      /* Back AND up off the crown. Offset only backward, the skull drawn on top
+         left a 2px sliver of hair and every upright pose looked bald. */
+      ctx.ellipse(c[0] - sx * 2.2 + fx * 2.2 + lx, c[1] - sy * 2.2 + fy * 2.2 + ly,
+                  L.headR + 2.2, L.headR + 1.2, a, 0, Math.PI * 2);
+    }, PAL.hair, PAL.hair2, far, 2.2);
+
+    /* Skull */
+    pathCentre = c;
+    part(ctx, () => {
+      ctx.beginPath();
+      ctx.ellipse(c[0], c[1], L.headR - 0.8, L.headR - 1.8, a, 0, Math.PI * 2);
+    }, PAL.skin, PAL.skin2, far, 2.2);
+
+    if (!far) {
+      /* Fringe: two spikes sweeping off the crown toward the face. They sit
+         well up the skull — drawn level with the eye they covered the face and
+         the whole head turned into a scribble. */
+      ctx.fillStyle = PAL.hair;
+      for (let i = 0; i < 2; i++) {
+        const t = i * 4.6 - 1;
+        ctx.beginPath();
+        ctx.moveTo(c[0] + sx * (t - 2) + fx * 6.5 + lx, c[1] + sy * (t - 2) + fy * 6.5 + ly);
+        ctx.lineTo(c[0] + sx * (t + 7.5) + fx * 4.5 + lx, c[1] + sy * (t + 7.5) + fy * 4.5 + ly);
+        ctx.lineTo(c[0] + sx * (t + 1.5) + fx * 10 + lx, c[1] + sy * (t + 1.5) + fy * 10 + ly);
+        ctx.closePath();
+        ctx.fill();
+        ctx.lineWidth = 1.5; ctx.strokeStyle = PAL.ink; ctx.stroke();
+      }
+      /* One eye. At this size a short dash is a face; anything more is noise. */
+      const ex = c[0] + sx * 5.4 + fx * 0.6, ey = c[1] + sy * 5.4 + fy * 0.6;
+      ctx.beginPath();
+      ctx.moveTo(ex - fx * 1.6 - sx * 0.4, ey - fy * 1.6 - sy * 0.4);
+      ctx.lineTo(ex + fx * 1.2, ey + fy * 1.2);
+      ctx.lineWidth = 1.9; ctx.strokeStyle = PAL.ink; ctx.lineCap = 'round';
+      ctx.stroke();
+    }
+  }
+
+  function drawFigure(ctx, k, lag) {
+    const far = solve(k, true), near = solve(k, false);
+    ctx.lineJoin = 'round'; ctx.lineCap = 'butt';
+    drawLeg(ctx, far, true);
+    drawArm(ctx, far, true);
+    drawLeg(ctx, near, false);
+    drawTorso(ctx, near, false);
+    drawHead(ctx, near, false, lag);
+    drawArm(ctx, near, false);
+  }
+
+  /* ---- ghost + motion arc ---------------------------------------------- */
+
+  /* How far the pose actually travels. Holds barely move, and a ghost welded on
+     top of the live figure is noise rather than information — so below this the
+     aid is skipped entirely. */
+  function travel(kf) {
+    if (kf.length < 2) return 0;
+    const a = solve(kf[0], false), b = solve(kf[kf.length - 1], false);
+    let m = 0;
+    for (const j of ['hand', 'ankle', 'pel', 'head', 'kne', 'elb'])
+      m = Math.max(m, Math.hypot(a[j][0] - b[j][0], a[j][1] - b[j][1]));
+    return m;
+  }
+
+  function drawGhost(ctx, k) {
+    const s = solve(k, false);
+    ctx.save();
+    ctx.strokeStyle = PAL.ghost;
+    ctx.lineWidth = 7; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    const line = pts => {
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+      ctx.stroke();
+    };
+    line([s.pel, s.kne, s.ankle]);
+    line([s.sho, s.elb, s.hand]);
+    line([s.pel, s.neck]);
+    /* Outline, not a filled disc — a solid blob beside the real head read as a
+       rendering artifact rather than as "you were here a moment ago". */
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(s.head[0], s.head[1], L.headR - 1, 0, Math.PI * 2);
+    ctx.stroke();
     ctx.restore();
   }
 
-  /* Props are drawn from the exercise's own list so a pull-up has a bar under its
-     hands and a dip has rails under them. Anything the figure touches is the
-     brighter "contact" colour — it is a cue in itself. */
-  function props(ctx, list, style) {
+  /* An arc from where the moving part was to where it is. Picks whichever of
+     hand / ankle / pelvis travels furthest, which is nearly always the part the
+     movement is actually about. */
+  function drawArc(ctx, from, to) {
+    const best = ['hand', 'ankle', 'pel'].map(j => ({
+      j, d: Math.hypot(from[j][0] - to[j][0], from[j][1] - to[j][1]),
+    })).sort((a, b) => b.d - a.d)[0];
+    if (!best || best.d < 16) return;
+    const a = from[best.j], b = to[best.j];
+    const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+    const dx = b[0] - a[0], dy = b[1] - a[1];
+    const cx = mx - dy * 0.22, cy = my + dx * 0.22;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(143,220,255,.75)';
+    ctx.lineWidth = 2.2; ctx.setLineDash([5, 4]); ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(a[0], a[1]);
+    ctx.quadraticCurveTo(cx, cy, b[0], b[1]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    /* Arrow head, pointing along the tangent at the end of the curve. */
+    const ta = Math.atan2(b[1] - cy, b[0] - cx);
+    ctx.beginPath();
+    ctx.moveTo(b[0], b[1]);
+    ctx.lineTo(b[0] - Math.cos(ta - 0.42) * 8, b[1] - Math.sin(ta - 0.42) * 8);
+    ctx.lineTo(b[0] - Math.cos(ta + 0.42) * 8, b[1] - Math.sin(ta + 0.42) * 8);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(143,220,255,.9)';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /* ---- props ----------------------------------------------------------- */
+
+  function props(ctx, list) {
     if (!list) return;
     ctx.save();
     ctx.lineCap = 'round';
-    ctx.shadowColor = style.prop; ctx.shadowBlur = 6;
     for (const pr of list) {
       const [kind, ...v] = pr;
-      ctx.strokeStyle = style.prop; ctx.fillStyle = style.propFill;
+      ctx.strokeStyle = PAL.prop; ctx.fillStyle = PAL.propFill;
       if (kind === 'floor') {
         ctx.lineWidth = 3; ctx.beginPath();
-        ctx.moveTo(4, FLOOR); ctx.lineTo(236, FLOOR); ctx.stroke();
-        ctx.globalAlpha = 0.35; ctx.lineWidth = 1;
-        for (let x = 10; x < 236; x += 14) { ctx.beginPath(); ctx.moveTo(x, FLOOR + 2); ctx.lineTo(x - 6, FLOOR + 9); ctx.stroke(); }
+        ctx.moveTo(2, FLOOR); ctx.lineTo(238, FLOOR); ctx.stroke();
+        ctx.globalAlpha = 0.32; ctx.lineWidth = 1.2;
+        for (let x = 8; x < 238; x += 14) { ctx.beginPath(); ctx.moveTo(x, FLOOR + 2); ctx.lineTo(x - 6, FLOOR + 10); ctx.stroke(); }
         ctx.globalAlpha = 1;
-      } else if (kind === 'bar') {          // [x1,x2,y]
-        ctx.lineWidth = 6; ctx.beginPath();
+      } else if (kind === 'bar') {
+        ctx.lineWidth = 6.5; ctx.beginPath();
         ctx.moveTo(v[0], v[2]); ctx.lineTo(v[1], v[2]); ctx.stroke();
-      } else if (kind === 'post') {         // [x,yTop,yBottom]
-        ctx.lineWidth = 5; ctx.beginPath();
+      } else if (kind === 'post') {
+        ctx.lineWidth = 5.5; ctx.beginPath();
         ctx.moveTo(v[0], v[1]); ctx.lineTo(v[0], v[2]); ctx.stroke();
-      } else if (kind === 'wall') {         // [x]
+      } else if (kind === 'wall') {
         ctx.lineWidth = 4; ctx.beginPath();
-        ctx.moveTo(v[0], 8); ctx.lineTo(v[0], FLOOR); ctx.stroke();
-        ctx.globalAlpha = 0.3; ctx.lineWidth = 1;
-        for (let y = 16; y < FLOOR; y += 14) { ctx.beginPath(); ctx.moveTo(v[0] + 2, y); ctx.lineTo(v[0] + 9, y - 6); ctx.stroke(); }
+        ctx.moveTo(v[0], 6); ctx.lineTo(v[0], FLOOR); ctx.stroke();
+        ctx.globalAlpha = 0.28; ctx.lineWidth = 1.2;
+        for (let y = 14; y < FLOOR; y += 14) { ctx.beginPath(); ctx.moveTo(v[0] + 2, y); ctx.lineTo(v[0] + 10, y - 7); ctx.stroke(); }
         ctx.globalAlpha = 1;
-      } else if (kind === 'box') {          // [x,y,w,h]
+      } else if (kind === 'box') {
         ctx.lineWidth = 3;
         ctx.beginPath(); ctx.rect(v[0], v[1], v[2], v[3]);
         ctx.fill(); ctx.stroke();
@@ -2985,12 +3249,49 @@ const FIG = (function () {
     ctx.restore();
   }
 
-  const STYLE = {
-    core: '#dff2ff', glow: 'rgba(86,182,255,0.75)',
-    prop: '#5b87b8', propFill: 'rgba(40,66,102,0.55)',
-  };
+  /* ---- framing ----------------------------------------------------------
+     The stage is 240x200 but a given movement uses a fraction of it — a
+     push-up lives in the bottom third, a handstand in a narrow column. Drawn at
+     stage scale everything was small and marooned in empty space, which is most
+     of why the demos were hard to read.
 
-  /* Draw one frame of a pose into a canvas, scaling the 240x200 stage to fit. */
+     So each pose gets its own fitted transform, measured across ALL keyframes
+     (never per-frame, or the figure would swim around as it moved) and cached. */
+  const fitCache = new WeakMap();
+
+  function fitOf(pose) {
+    let f = fitCache.get(pose);
+    if (f) return f;
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    const add = (x, y, r) => {
+      r = r || 0;
+      x0 = Math.min(x0, x - r); y0 = Math.min(y0, y - r);
+      x1 = Math.max(x1, x + r); y1 = Math.max(y1, y + r);
+    };
+    for (const k of pose.kf) for (const depth of [false, true]) {
+      const s = solve(k, depth);
+      add(s.pel[0], s.pel[1], 10); add(s.neck[0], s.neck[1], 11);
+      add(s.head[0], s.head[1], L.headR + 6);
+      add(s.elb[0], s.elb[1], 7); add(s.hand[0], s.hand[1], 7);
+      add(s.kne[0], s.kne[1], 9); add(s.ankle[0], s.ankle[1], 7); add(s.toe[0], s.toe[1], 7);
+    }
+    /* Props are included only across the span the body already occupies — the
+       floor runs the full stage width and would otherwise dictate the framing. */
+    const fx0 = x0, fx1 = x1, fy0 = y0, fy1 = y1;
+    for (const pr of pose.props || []) {
+      const [kind, ...v] = pr;
+      if (kind === 'floor') { add(fx0, FLOOR, 3); add(fx1, FLOOR + 9, 3); }
+      else if (kind === 'bar') { add(Math.max(v[0], fx0 - 14), v[2], 6); add(Math.min(v[1], fx1 + 14), v[2], 6); }
+      else if (kind === 'post') { add(v[0], Math.max(v[1], fy0 - 12), 6); add(v[0], Math.min(v[2], fy1 + 12), 6); }
+      else if (kind === 'wall') { add(v[0], Math.max(6, fy0 - 12), 4); add(v[0], Math.min(FLOOR, fy1 + 12), 4); }
+      else if (kind === 'box') { add(v[0], v[1], 2); add(v[0] + v[2], v[1] + v[3], 2); }
+    }
+    f = { x0: x0 - 6, y0: y0 - 6, x1: x1 + 6, y1: y1 + 6 };
+    f.w = f.x1 - f.x0; f.h = f.y1 - f.y0;
+    fitCache.set(pose, f);
+    return f;
+  }
+
   function draw(cv, pose, phase, opt) {
     opt = opt || {};
     const ctx = cv.getContext('2d');
@@ -2999,47 +3300,78 @@ const FIG = (function () {
     if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, cv.width, cv.height);
-    const s = Math.min(cv.width / 240, cv.height / 200);
-    ctx.setTransform(s, 0, 0, s, (cv.width - 240 * s) / 2, (cv.height - 200 * s) / 2);
+    const f = fitOf(pose);
+    /* Capped at 2.6x stage scale: without a ceiling a compact pose like a
+       frog stand would blow up to a close-up of a shoulder. */
+    const base = Math.min(cv.width / 240, cv.height / 200);
+    const s = Math.min(Math.min(cv.width / f.w, cv.height / f.h), base * 2.15);
+    ctx.setTransform(s, 0, 0, s,
+      (cv.width - f.w * s) / 2 - f.x0 * s,
+      (cv.height - f.h * s) / 2 - f.y0 * s);
 
-    const style = opt.style || STYLE;
-    props(ctx, pose.props, style);
+    props(ctx, pose.props);
+
     const k = frameAt(pose.kf, phase);
-    body(ctx, solve(k, true), style, 0.38);      // far side, dimmer, offset
-    body(ctx, solve(k, false), style, 1);
+    const aids = opt.aids !== false && pose.kf.length > 1 && travel(pose.kf) >= 18;
+    if (aids) {
+      /* Ghost the end you are travelling AWAY from, so the pair always reads as
+         one movement rather than two unrelated stills. */
+      const p = ((phase % 2) + 2) % 2;
+      drawGhost(ctx, pose.kf[p < 1 ? 0 : pose.kf.length - 1]);
+    }
+    drawFigure(ctx, k, opt.lag);
+    if (aids) {
+      const p = ((phase % 2) + 2) % 2;
+      drawArc(ctx, solve(pose.kf[p < 1 ? 0 : pose.kf.length - 1], false), solve(k, false));
+    }
   }
 
-  /* One ticker drives every visible demo. setInterval rather than rAF on purpose:
-     rAF does not fire at all inside the app's preview browser, which would make
-     every demo look broken while being verified. */
+  /* One ticker drives every visible demo. setInterval rather than rAF on
+     purpose: rAF does not fire at all inside the app's preview browser, which
+     would make every demo look broken while being verified. */
   const live = [];
-  let timer = null, t0 = 0;
+  let timer = null;
+
   function tick() {
     const now = Date.now();
     for (let i = live.length - 1; i >= 0; i--) {
       const e = live[i];
       if (!e.cv.isConnected) { live.splice(i, 1); continue; }
-      draw(e.cv, e.pose, ((now - t0) / 1000) / e.pose.tempo * 2, e.opt);
+      if (e.paused) continue;
+      e.t += (now - e.last) / 1000;
+      e.last = now;
+      const phase = e.t / e.pose.tempo * 2;
+      /* Hair lag from the head's own velocity, sampled a beat earlier. */
+      const cur = solve(frameAt(e.pose.kf, phase), false).head;
+      const prev = solve(frameAt(e.pose.kf, phase - 0.09), false).head;
+      e.opt.lag = [Math.max(-4, Math.min(4, (prev[0] - cur[0]) * 0.5)),
+                   Math.max(-4, Math.min(4, (prev[1] - cur[1]) * 0.5))];
+      draw(e.cv, e.pose, phase, e.opt);
+      if (e.opt.onPhase) e.opt.onPhase(phase);
     }
     if (!live.length && timer) { clearInterval(timer); timer = null; }
   }
 
   return {
     STAGE: { w: 240, h: 200, floor: FLOOR },
-    STYLE,
-    /* Static single frame — used for list thumbnails, where 40 animating canvases
-       would cost far more than they communicate. */
+    PAL,
     still(cv, pose, phase, opt) { draw(cv, pose, phase === undefined ? 1 : phase, opt); },
     animate(cv, pose, opt) {
       for (let i = live.length - 1; i >= 0; i--) if (live[i].cv === cv) live.splice(i, 1);
-      live.push({ cv, pose, opt: opt || {} });
-      if (!timer) { t0 = Date.now(); timer = setInterval(tick, 40); }
+      const e = { cv, pose, opt: opt || {}, t: 0, last: Date.now(), paused: false };
+      live.push(e);
+      if (!timer) timer = setInterval(tick, 40);
       tick();
+      return e;
     },
     stop(cv) { for (let i = live.length - 1; i >= 0; i--) if (live[i].cv === cv) live.splice(i, 1); },
     stopAll() { live.length = 0; if (timer) { clearInterval(timer); timer = null; } },
-    /* Manual drive, for verification in environments with no working timers. */
+    /* Manual drive, for verification where timers do not run. */
     step(cv, pose, phase, opt) { draw(cv, pose, phase, opt); },
+    travel,
+    /* Width/height of the pose's own bounding box, so a panel can be shaped to
+       fit it rather than leaving a tall movement stranded in a wide letterbox. */
+    aspect(pose) { const f = fitOf(pose); return f.w / f.h; },
   };
 })();
 
@@ -4254,14 +4586,55 @@ function exRow(ex, compact) {
   return row;
 }
 
+/* The demo plus a pause and a scrub. A looping animation shows the movement, but
+   only being able to STOP it lets you study a position — which is the actual
+   question someone has standing in their front room. */
 function demoBlock(ex) {
+  const wrap = el('div', 'dwrap');
   const d = el('div', 'demo');
   const cv = document.createElement('canvas');
   d.appendChild(cv);
+  /* Shape the box to the pose. A pull-up is tall and narrow; in a fixed wide
+     letterbox it was scaled down to fit the height and then marooned in empty
+     space, which made the character look small and incidental. */
+  if (POSE[ex.id]) {
+    const asp = FIG.aspect(POSE[ex.id]);
+    const H = asp < 0.95 ? 296 : 232;
+    d.style.height = H + 'px';
+    wrap.style.maxWidth = Math.round(H * Math.max(asp, 0.62) * 1.3) + 'px';
+  }
   d.appendChild(el('div', 'g1', esc(ex.gear)));
   d.appendChild(el('div', 'g2', ex.unit === 'sec' ? 'HOLD' : 'TEMPO ' + (POSE[ex.id] ? POSE[ex.id].tempo.toFixed(1) : '2.0') + 's'));
-  setTimeout(() => { if (POSE[ex.id]) FIG.animate(cv, POSE[ex.id]); }, 20);
-  return d;
+  wrap.appendChild(d);
+
+  const ctl = el('div', 'dctl');
+  const pb = el('button', 'dbtn', '&#10073;&#10073;');
+  const sl = document.createElement('input');
+  sl.type = 'range'; sl.min = 0; sl.max = 1000; sl.value = 0; sl.setAttribute('aria-label', 'Scrub the movement');
+  ctl.appendChild(pb); ctl.appendChild(sl);
+  ctl.appendChild(el('span', 'dph', 'SCRUB'));
+  wrap.appendChild(ctl);
+
+  let ent = null, dragging = false;
+  const opt = { onPhase: p => { if (!dragging && sl) sl.value = Math.round((((p % 2) + 2) % 2) / 2 * 1000); } };
+  pb.onclick = e => {
+    e.stopPropagation();
+    if (!ent) return;
+    ent.paused = !ent.paused;
+    pb.innerHTML = ent.paused ? '&#9654;' : '&#10073;&#10073;';
+  };
+  const scrub = () => {
+    if (!ent) return;
+    dragging = true;
+    ent.paused = true;
+    pb.innerHTML = '&#9654;';
+    FIG.step(cv, POSE[ex.id], sl.value / 1000 * 2, opt);
+    setTimeout(() => { dragging = false; }, 60);
+  };
+  sl.oninput = scrub;
+  sl.onclick = e => e.stopPropagation();
+  setTimeout(() => { if (POSE[ex.id]) ent = FIG.animate(cv, POSE[ex.id], opt); }, 20);
+  return wrap;
 }
 
 function counterBlock(ex, suggested, onDone, amrapSecs) {
@@ -4343,7 +4716,10 @@ function openEx(ex) {
   const b = el('div', 'pb');
   b.appendChild(el('div', '', '<div style="font:700 23px/1.2 var(--disp);letter-spacing:.02em;margin-bottom:8px">' + esc(ex.n) + '</div>'));
   b.appendChild(demoBlock(ex));
-  b.appendChild(el('div', 'row sml', '<span>' + esc(ex.gear) + '</span><span class="grow"></span><span>' +
+  /* Gear is already printed in the demo's corner — repeating it here put the
+     same four words twice in a row. */
+  b.appendChild(el('div', 'row sml', '<span>Rung ' + ex.tier + ' of ' + LINES[ex.line].length +
+    ' on this ladder</span><span class="grow"></span><span>' +
     ex.xp + ' XP / ' + (ex.unit === 'sec' ? 'sec' : 'rep') + '</span>'));
   b.appendChild(el('hr'));
   b.appendChild(el('div', '', esc(ex.d)));
