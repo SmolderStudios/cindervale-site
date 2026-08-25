@@ -4514,6 +4514,254 @@ har_room_ride:{ bg:"haruka_room", art:"har_ride", lines:[
 ]}
 
 });
+
+/* ==================================================== [JS-19] how people talk
+
+   Third pass on the writing, and this time with an actual diagnosis instead of
+   "try harder". What was wrong:
+
+   1. EVERYONE WAS TOO ARTICULATE. Every character spoke in finished, quotable
+      sentences. Nobody said "yeah". Nobody repeated themselves, lost their
+      thread, or used four words where one would do.
+   2. EVERYONE WAS WITTY. Shy Ayano was landing zingers. Real people are often
+      just boring, and a character who is never boring is never real.
+   3. EVERY LINE DID WORK. Each one advanced character or plot. Actual
+      conversation is mostly logistics and dead air with the real thing
+      underneath it.
+   4. CONVERSATIONS RESOLVED IN SIX LINES. Greeting, revelation, choice, done.
+      No room to deflect first, which is what people actually do.
+
+   So: filler, false starts, repetition, people answering a question that
+   wasn't asked, mundane exchanges before the meat, and the real thing arriving
+   late and sideways. Scenes run 15-25 beats with two or three decision points
+   instead of one. Nobody summarises their own feelings, ever.
+
+   Merged over SCENES; these replace the same ids. */
+Object.assign(SCENES, {
+
+intro:{ bg:"storefront", portRoom:"counter", lines:[
+ {text:"The ad said staff wanted, nights included, no experience necessary."},
+ {text:"It didn't mention the place is four seats wide, or that it's wedged between a laundromat and somebody's stairwell, or that you can smell the fryer from the end of the street."},
+ {text:"The door's propped open with a milk crate. You've been standing next to it for two minutes."},
+ {who:"mei",expr:"neutral",bg:"counter",text:"You the new one?"},
+ {choices:[{prompt:"She's come out to the doorway. She's got an apron over one arm.",
+   text:"\"Yeah.\"",aff:{mei:2}},
+  {text:"\"I think so.\"",aff:{mei:3}},
+  {text:"\"Is it that obvious?\"",aff:{mei:1}}]},
+ {who:"mei",expr:"neutral",text:"Mm."},
+ {text:"She hands you the apron. That appears to be the introduction."},
+ {who:"mei",expr:"neutral",text:"Tie it at the back."},
+ {text:"You start to tie it at the side."},
+ {who:"mei",expr:"annoyed",text:"At the back. Not — yeah. That."},
+ {who:"mei",expr:"neutral",text:"It catches on the fryer handle if it's at the side. You'll go over."},
+ {text:"Something clatters in the kitchen. Something else says a word you can hear from here."},
+ {who:"haruka",expr:"smile",text:"Is that — hang on—"},
+ {text:"She comes out sideways through the gap, wiping her hands on her front."},
+ {who:"haruka",expr:"smile",text:"Oh thank god. Thank god. Right, okay. Hi."},
+ {who:"haruka",expr:"smile",text:"Haruka. I've been back there on my own for three weeks. Three. I've started narrating to the fry basket."},
+ {who:"mei",expr:"neutral",text:"You narrate anyway."},
+ {who:"haruka",expr:"smile",text:"To the BASKET. That's different, that's a different thing."},
+ {text:"Mei doesn't answer. Haruka looks at you like the two of you have just agreed something."},
+ {who:"haruka",expr:"smile",text:"She's like that with everyone. It's not you."},
+ {who:"mei",expr:"annoyed",text:"I'm not like anything."},
+ {who:"haruka",expr:"smile",text:"That. Right there. You just did it."},
+ {choices:[{prompt:"They're both waiting, and the crate's still holding the door open behind you.",
+   text:"\"I'll try to keep up.\"",hint:"safe",aff:{mei:2,haruka:2}},
+  {text:"\"Three weeks on your own?\"",hint:"Haruka",aff:{haruka:5}},
+  {text:"\"Back. Not the side. Got it.\"",hint:"Mei",aff:{mei:5}},
+  {text:"Say nothing. Tie the apron.",hint:"Mei notices",aff:{mei:4}}]},
+ {who:"haruka",expr:"smile",when:s=>s.aff.haruka>=5,text:"Three WEEKS. And before that it was me and a bloke called Toru who lasted nine days."},
+ {who:"mei",expr:"soft",when:s=>s.aff.mei>=5,text:"...Right."},
+ {text:"Mei's already going back in. She stops in the doorway with her hand on the frame."},
+ {who:"mei",expr:"neutral",text:"Eleven to seven. Don't be late."},
+ {who:"haruka",expr:"smile",text:"She means it about the late thing. That's the one she means."},
+ {text:"And that's the whole training."}
+]},
+
+mei_shift0:{ bg:"counter", lines:[
+ {text:"The rush comes in one lump at half twelve and it's gone by ten past one."},
+ {text:"After that the room goes so quiet you can hear the drinks fridge cycling."},
+ {text:"Your feet went numb somewhere in the fourth hour. Nobody mentioned that part."},
+ {who:"mei",expr:"neutral",text:"Drawer."},
+ {text:"She pulls it out and puts it on the counter between you."},
+ {who:"mei",expr:"neutral",text:"Count it twice."},
+ {choices:[{text:"\"Twice?\"",aff:{mei:2}},
+  {text:"Start counting.",aff:{mei:3}},
+  {text:"\"Why twice?\"",aff:{mei:3}}]},
+ {who:"mei",expr:"neutral",text:"Once for the till. Once for you."},
+ {text:"She doesn't explain what the difference is. She waits until you've done it."},
+ {who:"mei",expr:"neutral",text:"Right. Now — if it's short, it comes off your pay."},
+ {who:"mei",expr:"neutral",text:"Not mine. Yours."},
+ {text:"Her hands are going through the notes while she says it. Thumb, thumb, thumb. She doesn't lose her place."},
+ {choices:[{text:"\"Has it ever been short?\"",aff:{mei:3}},
+  {text:"\"Understood.\"",aff:{mei:1}},
+  {text:"\"So you don't trust me.\"",hint:"blunt",aff:{mei:4},flag:"mei_blunt"},
+  {text:"Nothing. Keep counting.",aff:{mei:2}}]},
+ {who:"mei",expr:"neutral",when:s=>s.flags.mei_blunt,text:"It's not about you."},
+ {who:"mei",expr:"neutral",when:s=>s.flags.mei_blunt,text:"You've been here four days. There's nothing to trust yet either way."},
+ {text:"The counting stops."},
+ {who:"mei",expr:"soft",text:"Once."},
+ {text:"She's lost the rhythm. She has to start the last bundle again."},
+ {who:"mei",expr:"neutral",text:"Wasn't me."},
+ {choices:[{text:"\"Who was it?\"",aff:{mei:3}},
+  {text:"Wait.",hint:"see if she goes on",aff:{mei:4}},
+  {text:"Let it go.",aff:{mei:2}}]},
+ {who:"mei",expr:"neutral",text:"Doesn't matter."},
+ {text:"It does, obviously. But she says it the way you'd close a door, and you get the sense the door has been closed for a while."},
+ {who:"mei",expr:"neutral",text:"Anyway. Twice. Every time."},
+ {text:"She puts the drawer back. Wipes down a rail that was already clean. Checks the fridge temperature, which she did an hour ago."},
+ {text:"You get about forty minutes of that before anyone comes in."}
+]},
+
+haruka_shift0:{ bg:"kitchen", portRoom:"counter", lines:[
+ {text:"The kitchen's about the size of a bathroom and roughly eleven degrees hotter than the front. Ten minutes in and your shirt's stuck to your back."},
+ {who:"haruka",expr:"smile",text:"Right. Rules. There's three."},
+ {who:"haruka",expr:"smile",text:"One — basket goes in slow. Slow. Not — you'll want to drop it, everyone wants to drop it, don't."},
+ {choices:[{text:"\"What happens if I drop it?\"",aff:{haruka:3}},
+  {text:"\"Slow. Got it.\"",aff:{haruka:2}},
+  {text:"\"You've dropped it, haven't you.\"",aff:{haruka:5}}]},
+ {who:"haruka",expr:"blush",text:"I have not — okay, once. First month."},
+ {text:"She pushes her sleeve up about two inches, thinks better of it, and pushes it back down."},
+ {who:"haruka",expr:"smile",text:"Anyway. Two — if Reiko asks, we're on schedule."},
+ {who:"haruka",expr:"neutral",text:"Doesn't matter what's actually going on. We're on schedule."},
+ {choices:[{text:"\"Are we ever on schedule?\"",aff:{haruka:4}},
+  {text:"\"You're going to get me fired.\"",aff:{haruka:3}},
+  {text:"\"Noted.\"",aff:{haruka:2}}]},
+ {who:"haruka",expr:"smile",text:"We've been on schedule maybe twice. Both times by accident."},
+ {text:"The fryer does something. She looks at it without moving."},
+ {who:"haruka",expr:"neutral",text:"That's fine. That noise is fine."},
+ {who:"haruka",expr:"neutral",text:"The other one isn't fine. You'll learn the difference."},
+ {choices:[{text:"\"What's rule three?\"",aff:{haruka:4}},
+  {text:"\"What's the other noise?\"",aff:{haruka:5}},
+  {text:"Wait for her to carry on.",aff:{haruka:3}}]},
+ {who:"haruka",expr:"smile",text:"Three. Right. Three is I get first pick of whatever's left at close."},
+ {who:"haruka",expr:"smile",text:"That one's non-negotiable. That one's basically in my contract."},
+ {text:"She says it like it's a joke."},
+ {text:"Then she writes her name on a bag of chicken and puts it at the back of the warmer, which suggests it is not a joke."},
+ {choices:[{text:"\"That's not in your contract.\"",aff:{haruka:4}},
+  {text:"Say nothing about the chicken.",aff:{haruka:5}},
+  {text:"\"Can I get second pick?\"",aff:{haruka:6}}]},
+ {who:"haruka",expr:"smile",when:s=>s.aff.haruka>=6,text:"...Yeah. Yeah, alright. Second pick."},
+ {who:"haruka",expr:"smile",when:s=>s.aff.haruka<6,text:"Three weeks on my own back here. I've earned the chicken."},
+ {text:"She talks more or less continuously for the next two hours. You learn about a delivery driver, a van, and someone called Toru who lasted nine days."},
+ {text:"You do not learn what the other fryer noise sounds like."}
+]},
+
+reiko_shift0:{ bg:"counter", lines:[
+ {text:"She does the floor at two. Always two."},
+ {text:"You know she's coming because everyone else goes quiet about six seconds before she appears."},
+ {text:"She doesn't raise her voice. In eleven years she has apparently never had to."},
+ {who:"reiko",expr:"neutral",text:"You covered Tuesday."},
+ {choices:[{text:"\"I did.\"",aff:{reiko:2}},
+  {text:"\"Is that a problem?\"",aff:{reiko:3}},
+  {text:"Wait.",aff:{reiko:3}}]},
+ {who:"reiko",expr:"neutral",text:"Nobody asked you to."},
+ {text:"The clipboard stays at her side. Somehow that's worse than if she'd written something on it."},
+ {who:"reiko",expr:"annoyed",text:"I don't like things I didn't ask for."},
+ {who:"reiko",expr:"neutral",text:"It means I've read someone wrong. And I'm not often wrong about people, so when it happens I'd like to know which of us it was."},
+ {choices:[{text:"\"Someone had to.\"",aff:{reiko:4}},
+  {text:"\"You're welcome.\"",hint:"risky",aff:{reiko:6},flag:"rei_cheek"},
+  {text:"\"I needed the money.\"",hint:"honest",aff:{reiko:5}},
+  {text:"\"I didn't think about it.\"",aff:{reiko:3}}]},
+ {who:"reiko",expr:"annoyed",when:s=>s.flags.rei_cheek,text:"Mm."},
+ {who:"reiko",expr:"annoyed",when:s=>s.flags.rei_cheek,text:"That's a very confident answer for someone four days in."},
+ {text:"A customer comes to the counter. She waits. The customer takes about ninety seconds and she doesn't fill any of it."},
+ {who:"reiko",expr:"soft",text:"...That one I believe. The money."},
+ {choices:[{text:"\"It's the truth.\"",aff:{reiko:4}},
+  {text:"\"You didn't believe the others?\"",aff:{reiko:5}},
+  {text:"Say nothing.",aff:{reiko:4}}]},
+ {who:"reiko",expr:"neutral",text:"People say 'someone had to'. It's what they say when they want to have been kind about it afterwards."},
+ {who:"reiko",expr:"neutral",text:"Money is a reason. I can put a reason on a rota."},
+ {text:"She writes something. It takes about two seconds and she doesn't let you see it."},
+ {who:"reiko",expr:"neutral",text:"Cups. Front left. They've been like that since Tuesday."},
+ {text:"She's gone before you can answer. You spend the rest of the shift thinking about what she wrote, which you suspect is the entire point of not letting you see it."}
+]},
+
+rina_shift0:{ bg:"counter", lines:[
+ {text:"Dead hour. She has been talking since you clocked on and has not yet arrived at a point."},
+ {who:"rina",expr:"smile",text:"Okay so you've met everyone now, right? Everyone-everyone?"},
+ {choices:[{text:"\"I think so.\"",aff:{rina:2}},
+  {text:"\"Who's everyone?\"",aff:{rina:4}},
+  {text:"\"There's more?\"",aff:{rina:3}}]},
+ {who:"rina",expr:"smile",text:"There's six. Well — five and Sana, but Sana's nights so she doesn't count. She counts. You just won't see her."},
+ {who:"rina",expr:"smile",text:"Right. I'm going to save you about a month, and you can thank me later or now, either's fine."},
+ {who:"rina",expr:"smile",text:"Mei's not cold. Everyone thinks she's cold. She's just — tired. In a way that's been going on for years."},
+ {who:"rina",expr:"smile",text:"Haruka's a golden retriever in a person costume. Ayano would apologise to a door. I've seen her do it. Actual door."},
+ {choices:[{text:"\"And Reiko?\"",aff:{rina:4}},
+  {text:"\"That's a lot of opinions.\"",aff:{rina:2}},
+  {text:"\"What about you?\"",hint:"she's skipped herself",aff:{rina:6},flag:"rin_noticed"}]},
+ {who:"rina",expr:"neutral",when:s=>!s.flags.rin_noticed,text:"Reiko's the most terrifying woman in Shinjuku and I'd take a bullet for her. Both. At once. That's the whole entry."},
+ {who:"rina",expr:"blush",when:s=>s.flags.rin_noticed,text:"Me? Mine's boring."},
+ {who:"rina",expr:"smile",when:s=>s.flags.rin_noticed,text:"Girl talks too much. Girl works here. Girl has extremely strong opinions about five other people."},
+ {text:"She reorganises the sauce sachets. They did not need it."},
+ {who:"rina",expr:"smile",text:"Anyway — Reiko. Terrifying. Bullet. Moving on."},
+ {choices:[{text:"\"You didn't finish yours.\"",aff:{rina:6}},
+  {text:"Let her move on.",aff:{rina:3}},
+  {text:"\"Strong opinions about five people, or about yourself?\"",aff:{rina:7}}]},
+ {who:"rina",expr:"blush",text:"Okay that's — that's a lot for a Tuesday."},
+ {who:"rina",expr:"smile",text:"Right. Drinks fridge. Come on, I'll show you the thing with the drinks fridge."},
+ {text:"There is nothing wrong with the drinks fridge. She talks about it for eleven minutes."}
+]},
+
+ayano_shift0:{ bg:"counter", lines:[
+ {text:"You reach past her for a sleeve of cups and she's already moving out of the way before you get there."},
+ {who:"ayano",expr:"blush",text:"Sorry — sorry, I'm in your way."},
+ {choices:[{text:"\"You're not.\"",aff:{ayano:4}},
+  {text:"Just get the cups.",aff:{ayano:3}},
+  {text:"\"Sorry — my fault.\"",aff:{ayano:2}}]},
+ {who:"ayano",expr:"blush",text:"No, I am, I do it constantly, everyone says—"},
+ {text:"She stops."},
+ {text:"Nobody has said that. You'd have heard by now; it's a four-seat shop."},
+ {who:"ayano",expr:"blush",text:"...Sorry."},
+ {choices:[{text:"\"Nobody says that.\"",aff:{ayano:7}},
+  {text:"\"You've apologised three times in a minute.\"",aff:{ayano:5}},
+  {text:"Let it go. Get on with the cups.",aff:{ayano:5},flag:"aya_easy"}]},
+ {who:"ayano",expr:"surprise",when:s=>s.aff.ayano>=7,text:"Oh."},
+ {who:"ayano",expr:"blush",when:s=>s.aff.ayano>=7,text:"Um. Thank you."},
+ {text:"She goes back to folding boxes. She's fast at it — faster than anyone else here, and it's the only thing she does without checking first."},
+ {text:"Ten minutes go by."},
+ {who:"ayano",expr:"neutral",text:"I do know. That nobody says it."},
+ {who:"ayano",expr:"blush",text:"That's — sorry, that's out of nowhere, you'd moved on."},
+ {choices:[{text:"\"I hadn't.\"",aff:{ayano:6}},
+  {text:"\"Go on.\"",aff:{ayano:5}},
+  {text:"\"You can start a sentence whenever you want.\"",aff:{ayano:7}}]},
+ {who:"ayano",expr:"soft",text:"It's just easier to say it first. Then if I have been in the way it's already dealt with."},
+ {text:"She folds another box. Her hands are steady. The rest of her is not, quite."},
+ {who:"ayano",expr:"blush",text:"Anyway. That's — you didn't need that. Cups."},
+ {text:"She glances over about every four minutes for the rest of the shift. Every time you catch it she looks down fast enough to move her hair."}
+]},
+
+sana_shift0:{ bg:"counter", lines:[
+ {text:"After eleven the place stops being a shop."},
+ {text:"The street empties out, the lights stay on, and it turns into a lit box that people walk past on their way somewhere with people in it."},
+ {text:"Somebody's already behind the counter. You've never seen her on a rota."},
+ {who:"sana",expr:"neutral",text:"You're the one taking all the nights."},
+ {text:"Not a question. Not a greeting either. She says it the way you'd say it looks like rain."},
+ {choices:[{text:"\"That's me.\"",aff:{sana:3}},
+  {text:"\"Is that a problem?\"",aff:{sana:2}},
+  {text:"Nod.",aff:{sana:4}}]},
+ {who:"sana",expr:"neutral",text:"Sana. Tuesday to Saturday, eleven to seven."},
+ {who:"sana",expr:"neutral",text:"You won't see me otherwise."},
+ {text:"She goes back to the fryer. That's apparently it."},
+ {text:"Twenty minutes pass. One customer. He doesn't speak either."},
+ {choices:[{prompt:"The fridge cycles. Outside, a taxi doesn't stop.",
+   text:"\"Why nights?\"",aff:{sana:5}},
+  {text:"\"How long have you been here?\"",aff:{sana:4}},
+  {text:"Say nothing. Start restocking.",hint:"she notices",aff:{sana:8},flag:"san_quiet"}]},
+ {who:"sana",expr:"neutral",when:s=>!s.flags.san_quiet,text:"Four years."},
+ {who:"sana",expr:"neutral",when:s=>!s.flags.san_quiet,text:"That's the short answer. The short answer's usually the one people want."},
+ {text:"Another gap. This one goes on a while."},
+ {text:"It isn't awkward. She just doesn't appear to think a gap needs anything doing to it."},
+ {who:"sana",expr:"soft",when:s=>s.flags.san_quiet,text:"...Good."},
+ {who:"sana",expr:"soft",when:s=>s.flags.san_quiet,text:"Most people fill it. Within about four minutes, usually. I've timed it, which tells you what I do at night."},
+ {choices:[{text:"\"You've timed it?\"",aff:{sana:5}},
+  {text:"Let the gap go on.",aff:{sana:7}},
+  {text:"\"I'll try not to.\"",aff:{sana:4}}]},
+ {who:"sana",expr:"neutral",text:"Mm."},
+ {text:"That's the whole reaction. But she stays at your end of the counter for the rest of the shift instead of the other one, and you notice that around four in the morning."}
+]}
+
+});
 </script>
 </body>
 </html>
