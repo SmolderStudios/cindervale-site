@@ -302,6 +302,73 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 @keyframes bob{0%,100%{opacity:.35}50%{opacity:1}}
 #vnBack{position:absolute;top:16px;right:18px;z-index:5}
 
+
+/* ============================================================ [CSS-04b] vn ui */
+#vnBar{
+  position:absolute;right:16px;top:14px;display:flex;gap:7px;z-index:6;
+  flex-wrap:nowrap;                /* it wrapped the skip button onto its own row */
+  transition:opacity .2s;
+}
+@media(max-width:520px){
+  #vnBar{right:10px;top:10px;gap:5px}
+  #vnBar button{width:30px;height:30px;font-size:13px}
+}
+#vnBar button{
+  width:34px;height:34px;border:1px solid var(--line);border-radius:8px;
+  background:rgba(16,14,20,.78);color:var(--dim);font-size:14px;
+  display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);
+}
+#vnBar button:hover{color:var(--ink);border-color:var(--hot)}
+#vnBar button.on{color:var(--hot2);border-color:var(--hot)}
+#vnBar button[disabled]{opacity:.3;cursor:not-allowed}
+#vn.uihidden #vnBox,#vn.uihidden #vnBar{opacity:0;pointer-events:none}
+#vn.uihidden #vnPort{filter:drop-shadow(0 10px 24px rgba(0,0,0,.55))}
+#unhide{
+  position:absolute;inset:0;z-index:7;display:none;
+}
+#vn.uihidden #unhide{display:block}
+
+/* caret while a line is still revealing */
+#vnText .caret{
+  display:inline-block;width:.5em;height:1.05em;vertical-align:-.15em;
+  background:var(--hot);opacity:.85;animation:blink .7s steps(1) infinite;
+  margin-left:.06em;
+}
+@keyframes blink{50%{opacity:0}}
+
+/* backlog */
+#logBox{
+  position:absolute;inset:0;background:rgba(6,5,9,.93);z-index:55;
+  display:flex;flex-direction:column;
+}
+#logTop{
+  padding:14px 20px;border-bottom:1px solid var(--line);display:flex;
+  align-items:center;gap:10px;flex:0 0 auto;
+}
+#logTop .t{flex:1;font-size:14px;font-weight:600;letter-spacing:.04em}
+#logList{flex:1;overflow-y:auto;padding:18px 22px 30px;max-width:900px;margin:0 auto;width:100%}
+.logrow{padding:9px 0;border-bottom:1px solid #191622}
+.logrow .w{font-size:12px;font-weight:700;letter-spacing:.06em;margin-bottom:3px}
+.logrow .t{font-size:14.5px;line-height:1.6}
+.logrow .t.nar{color:var(--dim);font-style:italic}
+.logrow .t.pick{color:var(--hot2)}
+
+/* settings */
+#setBox{
+  position:absolute;inset:0;background:rgba(0,0,0,.72);z-index:56;
+  display:flex;align-items:center;justify-content:center;
+}
+#setBody{
+  width:400px;max-width:94vw;background:var(--panel);border:1px solid var(--line);
+  border-radius:14px;padding:22px 24px;box-shadow:var(--shadow);
+}
+#setBody h3{margin:0 0 16px;font-weight:500;font-size:17px}
+.setrow{margin-bottom:16px}
+.setrow label{display:flex;justify-content:space-between;font-size:13px;
+  color:var(--dim);margin-bottom:7px}
+.setrow input[type=range]{width:100%;accent-color:var(--hot)}
+.setrow .keys{font-size:11.5px;color:var(--faint);line-height:1.8}
+
 /* ============================================================ [CSS-05] misc */
 #toast{
   position:absolute;top:18px;left:50%;transform:translateX(-50%);z-index:40;
@@ -399,13 +466,45 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
   <div id="vn" class="hide">
     <div id="vnArt"></div>
     <img id="vnPort" alt="">
-    <button class="tbtn" id="vnBack">Skip scene</button>
+    <div id="vnBar">
+      <button id="btnRew"  title="Back (←)">&#8592;</button>
+      <button id="btnLog"  title="History (L)">&#9776;</button>
+      <button id="btnAuto" title="Auto (A)">&#9654;</button>
+      <button id="btnHide" title="Hide UI (H)">&#128065;</button>
+      <button id="btnSet"  title="Settings">&#9881;</button>
+      <button id="vnBack"  title="Skip scene">&#8677;</button>
+    </div>
+    <div id="unhide"></div>
     <div id="vnBox"><div id="vnWrap">
       <div id="vnWho"></div>
       <div id="vnText"></div>
       <div id="vnChoices"></div>
     </div><div id="vnNext">CLICK</div></div>
   </div>
+
+  <div id="logBox" class="hide">
+    <div id="logTop"><div class="t">History</div>
+      <button class="tbtn" id="logClose">Close</button></div>
+    <div id="logList"></div>
+  </div>
+
+  <div id="setBox" class="hide"><div id="setBody">
+    <h3>Settings</h3>
+    <div class="setrow">
+      <label><span>Text speed</span><span id="spdVal">normal</span></label>
+      <input type="range" id="spd" min="0" max="5" step="1" value="3">
+    </div>
+    <div class="setrow">
+      <label><span>Auto-advance delay</span><span id="autoVal">1.6s</span></label>
+      <input type="range" id="autoSpd" min="4" max="40" step="2" value="16">
+    </div>
+    <div class="setrow"><div class="keys">
+      Space / Click &mdash; advance &nbsp;&middot;&nbsp; &#8592; &mdash; back<br>
+      H &mdash; hide UI &nbsp;&middot;&nbsp; L &mdash; history &nbsp;&middot;&nbsp; A &mdash; auto
+    </div></div>
+    <div style="display:flex;justify-content:flex-end">
+      <button class="mbtn" id="setClose">Done</button></div>
+  </div></div>
 
   <div id="toast"></div>
   <div id="modal" class="hide"><div id="modalBox">
@@ -1277,50 +1376,157 @@ $("phone").addEventListener("click", e=>{ if(e.target.id==="phone") closePhone()
   };
 });
 
-/* ==================================================== [JS-07] VN player */
-let VN = null;
+/* ==================================================== [JS-07] VN player
+   Rewritten for delivery rather than dumping. Text used to appear whole the
+   instant you clicked, so nothing landed and a scene read as a list -- which
+   is most of what "bland" and "too quick" were.
+
+   TYPEWRITER   reveals at a set rate. Clicking mid-reveal COMPLETES the line
+                rather than skipping it: an impatient player never loses text,
+                which is the convention for good reason.
+   HISTORY      back is a real undo. Each beat snapshots the mutable state
+                (affection, flags, money, seen, intimacy...) so rewinding puts
+                those back too, instead of only scrolling the words.
+   BACKLOG      every line and every choice you took, scrollable.
+   AUTO         paced off line length, so a short line does not sit as long.
+   HIDE UI      everything but the art. */
 /* If a scene has a variant written for the route you are actually on, play
    that instead. `mei_locked0__haruka` beats `mei_locked0` when you chose
-   Haruka, so characters can react to WHO you picked by name rather than to
-   the generic fact that you picked somebody. */
+   Haruka, so characters react to WHO you picked rather than to the generic
+   fact that you picked somebody. */
 function variantOf(id){
   if(S && S.route && SCENES[id+"__"+S.route]) return id+"__"+S.route;
   return id;
 }
+let VN = null, TW = null, AUTO = null;
+const HIST = [];            // rewind stack
+const LOG = [];             // backlog
+const HIST_MAX = 60, LOG_MAX = 300;
+
+const CFG = (function(){
+  let c = {spd:3, auto:16};
+  try{ const r = localStorage.getItem("tokyoshift_cfg"); if(r) c = Object.assign(c, JSON.parse(r)); }
+  catch(e){}
+  return c;
+})();
+function saveCfg(){ try{ localStorage.setItem("tokyoshift_cfg", JSON.stringify(CFG)); }catch(e){} }
+/* index -> ms per character. 0 is instant, for people who want the old feel. */
+const SPD_MS = [0, 42, 28, 18, 11, 6];
+const SPD_NAME = ["instant","very slow","slow","normal","fast","very fast"];
+
+function snapshot(){
+  return {id:VN.id, i:VN.i, room:VN.room, bared:VN.bared,
+          S:JSON.parse(JSON.stringify(S))};
+}
+function pushHistory(){
+  HIST.push(snapshot());
+  if(HIST.length > HIST_MAX) HIST.shift();
+  refreshBar();
+}
+function goBack(){
+  if(!HIST.length || !VN) return;
+  stopTW(); stopAuto();
+  const h = HIST.pop();
+  S = normalizeState(h.S);
+  VN.sc = SCENES[h.id] || VN.sc; VN.id = h.id;
+  VN.i = h.i; VN.room = h.room; VN.bared = h.bared;
+  LOG.pop();
+  setArt(VN.sc.bg, VN.sc.art);
+  render();
+  refreshBar();
+}
+function refreshBar(){
+  const b = $("btnRew"); if(b) b.disabled = !HIST.length;
+  const a = $("btnAuto"); if(a) a.classList.toggle("on", !!AUTO);
+}
+
 function playScene(id, done){
   id = variantOf(id);
   const sc = SCENES[id];
-  if(!sc){ console.warn("missing scene",id); done && done(); return; }
+  if(!sc){ console.warn("missing scene", id); done && done(); return; }
   S.seen[id] = 1;
   VN = {sc, i:0, done, id, room: sc.bg,
         bared: bareArt(sc.art) || sc.outfit === "nude"};
+  HIST.length = 0;
   show("vn");
   setArt(sc.bg, sc.art);
   step();
 }
+
+/* ---- typewriter ---- */
+function stopTW(){ if(TW){ clearInterval(TW); TW = null; } $("vnNext").style.visibility=""; }
+function revealing(){ return !!TW; }
+function typeOut(html, plain){
+  stopTW();
+  const el = $("vnText");
+  const ms = SPD_MS[CFG.spd] || 0;
+  if(!ms){ el.innerHTML = html; afterReveal(); return; }
+  el.innerHTML = "";
+  const wrap = document.createElement("span");
+  el.appendChild(wrap);
+  const caret = document.createElement("i");
+  caret.className = "caret";
+  el.appendChild(caret);
+  $("vnNext").style.visibility = "hidden";
+  let n = 0;
+  TW = setInterval(()=>{
+    n += 1;
+    wrap.textContent = plain.slice(0, n);
+    if(n >= plain.length){ stopTW(); el.innerHTML = html; afterReveal(); }
+  }, ms);
+}
+function completeReveal(){
+  if(!TW) return false;
+  stopTW();
+  const ln = VN.sc.lines[VN.i - 1];
+  $("vnText").innerHTML = lineHTML(ln);
+  afterReveal();
+  return true;
+}
+function afterReveal(){
+  if(AUTO !== null) scheduleAuto();
+}
+function lineHTML(ln){
+  if(!ln) return "";
+  return ln.who ? esc(ln.text) : '<span class="nar">'+esc(ln.text)+'</span>';
+}
+
+/* ---- auto ---- */
+function scheduleAuto(){
+  clearTimeout(AUTO === null ? 0 : AUTO);
+  if(AUTO === null) return;
+  const ln = VN && VN.sc.lines[VN.i - 1];
+  const len = ln && ln.text ? ln.text.length : 30;
+  const wait = (CFG.auto * 100) + len * 22;
+  AUTO = setTimeout(()=>{
+    if(!VN){ stopAuto(); return; }
+    if(VN.sc.lines[VN.i] && VN.sc.lines[VN.i].choices){ stopAuto(); return; }
+    step();
+  }, wait);
+}
+function stopAuto(){ if(AUTO !== null){ clearTimeout(AUTO); AUTO = null; } refreshBar(); }
+function toggleAuto(){
+  if(AUTO !== null){ stopAuto(); return; }
+  AUTO = 0; refreshBar(); scheduleAuto();
+}
+
+/* ---- art + sprite ---- */
 function setArt(room, sceneImg){
   const a = $("vnArt");
   if(sceneImg){
     a.style.backgroundImage = "url("+sceneUrl(sceneImg)+")"; a.classList.add("dim");
-    clearPort();                  // the illustration IS the frame; sprite would obstruct it
-    if(VN && bareArt(sceneImg)) VN.bared = true;   // she stays undressed from here
+    clearPort();
+    if(VN && bareArt(sceneImg)) VN.bared = true;
   }
   else if(room){
     a.style.backgroundImage = "url("+bgUrl(room)+")"; a.classList.add("dim");
-    if(VN) VN.room = room;                 // the scene has moved; sprites follow
+    if(VN) VN.room = room;
   }
   else { a.style.backgroundImage = "none"; }
 }
-/* A narration line does NOT clear the sprite. Hiding it every time the prose
-   cuts in makes the portrait strobe in and out, which is what the first
-   playthrough looked like. The sprite is cleared only when a full illustration
-   takes over the frame, which is where it would just be in the way. */
 function setPort(who, expr, room, ln){
   const p = $("vnPort");
-  if(!who) return;                       // narration: leave whoever is on screen
-  /* Fall back to where the scene HAS GOT TO, not where it started. A scene
-     that opens at the counter and walks to the street was flipping her back
-     into uniform on every line that did not restate the background. */
+  if(!who) return;
   const r = room||VN.sc.portRoom||VN.room||VN.sc.bg||"counter";
   const url = portUrl(who, r, expr||"neutral", outfitNow(ln, VN.sc, r));
   p.onerror = ()=>{ p.style.opacity = 0; };
@@ -1329,49 +1535,49 @@ function setPort(who, expr, room, ln){
 }
 function clearPort(){ $("vnPort").style.opacity = 0; }
 
+/* ---- the beat ---- */
 function step(){
   const sc = VN.sc, L = sc.lines;
   if(VN.i >= L.length){ endScene(); return; }
-  /* A line can carry `when` and be skipped when it is false. This is what makes
-     cross-route reactivity affordable: instead of writing five variants of a
-     scene, one scene carries the lines that only exist if you chose Mei, or if
-     Rina has been locked out, and the rest are stepped over silently. */
   let guard = 0;
   while(L[VN.i] && L[VN.i].when && !L[VN.i].when(S) && guard++ < 200) VN.i++;
   if(VN.i >= L.length){ endScene(); return; }
   const ln = L[VN.i];
 
-  // a line can swap the art mid-scene
   if(ln.art !== undefined || ln.bg !== undefined) setArt(ln.bg||sc.bg, ln.art);
 
   if(ln.choices){
-    /* If every option is gated out, this line has nothing to show. Rendering
-       an empty box is a hard freeze -- no buttons and the advance handler is
-       waiting on a decision that can never be made. Step past it instead.
-       Belt and braces: the gating pass that added intimacy `req`s emptied
-       mei_room_sex's continuation screen and this is what caught it. */
     if(ln.choices.filter(c=>!c.req || c.req()).length === 0){ VN.i++; step(); return; }
     renderChoices(ln); return;
   }
-
+  pushHistory();
   $("vnChoices").innerHTML = "";
   $("vnNext").style.display = "";
   const who = ln.who ? CHARS[ln.who] : null;
   $("vnWho").textContent = who ? who.name : "";
   $("vnWho").style.color = who ? who.color : "";
-  $("vnText").innerHTML = ln.who ? esc(ln.text)
-                                 : '<span class="nar">'+esc(ln.text)+'</span>';
   setPort(ln.who, ln.expr, ln.room, ln);
   if(ln.aff) for(const k in ln.aff) affAdd(k, ln.aff[k]);
   if(ln.flag) S.flags[ln.flag] = 1;
+  LOG.push({who: ln.who, text: ln.text});
+  if(LOG.length > LOG_MAX) LOG.shift();
   VN.i++;
+  typeOut(lineHTML(ln), ln.text || "");
+}
+/* redraw the current beat without re-running its side effects (used by back) */
+function render(){
+  const ln = VN.sc.lines[VN.i - 1];
+  $("vnChoices").innerHTML = "";
+  const who = ln && ln.who ? CHARS[ln.who] : null;
+  $("vnWho").textContent = who ? who.name : "";
+  $("vnWho").style.color = who ? who.color : "";
+  if(ln) setPort(ln.who, ln.expr, ln.room, ln);
+  $("vnText").innerHTML = lineHTML(ln);
 }
 
 function renderChoices(ln){
+  stopTW(); stopAuto();
   $("vnNext").style.display = "none";
-  /* Only overwrite the text if this choice brings its own prompt. Blanking it
-     otherwise strips away the line the player was mid-way through reading and
-     leaves the options floating with no context. */
   if(ln.prompt){
     $("vnText").innerHTML = '<span class="nar">'+esc(ln.prompt)+'</span>';
     $("vnWho").textContent = "";
@@ -1390,11 +1596,15 @@ function renderChoices(ln){
 }
 function takeChoice(c){
   const apply = ()=>{
+    pushHistory();
+    LOG.push({pick: c.text});
     if(c.aff) for(const k in c.aff) affAdd(k, c.aff[k]);
     if(c.flag) S.flags[c.flag] = 1;
     if(c.money){ S.money += c.money; toast((c.money>0?"+":"")+"¥"+c.money.toLocaleString(),"money"); }
     if(c.commit) commitRoute(c.commit);
-    if(c.goto){ const nx = SCENES[c.goto]; if(nx){ VN.sc = nx; VN.i = 0; setArt(nx.bg, nx.art); step(); return; } }
+    if(c.goto){ const nx = SCENES[variantOf(c.goto)];
+      if(nx){ VN.sc = nx; VN.id = variantOf(c.goto); VN.i = 0;
+              S.seen[VN.id] = 1; setArt(nx.bg, nx.art); step(); return; } }
     VN.i++; step();
   };
   if(c.lockWarn){
@@ -1407,34 +1617,89 @@ function takeChoice(c){
 function endScene(){
   const who = ROOM_OWNER[VN.id];
   if(who){ S.intim[who] = intim(who) + 1; }
+  stopTW(); stopAuto();
   const d = VN.done; VN = null;
   $("vnPort").style.opacity = 0;
   show("hub"); renderHub();
   d && d();
 }
 
+/* ---- backlog ---- */
+function openLog(){
+  const box = $("logList"); box.innerHTML = "";
+  LOG.slice().reverse().forEach(e=>{
+    const d = document.createElement("div"); d.className = "logrow";
+    if(e.pick){ d.innerHTML = '<div class="t pick">&rsaquo; '+esc(e.pick)+'</div>'; }
+    else {
+      const c = e.who ? CHARS[e.who] : null;
+      d.innerHTML = (c?'<div class="w" style="color:'+c.color+'">'+esc(c.name)+'</div>':'')+
+        '<div class="t'+(c?'':' nar')+'">'+esc(e.text)+'</div>';
+    }
+    box.appendChild(d);
+  });
+  $("logBox").classList.remove("hide");
+}
+
 /* ==================================================== [JS-08] wiring */
-/* ONE advance handler, on the whole VN layer, in the capture phase.
-   The old version put click handlers on #vnArt and #vnBox only — but #vnPort
-   (the character sprite) and #vnNext sit on top of both, so clicking the
-   character, or the blinking CLICK prompt, did nothing at all. That is the
-   "sometimes it just stops being clickable" bug: it depended entirely on where
-   in the frame you happened to click. Listening on #vn catches every child. */
+/* ONE advance handler on the whole VN layer.
+   Order matters: a click mid-reveal COMPLETES the line and stops there. Only a
+   click on finished text advances. That is the convention, and it means a fast
+   clicker never blows past a line they have not read. */
 $("vn").addEventListener("click", e=>{
-  if(e.target.closest(".ch")) return;        // choices handle themselves
-  if(e.target.closest("#vnBack")) return;    // so does the skip button
+  if(e.target.closest(".ch")) return;
+  if(e.target.closest("#vnBar")) return;
   if(!VN) return;
-  /* Gate on whether choice buttons are ON SCREEN, not on whether the current
-     line happens to be a choice line.
-     The old guard was `if(VN.sc.lines[VN.i]?.choices) return;` and it deadlocked
-     the game: step() is the only thing that renders choices, and after the last
-     dialogue line advanced the pointer onto a choice line, this guard refused to
-     call step() — so the buttons were never drawn, clicking did nothing, and
-     Skip Scene was the only way out. */
-  if($("vnChoices").children.length) return;  // decision already on screen
+  if(e.target.closest("#unhide")){ setHideUI(false); return; }
+  if(completeReveal()) return;
+  if($("vnChoices").children.length) return;
+  stopAuto();
   step();
 });
-$("vnBack").onclick = ()=>{ if(VN){ const d=VN.done; VN=null; show("hub"); renderHub(); d&&d(); } };
+
+function setHideUI(on){ $("vn").classList.toggle("uihidden", on);
+                        $("btnHide").classList.toggle("on", on); }
+$("btnHide").onclick = ()=>setHideUI(!$("vn").classList.contains("uihidden"));
+$("btnRew").onclick  = goBack;
+$("btnAuto").onclick = toggleAuto;
+$("btnLog").onclick  = openLog;
+$("logClose").onclick = ()=>$("logBox").classList.add("hide");
+$("btnSet").onclick  = ()=>$("setBox").classList.remove("hide");
+$("setClose").onclick = ()=>$("setBox").classList.add("hide");
+$("setBox").addEventListener("click", e=>{ if(e.target.id==="setBox") $("setBox").classList.add("hide"); });
+$("vnBack").onclick  = ()=>{ if(VN){ stopTW(); stopAuto(); const d=VN.done; VN=null;
+                                     show("hub"); renderHub(); d&&d(); } };
+
+/* settings */
+function syncCfg(){
+  $("spd").value = CFG.spd; $("spdVal").textContent = SPD_NAME[CFG.spd];
+  $("autoSpd").value = CFG.auto; $("autoVal").textContent = (CFG.auto/10).toFixed(1)+"s";
+}
+$("spd").oninput = e=>{ CFG.spd = +e.target.value; syncCfg(); saveCfg(); };
+$("autoSpd").oninput = e=>{ CFG.auto = +e.target.value; syncCfg(); saveCfg(); };
+syncCfg();
+
+/* keyboard */
+document.addEventListener("keydown", e=>{
+  if(e.target.tagName === "INPUT") return;
+  const inVN = !$("vn").classList.contains("hide");
+  if(e.key === "Escape"){
+    if(!$("logBox").classList.contains("hide")){ $("logBox").classList.add("hide"); return; }
+    if(!$("setBox").classList.contains("hide")){ $("setBox").classList.add("hide"); return; }
+    if(inVN && $("vn").classList.contains("uihidden")){ setHideUI(false); return; }
+  }
+  if(!inVN) return;
+  const k = e.key.toLowerCase();
+  if(k === "h"){ setHideUI(!$("vn").classList.contains("uihidden")); e.preventDefault(); }
+  else if(k === "l"){ openLog(); e.preventDefault(); }
+  else if(k === "a"){ toggleAuto(); e.preventDefault(); }
+  else if(e.key === "ArrowLeft"){ goBack(); e.preventDefault(); }
+  else if(e.key === " " || e.key === "Enter" || e.key === "ArrowRight"){
+    if(completeReveal()) { e.preventDefault(); return; }
+    if($("vnChoices").children.length) return;
+    stopAuto(); step(); e.preventDefault();
+  }
+});
+
 $("btnSave").onclick = save;
 $("btnQuit").onclick = ()=>confirmBox("Back to title?","Unsaved progress since your last save is lost.",()=>{ show("title"); $("btnCont").disabled=!hasSave(); });
 $("btnNew").onclick = ()=>{
