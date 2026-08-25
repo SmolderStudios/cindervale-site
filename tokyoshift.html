@@ -507,8 +507,24 @@ function bgUrl(room){ return ART+"bg/"+room+EXT; }
    the game including ones that do not exist yet. */
 const WORK_ROOMS = ["counter","kitchen","break","locker","office"];
 function outfitFor(room){ return WORK_ROOMS.indexOf(room)>=0 ? "uniform" : "casual"; }
-function portUrl(who,room,expr){
-  return ART+"spr/"+who+"_"+outfitFor(room)+"_"+expr+EXT;
+
+/* Which illustrations mean she is no longer dressed. Matched on the art id,
+   because the art is the thing the player just looked at -- if they have seen
+   her undressed, a dressed sprite two lines later is a continuity break, and
+   that is the outfit-flipping Jordan noticed. */
+const BARE_ART = /(undress|nude|bed|oral|sex|anal|ride|_top|hand|give|take|close_|desk)/;
+function bareArt(id){ return !!id && BARE_ART.test(id); }
+
+/* Resolution order: an explicit `outfit` on the line, then on the scene, then
+   the scene's own dress state, then the room. */
+function outfitNow(ln, sc, room){
+  if(ln && ln.outfit) return ln.outfit;
+  if(sc && sc.outfit) return sc.outfit;
+  if(VN && VN.bared) return "nude";
+  return outfitFor(room);
+}
+function portUrl(who,room,expr,outfit){
+  return ART+"spr/"+who+"_"+(outfit||outfitFor(room))+"_"+expr+EXT;
 }
 function sprUrl(who,outfit,expr){ return ART+"spr/"+who+"_"+outfit+"_"+expr+EXT; }
 function sceneUrl(id){ return ART+"scene/"+id+EXT; }
@@ -1276,7 +1292,8 @@ function playScene(id, done){
   const sc = SCENES[id];
   if(!sc){ console.warn("missing scene",id); done && done(); return; }
   S.seen[id] = 1;
-  VN = {sc, i:0, done, id};
+  VN = {sc, i:0, done, id, room: sc.bg,
+        bared: bareArt(sc.art) || sc.outfit === "nude"};
   show("vn");
   setArt(sc.bg, sc.art);
   step();
@@ -1286,18 +1303,26 @@ function setArt(room, sceneImg){
   if(sceneImg){
     a.style.backgroundImage = "url("+sceneUrl(sceneImg)+")"; a.classList.add("dim");
     clearPort();                  // the illustration IS the frame; sprite would obstruct it
+    if(VN && bareArt(sceneImg)) VN.bared = true;   // she stays undressed from here
   }
-  else if(room){ a.style.backgroundImage = "url("+bgUrl(room)+")"; a.classList.add("dim"); }
+  else if(room){
+    a.style.backgroundImage = "url("+bgUrl(room)+")"; a.classList.add("dim");
+    if(VN) VN.room = room;                 // the scene has moved; sprites follow
+  }
   else { a.style.backgroundImage = "none"; }
 }
 /* A narration line does NOT clear the sprite. Hiding it every time the prose
    cuts in makes the portrait strobe in and out, which is what the first
    playthrough looked like. The sprite is cleared only when a full illustration
    takes over the frame, which is where it would just be in the way. */
-function setPort(who, expr, room){
+function setPort(who, expr, room, ln){
   const p = $("vnPort");
   if(!who) return;                       // narration: leave whoever is on screen
-  const url = portUrl(who, room||VN.sc.portRoom||VN.sc.bg||"counter", expr||"neutral");
+  /* Fall back to where the scene HAS GOT TO, not where it started. A scene
+     that opens at the counter and walks to the street was flipping her back
+     into uniform on every line that did not restate the background. */
+  const r = room||VN.sc.portRoom||VN.room||VN.sc.bg||"counter";
+  const url = portUrl(who, r, expr||"neutral", outfitNow(ln, VN.sc, r));
   p.onerror = ()=>{ p.style.opacity = 0; };
   p.onload  = ()=>{ p.style.opacity = 1; };
   if(p.getAttribute("src") !== url) p.src = url; else p.style.opacity = 1;
@@ -1336,7 +1361,7 @@ function step(){
   $("vnWho").style.color = who ? who.color : "";
   $("vnText").innerHTML = ln.who ? esc(ln.text)
                                  : '<span class="nar">'+esc(ln.text)+'</span>';
-  setPort(ln.who, ln.expr, ln.room);
+  setPort(ln.who, ln.expr, ln.room, ln);
   if(ln.aff) for(const k in ln.aff) affAdd(k, ln.aff[k]);
   if(ln.flag) S.flags[ln.flag] = 1;
   VN.i++;
