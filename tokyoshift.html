@@ -452,7 +452,7 @@ function freshState(){
     v:1, day:1, phase:0, money:0,
     aff:{mei:0,haruka:0,reiko:0,rina:0,ayano:0,sana:0},
     flags:{}, seen:{}, route:null, locked:[], shifts:0, nights:0,
-    read:{}, sent:{}, locOpen:null, worked:{}
+    read:{}, sent:{}, locOpen:null, worked:{}, intim:{}
   };
 }
 
@@ -470,6 +470,7 @@ function normalizeState(o){
   s.aff = Object.assign({}, d.aff, o.aff||{});
   s.flags = o.flags||{}; s.seen = o.seen||{};
   s.read = o.read||{}; s.sent = o.sent||{}; s.worked = o.worked||{};
+  s.intim = o.intim||{};
   s.locOpen = (o.locOpen && LOCS && LOCS[o.locOpen]) ? o.locOpen : null;
   s.locked = Array.isArray(o.locked)?o.locked:[];
   s.phase = Math.max(0,Math.min(PHASES.length-1, s.phase|0));
@@ -797,7 +798,7 @@ function pickShiftScene(who){
     const k = who+"_shift"+t;
     if(sceneOk(k) && !S.seen[k]) return k;
   }
-  const pool = poolOf(who,"banter",8);
+  const pool = poolOf(who,"banter",12);
   if(pool.length) return pool[(S.worked[who]||0) % pool.length];
   for(let t=tier;t>=0;t--) if(SCENES[who+"_shift"+t]) return who+"_shift"+t;
   return "mei_shift0";
@@ -835,6 +836,13 @@ function poolOf(who, kind, n){
   return out;
 }
 function firstUnseen(list){ for(const k of list) if(!S.seen[k]) return k; return null; }
+/* Nights together, per person. Gates what the intimate menu will even offer,
+   so the first night cannot reach the last of it however you choose. Counted
+   on reaching a room's _end rather than on entering the room, so backing out
+   of a night does not advance anything. */
+function intim(who){ return (S.intim && S.intim[who]) || 0; }
+const ROOM_OWNER = {mei_room_end:"mei", har_room_end:"haruka", rei_room_end:"reiko",
+                    rin_room_end:"rina", aya_room_end:"ayano", san_room_end:"sana"};
 
 function doTalk(who, locId){
   const play = k => playScene(k, ()=>advancePhase());
@@ -868,7 +876,7 @@ function doTalk(who, locId){
     if(SCENES[k] && !S.seen[k]) return play(k);
   }
   if(SCENES[at]) return play(at);
-  const banter = poolOf(who,"banter",8);
+  const banter = poolOf(who,"banter",12);
   if(banter.length) return play(banter[(S.day+S.phase) % banter.length]);
   for(let t=tier;t>=0;t--) if(SCENES[who+"_hang"+t]) return play(who+"_hang"+t);
   toast("Nothing to say right now.");
@@ -1285,7 +1293,15 @@ function step(){
   // a line can swap the art mid-scene
   if(ln.art !== undefined || ln.bg !== undefined) setArt(ln.bg||sc.bg, ln.art);
 
-  if(ln.choices){ renderChoices(ln); return; }
+  if(ln.choices){
+    /* If every option is gated out, this line has nothing to show. Rendering
+       an empty box is a hard freeze -- no buttons and the advance handler is
+       waiting on a decision that can never be made. Step past it instead.
+       Belt and braces: the gating pass that added intimacy `req`s emptied
+       mei_room_sex's continuation screen and this is what caught it. */
+    if(ln.choices.filter(c=>!c.req || c.req()).length === 0){ VN.i++; step(); return; }
+    renderChoices(ln); return;
+  }
 
   $("vnChoices").innerHTML = "";
   $("vnNext").style.display = "";
@@ -1338,6 +1354,8 @@ function takeChoice(c){
   } else apply();
 }
 function endScene(){
+  const who = ROOM_OWNER[VN.id];
+  if(who){ S.intim[who] = intim(who) + 1; }
   const d = VN.done; VN = null;
   $("vnPort").style.opacity = 0;
   show("hub"); renderHub();
@@ -1488,33 +1506,34 @@ mei_room_b:{ bg:"mei_room", art:"mei_nude", lines:[
  {text:"One lamp on. Most of the room stays dark."},
  {art:"mei_bed",text:"Somewhere in the middle she stops being careful."},
  {choices:[{text:"Stay with her mouth.",aff:{mei:6},goto:"mei_room_oral"},
-  {text:"Move over her.",aff:{mei:6},goto:"mei_room_sex"}]}
+  {text:"Move over her.",aff:{mei:6},req:()=>intim("mei")>=2,goto:"mei_room_sex"}]}
 ]},
 mei_room_oral:{ bg:"mei_room", art:"mei_oral", lines:[
  {text:"She takes her time with it."},
  {who:"mei",expr:"blush",bg:"mei_room",text:"...Don't say anything clever right now."},
  {art:"mei_oral_close",text:"She looks up and holds it, which is worse."},
  {choices:[{text:"Say nothing.",aff:{mei:8},goto:"mei_room_end"},
-  {text:"Pull her up.",aff:{mei:6},goto:"mei_room_sex"}]}
+  {text:"Pull her up.",aff:{mei:6},req:()=>intim("mei")>=2,goto:"mei_room_sex"}]}
 ]},
 mei_room_sex:{ bg:"mei_room", art:"mei_sex", lines:[
  {text:"Whatever she keeps behind her face at work, it's not there now."},
  {art:"mei_close_vag",text:"Slow at first. Only at first."},
- {choices:[{text:"Push deeper.",aff:{mei:8},goto:"mei_room_deep"},
-  {text:"Let her set the pace.",aff:{mei:8},goto:"mei_room_ride"},
-  {text:"Turn her over.",aff:{mei:8},goto:"mei_room_anal"}]}
+ {choices:[{text:"Push deeper.",aff:{mei:8},req:()=>intim("mei")>=3,goto:"mei_room_deep"},
+  {text:"Let her set the pace.",aff:{mei:8},req:()=>intim("mei")>=3,goto:"mei_room_ride"},
+  {text:"Turn her over.",aff:{mei:8},req:()=>intim("mei")>=4,goto:"mei_room_anal"},
+  {text:"Finish like this.",aff:{mei:10},goto:"mei_room_end"}]}
 ]},
 mei_room_deep:{ bg:"mei_room", art:"mei_top", lines:[
  {who:"mei",expr:"blush",bg:"mei_room",text:"— don't stop, don't —"},
  {art:"mei_top",text:"Nothing careful left."},
- {choices:[{text:"Turn her over.",aff:{mei:8},goto:"mei_room_anal"},
+ {choices:[{text:"Turn her over.",aff:{mei:8},req:()=>intim("mei")>=4,goto:"mei_room_anal"},
   {text:"Finish like this.",aff:{mei:10},goto:"mei_room_end"}]}
 ]},
 mei_room_ride:{ bg:"mei_room", art:"mei_ride", lines:[
  {text:"She takes over. Of course she does."},
  {who:"mei",expr:"soft",bg:"mei_room",text:"Stay still. I've got it."},
  {choices:[{text:"Let her.",aff:{mei:10},goto:"mei_room_end"},
-  {text:"Turn her over.",aff:{mei:8},goto:"mei_room_anal"}]}
+  {text:"Turn her over.",aff:{mei:8},req:()=>intim("mei")>=4,goto:"mei_room_anal"}]}
 ]},
 mei_room_anal:{ bg:"mei_room", art:"mei_anal", lines:[
  {who:"mei",expr:"blush",bg:"mei_room",text:"I said I wouldn't ask twice. Didn't say don't ask."},
@@ -1601,31 +1620,31 @@ har_room_b:{ bg:"haruka_room", art:"har_nude", lines:[
  {who:"haruka",expr:"blush",bg:"haruka_room",text:"You can look. I'd rather you looked than did the polite thing."},
  {choices:[{text:"Use your hands.",aff:{haruka:8},goto:"har_room_hand"},
   {text:"Use your mouth.",aff:{haruka:8},goto:"har_room_oral"},
-  {text:"\"I want you to.\"",hint:"her turn",aff:{haruka:10},goto:"har_room_give"}]}
+  {text:"\"I want you to.\"",hint:"her turn",aff:{haruka:10},req:()=>intim("haruka")>=2,goto:"har_room_give"}]}
 ]},
 har_room_hand:{ bg:"haruka_room", art:"har_hand", lines:[
  {who:"haruka",expr:"blush",bg:"haruka_room",text:"Okay — okay that's — yeah. Like that."},
  {text:"Every smart thing she's said this month is gone in about four seconds."},
  {choices:[{text:"Keep going.",aff:{haruka:8},goto:"har_room_oral"},
-  {text:"\"Your call.\"",aff:{haruka:10},goto:"har_room_give"}]}
+  {text:"\"Your call.\"",aff:{haruka:10},req:()=>intim("haruka")>=2,goto:"har_room_give"}]}
 ]},
 har_room_oral:{ bg:"haruka_room", art:"har_oral", lines:[
  {who:"haruka",expr:"blush",bg:"haruka_room",text:"Wait — I'm not going to last if you — okay. Okay."},
  {art:"har_oral_close",text:"She gets a hand in your hair and then apologises for it."},
  {choices:[{text:"Don't stop.",aff:{haruka:10},goto:"har_room_end"},
-  {text:"\"Then don't.\"",aff:{haruka:8},goto:"har_room_give"}]}
+  {text:"\"Then don't.\"",aff:{haruka:8},req:()=>intim("haruka")>=2,goto:"har_room_give"}]}
 ]},
 har_room_give:{ bg:"haruka_room", art:"har_give", lines:[
  {text:"She's careful about it in a way she'd never cop to."},
  {who:"haruka",expr:"soft",bg:"haruka_room",text:"Tell me if it's too much. I'm not being polite, I'll actually stop."},
  {art:"har_give_close",text:"You tell her not to. She's over being careful about four seconds later."},
  {choices:[{text:"\"Don't stop.\"",aff:{haruka:12},goto:"har_room_end"},
-  {text:"Pull her down instead.",aff:{haruka:10},goto:"har_room_take"}]}
+  {text:"Pull her down instead.",aff:{haruka:10},req:()=>intim("haruka")>=3,goto:"har_room_take"}]}
 ]},
 har_room_take:{ bg:"haruka_room", art:"har_take", lines:[
  {who:"haruka",expr:"blush",bg:"haruka_room",text:"Oh, that's not — okay, that's a whole other thing. Hi."},
  {art:"har_take_close",text:"She laughs. Then she stops laughing."},
- {choices:[{text:"Let her get on top.",aff:{haruka:10},goto:"har_room_ride"},
+ {choices:[{text:"Let her get on top.",aff:{haruka:10},req:()=>intim("haruka")>=3,goto:"har_room_ride"},
   {text:"Finish.",aff:{haruka:10},goto:"har_room_end"}]}
 ]},
 har_room_ride:{ bg:"haruka_room", art:"har_ride", lines:[
@@ -1720,7 +1739,7 @@ reiko_hang1:{ bg:"office", portRoom:"office", lines:[
  {who:"reiko",expr:"blush",text:"..."},
  {who:"reiko",expr:"soft",text:"My flat's twenty minutes. Or there's the desk."},
  {choices:[{prompt:"She hasn't moved. She's letting someone else decide, which she never does.",
-   text:"The desk.",hint:"commits to Reiko",aff:{reiko:12},commit:"reiko",lockWarn:true,goto:"rei_desk_s"},
+   text:"The desk.",hint:"commits to Reiko",aff:{reiko:12},commit:"reiko",lockWarn:true,req:()=>intim("reiko")>=4,goto:"rei_desk_s"},
   {text:"Her flat.",hint:"commits to Reiko",aff:{reiko:12},commit:"reiko",lockWarn:true,goto:"rei_room_a"},
   {text:"\"Not like this.\"",aff:{reiko:3}}]}
 ]},
@@ -1741,18 +1760,18 @@ rei_room_a:{ bg:"reiko_room", art:"rei_room1", lines:[
 ]},
 rei_room_b:{ bg:"reiko_room", art:"rei_nude", lines:[
  {who:"reiko",expr:"blush",bg:"reiko_room",text:"I'm forty-one. If you're going to be strange about that, be strange about it now."},
- {choices:[{text:"\"I'm here. That's the answer.\"",aff:{reiko:10},goto:"rei_room_sex"},
+ {choices:[{text:"\"I'm here. That's the answer.\"",aff:{reiko:10},req:()=>intim("reiko")>=2,goto:"rei_room_sex"},
   {text:"Use your mouth.",aff:{reiko:8},goto:"rei_room_oral"}]}
 ]},
 rei_room_oral:{ bg:"reiko_room", art:"rei_oral", lines:[
  {text:"She gives instructions for about nine seconds and then can't."},
  {choices:[{text:"Keep going.",aff:{reiko:10},goto:"rei_room_end"},
-  {text:"Move up.",aff:{reiko:8},goto:"rei_room_sex"}]}
+  {text:"Move up.",aff:{reiko:8},req:()=>intim("reiko")>=2,goto:"rei_room_sex"}]}
 ]},
 rei_room_sex:{ bg:"reiko_room", art:"rei_sex", lines:[
  {art:"rei_top",text:"No instructions at all after a while."},
- {choices:[{text:"Let her take over.",aff:{reiko:10},goto:"rei_room_ride"},
-  {text:"Turn her over.",aff:{reiko:10},goto:"rei_room_anal"},
+ {choices:[{text:"Let her take over.",aff:{reiko:10},req:()=>intim("reiko")>=3,goto:"rei_room_ride"},
+  {text:"Turn her over.",aff:{reiko:10},req:()=>intim("reiko")>=4,goto:"rei_room_anal"},
   {text:"Finish like this.",aff:{reiko:10},goto:"rei_room_end"}]}
 ]},
 rei_room_ride:{ bg:"reiko_room", art:"rei_ride", lines:[
@@ -1831,17 +1850,17 @@ rin_room_a:{ bg:"rina_room", art:"rin_undress", lines:[
 rin_room_b:{ bg:"rina_room", art:"rin_nude", lines:[
  {who:"rina",expr:"soft",bg:"rina_room",text:"...Okay, the quiet thing is actually really —"},
  {choices:[{text:"Use your mouth.",aff:{rina:8},goto:"rin_room_oral"},
-  {text:"Get her on her back.",aff:{rina:8},goto:"rin_room_sex"}]}
+  {text:"Get her on her back.",aff:{rina:8},req:()=>intim("rina")>=2,goto:"rin_room_sex"}]}
 ]},
 rin_room_oral:{ bg:"rina_room", art:"rin_oral", lines:[
  {text:"She gets about half a sentence out and then gives up on sentences."},
  {choices:[{text:"Keep going.",aff:{rina:10},goto:"rin_room_end"},
-  {text:"Pull her up.",aff:{rina:8},goto:"rin_room_sex"}]}
+  {text:"Pull her up.",aff:{rina:8},req:()=>intim("rina")>=2,goto:"rin_room_sex"}]}
 ]},
 rin_room_sex:{ bg:"rina_room", art:"rin_sex", lines:[
  {art:"rin_top",text:"She goes properly quiet, which from her is the loudest thing that's happened tonight."},
- {choices:[{text:"Let her on top.",aff:{rina:10},goto:"rin_room_ride"},
-  {text:"Turn her over.",aff:{rina:10},goto:"rin_room_anal"},
+ {choices:[{text:"Let her on top.",aff:{rina:10},req:()=>intim("rina")>=3,goto:"rin_room_ride"},
+  {text:"Turn her over.",aff:{rina:10},req:()=>intim("rina")>=4,goto:"rin_room_anal"},
   {text:"Finish like this.",aff:{rina:10},goto:"rin_room_end"}]}
 ]},
 rin_room_ride:{ bg:"rina_room", art:"rin_ride", lines:[
@@ -1916,16 +1935,16 @@ aya_room_a:{ bg:"ayano_room", art:"aya_undress", lines:[
 aya_room_b:{ bg:"ayano_room", art:"aya_nude", lines:[
  {who:"ayano",expr:"soft",bg:"ayano_room",text:"Don't stop looking. If you stop I'll think I did something."},
  {choices:[{text:"Use your mouth.",aff:{ayano:8},goto:"aya_room_oral"},
-  {text:"Lay her back.",aff:{ayano:8},goto:"aya_room_sex"}]}
+  {text:"Lay her back.",aff:{ayano:8},req:()=>intim("ayano")>=2,goto:"aya_room_sex"}]}
 ]},
 aya_room_oral:{ bg:"ayano_room", art:"aya_oral", lines:[
  {who:"ayano",expr:"blush",bg:"ayano_room",text:"Is this — am I — you'd tell me, right?"},
- {choices:[{text:"\"You're doing fine.\"",aff:{ayano:10},goto:"aya_room_sex"},
+ {choices:[{text:"\"You're doing fine.\"",aff:{ayano:10},req:()=>intim("ayano")>=2,goto:"aya_room_sex"},
   {text:"Don't answer. Let her.",aff:{ayano:8},goto:"aya_room_end"}]}
 ]},
 aya_room_sex:{ bg:"ayano_room", art:"aya_sex", lines:[
  {art:"aya_top",text:"She stops apologising about halfway through."},
- {choices:[{text:"Let her on top.",aff:{ayano:10},goto:"aya_room_ride"},
+ {choices:[{text:"Let her on top.",aff:{ayano:10},req:()=>intim("ayano")>=3,goto:"aya_room_ride"},
   {text:"Finish like this.",aff:{ayano:10},goto:"aya_room_end"}]}
 ]},
 aya_room_ride:{ bg:"ayano_room", art:"aya_ride", lines:[
@@ -2002,17 +2021,17 @@ san_room_a:{ bg:"sana_room", art:"san_undress", lines:[
 san_room_b:{ bg:"sana_room", art:"san_nude", lines:[
  {text:"She turns the lamp down instead of off. Doesn't explain it."},
  {choices:[{text:"Use your mouth.",aff:{sana:8},goto:"san_room_oral"},
-  {text:"Lay her back.",aff:{sana:8},goto:"san_room_sex"}]}
+  {text:"Lay her back.",aff:{sana:8},req:()=>intim("sana")>=2,goto:"san_room_sex"}]}
 ]},
 san_room_oral:{ bg:"sana_room", art:"san_oral", lines:[
  {text:"She's quiet. Her hands aren't."},
  {choices:[{text:"Keep going.",aff:{sana:10},goto:"san_room_end"},
-  {text:"Move up.",aff:{sana:8},goto:"san_room_sex"}]}
+  {text:"Move up.",aff:{sana:8},req:()=>intim("sana")>=2,goto:"san_room_sex"}]}
 ]},
 san_room_sex:{ bg:"sana_room", art:"san_sex", lines:[
  {art:"san_top",text:"It's the first sound she's made in front of anyone in a long time."},
- {choices:[{text:"Let her on top.",aff:{sana:10},goto:"san_room_ride"},
-  {text:"Turn her over.",aff:{sana:10},goto:"san_room_anal"},
+ {choices:[{text:"Let her on top.",aff:{sana:10},req:()=>intim("sana")>=3,goto:"san_room_ride"},
+  {text:"Turn her over.",aff:{sana:10},req:()=>intim("sana")>=4,goto:"san_room_anal"},
   {text:"Finish like this.",aff:{sana:10},goto:"san_room_end"}]}
 ]},
 san_room_ride:{ bg:"sana_room", art:"san_ride", lines:[
@@ -3424,9 +3443,9 @@ mei_room_pick:{ bg:"mei_room", art:"mei_nude", lines:[
  {who:"mei",expr:"soft",bg:"mei_room",text:"You're looking at me like you've got a question."},
  {choices:[{prompt:"She's already pulling the blind down.",
    text:"Her mouth.",aff:{mei:5},goto:"mei_room_oral"},
-  {text:"On her back.",aff:{mei:5},goto:"mei_room_sex"},
-  {text:"Let her ride.",aff:{mei:5},goto:"mei_room_ride"},
-  {text:"Turn her over.",aff:{mei:5},goto:"mei_room_anal"},
+  {text:"On her back.",aff:{mei:5},req:()=>intim("mei")>=2,goto:"mei_room_sex"},
+  {text:"Let her ride.",aff:{mei:5},req:()=>intim("mei")>=3,goto:"mei_room_ride"},
+  {text:"Turn her over.",aff:{mei:5},req:()=>intim("mei")>=4,goto:"mei_room_anal"},
   {text:"Just lie here with her.",aff:{mei:8},goto:"mei_room_end"}]}
 ]},
 haruka_room_pick:{ bg:"haruka_room", art:"har_nude", lines:[
@@ -3434,45 +3453,45 @@ haruka_room_pick:{ bg:"haruka_room", art:"har_nude", lines:[
  {choices:[{prompt:"She is enjoying this far too much.",
    text:"Hands.",aff:{haruka:5},goto:"har_room_hand"},
   {text:"Your mouth on her.",aff:{haruka:5},goto:"har_room_oral"},
-  {text:"Let her.",aff:{haruka:5},goto:"har_room_give"},
-  {text:"Get her on her back.",aff:{haruka:5},goto:"har_room_take"},
-  {text:"Her on top.",aff:{haruka:5},goto:"har_room_ride"},
+  {text:"Let her.",aff:{haruka:5},req:()=>intim("haruka")>=2,goto:"har_room_give"},
+  {text:"Get her on her back.",aff:{haruka:5},req:()=>intim("haruka")>=3,goto:"har_room_take"},
+  {text:"Her on top.",aff:{haruka:5},req:()=>intim("haruka")>=3,goto:"har_room_ride"},
   {text:"Nothing. Just talk.",aff:{haruka:8},goto:"har_room_end"}]}
 ]},
 reiko_room_pick:{ bg:"reiko_room", art:"rei_nude", lines:[
  {who:"reiko",expr:"soft",bg:"reiko_room",text:"You can ask for a thing. I'm told that's how this works."},
  {choices:[{prompt:"She has spent eleven years being the one who decides.",
    text:"Her mouth.",aff:{reiko:5},goto:"rei_room_oral"},
-  {text:"On her back.",aff:{reiko:5},goto:"rei_room_sex"},
-  {text:"Let her take over.",aff:{reiko:6},goto:"rei_room_ride"},
-  {text:"Turn her over.",aff:{reiko:5},goto:"rei_room_anal"},
-  {text:"The office. Tomorrow night.",aff:{reiko:7},goto:"rei_desk_s"},
+  {text:"On her back.",aff:{reiko:5},req:()=>intim("reiko")>=2,goto:"rei_room_sex"},
+  {text:"Let her take over.",aff:{reiko:6},req:()=>intim("reiko")>=3,goto:"rei_room_ride"},
+  {text:"Turn her over.",aff:{reiko:5},req:()=>intim("reiko")>=4,goto:"rei_room_anal"},
+  {text:"The office. Tomorrow night.",aff:{reiko:7},req:()=>intim("reiko")>=4,goto:"rei_desk_s"},
   {text:"Nothing. Sleep.",aff:{reiko:9},goto:"rei_room_end"}]}
 ]},
 rina_room_pick:{ bg:"rina_room", art:"rin_nude", lines:[
  {who:"rina",expr:"smile",bg:"rina_room",text:"I have a list. I'm not going to read you the list. But it exists and it's alphabetised."},
  {choices:[{prompt:"She would absolutely read you the list.",
    text:"Her mouth.",aff:{rina:5},goto:"rin_room_oral"},
-  {text:"On her back.",aff:{rina:5},goto:"rin_room_sex"},
-  {text:"Let her on top.",aff:{rina:5},goto:"rin_room_ride"},
-  {text:"Turn her over.",aff:{rina:5},goto:"rin_room_anal"},
+  {text:"On her back.",aff:{rina:5},req:()=>intim("rina")>=2,goto:"rin_room_sex"},
+  {text:"Let her on top.",aff:{rina:5},req:()=>intim("rina")>=3,goto:"rin_room_ride"},
+  {text:"Turn her over.",aff:{rina:5},req:()=>intim("rina")>=4,goto:"rin_room_anal"},
   {text:"Read me the list.",aff:{rina:9},goto:"rin_room_end"}]}
 ]},
 ayano_room_pick:{ bg:"ayano_room", art:"aya_nude", lines:[
  {who:"ayano",expr:"blush",bg:"ayano_room",text:"I've got — I've been thinking about things. In a list way. Not a chart way. I want to be clear it's not a chart."},
  {choices:[{prompt:"It is almost certainly a chart.",
    text:"Her mouth.",aff:{ayano:5},goto:"aya_room_oral"},
-  {text:"Lay her back.",aff:{ayano:5},goto:"aya_room_sex"},
-  {text:"Let her on top.",aff:{ayano:6},goto:"aya_room_ride"},
+  {text:"Lay her back.",aff:{ayano:5},req:()=>intim("ayano")>=2,goto:"aya_room_sex"},
+  {text:"Let her on top.",aff:{ayano:6},req:()=>intim("ayano")>=3,goto:"aya_room_ride"},
   {text:"Just hold her.",aff:{ayano:9},goto:"aya_room_end"}]}
 ]},
 sana_room_pick:{ bg:"sana_room", art:"san_nude", lines:[
  {who:"sana",expr:"soft",bg:"sana_room",text:"Ask me. I'm better at answering than starting."},
  {choices:[{prompt:"The lamp is already down to its lowest setting.",
    text:"Her mouth.",aff:{sana:5},goto:"san_room_oral"},
-  {text:"Lay her back.",aff:{sana:5},goto:"san_room_sex"},
-  {text:"Let her.",aff:{sana:5},goto:"san_room_ride"},
-  {text:"Turn her over.",aff:{sana:5},goto:"san_room_anal"},
+  {text:"Lay her back.",aff:{sana:5},req:()=>intim("sana")>=2,goto:"san_room_sex"},
+  {text:"Let her.",aff:{sana:5},req:()=>intim("sana")>=3,goto:"san_room_ride"},
+  {text:"Turn her over.",aff:{sana:5},req:()=>intim("sana")>=4,goto:"san_room_anal"},
   {text:"Nothing. Let her sleep.",aff:{sana:10},goto:"san_room_end"}]}
 ]},
 
@@ -3865,6 +3884,275 @@ break_ensemble3:{ bg:"break", lines:[
   {text:"\"We're all saying it this year.\"",aff:{mei:6,haruka:5,rina:5,ayano:5},flag:"birthday_out_loud"},
   {text:"\"What did Reiko write?\"",aff:{rina:5}}]},
  {text:"Reiko wrote 'Reiko.' It is the least informative signature in Tokyo and everyone treasures it."}
+]}
+
+});
+
+/* ==================================================== [JS-16] escalation
+
+   Jordan: "when i did someone it just reverts to one explicit scene, none of
+   the other positions, or building up, like oral should be first before going
+   deeper".
+
+   Two separate faults.
+
+   1. NO PROGRESSION. Every act was available from the first night, so there
+      was nothing to build toward. S.intim[who] counts nights together and the
+      menu opens up across them: hands and mouth first, then her on her back,
+      then letting her take over, then everything. A first night cannot reach
+      the last of it no matter which choices you take.
+
+   2. DEAD ENDS. The menu dropped you into one act, and ride/anal went straight
+      to _end, so a later visit was one image and out. Every act now offers a
+      way onward as well as a way to finish, so a night is a sequence you steer
+      rather than a single pick.
+
+   The pick menus below replace the flat ones. `req` hides an option until the
+   intimacy level is there, which is also why the menu itself reads as
+   progress -- there are visibly more things on it than there were. */
+Object.assign(SCENES, {
+
+/* ---------------- Mei ---------------- */
+mei_room_pick:{ bg:"mei_room", art:"mei_nude", lines:[
+ {who:"mei",expr:"soft",bg:"mei_room",when:s=>intim("mei")<2,text:"You're looking at me like you've got a question and you're not going to ask it."},
+ {who:"mei",expr:"blush",bg:"mei_room",when:s=>intim("mei")>=2&&intim("mei")<4,text:"You can just say. I'm not going to be strange about it."},
+ {who:"mei",expr:"soft",bg:"mei_room",when:s=>intim("mei")>=4,text:"Ask me for something. I've got quite used to you asking me for things."},
+ {choices:[{prompt:"She's already got the blind down.",
+   text:"Her mouth.",aff:{mei:5},goto:"mei_room_oral"},
+  {text:"On her back.",aff:{mei:5},req:()=>intim("mei")>=2,goto:"mei_room_sex"},
+  {text:"Let her ride.",aff:{mei:5},req:()=>intim("mei")>=3,goto:"mei_room_ride"},
+  {text:"Turn her over.",aff:{mei:5},req:()=>intim("mei")>=4,goto:"mei_room_anal"},
+  {text:"Just lie here with her.",aff:{mei:8},goto:"mei_room_end"}]}
+]},
+mei_room_ride:{ bg:"mei_room", art:"mei_ride", lines:[
+ {text:"She takes over. Of course she does."},
+ {who:"mei",expr:"soft",bg:"mei_room",text:"Stay still. I've got it."},
+ {text:"She's slower than you'd expect and she keeps her eyes open the whole time, which is somehow the hardest part of it."},
+ {choices:[{text:"Let her finish it.",aff:{mei:10},goto:"mei_room_end"},
+  {text:"Turn her over.",aff:{mei:8},req:()=>intim("mei")>=4,goto:"mei_room_anal"},
+  {text:"Get her on her back.",aff:{mei:8},req:()=>intim("mei")>=2,goto:"mei_room_sex"}]}
+]},
+mei_room_anal:{ bg:"mei_room", art:"mei_anal", lines:[
+ {who:"mei",expr:"blush",bg:"mei_room",text:"I said I wouldn't ask twice. I didn't say don't ask."},
+ {art:"mei_close_anal",text:"Louder than she'd ever be at work. She knows it. She doesn't stop."},
+ {choices:[{text:"Finish.",aff:{mei:10},goto:"mei_room_end"},
+  {text:"Turn her back over.",aff:{mei:8},req:()=>intim("mei")>=2,goto:"mei_room_sex"},
+  {text:"Let her up.",aff:{mei:8},req:()=>intim("mei")>=3,goto:"mei_room_ride"}]}
+]},
+
+/* ---------------- Haruka ---------------- */
+haruka_room_pick:{ bg:"haruka_room", art:"har_nude", lines:[
+ {who:"haruka",expr:"blush",bg:"haruka_room",when:s=>intim("haruka")<2,text:"Okay so what are we — you have to say it. I'm not guessing, I guessed once and it was a disaster."},
+ {who:"haruka",expr:"smile",bg:"haruka_room",when:s=>intim("haruka")>=2,text:"Right. Menu. Go on."},
+ {choices:[{prompt:"She is enjoying this far too much.",
+   text:"Hands.",aff:{haruka:5},goto:"har_room_hand"},
+  {text:"Your mouth on her.",aff:{haruka:5},goto:"har_room_oral"},
+  {text:"Let her.",aff:{haruka:5},req:()=>intim("haruka")>=2,goto:"har_room_give"},
+  {text:"Get her on her back.",aff:{haruka:5},req:()=>intim("haruka")>=3,goto:"har_room_take"},
+  {text:"Her on top.",aff:{haruka:5},req:()=>intim("haruka")>=4,goto:"har_room_ride"},
+  {text:"Nothing. Just talk.",aff:{haruka:8},goto:"har_room_end"}]}
+]},
+har_room_ride:{ bg:"haruka_room", art:"har_ride", lines:[
+ {who:"haruka",expr:"smile",bg:"haruka_room",text:"Okay, yeah. I can work with this."},
+ {text:"The loud version of her turns up again about halfway through and then leaves again, which is the bit you like."},
+ {choices:[{text:"Finish.",aff:{haruka:12},goto:"har_room_end"},
+  {text:"Swap.",aff:{haruka:8},req:()=>intim("haruka")>=2,goto:"har_room_give"},
+  {text:"Get her on her back.",aff:{haruka:8},req:()=>intim("haruka")>=3,goto:"har_room_take"}]}
+]},
+
+/* ---------------- Reiko ---------------- */
+reiko_room_pick:{ bg:"reiko_room", art:"rei_nude", lines:[
+ {who:"reiko",expr:"soft",bg:"reiko_room",when:s=>intim("reiko")<3,text:"You can ask for a thing. I'm told that's how this works."},
+ {who:"reiko",expr:"blush",bg:"reiko_room",when:s=>intim("reiko")>=3,text:"Ask. I've stopped pretending I mind being asked."},
+ {choices:[{prompt:"She has spent eleven years being the one who decides.",
+   text:"Her mouth.",aff:{reiko:5},goto:"rei_room_oral"},
+  {text:"On her back.",aff:{reiko:5},req:()=>intim("reiko")>=2,goto:"rei_room_sex"},
+  {text:"Let her take over.",aff:{reiko:6},req:()=>intim("reiko")>=3,goto:"rei_room_ride"},
+  {text:"Turn her over.",aff:{reiko:5},req:()=>intim("reiko")>=4,goto:"rei_room_anal"},
+  {text:"The office. Tomorrow night.",aff:{reiko:7},req:()=>intim("reiko")>=4,goto:"rei_desk_s"},
+  {text:"Nothing. Sleep.",aff:{reiko:9},goto:"rei_room_end"}]}
+]},
+rei_room_ride:{ bg:"reiko_room", art:"rei_ride", lines:[
+ {who:"reiko",expr:"blush",bg:"reiko_room",text:"Stay there. Eleven years of doing what needs doing. Let me have this one."},
+ {text:"She is not efficient about it, for once in her life."},
+ {choices:[{text:"Let her.",aff:{reiko:12},goto:"rei_room_end"},
+  {text:"Turn her over.",aff:{reiko:8},req:()=>intim("reiko")>=4,goto:"rei_room_anal"},
+  {text:"On her back.",aff:{reiko:8},req:()=>intim("reiko")>=2,goto:"rei_room_sex"}]}
+]},
+rei_room_anal:{ bg:"reiko_room", art:"rei_anal", lines:[
+ {who:"reiko",expr:"blush",bg:"reiko_room",text:"Slowly. I mean it. I'll say when."},
+ {art:"rei_anal",text:"She says when. It takes her a while to say it and she does not look away once."},
+ {choices:[{text:"Finish.",aff:{reiko:12},goto:"rei_room_end"},
+  {text:"Let her up.",aff:{reiko:9},req:()=>intim("reiko")>=3,goto:"rei_room_ride"}]}
+]},
+
+/* ---------------- Rina ---------------- */
+rina_room_pick:{ bg:"rina_room", art:"rin_nude", lines:[
+ {who:"rina",expr:"smile",bg:"rina_room",when:s=>intim("rina")<3,text:"I have a list. I'm not reading you the list. But it exists and it's alphabetised."},
+ {who:"rina",expr:"blush",bg:"rina_room",when:s=>intim("rina")>=3,text:"We're about four things into the list, since you're wondering. I'm keeping count."},
+ {choices:[{prompt:"She would absolutely read you the list.",
+   text:"Her mouth.",aff:{rina:5},goto:"rin_room_oral"},
+  {text:"On her back.",aff:{rina:5},req:()=>intim("rina")>=2,goto:"rin_room_sex"},
+  {text:"Let her on top.",aff:{rina:5},req:()=>intim("rina")>=3,goto:"rin_room_ride"},
+  {text:"Turn her over.",aff:{rina:5},req:()=>intim("rina")>=4,goto:"rin_room_anal"},
+  {text:"Read me the list.",aff:{rina:9},goto:"rin_room_end"}]}
+]},
+rin_room_ride:{ bg:"rina_room", art:"rin_ride", lines:[
+ {who:"rina",expr:"blush",bg:"rina_room",text:"Okay this is my favourite, this is officially my favourite, I'm telling every—"},
+ {who:"rina",expr:"surprise",text:"Not everyone! You know what I meant!"},
+ {choices:[{text:"Finish.",aff:{rina:12},goto:"rin_room_end"},
+  {text:"Turn her over.",aff:{rina:8},req:()=>intim("rina")>=4,goto:"rin_room_anal"},
+  {text:"On her back.",aff:{rina:8},req:()=>intim("rina")>=2,goto:"rin_room_sex"}]}
+]},
+rin_room_anal:{ bg:"rina_room", art:"rin_anal", lines:[
+ {who:"rina",expr:"blush",bg:"rina_room",text:"Slow, slow, slow — okay. Okay!"},
+ {text:"She goes quiet, which from her is the loudest thing that has ever happened in this flat."},
+ {choices:[{text:"Finish.",aff:{rina:12},goto:"rin_room_end"},
+  {text:"Let her up.",aff:{rina:9},req:()=>intim("rina")>=3,goto:"rin_room_ride"}]}
+]},
+
+/* ---------------- Ayano ---------------- */
+ayano_room_pick:{ bg:"ayano_room", art:"aya_nude", lines:[
+ {who:"ayano",expr:"blush",bg:"ayano_room",when:s=>intim("ayano")<3,text:"I've been thinking about things. In a list way. Not a chart way. I want to be clear it's not a chart."},
+ {who:"ayano",expr:"smile",bg:"ayano_room",when:s=>intim("ayano")>=3,text:"It's a chart. It was always a chart. I've laminated part of it."},
+ {choices:[{prompt:"It is absolutely a chart.",
+   text:"Her mouth.",aff:{ayano:5},goto:"aya_room_oral"},
+  {text:"Lay her back.",aff:{ayano:5},req:()=>intim("ayano")>=2,goto:"aya_room_sex"},
+  {text:"Let her on top.",aff:{ayano:6},req:()=>intim("ayano")>=3,goto:"aya_room_ride"},
+  {text:"Just hold her.",aff:{ayano:9},goto:"aya_room_end"}]}
+]},
+aya_room_ride:{ bg:"ayano_room", art:"aya_ride", lines:[
+ {who:"ayano",expr:"blush",bg:"ayano_room",text:"Can I try — I've thought about this one. I've thought about this one a lot, actually."},
+ {text:"She doesn't apologise once, the whole time, and you can tell she notices."},
+ {choices:[{text:"Let her.",aff:{ayano:12},goto:"aya_room_end"},
+  {text:"Lay her back.",aff:{ayano:8},req:()=>intim("ayano")>=2,goto:"aya_room_sex"}]}
+]},
+
+/* ---------------- Sana ---------------- */
+sana_room_pick:{ bg:"sana_room", art:"san_nude", lines:[
+ {who:"sana",expr:"soft",bg:"sana_room",when:s=>intim("sana")<3,text:"Ask me. I'm better at answering than starting."},
+ {who:"sana",expr:"blush",bg:"sana_room",when:s=>intim("sana")>=3,text:"I've got better at starting. Slightly. Ask me anyway."},
+ {choices:[{prompt:"The lamp is already at its lowest.",
+   text:"Her mouth.",aff:{sana:5},goto:"san_room_oral"},
+  {text:"Lay her back.",aff:{sana:5},req:()=>intim("sana")>=2,goto:"san_room_sex"},
+  {text:"Let her.",aff:{sana:5},req:()=>intim("sana")>=3,goto:"san_room_ride"},
+  {text:"Turn her over.",aff:{sana:5},req:()=>intim("sana")>=4,goto:"san_room_anal"},
+  {text:"Nothing. Let her sleep.",aff:{sana:10},goto:"san_room_end"}]}
+]},
+san_room_ride:{ bg:"sana_room", art:"san_ride", lines:[
+ {who:"sana",expr:"blush",bg:"sana_room",text:"Don't move. I want this bit."},
+ {text:"She takes her time over it the way she takes her time over everything, and for once that is not a sad fact about her."},
+ {choices:[{text:"Don't move.",aff:{sana:12},goto:"san_room_end"},
+  {text:"Turn her over.",aff:{sana:8},req:()=>intim("sana")>=4,goto:"san_room_anal"},
+  {text:"Lay her back.",aff:{sana:8},req:()=>intim("sana")>=2,goto:"san_room_sex"}]}
+]},
+san_room_anal:{ bg:"sana_room", art:"san_anal", lines:[
+ {who:"sana",expr:"blush",bg:"sana_room",text:"Slowly. I said slowly, and I meant all of it."},
+ {choices:[{text:"Finish.",aff:{sana:12},goto:"san_room_end"},
+  {text:"Let her up.",aff:{sana:9},req:()=>intim("sana")>=3,goto:"san_room_ride"}]}
+]},
+
+/* ==================================================== build-up
+   Jordan: "or not even explicit at first, just like catching someone getting
+   dressed and stuff like that, making the shy and bringing it up later".
+
+   These are non-explicit and they fire BEFORE anything happens — they live in
+   the banter pool, so you hit them while you barely know her. Each one sets a
+   flag, and the flag gets referenced later, which is the whole point: the
+   thing you saw in week two comes back in week six. */
+mei_banter7:{ bg:"locker", portRoom:"break", lines:[
+ {text:"You come into the lockers to get your coat and Mei is halfway out of her work shirt with her back to the door."},
+ {text:"You've got about a second to decide what to do about that."},
+ {choices:[{text:"Back out. Say nothing.",aff:{mei:5},flag:"mei_backed_out"},
+  {text:"\"Sorry — door.\"",aff:{mei:4},flag:"mei_said_door"},
+  {text:"Don't move.",hint:"she'll notice",aff:{mei:3},flag:"mei_didnt_move"}]},
+ {who:"mei",expr:"neutral",bg:"break",when:s=>s.flags.mei_backed_out,text:"You can come in. It's a locker room. I've got a vest on."},
+ {who:"mei",expr:"annoyed",bg:"break",when:s=>s.flags.mei_said_door,text:"There is no door. There's a doorway. That's been the situation for four years."},
+ {who:"mei",expr:"blush",bg:"break",when:s=>s.flags.mei_didnt_move,text:"...You're still there."},
+ {text:"She gets her coat. She takes slightly longer over it than getting a coat requires."},
+ {who:"mei",expr:"neutral",text:"Shutter."}
+]},
+haruka_banter7:{ bg:"locker", portRoom:"break", lines:[
+ {text:"She's changing at the lockers with the door wide open, mid-sentence about something entirely unrelated."},
+ {who:"haruka",expr:"smile",bg:"break",text:"—so anyway the delivery guy said it wasn't his van, which raises more questions than it—"},
+ {who:"haruka",expr:"surprise",text:"Oh. Hi. Sorry, I forget the doorway situation."},
+ {choices:[{text:"\"Carry on. The van.\"",aff:{haruka:6},flag:"har_van"},
+  {text:"Look away.",aff:{haruka:4},flag:"har_looked_away"},
+  {text:"\"You don't forget.\"",aff:{haruka:5},flag:"har_doesnt_forget"}]},
+ {who:"haruka",expr:"smile",when:s=>s.flags.har_van,text:"RIGHT so it wasn't his van—"},
+ {who:"haruka",expr:"blush",when:s=>s.flags.har_looked_away,text:"...You didn't have to do that. But — yeah. Okay. Thanks."},
+ {who:"haruka",expr:"blush",when:s=>s.flags.har_doesnt_forget,text:"I absolutely forget! I have a documented history of forgetting!"},
+ {text:"She talks about the van for another nine minutes. You do not learn whose van it was."}
+]},
+reiko_banter7:{ bg:"office", portRoom:"office", lines:[
+ {text:"The curtain is pulled and you go through it without thinking, because you have been going through it every night for weeks."},
+ {text:"She's got the shirt half unbuttoned and her hair down and she is very obviously between one version of herself and the other."},
+ {who:"reiko",expr:"surprise",bg:"office",text:"—out. Out, please."},
+ {choices:[{text:"Go.",aff:{reiko:6},flag:"rei_went"},
+  {text:"\"Sorry.\"",aff:{reiko:4},flag:"rei_sorry"},
+  {text:"\"You've got the curtain shut. That's the signal, is it?\"",aff:{reiko:5},flag:"rei_signal"}]},
+ {text:"Ten minutes later she comes out with the tie on and the clip in and everything in its place."},
+ {who:"reiko",expr:"neutral",when:s=>s.flags.rei_went,text:"Thank you. For going when I said."},
+ {who:"reiko",expr:"annoyed",when:s=>s.flags.rei_sorry,text:"Don't apologise, I've never told anyone what the curtain means."},
+ {who:"reiko",expr:"blush",when:s=>s.flags.rei_signal,text:"...It is the signal. Nobody has ever worked that out."},
+ {who:"reiko",expr:"soft",text:"Cups. Front left."}
+]},
+rina_banter7:{ bg:"break", lines:[
+ {text:"Break room. She's redoing her makeup with a compact and she's got about four minutes of it left."},
+ {who:"rina",expr:"smile",bg:"break",text:"Don't watch. This is the ugly part. There's a whole ugly middle part nobody's supposed to see."},
+ {choices:[{text:"Look away.",aff:{rina:5},flag:"rin_looked_away"},
+  {text:"\"There's no ugly part.\"",aff:{rina:7},flag:"rin_no_ugly"},
+  {text:"Keep watching.",aff:{rina:4},flag:"rin_watched"}]},
+ {who:"rina",expr:"blush",when:s=>s.flags.rin_no_ugly,text:"...Okay you can't just SAY that, I've got a mirror in my hand."},
+ {who:"rina",expr:"smile",when:s=>s.flags.rin_looked_away,text:"See, that's manners. Haruka once narrated it."},
+ {who:"rina",expr:"blush",when:s=>s.flags.rin_watched,text:"You're still — okay. Fine. It's fine. I'm doing the eye now, don't put me off."},
+ {text:"She snaps the compact shut. Whatever the ugly middle part was, you didn't see one."}
+]},
+ayano_banter7:{ bg:"locker", portRoom:"break", lines:[
+ {text:"You hear her before you see her — the small panicked noise of someone who has just realised the doorway has no door."},
+ {who:"ayano",expr:"surprise",bg:"break",text:"Occupied! Sorry! Occupied, sorry, I'm — sorry!"},
+ {choices:[{text:"Back out immediately.",aff:{ayano:7},flag:"aya_backed_out"},
+  {text:"\"You don't have to apologise for changing.\"",aff:{ayano:8},flag:"aya_no_sorry"},
+  {text:"\"I'll wait outside.\"",aff:{ayano:6},flag:"aya_waited"}]},
+ {text:"She comes out about two minutes later with her coat buttoned to the throat."},
+ {who:"ayano",expr:"blush",when:s=>s.flags.aya_no_sorry,text:"I know. I know I don't. I've been apologising for existing in rooms since I was about eleven."},
+ {who:"ayano",expr:"soft",when:s=>s.flags.aya_backed_out,text:"Thank you. For going straight away. Some people do a whole thing about it."},
+ {who:"ayano",expr:"blush",when:s=>s.flags.aya_waited,text:"You waited outside. In the cold. For me to put a coat on."},
+ {who:"ayano",expr:"soft",text:"...Anyway. Station?"}
+]},
+sana_banter7:{ bg:"locker", portRoom:"break", lines:[
+ {text:"Seven in the morning. She's changing out of the uniform and she doesn't stop when you come in, and she doesn't hurry either."},
+ {who:"sana",expr:"neutral",bg:"break",text:"It's fine. I've been doing nights for four years. Nobody's ever in this room at seven."},
+ {choices:[{text:"Wait outside anyway.",aff:{sana:6},flag:"san_waited"},
+  {text:"\"I'm in it.\"",aff:{sana:7},flag:"san_im_in_it"},
+  {text:"Say nothing. Get your coat.",aff:{sana:8},flag:"san_coat"}]},
+ {who:"sana",expr:"soft",when:s=>s.flags.san_im_in_it,text:"You are. That's the first time that sentence has been true."},
+ {who:"sana",expr:"neutral",when:s=>s.flags.san_waited,text:"You didn't have to. But thank you for the shape of it."},
+ {who:"sana",expr:"blush",when:s=>s.flags.san_coat,text:"...You just got your coat. Most people make it a whole event."},
+ {text:"You walk out into the light together. She doesn't say anything else and she doesn't need to."}
+]},
+
+/* callbacks — these only exist if the locker scene happened, and they are the
+   "bringing it up later" half of it */
+mei_banter8:{ bg:"counter", when:s=>s.flags.mei_didnt_move||s.flags.mei_backed_out, lines:[
+ {text:"Quiet hour. She's been building up to something for about ten minutes, which for her looks exactly like restocking cups."},
+ {who:"mei",expr:"neutral",when:s=>s.flags.mei_didnt_move,text:"The lockers. Weeks ago. You didn't move."},
+ {who:"mei",expr:"neutral",when:s=>s.flags.mei_backed_out&&!s.flags.mei_didnt_move,text:"The lockers. Weeks ago. You went straight back out."},
+ {who:"mei",expr:"blush",text:"I've thought about it more than I'd like and I'd rather say that than keep thinking it."},
+ {choices:[{text:"\"So had I.\"",aff:{mei:8}},
+  {text:"\"You could have said something at the time.\"",aff:{mei:6}},
+  {text:"\"What did you decide?\"",aff:{mei:9},flag:"mei_decided"}]},
+ {who:"mei",expr:"soft",text:"I decided I'd stopped minding who was in the doorway. Which is not the same as nothing, and I'm aware of that."},
+ {text:"She restocks the cups. The sleeve is already full."}
+]},
+ayano_banter8:{ bg:"break", when:s=>s.flags.aya_no_sorry, lines:[
+ {who:"ayano",expr:"blush",bg:"break",text:"You said I don't have to apologise for changing. In the lockers. Weeks ago."},
+ {who:"ayano",expr:"neutral",text:"I've thought about that more than the exams, which is a real problem, because the exams are in March."},
+ {choices:[{text:"\"Sorry.\"",hint:"you hear it as you say it",aff:{ayano:5}},
+  {text:"\"It's true, though.\"",aff:{ayano:8}},
+  {text:"\"What did you decide?\"",aff:{ayano:9},flag:"aya_decided"}]},
+ {who:"ayano",expr:"soft",text:"That there's a whole list of things I apologise for that nobody's ever asked me to. Existing in rooms was number one."},
+ {who:"ayano",expr:"smile",text:"I've crossed it off. It's a real list, it's on the wall, I'm not going to show you the wall."}
 ]}
 
 });
