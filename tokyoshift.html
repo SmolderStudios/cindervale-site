@@ -452,7 +452,7 @@ function freshState(){
     v:1, day:1, phase:0, money:0,
     aff:{mei:0,haruka:0,reiko:0,rina:0,ayano:0,sana:0},
     flags:{}, seen:{}, route:null, locked:[], shifts:0, nights:0,
-    read:{}, sent:{}, locOpen:null, worked:{}, intim:{}
+    read:{}, sent:{}, locOpen:null, worked:{}, intim:{}, met:{}
   };
 }
 
@@ -471,6 +471,7 @@ function normalizeState(o){
   s.flags = o.flags||{}; s.seen = o.seen||{};
   s.read = o.read||{}; s.sent = o.sent||{}; s.worked = o.worked||{};
   s.intim = o.intim||{};
+  s.met = o.met||{};
   s.locOpen = (o.locOpen && LOCS && LOCS[o.locOpen]) ? o.locOpen : null;
   s.locked = Array.isArray(o.locked)?o.locked:[];
   s.phase = Math.max(0,Math.min(PHASES.length-1, s.phase|0));
@@ -544,6 +545,14 @@ function advancePhase(){
   if(S.phase >= PHASES.length){ S.phase = 0; S.day++; onNewDay(); }
   renderHub();
 }
+/* One meeting per person per day. You could previously talk to someone at the
+   shop, walk to the arcade, and talk to the same person again in the same
+   afternoon -- which chewed through a whole route in a couple of in-game days
+   and made the city feel like a corridor rather than a week. Working a shift
+   with someone counts as the meeting. */
+function metToday(who){ return S.met[who] === S.day; }
+function markMet(who){ S.met[who] = S.day; }
+
 function onNewDay(){
   if(S.shifts>=3 && !S.flags.found_reiko && S.flags.covered_shift){
     S.flags.found_reiko = 1; toast("Reiko noticed you.", "lock");
@@ -690,10 +699,17 @@ function buildActs(locId, here){
     const night = S.phase === 3, pay = night ? "¥6,500" : "¥4,000";
     const crew = (here||[]).filter(k=>SCENES[k+"_shift0"]);
     // one entry per coworker actually on with you, so you choose the company
-    crew.forEach(k=>out.push({
-      name:"Work the "+(night?"night ":"")+"shift with "+CHARS[k].name, tag:pay, tagCls:"pay",
-      desc:night?"Eleven to seven, just the two of you.":"Six hours on the counter beside her.",
-      go:()=>doShift(night,k)}));
+    crew.forEach(k=>{
+      if(metToday(k)){
+        out.push({name:"Work with "+CHARS[k].name, locked:true, tag:"tomorrow", tagCls:"lock",
+          desc:"You've already been on with her today."});
+        return;
+      }
+      out.push({name:"Work the "+(night?"night ":"")+"shift with "+CHARS[k].name,
+        tag:pay, tagCls:"pay",
+        desc:night?"Eleven to seven, just the two of you.":"Six hours on the counter beside her.",
+        go:()=>doShift(night,k)});
+    });
     if(!crew.length) out.push({name:"Work the "+(night?"night ":"")+"shift alone",
       tag:pay, tagCls:"pay", desc:"Nobody else is on. Long six hours.",
       go:()=>{ const pay2 = night?6500:4000; S.money+=pay2; S.shifts++; if(night) S.nights++;
@@ -744,6 +760,11 @@ function buildActs(locId, here){
     if(locId === "shop") return;             // at work you talk by taking the shift
     const c = CHARS[k], partner = duoPartnerFor(k);
     const at = SCENES[k+"_at_"+locId];
+    if(metToday(k)){
+      out.push({name:"Talk to "+c.name, locked:true, tag:"tomorrow", tagCls:"lock",
+        desc:"You've already had your time with her today."});
+      return;
+    }
     out.push({
       name:"Talk to "+c.name,
       tag: partner ? "duo" : (S.aff[k]>=70 ? "route" : null), tagCls:"new",
@@ -785,6 +806,7 @@ function doShift(night, who){
   const pay = night ? 6500 : 4000;
   S.money += pay; S.shifts++; if(night) S.nights++;
   S.worked[who] = (S.worked[who]||0) + 1;
+  markMet(who);
   toast("+¥"+pay.toLocaleString(), "money");
   playScene(pickShiftScene(who), ()=>{ advancePhase(); });
 }
@@ -845,6 +867,7 @@ const ROOM_OWNER = {mei_room_end:"mei", har_room_end:"haruka", rei_room_end:"rei
                     rin_room_end:"rina", aya_room_end:"ayano", san_room_end:"sana"};
 
 function doTalk(who, locId){
+  markMet(who);
   const play = k => playScene(k, ()=>advancePhase());
   const partner = duoPartnerFor(who);
   if(partner){
@@ -4292,6 +4315,202 @@ sana_locked1:{ bg:"konbini", portRoom:"konbini", lines:[
   {text:"\"Buy the sandwich.\"",aff:{sana:5}}]},
  {who:"sana",expr:"soft",text:"You can stand there. That was never the part that was complicated."},
  {text:"You stand there. She picks up a sandwich, looks at it, buys it, and neither of you says anything about that either."}
+]}
+
+});
+
+/* ==================================================== [JS-18] clarity + length
+
+   Jordan: "its hard to know exactly what does what especially in explicit
+   scenes, like haruka, theres like 20 options at one part where you choose
+   what she does" and "a lot of scenes are very short".
+
+   TWO fixes.
+
+   1. LABELS SAY WHO DOES WHAT. "Her mouth." is ambiguous -- it could be her on
+      you or you on her, and with Haruka it could be either way round in a way
+      the others cannot. Every option now names the subject and the object, and
+      carries a `hint` describing where it goes. Haruka's menu in particular was
+      six near-identical phrasings; it now reads as three clear directions
+      (you to her, her to you, and together) rather than a wall.
+
+   2. THE ACTS ARE SCENES, NOT FLASHES. Each was two lines and a choice, which
+      is why a night felt like clicking through a gallery. They run four to
+      eight beats now, with the character actually present in them -- talking,
+      stopping, changing her mind -- because a sex scene with no one in it is
+      just a slideshow. */
+Object.assign(SCENES, {
+
+/* ================= Mei ================= */
+mei_room_pick:{ bg:"mei_room", art:"mei_nude", lines:[
+ {who:"mei",expr:"soft",bg:"mei_room",when:s=>intim("mei")<2,text:"You're looking at me like you've got a question you're not going to ask."},
+ {who:"mei",expr:"blush",bg:"mei_room",when:s=>intim("mei")>=2&&intim("mei")<4,text:"You can just say it. I'm not going to be strange about it."},
+ {who:"mei",expr:"soft",bg:"mei_room",when:s=>intim("mei")>=4,text:"Ask me for something. I've got used to you asking me for things and I'd rather not go back."},
+ {choices:[{prompt:"She's got the blind down and she's waiting.",
+   text:"Ask her to use her mouth on you.",hint:"she goes down on you",aff:{mei:5},goto:"mei_room_oral"},
+  {text:"Lay her back and take your time.",hint:"you, on top of her",aff:{mei:5},
+   req:()=>intim("mei")>=2,goto:"mei_room_sex"},
+  {text:"Let her set the pace.",hint:"she rides you",aff:{mei:5},
+   req:()=>intim("mei")>=3,goto:"mei_room_ride"},
+  {text:"Turn her over.",hint:"anal",aff:{mei:5},
+   req:()=>intim("mei")>=4,goto:"mei_room_anal"},
+  {text:"Nothing. Lie here with her.",hint:"ends the night, she'll talk",aff:{mei:8},goto:"mei_room_end"}]}
+]},
+mei_room_oral:{ bg:"mei_room", art:"mei_oral", lines:[
+ {text:"She takes her time getting there. She takes her time with everything; you have watched her count a drawer."},
+ {who:"mei",expr:"blush",bg:"mei_room",text:"...Don't say anything clever right now."},
+ {art:"mei_oral_close",text:"She looks up without stopping and holds it, which is worse than if she'd closed her eyes, and she knows that."},
+ {text:"Somewhere in the middle she stops being careful. Her hand finds your wrist and stays there and it is not for balance."},
+ {who:"mei",expr:"soft",bg:"mei_room",text:"You've gone quiet."},
+ {choices:[{text:"\"You told me not to say anything clever.\"",hint:"she laughs, almost",aff:{mei:6}},
+  {text:"Say nothing. Let her finish.",hint:"ends here",aff:{mei:8},goto:"mei_room_end"},
+  {text:"Pull her up.",hint:"on to sex",aff:{mei:6},req:()=>intim("mei")>=2,goto:"mei_room_sex"}]},
+ {text:"It is very nearly a laugh. You'd have to have known her a while to catch it."},
+ {choices:[{text:"Let her finish.",aff:{mei:8},goto:"mei_room_end"},
+  {text:"Pull her up.",hint:"on to sex",aff:{mei:6},req:()=>intim("mei")>=2,goto:"mei_room_sex"}]}
+]},
+mei_room_sex:{ bg:"mei_room", art:"mei_sex", lines:[
+ {text:"Whatever she keeps behind her face at work is not there now. It goes somewhere and you have never worked out where."},
+ {art:"mei_close_vag",text:"Slow at first. Only at first."},
+ {who:"mei",expr:"blush",bg:"mei_room",text:"That's — yes. Like that, don't change it, don't get creative."},
+ {text:"She says most of it into your shoulder. The bits she says out loud are instructions and the bits she doesn't are not."},
+ {choices:[{prompt:"Her hand is flat on your back and it keeps tightening.",
+   text:"Do exactly what she said.",hint:"deeper, harder",aff:{mei:8},req:()=>intim("mei")>=3,goto:"mei_room_deep"},
+  {text:"Slow right down.",hint:"she will complain about it",aff:{mei:9}},
+  {text:"Let her get on top.",hint:"she takes over",aff:{mei:8},req:()=>intim("mei")>=3,goto:"mei_room_ride"},
+  {text:"Turn her over.",hint:"anal",aff:{mei:8},req:()=>intim("mei")>=4,goto:"mei_room_anal"},
+  {text:"Finish like this.",hint:"ends the night",aff:{mei:10},goto:"mei_room_end"}]},
+ {who:"mei",expr:"blush",text:"Why are you — no. No, don't you dare do that, I know exactly what you're doing."},
+ {text:"You keep doing it. She holds out for about forty seconds, which is longer than most people would manage, and then stops holding out."},
+ {who:"mei",expr:"soft",text:"...Fine. Fine. You've made your point."},
+ {choices:[{text:"Finish like this.",aff:{mei:12},goto:"mei_room_end"},
+  {text:"Let her take over.",aff:{mei:10},req:()=>intim("mei")>=3,goto:"mei_room_ride"}]}
+]},
+mei_room_deep:{ bg:"mei_room", art:"mei_top", lines:[
+ {who:"mei",expr:"blush",bg:"mei_room",text:"— don't stop, don't —"},
+ {art:"mei_top",text:"Nothing careful left in her at all. The woman who counts a drawer twice is not in this room."},
+ {text:"She's loud in a way she will be embarrassed about tomorrow and she is not thinking about tomorrow."},
+ {choices:[{text:"Finish like this.",hint:"ends the night",aff:{mei:10},goto:"mei_room_end"},
+  {text:"Turn her over.",hint:"anal",aff:{mei:8},req:()=>intim("mei")>=4,goto:"mei_room_anal"},
+  {text:"Stop. Right now.",hint:"see what she does",aff:{mei:11}}]},
+ {text:"You stop."},
+ {who:"mei",expr:"surprise",text:"...What are you doing."},
+ {who:"mei",expr:"blush",text:"Don't make me say it. I will genuinely never live it down, I will think about it on a train in six years."},
+ {choices:[{text:"Wait.",hint:"she says it",aff:{mei:12}},
+  {text:"Don't make her say it.",aff:{mei:10},goto:"mei_room_end"}]},
+ {who:"mei",expr:"blush",text:"...Please."},
+ {text:"She says it once, very quietly, and then puts her face against your neck so she does not have to be looked at."},
+ {choices:[{text:"Finish.",aff:{mei:14},goto:"mei_room_end"}]}
+]},
+mei_room_ride:{ bg:"mei_room", art:"mei_ride", lines:[
+ {text:"She takes over. Of course she does."},
+ {who:"mei",expr:"soft",bg:"mei_room",text:"Stay still. I've got it."},
+ {text:"She's slower than you'd expect. She keeps her eyes open the entire time, which is the hardest part of it by a distance."},
+ {who:"mei",expr:"blush",text:"Stop looking at me like that."},
+ {choices:[{text:"\"You're looking at me.\"",hint:"she has no answer",aff:{mei:8}},
+  {text:"Look away.",hint:"she'll object",aff:{mei:7}},
+  {text:"Let her finish it.",hint:"ends the night",aff:{mei:10},goto:"mei_room_end"}]},
+ {who:"mei",expr:"blush",text:"That's — that's not the same thing and you know it isn't."},
+ {text:"She doesn't stop looking. Neither do you. It takes a while and neither of you says anything else."},
+ {choices:[{text:"Let her finish it.",aff:{mei:12},goto:"mei_room_end"},
+  {text:"Turn her over.",hint:"anal",aff:{mei:8},req:()=>intim("mei")>=4,goto:"mei_room_anal"}]}
+]},
+mei_room_anal:{ bg:"mei_room", art:"mei_anal", lines:[
+ {who:"mei",expr:"blush",bg:"mei_room",text:"I said I wouldn't ask twice. I didn't say don't ask."},
+ {text:"She's already turning over. She does it without being told, which she will also be embarrassed about."},
+ {who:"mei",expr:"soft",text:"Slowly. And if I say stop, that's — you know that's a real stop, not a—"},
+ {choices:[{text:"\"I know what it is.\"",hint:"she relaxes",aff:{mei:9}},
+  {text:"\"Say it and I stop. Every time.\"",hint:"she believes you",aff:{mei:11},flag:"mei_trust"}]},
+ {who:"mei",expr:"blush",text:"...Okay. Okay."},
+ {art:"mei_close_anal",text:"She's louder than she would ever be at work, and she knows it, and she doesn't stop."},
+ {text:"She does not say stop. She says a number of other things."},
+ {choices:[{text:"Finish.",hint:"ends the night",aff:{mei:12},goto:"mei_room_end"},
+  {text:"Turn her back over.",hint:"back to sex",aff:{mei:9},goto:"mei_room_sex"}]}
+]},
+
+/* ================= Haruka =================
+   Her menu was the one Jordan called out. Six options that all read as
+   variations on the same sentence, and with a futa partner the ambiguity is
+   worse -- "let her" could mean four things. Three clear directions now: what
+   you do to her, what she does to you, and what you do together. */
+haruka_room_pick:{ bg:"haruka_room", art:"har_nude", lines:[
+ {who:"haruka",expr:"blush",bg:"haruka_room",when:s=>intim("haruka")<2,text:"Okay so — you have to say it. Out loud. I guessed once and it was a catastrophe and we do not talk about it."},
+ {who:"haruka",expr:"smile",bg:"haruka_room",when:s=>intim("haruka")>=2,text:"Right. Go on then. Say a thing."},
+ {choices:[{prompt:"She is enjoying this considerably more than she is letting on.",
+   text:"Use your hands on her.",hint:"you, on her",aff:{haruka:5},goto:"har_room_hand"},
+  {text:"Take her in your mouth.",hint:"you, on her",aff:{haruka:5},goto:"har_room_oral"},
+  {text:"Tell her to take you.",hint:"her, in you",aff:{haruka:5},
+   req:()=>intim("haruka")>=2,goto:"har_room_give"},
+  {text:"Put her on her back.",hint:"you, in her",aff:{haruka:5},
+   req:()=>intim("haruka")>=3,goto:"har_room_take"},
+  {text:"Let her ride you.",hint:"her, on top",aff:{haruka:5},
+   req:()=>intim("haruka")>=4,goto:"har_room_ride"},
+  {text:"Nothing. Just talk.",hint:"ends the night",aff:{haruka:8},goto:"har_room_end"}]}
+]},
+har_room_hand:{ bg:"haruka_room", art:"har_hand", lines:[
+ {who:"haruka",expr:"blush",bg:"haruka_room",text:"Okay — okay, that's — yeah. Like that. Exactly like that, don't get inventive."},
+ {text:"Every clever thing she has said this month is gone inside four seconds. She is extremely easy to disarm and she hates that about herself."},
+ {who:"haruka",expr:"soft",text:"You're doing the thing where you watch my face."},
+ {choices:[{text:"\"You watch mine.\"",hint:"she goes redder",aff:{haruka:6}},
+  {text:"Keep watching.",hint:"she can't hold it",aff:{haruka:7}},
+  {text:"Look away for her.",hint:"kind; she notices",aff:{haruka:8}}]},
+ {who:"haruka",expr:"blush",text:"That's — okay. Okay, we're both doing it, that's fine, that's a normal thing two people do."},
+ {choices:[{text:"Take her in your mouth.",hint:"you, on her",aff:{haruka:8},goto:"har_room_oral"},
+  {text:"\"Your turn to decide.\"",hint:"her, in you",aff:{haruka:10},
+   req:()=>intim("haruka")>=2,goto:"har_room_give"},
+  {text:"Finish her like this.",hint:"ends the night",aff:{haruka:9},goto:"har_room_end"}]}
+]},
+har_room_oral:{ bg:"haruka_room", art:"har_oral", lines:[
+ {who:"haruka",expr:"blush",bg:"haruka_room",text:"Wait — wait, I'm not going to last if you — okay. Okay, that's happening."},
+ {art:"har_oral_close",text:"She gets a hand into your hair and then apologises for it, out loud, mid-way, which is the single most Haruka thing she has ever done."},
+ {who:"haruka",expr:"soft",text:"Sorry. Sorry, is that — can I—"},
+ {choices:[{text:"\"Stop apologising.\"",hint:"she does",aff:{haruka:8}},
+  {text:"\"Leave your hand where it is.\"",hint:"she does that too",aff:{haruka:10},flag:"har_hand_stayed"},
+  {text:"Don't answer.",hint:"she works it out",aff:{haruka:7}}]},
+ {text:"She leaves her hand where it is. She stops talking entirely, which for her is roughly a total system failure."},
+ {choices:[{text:"Don't stop.",hint:"ends the night",aff:{haruka:10},goto:"har_room_end"},
+  {text:"\"Then don't.\"",hint:"her, in you",aff:{haruka:8},
+   req:()=>intim("haruka")>=2,goto:"har_room_give"}]}
+]},
+har_room_give:{ bg:"haruka_room", art:"har_give", lines:[
+ {text:"She is careful about it in a way she would never admit to being."},
+ {who:"haruka",expr:"soft",bg:"haruka_room",text:"Tell me if it's too much. I'm not being polite. I will actually stop and I won't be weird about it."},
+ {choices:[{text:"\"I know you would.\"",hint:"that's the thing that lands",aff:{haruka:9}},
+  {text:"\"Don't stop.\"",hint:"straight on",aff:{haruka:7}}]},
+ {text:"That is the sentence that gets her — not the second one. She goes quiet for a second and then she is over being careful."},
+ {art:"har_give_close",text:"About four seconds later there is nothing careful happening at all."},
+ {who:"haruka",expr:"blush",text:"You're — okay, you're allowed to make noise, this isn't a library—"},
+ {choices:[{text:"Make noise.",hint:"she loses it",aff:{haruka:11}},
+  {text:"Stay quiet just to spite her.",hint:"she will complain",aff:{haruka:9}},
+  {text:"Pull her down.",hint:"you, in her",aff:{haruka:10},
+   req:()=>intim("haruka")>=3,goto:"har_room_take"},
+  {text:"Finish.",hint:"ends the night",aff:{haruka:12},goto:"har_room_end"}]},
+ {who:"haruka",expr:"smile",text:"Oh that's — that's cheating, that's a cheat, you can't—"},
+ {choices:[{text:"Finish.",aff:{haruka:12},goto:"har_room_end"},
+  {text:"Pull her down.",aff:{haruka:10},req:()=>intim("haruka")>=3,goto:"har_room_take"}]}
+]},
+har_room_take:{ bg:"haruka_room", art:"har_take", lines:[
+ {who:"haruka",expr:"blush",bg:"haruka_room",text:"Oh — that's not — okay, that's a whole other thing. Hi."},
+ {art:"har_take_close",text:"She laughs. Then she stops laughing, all at once, like something got switched."},
+ {who:"haruka",expr:"soft",text:"Nobody does this bit. With me. People decide what I am and then they stick to it."},
+ {choices:[{text:"\"I'm not people.\"",hint:"she believes you",aff:{haruka:10}},
+  {text:"\"You could have said.\"",hint:"she couldn't",aff:{haruka:8}},
+  {text:"Don't say anything. Keep going.",hint:"she'd rather that",aff:{haruka:11}}]},
+ {text:"She holds onto your arm with both hands for most of it and says almost nothing, which from her means more than any of it."},
+ {choices:[{text:"Let her get on top.",hint:"her, on top",aff:{haruka:10},
+   req:()=>intim("haruka")>=4,goto:"har_room_ride"},
+  {text:"Finish.",hint:"ends the night",aff:{haruka:12},goto:"har_room_end"}]}
+]},
+har_room_ride:{ bg:"haruka_room", art:"har_ride", lines:[
+ {who:"haruka",expr:"smile",bg:"haruka_room",text:"Okay. Yeah. I can work with this."},
+ {text:"The loud version of her turns up about halfway through and then goes again, and the gap between the two is the bit you actually like."},
+ {who:"haruka",expr:"blush",text:"Stop smiling at me. I can see you smiling."},
+ {choices:[{text:"\"You're smiling.\"",hint:"she is",aff:{haruka:8}},
+  {text:"Keep smiling.",hint:"she gives up",aff:{haruka:9}},
+  {text:"Finish.",hint:"ends the night",aff:{haruka:12},goto:"har_room_end"}]},
+ {who:"haruka",expr:"smile",text:"I'm ALWAYS smiling, that's not evidence of anything—"},
+ {choices:[{text:"Finish.",aff:{haruka:12},goto:"har_room_end"},
+  {text:"Swap.",hint:"her, in you",aff:{haruka:9},req:()=>intim("haruka")>=2,goto:"har_room_give"}]}
 ]}
 
 });
