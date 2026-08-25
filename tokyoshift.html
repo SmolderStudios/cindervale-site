@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Not linked from the site nav and not indexed. Adult content on the same
+     domain as the Cindervale marketing pages, at Jordan's direction. -->
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Tokyo Shift</title>
+<style>
+/* ============================================================ [CSS-01] base */
+:root{
+  --bg:#0b0a0d; --panel:#15131a; --panel2:#1d1a24; --line:#2e2836;
+  --ink:#e8e3ee; --dim:#9a91a8; --faint:#655d73;
+  --hot:#e0486b; --hot2:#ff6f8d; --gold:#e0b054; --ok:#5fbf82;
+  --mei:#c8564f; --haruka:#d99a3c; --reiko:#8b6bc4; --ayano:#6b93c4;
+  --rina:#d4649e; --sana:#79b3ad;
+  --shadow:0 12px 34px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font:15px/1.6 "Segoe UI",system-ui,-apple-system,sans-serif;
+  overflow:hidden; -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+#app{position:relative;width:100vw;height:100vh;overflow:hidden}
+.hide{display:none!important}
+
+/* ============================================================ [CSS-02] title */
+#title{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:26px;
+  background:radial-gradient(ellipse at 50% 35%,#241a26 0%,#0b0a0d 70%);
+}
+#title h1{
+  margin:0;font-size:64px;letter-spacing:.14em;font-weight:200;
+  background:linear-gradient(180deg,#fff 10%,var(--hot) 90%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+#title .sub{color:var(--dim);letter-spacing:.34em;font-size:12px;text-transform:uppercase}
+#title .menu{display:flex;flex-direction:column;gap:10px;margin-top:14px;min-width:240px}
+.mbtn{
+  padding:13px 22px;border:1px solid var(--line);border-radius:10px;
+  background:var(--panel);letter-spacing:.1em;font-size:13px;text-transform:uppercase;
+  transition:background .15s,border-color .15s,transform .1s;
+}
+.mbtn:hover{background:var(--panel2);border-color:var(--hot);transform:translateY(-1px)}
+.mbtn[disabled]{opacity:.35;cursor:not-allowed;transform:none}
+#title .warn{color:var(--faint);font-size:11px;max-width:420px;text-align:center;line-height:1.7}
+
+/* ============================================================ [CSS-03] hub */
+#hub{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg)}
+#hubTop{
+  display:flex;align-items:center;gap:20px;padding:12px 22px;
+  border-bottom:1px solid var(--line);background:var(--panel);flex:0 0 auto;
+}
+#hubTop .stat{display:flex;align-items:baseline;gap:7px}
+#hubTop .lbl{color:var(--faint);font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+#hubTop .val{font-size:17px;font-weight:600}
+#hubTop .val.money{color:var(--gold)}
+#hubTop .spacer{flex:1}
+.tbtn{padding:7px 13px;border:1px solid var(--line);border-radius:7px;font-size:12px;color:var(--dim)}
+.tbtn:hover{color:var(--ink);border-color:var(--hot)}
+
+#hubBody{flex:1;display:flex;min-height:0}
+#hubMain{flex:1;padding:26px 30px;overflow-y:auto}
+#hubMain h2{margin:0 0 4px;font-size:22px;font-weight:300;letter-spacing:.04em}
+#hubMain .phase{color:var(--dim);font-size:12px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:22px}
+
+.acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.act{
+  text-align:left;padding:16px 18px;border:1px solid var(--line);border-radius:12px;
+  background:var(--panel);transition:border-color .15s,background .15s,transform .1s;
+}
+.act:hover:not([disabled]){border-color:var(--hot);background:var(--panel2);transform:translateY(-2px)}
+.act[disabled]{opacity:.4;cursor:not-allowed}
+.act .an{font-size:15px;font-weight:600;margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.act .ad{color:var(--dim);font-size:12.5px;line-height:1.55}
+.act .tag{
+  font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;
+  border-radius:4px;border:1px solid currentColor;
+}
+.tag.pay{color:var(--gold)} .tag.new{color:var(--hot2)} .tag.lock{color:var(--faint)}
+
+/* roster rail */
+#roster{
+  flex:0 0 268px;border-left:1px solid var(--line);background:var(--panel);
+  padding:18px 16px;overflow-y:auto;
+}
+#roster h3{margin:0 0 14px;font-size:10px;letter-spacing:.2em;color:var(--faint);text-transform:uppercase}
+.pcard{display:flex;gap:11px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.pcard:last-child{border-bottom:0}
+.pcard .av{
+  width:44px;height:44px;border-radius:9px;flex:0 0 auto;background:var(--panel2);
+  background-size:cover;background-position:center 18%;border:1px solid var(--line);
+}
+.pcard.locked .av{filter:grayscale(1) brightness(.35)}
+.pcard .who{flex:1;min-width:0}
+.pcard .nm{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:6px}
+.pcard.locked .nm{color:var(--faint)}
+.pcard .rl{font-size:10.5px;color:var(--faint);letter-spacing:.05em}
+.meter{height:4px;border-radius:2px;background:#241f2c;margin-top:5px;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:2px;transition:width .35s}
+.rt{font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:1px 5px;border-radius:3px}
+.rt.on{color:var(--ok);border:1px solid var(--ok)}
+.rt.out{color:var(--faint);border:1px solid var(--faint)}
+
+/* ============================================================ [CSS-04] VN */
+#vn{position:absolute;inset:0;background:#000;display:flex;flex-direction:column}
+#vnArt{
+  position:absolute;inset:0;background-size:cover;background-position:center;
+  transition:opacity .3s;
+}
+#vnArt.dim::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.15) 40%,rgba(0,0,0,.82) 100%)}
+/* Portraits are rendered WITH their room baked in (SDXL will not give clean
+   alpha, and a bad key looks worse than no key). Dropped straight onto the
+   scene background that makes an obvious picture-in-picture rectangle, so the
+   edges are feathered with a mask: the image dissolves into the darkened
+   background instead of ending on a hard line. */
+#vnPort{
+  position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+  height:88%;max-width:60%;object-fit:cover;object-position:center top;
+  transition:opacity .25s;
+  -webkit-mask-image:
+    linear-gradient(to right,transparent 0,#000 16%,#000 84%,transparent 100%),
+    linear-gradient(to bottom,transparent 0,#000 12%,#000 100%);
+  -webkit-mask-composite:source-in;
+  mask-image:
+    linear-gradient(to right,transparent 0,#000 16%,#000 84%,transparent 100%),
+    linear-gradient(to bottom,transparent 0,#000 12%,#000 100%);
+  mask-composite:intersect;
+}
+#vnBox{
+  position:absolute;left:0;right:0;bottom:0;padding:20px 26px 24px;
+  background:linear-gradient(180deg,rgba(10,9,12,.0) 0%,rgba(10,9,12,.93) 22%,rgba(10,9,12,.98) 100%);
+  min-height:210px;
+}
+#vnWrap{max-width:960px;margin:0 auto}
+#vnWho{
+  font-size:15px;font-weight:700;letter-spacing:.08em;margin-bottom:7px;min-height:22px;
+}
+#vnText{font-size:17px;line-height:1.72;min-height:82px;white-space:pre-wrap}
+#vnText .nar{color:var(--dim);font-style:italic}
+#vnChoices{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.ch{
+  text-align:left;padding:11px 16px;border:1px solid var(--line);border-radius:9px;
+  background:rgba(30,26,38,.9);font-size:14.5px;transition:all .13s;
+}
+.ch:hover{border-color:var(--hot);background:rgba(48,32,48,.95);transform:translateX(3px)}
+.ch .hint{color:var(--faint);font-size:11px;margin-left:8px}
+.ch.warnlock{border-color:#7a3a4a}
+.ch.warnlock .hint{color:var(--hot2)}
+#vnNext{
+  position:absolute;right:26px;bottom:20px;color:var(--faint);font-size:12px;
+  letter-spacing:.14em;animation:bob 1.4s ease-in-out infinite;
+}
+@keyframes bob{0%,100%{opacity:.35}50%{opacity:1}}
+#vnBack{position:absolute;top:16px;right:18px;z-index:5}
+
+/* ============================================================ [CSS-05] misc */
+#toast{
+  position:absolute;top:18px;left:50%;transform:translateX(-50%);z-index:40;
+  display:flex;flex-direction:column;gap:7px;align-items:center;pointer-events:none;
+}
+.tst{
+  padding:9px 17px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);
+  font-size:13px;box-shadow:var(--shadow);animation:tin .3s ease;
+}
+.tst.up{border-color:var(--ok);color:var(--ok)}
+.tst.money{border-color:var(--gold);color:var(--gold)}
+.tst.lock{border-color:var(--hot);color:var(--hot2)}
+@keyframes tin{from{opacity:0;transform:translateY(-10px)}}
+.ph{
+  display:flex;align-items:center;justify-content:center;height:100%;
+  color:var(--faint);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  background:repeating-linear-gradient(45deg,#16141b,#16141b 12px,#1b1822 12px,#1b1822 24px);
+}
+#modal{position:absolute;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:60}
+#modalBox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px 28px;max-width:440px;box-shadow:var(--shadow)}
+#modalBox h3{margin:0 0 10px;font-weight:400;font-size:19px}
+#modalBox p{color:var(--dim);font-size:14px;margin:0 0 18px}
+#modalBox .row{display:flex;gap:10px;justify-content:flex-end}
+@media(max-width:900px){
+  #roster{display:none}
+  #title h1{font-size:44px}
+  #vnPort{max-width:80%;height:66%}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ---------------------------------------------------------- title -->
+  <div id="title">
+    <div class="sub">a part-time job in shinjuku</div>
+    <h1>TOKYO SHIFT</h1>
+    <div class="menu">
+      <button class="mbtn" id="btnNew">New Game</button>
+      <button class="mbtn" id="btnCont">Continue</button>
+    </div>
+    <div class="warn">Adult visual novel. All characters are adults.</div>
+  </div>
+
+  <!-- ---------------------------------------------------------- hub -->
+  <div id="hub" class="hide">
+    <div id="hubTop">
+      <div class="stat"><span class="lbl">Day</span><span class="val" id="hDay">1</span></div>
+      <div class="stat"><span class="lbl">Yen</span><span class="val money" id="hMoney">0</span></div>
+      <div class="stat"><span class="lbl">Time</span><span class="val" id="hPhase">Morning</span></div>
+      <div class="spacer"></div>
+      <button class="tbtn" id="btnSave">Save</button>
+      <button class="tbtn" id="btnQuit">Title</button>
+    </div>
+    <div id="hubBody">
+      <div id="hubMain">
+        <h2 id="hubTitle">What now?</h2>
+        <div class="phase" id="hubSub">Morning &middot; Day 1</div>
+        <div class="acts" id="acts"></div>
+      </div>
+      <div id="roster">
+        <h3>Staff</h3>
+        <div id="rosterList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------------------------------------------------------- VN -->
+  <div id="vn" class="hide">
+    <div id="vnArt"></div>
+    <img id="vnPort" alt="">
+    <button class="tbtn" id="vnBack">Skip scene</button>
+    <div id="vnBox"><div id="vnWrap">
+      <div id="vnWho"></div>
+      <div id="vnText"></div>
+      <div id="vnChoices"></div>
+    </div><div id="vnNext">CLICK</div></div>
+  </div>
+
+  <div id="toast"></div>
+  <div id="modal" class="hide"><div id="modalBox">
+    <h3 id="mTitle"></h3><p id="mBody"></p>
+    <div class="row"><button class="mbtn" id="mNo">Back</button><button class="mbtn" id="mYes">Confirm</button></div>
+  </div></div>
+</div>
+
+<script>
+"use strict";
+/* ==================================================== [JS-01] constants */
+const SAVE_KEY = "tokyoshift_save_v1";
+const ART = "assets/tokyoshift/";
+const PHASES = ["Morning","Afternoon","Evening"];
+
+/* Characters. `locked` describes how they enter the story — the four beyond
+   the vertical slice are visible in the roster from day one but greyed, so the
+   player can see there is more game than they have reached. */
+const CHARS = {
+  mei:    {name:"Mei",    age:26, role:"Closer",        color:"var(--mei)",    slice:true},
+  haruka: {name:"Haruka", age:23, role:"Kitchen",       color:"var(--haruka)", slice:true},
+  reiko:  {name:"Reiko",  age:41, role:"Manager",       color:"var(--reiko)",  hidden:true,
+           hint:"Cover someone's shift."},
+  rina:   {name:"Rina",   age:24, role:"Front",         color:"var(--rina)"},
+  ayano:  {name:"Ayano",  age:19, role:"Part-time",     color:"var(--ayano)"},
+  sana:   {name:"Sana",   age:30, role:"Night shift",   color:"var(--sana)",   hidden:true,
+           hint:"Work nights."}
+};
+const AFF_MAX = 100;
+
+/* ==================================================== [JS-02] state */
+let S = null;
+
+function freshState(){
+  return {
+    v:1, day:1, phase:0, money:0,
+    aff:{mei:0,haruka:0,reiko:0,rina:0,ayano:0,sana:0},
+    flags:{}, seen:{}, route:null, locked:[], shifts:0, nights:0
+  };
+}
+
+/* Same discipline as Cindervale: every field gets a default here so an old
+   save never crashes a newer build. Add a field -> guard it here. */
+function normalizeState(o){
+  const d = freshState();
+  if(!o || typeof o!=="object") return d;
+  /* Merge into a FRESH object, not into `d`. Object.assign(d,o) mutates the
+     defaults and replaces d.aff with the save's own aff object wholesale — so
+     the next line would then assign that object onto itself and every
+     character added since that save was written would be left undefined
+     instead of 0. Caught by the migration test, never by a crash. */
+  const s = Object.assign({}, d, o);
+  s.aff = Object.assign({}, d.aff, o.aff||{});
+  s.flags = o.flags||{}; s.seen = o.seen||{};
+  s.locked = Array.isArray(o.locked)?o.locked:[];
+  s.phase = Math.max(0,Math.min(PHASES.length-1, s.phase|0));
+  s.day = Math.max(1, s.day|0);
+  s.money = Math.max(0, s.money|0);
+  for(const k in s.aff) s.aff[k] = Math.max(0, Math.min(AFF_MAX, s.aff[k]|0));
+  return s;
+}
+function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); toast("Saved."); }catch(e){ toast("Save failed."); } }
+function load(){ try{ const r=localStorage.getItem(SAVE_KEY); return r?normalizeState(JSON.parse(r)):null; }catch(e){ return null; } }
+function hasSave(){ try{ return !!localStorage.getItem(SAVE_KEY); }catch(e){ return false; } }
+
+/* ==================================================== [JS-03] dom + fx */
+const $ = id => document.getElementById(id);
+function show(id){ ["title","hub","vn"].forEach(v => $(v).classList.toggle("hide", v!==id)); }
+function toast(msg, cls){
+  const d = document.createElement("div");
+  d.className = "tst" + (cls?" "+cls:""); d.textContent = msg;
+  $("toast").appendChild(d);
+  setTimeout(()=>{ d.style.transition="opacity .4s"; d.style.opacity=0;
+                   setTimeout(()=>d.remove(),400); }, 2100);
+}
+function confirmBox(title, body, onYes){
+  $("mTitle").textContent=title; $("mBody").textContent=body;
+  $("modal").classList.remove("hide");
+  $("mYes").onclick=()=>{ $("modal").classList.add("hide"); onYes(); };
+  $("mNo").onclick=()=>$("modal").classList.add("hide");
+}
+/* Art is generated in batches, so a missing file must degrade rather than
+   show a broken-image icon mid-scene. */
+/* .webp, not .png. The raw batch was 100 MB across 92 files; WebP at q82 is
+   5.2 MB for the same picture. This repo is a GitHub Pages site, so weight is
+   permanent in git history and metered on every page view. */
+const EXT = ".webp";
+function bgUrl(room){ return ART+"bg/"+room+EXT; }
+function portUrl(who,room,expr){ return ART+"port/"+who+"_"+room+"_"+expr+EXT; }
+function sceneUrl(id){ return ART+"scene/"+id+EXT; }
+
+/* ==================================================== [JS-04] progression */
+function affAdd(who, n){
+  if(!(who in S.aff)) return;
+  const before = S.aff[who];
+  S.aff[who] = Math.max(0, Math.min(AFF_MAX, before + n));
+  if(S.aff[who] !== before && n>0) toast(CHARS[who].name+" +"+n, "up");
+}
+function isLockedOut(who){ return S.locked.indexOf(who) >= 0; }
+function available(who){
+  if(isLockedOut(who)) return false;
+  const c = CHARS[who];
+  if(c.hidden && !S.flags["found_"+who]) return false;
+  return true;
+}
+/* Committing to a route closes the others. The warning happens BEFORE the
+   choice is taken, never after — see the `lockWarn` field on choices. */
+function commitRoute(who){
+  S.route = who;
+  S.locked = Object.keys(CHARS).filter(k => k!==who && !isDuoPartner(k,who));
+  toast("You chose "+CHARS[who].name+".", "lock");
+}
+/* Duo routes. mei+haruka is the slice's reachable one — the other pairs need
+   characters whose routes are not written yet, so they sit here inert rather
+   than being added later and forgotten. */
+const DUOS = [["mei","haruka"],["reiko","rina"],["ayano","sana"]];
+function isDuoPartner(a,b){ return DUOS.some(p => p.indexOf(a)>=0 && p.indexOf(b)>=0); }
+function duoReady(a,b){
+  return S.aff[a]>=70 && S.aff[b]>=70 && !isLockedOut(a) && !isLockedOut(b);
+}
+
+function advancePhase(){
+  S.phase++;
+  if(S.phase >= PHASES.length){ S.phase = 0; S.day++; onNewDay(); }
+  renderHub();
+}
+function onNewDay(){
+  if(S.shifts>=3 && !S.flags.found_reiko && S.flags.covered_shift){
+    S.flags.found_reiko = 1; toast("Reiko noticed you.", "lock");
+  }
+  if(S.nights>=2 && !S.flags.found_sana){
+    S.flags.found_sana = 1; toast("Someone else works nights.", "lock");
+  }
+}
+
+/* ==================================================== [JS-05] hub render */
+function renderHub(){
+  $("hDay").textContent = S.day;
+  $("hMoney").textContent = "¥"+S.money.toLocaleString();
+  $("hPhase").textContent = PHASES[S.phase];
+  $("hubSub").textContent = PHASES[S.phase]+" · Day "+S.day;
+  $("hubTitle").textContent = S.phase===0 ? "The shop opens at eleven."
+                    : S.phase===1 ? "The lunch rush is over." : "The last train is at midnight.";
+  renderActs(); renderRoster();
+}
+
+function renderActs(){
+  const box = $("acts"); box.innerHTML = "";
+  const acts = buildActs();
+  acts.forEach(a=>{
+    const b = document.createElement("button");
+    b.className = "act"; if(a.locked) b.disabled = true;
+    b.innerHTML = '<div class="an">'+esc(a.name)+
+      (a.tag?' <span class="tag '+a.tagCls+'">'+esc(a.tag)+'</span>':'')+'</div>'+
+      '<div class="ad">'+esc(a.desc)+'</div>';
+    if(!a.locked) b.onclick = a.go;
+    box.appendChild(b);
+  });
+}
+
+function buildActs(){
+  const out = [];
+  if(S.phase < 2){
+    out.push({name:"Work a shift", tag:"¥4,000", tagCls:"pay",
+      desc:"Six hours on the counter. Whoever else is rostered, you'll be next to them.",
+      go:()=>doShift(false)});
+    out.push({name:"Cover the night shift", tag:"¥6,500", tagCls:"pay",
+      desc:"Nobody wants it. The shop is different after eleven.",
+      go:()=>doShift(true)});
+  }
+  // spending time with someone, once you actually know them
+  Object.keys(CHARS).forEach(k=>{
+    if(!available(k)) return;
+    if(S.aff[k] < 10) return;
+    // never offer someone whose route is not written yet — otherwise the hub
+    // advertises a scene that would fall through to nothing
+    if(!SCENES[k+"_hang0"]) return;
+    const c = CHARS[k];
+    const ready = duoPartnerFor(k);
+    out.push({
+      name:"Time with "+c.name,
+      tag: ready ? "duo" : (S.aff[k]>=70?"route":null),
+      tagCls: ready ? "new" : "new",
+      desc: ready ? "She mentioned bringing someone."
+                  : "You could ask her to stay after close.",
+      go:()=>doHang(k)
+    });
+  });
+  if(S.phase===2){
+    out.push({name:"Go home", desc:"Sleep. The day resets.", go:()=>{ S.phase=2; advancePhase(); }});
+  }
+  // visible-but-locked teasers, so the player can see the shape of the game
+  Object.keys(CHARS).forEach(k=>{
+    const c = CHARS[k];
+    if(c.hidden && !S.flags["found_"+k]){
+      out.push({name:"???", tag:"locked", tagCls:"lock", locked:true, desc:c.hint});
+    }
+  });
+  return out;
+}
+function duoPartnerFor(k){
+  for(const [a,b] of DUOS){
+    if(k===a && duoReady(a,b)) return b;
+    if(k===b && duoReady(a,b)) return a;
+  }
+  return null;
+}
+
+function renderRoster(){
+  const box = $("rosterList"); box.innerHTML = "";
+  Object.keys(CHARS).forEach(k=>{
+    const c = CHARS[k], av = available(k), out = isLockedOut(k);
+    const d = document.createElement("div");
+    d.className = "pcard" + (av?"":" locked");
+    const known = S.aff[k]>0 || av;
+    d.innerHTML =
+      '<div class="av" style="background-image:url('+portUrl(k,"counter","neutral")+')"></div>'+
+      '<div class="who">'+
+        '<div class="nm" style="color:'+(av?c.color:"")+'">'+esc(known?c.name:"???")+
+          (S.route===k?' <span class="rt on">route</span>':'')+
+          (out?' <span class="rt out">closed</span>':'')+'</div>'+
+        '<div class="rl">'+esc(known?c.role:(c.hint||"Not met"))+'</div>'+
+        '<div class="meter"><i style="width:'+(av?S.aff[k]:0)+'%;background:'+c.color+'"></i></div>'+
+      '</div>';
+    box.appendChild(d);
+  });
+}
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,
+  m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
+
+/* ==================================================== [JS-06] shift logic */
+function doShift(night){
+  const pay = night ? 6500 : 4000;
+  S.money += pay; S.shifts++; if(night) S.nights++;
+  toast("+¥"+pay.toLocaleString(), "money");
+  const who = rosterFor(night);
+  const sid = pickShiftScene(who, night);
+  playScene(sid, ()=>{ advancePhase(); });
+}
+/* Who you end up next to. Deterministic on day so a shift feels like a roster
+   rather than a slot machine, but it rotates. */
+function rosterFor(night){
+  if(night) return S.flags.found_sana ? "sana" : "mei";
+  const pool = ["mei","haruka"].filter(available);
+  if(!pool.length) return "mei";
+  return pool[(S.day + S.phase) % pool.length];
+}
+function pickShiftScene(who, night){
+  const tier = S.aff[who] >= 45 ? 2 : (S.aff[who] >= 20 ? 1 : 0);
+  const key = who+"_shift"+tier;
+  return SCENES[key] ? key : (who+"_shift0");
+}
+function doHang(who){
+  const partner = duoPartnerFor(who);
+  if(partner){ playScene("duo_"+[who,partner].sort().join("_"), ()=>advancePhase()); return; }
+  const tier = S.aff[who]>=70?2:(S.aff[who]>=40?1:0);
+  const key = who+"_hang"+tier;
+  playScene(SCENES[key]?key:(who+"_hang0"), ()=>advancePhase());
+}
+
+/* ==================================================== [JS-07] VN player */
+let VN = null;
+function playScene(id, done){
+  const sc = SCENES[id];
+  if(!sc){ console.warn("missing scene",id); done && done(); return; }
+  S.seen[id] = 1;
+  VN = {sc, i:0, done, id};
+  show("vn");
+  setArt(sc.bg, sc.art);
+  step();
+}
+function setArt(room, sceneImg){
+  const a = $("vnArt");
+  if(sceneImg){
+    a.style.backgroundImage = "url("+sceneUrl(sceneImg)+")"; a.classList.add("dim");
+    clearPort();                  // the illustration IS the frame; sprite would obstruct it
+  }
+  else if(room){ a.style.backgroundImage = "url("+bgUrl(room)+")"; a.classList.add("dim"); }
+  else { a.style.backgroundImage = "none"; }
+}
+/* A narration line does NOT clear the sprite. Hiding it every time the prose
+   cuts in makes the portrait strobe in and out, which is what the first
+   playthrough looked like. The sprite is cleared only when a full illustration
+   takes over the frame, which is where it would just be in the way. */
+function setPort(who, expr, room){
+  const p = $("vnPort");
+  if(!who) return;                       // narration: leave whoever is on screen
+  const url = portUrl(who, room||VN.sc.portRoom||VN.sc.bg||"counter", expr||"neutral");
+  p.onerror = ()=>{ p.style.opacity = 0; };
+  p.onload  = ()=>{ p.style.opacity = 1; };
+  if(p.getAttribute("src") !== url) p.src = url; else p.style.opacity = 1;
+}
+function clearPort(){ $("vnPort").style.opacity = 0; }
+
+function step(){
+  const sc = VN.sc, L = sc.lines;
+  if(VN.i >= L.length){ endScene(); return; }
+  const ln = L[VN.i];
+
+  // a line can swap the art mid-scene
+  if(ln.art !== undefined || ln.bg !== undefined) setArt(ln.bg||sc.bg, ln.art);
+
+  if(ln.choices){ renderChoices(ln); return; }
+
+  $("vnChoices").innerHTML = "";
+  $("vnNext").style.display = "";
+  const who = ln.who ? CHARS[ln.who] : null;
+  $("vnWho").textContent = who ? who.name : "";
+  $("vnWho").style.color = who ? who.color : "";
+  $("vnText").innerHTML = ln.who ? esc(ln.text)
+                                 : '<span class="nar">'+esc(ln.text)+'</span>';
+  setPort(ln.who, ln.expr, ln.room);
+  if(ln.aff) for(const k in ln.aff) affAdd(k, ln.aff[k]);
+  if(ln.flag) S.flags[ln.flag] = 1;
+  VN.i++;
+}
+
+function renderChoices(ln){
+  $("vnNext").style.display = "none";
+  /* Only overwrite the text if this choice brings its own prompt. Blanking it
+     otherwise strips away the line the player was mid-way through reading and
+     leaves the options floating with no context. */
+  if(ln.prompt){
+    $("vnText").innerHTML = '<span class="nar">'+esc(ln.prompt)+'</span>';
+    $("vnWho").textContent = "";
+  }
+  const box = $("vnChoices"); box.innerHTML = "";
+  ln.choices.forEach(c=>{
+    if(c.req && !c.req()) return;
+    const b = document.createElement("button");
+    b.className = "ch" + (c.lockWarn?" warnlock":"");
+    b.innerHTML = esc(c.text) +
+      (c.hint?'<span class="hint">'+esc(c.hint)+'</span>':'') +
+      (c.lockWarn?'<span class="hint">this closes other routes</span>':'');
+    b.onclick = ()=>takeChoice(c);
+    box.appendChild(b);
+  });
+}
+function takeChoice(c){
+  const apply = ()=>{
+    if(c.aff) for(const k in c.aff) affAdd(k, c.aff[k]);
+    if(c.flag) S.flags[c.flag] = 1;
+    if(c.money){ S.money += c.money; toast((c.money>0?"+":"")+"¥"+c.money.toLocaleString(),"money"); }
+    if(c.commit) commitRoute(c.commit);
+    if(c.goto){ const nx = SCENES[c.goto]; if(nx){ VN.sc = nx; VN.i = 0; setArt(nx.bg, nx.art); step(); return; } }
+    VN.i++; step();
+  };
+  if(c.lockWarn){
+    confirmBox("Are you sure?",
+      "Choosing this commits you to "+CHARS[c.commit].name+
+      ". The others stop being available. You can still finish what you've started with them.",
+      apply);
+  } else apply();
+}
+function endScene(){
+  const d = VN.done; VN = null;
+  $("vnPort").style.opacity = 0;
+  show("hub"); renderHub();
+  d && d();
+}
+
+/* ==================================================== [JS-08] wiring */
+$("vnBox").onclick = e=>{ if(e.target.closest(".ch")) return; if(VN && !VN.sc.lines[VN.i]?.choices) step(); };
+$("vnArt").onclick = ()=>{ if(VN && !VN.sc.lines[VN.i]?.choices) step(); };
+$("vnBack").onclick = ()=>{ if(VN){ const d=VN.done; VN=null; show("hub"); renderHub(); d&&d(); } };
+$("btnSave").onclick = save;
+$("btnQuit").onclick = ()=>confirmBox("Back to title?","Unsaved progress since your last save is lost.",()=>{ show("title"); $("btnCont").disabled=!hasSave(); });
+$("btnNew").onclick = ()=>{
+  const start = ()=>{ S = freshState(); playScene("intro", ()=>{ renderHub(); }); };
+  if(hasSave()) confirmBox("Start over?","This overwrites your existing save when you next save.",start);
+  else start();
+};
+$("btnCont").onclick = ()=>{ const s = load(); if(!s){ toast("No save found."); return; } S = s; show("hub"); renderHub(); };
+
+/* ==================================================== [JS-09] boot */
+(function boot(){
+  $("btnCont").disabled = !hasSave();
+  show("title");
+})();
+</script>
+<script>
+/* ==================================================== [JS-10] scene data
+   Scene shape:
+     bg        room key -> assets/tokyoshift/bg/<key>.png
+     portRoom  which portrait set to draw from (defaults to bg)
+     lines[]   {who, expr, text}            a spoken line
+               {text}                       narration (italic, no portrait)
+               {art:'id'}                   swap to a full illustration
+               {choices:[...]}              branch
+     choice    {text, hint, aff:{}, flag, money, goto, commit, lockWarn, req}
+
+   Tiers: <who>_shift0/1/2 and <who>_hang0/1/2 are picked by affection, so the
+   same action deepens instead of repeating. Missing tiers fall back to 0. */
+const SCENES = {
+
+/* ---------------------------------------------------------------- intro */
+intro:{ bg:"storefront", portRoom:"counter", lines:[
+ {text:"The listing said 'staff wanted, nights included, no experience necessary.' It did not say the shop was four seats wide and wedged between a laundromat and a stairwell."},
+ {text:"Shinjuku, three blocks off the part with the lights."},
+ {who:"mei",expr:"neutral",bg:"counter",text:"You're the new one."},
+ {text:"She doesn't ask. She's already handing you an apron."},
+ {who:"mei",expr:"neutral",text:"Mei. Closer, mostly. Tie that at the back, not the side — it catches on the fryer."},
+ {who:"haruka",expr:"smile",text:"Oh, finally! I've been doing the kitchen alone for like three weeks."},
+ {who:"haruka",expr:"smile",text:"Haruka. Don't let her scare you, she's like that with everyone."},
+ {who:"mei",expr:"annoyed",text:"I'm not being anything."},
+ {who:"haruka",expr:"smile",text:"See? That. That's the thing she does."},
+ {choices:[{prompt:"Someone has to say something.",text:"\"Thanks. I'll try to keep up.\"",
+   hint:"safe",aff:{mei:2,haruka:2}},
+  {text:"\"Three weeks alone? That's rough.\"",hint:"Haruka",aff:{haruka:5}},
+  {text:"\"Back, not the side. Got it.\"",hint:"Mei",aff:{mei:5}}]},
+ {who:"mei",expr:"neutral",text:"Eleven to seven. Don't be late, don't be clever."},
+ {text:"That was the whole orientation."}
+]},
+
+/* ---------------------------------------------------------------- Mei shifts */
+mei_shift0:{ bg:"counter", lines:[
+ {text:"The lunch rush comes in one lump and leaves the same way. Between them, nothing."},
+ {who:"mei",expr:"neutral",text:"You count the drawer twice. Once for the till, once for yourself."},
+ {who:"mei",expr:"neutral",text:"If it's short, it's short on you."},
+ {choices:[{text:"\"Has it ever been short?\"",aff:{mei:3}},
+  {text:"\"Understood.\"",aff:{mei:1}},
+  {text:"\"You don't trust me.\"",hint:"blunt",aff:{mei:4},flag:"mei_blunt"}]},
+ {who:"mei",expr:"soft",text:"Once. Not by me."},
+ {text:"She doesn't say more, and the way she doesn't say it is deliberate."}
+]},
+mei_shift1:{ bg:"counter", lines:[
+ {who:"mei",expr:"neutral",text:"You're faster than last week."},
+ {text:"From her, that reads like a parade."},
+ {who:"mei",expr:"soft",text:"Reiko will notice. She notices the useful ones and then she uses them."},
+ {choices:[{text:"\"Is that a warning?\"",aff:{mei:4}},
+  {text:"\"Did she use you?\"",hint:"pushing",aff:{mei:6},flag:"mei_reiko"},
+  {text:"\"I don't mind being useful.\"",aff:{mei:2}}]},
+ {who:"mei",expr:"annoyed",text:"I've been here four years. Draw your own conclusion."},
+ {text:"She goes to wipe a counter that is already clean."}
+]},
+mei_shift2:{ bg:"counter", lines:[
+ {text:"It's near close. She's stopped pretending to work, which is new."},
+ {who:"mei",expr:"soft",text:"You could go. I can lock up."},
+ {who:"mei",expr:"blush",text:"Or you could not go. Either one."},
+ {choices:[{text:"\"I'll stay.\"",hint:"+Mei",aff:{mei:8},flag:"mei_stayed"},
+  {text:"\"You always say it like that. Like it costs you.\"",aff:{mei:10},flag:"mei_called_out"},
+  {text:"\"Next time.\"",aff:{mei:1}}]},
+ {who:"mei",expr:"soft",text:"...Fine. Get the shutter."}
+]},
+
+/* ---------------------------------------------------------------- Haruka shifts */
+haruka_shift0:{ bg:"kitchen", portRoom:"counter", lines:[
+ {who:"haruka",expr:"smile",text:"Okay, rule one: the fryer basket goes in slow or you wear it."},
+ {who:"haruka",expr:"smile",text:"Rule two: if Reiko asks, we're always exactly on schedule."},
+ {choices:[{text:"\"And rule three?\"",aff:{haruka:4}},
+  {text:"\"You're going to get me fired.\"",aff:{haruka:3}},
+  {text:"\"What happens if I wear it?\"",hint:"playing along",aff:{haruka:5}}]},
+ {who:"haruka",expr:"smile",text:"Rule three is I get first pick of whatever's left at close. That one's non-negotiable."},
+ {text:"She says it like a joke. She takes it completely seriously."}
+]},
+haruka_shift1:{ bg:"kitchen", portRoom:"counter", lines:[
+ {who:"haruka",expr:"smile",text:"Hey. You ever think about how weird it is that we know each other from, like, a fryer?"},
+ {who:"haruka",expr:"neutral",text:"Like if you'd applied to the one by the station we'd just never exist to each other."},
+ {choices:[{text:"\"That's bleak for a Tuesday.\"",aff:{haruka:3}},
+  {text:"\"I'm glad I didn't.\"",hint:"+Haruka",aff:{haruka:7}},
+  {text:"\"You think about this a lot?\"",aff:{haruka:5},flag:"har_thinks"}]},
+ {who:"haruka",expr:"blush",text:"Shut up. It's hot back here, that's all that is."}
+]},
+haruka_shift2:{ bg:"kitchen", portRoom:"counter", lines:[
+ {who:"haruka",expr:"neutral",text:"Can I ask you something without you being weird."},
+ {who:"haruka",expr:"neutral",text:"Mei told you about me. Right? She tells everyone eventually, she thinks she's being kind."},
+ {choices:[{text:"\"She hasn't told me anything.\"",hint:"true",aff:{haruka:8},flag:"har_trust"},
+  {text:"\"She did. It didn't change anything.\"",aff:{haruka:6}},
+  {text:"\"Tell me yourself.\"",hint:"+Haruka",aff:{haruka:10},flag:"har_told_me"}]},
+ {who:"haruka",expr:"soft",text:"...Huh."},
+ {who:"haruka",expr:"smile",text:"Okay. Not now, there's a queue. But okay."}
+]},
+
+/* ---------------------------------------------------------------- Mei route */
+mei_hang0:{ bg:"counter", art:"mei_close", lines:[
+ {text:"The shutter is half down. She's counting the drawer for the second time."},
+ {who:"mei",expr:"neutral",bg:"counter",text:"You waited."},
+ {who:"mei",expr:"soft",text:"There's a place two streets over that's open until four. It's not good."},
+ {choices:[{text:"\"Sold.\"",aff:{mei:6}},
+  {text:"\"Not good how?\"",aff:{mei:4}},
+  {text:"\"You come here after every close, don't you.\"",aff:{mei:8},flag:"mei_seen"}]},
+ {art:"mei_walk",text:"The street is wet and the signs are on and neither of you fills the silence."},
+ {who:"mei",expr:"soft",bg:"street",text:"I don't like going straight home. That's the whole reason. It's not interesting."},
+ {who:"mei",expr:"neutral",text:"Don't make it interesting."}
+]},
+mei_hang1:{ bg:"street", art:"mei_walk", lines:[
+ {who:"mei",expr:"soft",bg:"street",text:"You keep waiting for me to say something that explains me."},
+ {who:"mei",expr:"neutral",text:"There isn't one. I'm twenty-six and I close a shop."},
+ {choices:[{text:"\"That's not nothing.\"",aff:{mei:6}},
+  {text:"\"I'm not waiting for anything.\"",aff:{mei:8}},
+  {text:"\"Then why do you keep almost saying it?\"",hint:"push",aff:{mei:10},flag:"mei_almost"}]},
+ {who:"mei",expr:"blush",text:"..."},
+ {who:"mei",expr:"soft",text:"My place is closer than yours."},
+ {choices:[{prompt:"She has already started walking.",
+   text:"Go with her.",hint:"commits to Mei",aff:{mei:12},commit:"mei",lockWarn:true,goto:"mei_room_a"},
+  {text:"\"Not tonight.\"",aff:{mei:2}}]}
+]},
+mei_room_a:{ bg:"mei_room", art:"mei_room1", lines:[
+ {text:"One room. A futon, a kettle, a window facing a wall."},
+ {who:"mei",expr:"soft",bg:"mei_room",text:"I told you it wasn't interesting."},
+ {who:"mei",expr:"blush",text:"You can stop looking at the room now."},
+ {choices:[{text:"\"I wasn't.\"",aff:{mei:5}},
+  {text:"Kiss her.",hint:"+Mei",aff:{mei:10},flag:"mei_kiss"}]},
+ {art:"mei_undress",text:"She isn't shy about it. She's precise, the same way she counts a drawer."},
+ {who:"mei",expr:"soft",bg:"mei_room",text:"Say if you want to stop. I won't ask twice."},
+ {choices:[{text:"\"I don't want to stop.\"",aff:{mei:10},goto:"mei_room_b"},
+  {text:"\"Slow down.\"",aff:{mei:6},goto:"mei_room_b"}]}
+]},
+mei_room_b:{ bg:"mei_room", art:"mei_nude", lines:[
+ {text:"The light is one lamp and most of the room stays dark."},
+ {art:"mei_bed",text:"She stops being careful somewhere in the middle, and that is the part she'll be embarrassed about tomorrow."},
+ {choices:[{text:"Stay with her mouth.",aff:{mei:6},goto:"mei_room_oral"},
+  {text:"Move over her.",aff:{mei:6},goto:"mei_room_sex"}]}
+]},
+mei_room_oral:{ bg:"mei_room", art:"mei_oral", lines:[
+ {text:"She takes her time. She does everything like she's counted it first."},
+ {who:"mei",expr:"blush",bg:"mei_room",text:"...Don't say anything clever right now."},
+ {art:"mei_oral_close",text:"She looks up without stopping, and holds the look, which is worse."},
+ {choices:[{text:"Say nothing.",aff:{mei:8},goto:"mei_room_end"},
+  {text:"Pull her up.",aff:{mei:6},goto:"mei_room_sex"}]}
+]},
+mei_room_sex:{ bg:"mei_room", art:"mei_sex", lines:[
+ {text:"Whatever she keeps behind her face all shift, it isn't there now."},
+ {art:"mei_close_vag",text:"She takes it slowly at first. Only at first."},
+ {choices:[{text:"Push deeper.",aff:{mei:8},goto:"mei_room_deep"},
+  {text:"Let her set the pace.",aff:{mei:8},goto:"mei_room_ride"},
+  {text:"Turn her over.",aff:{mei:8},goto:"mei_room_anal"}]}
+]},
+mei_room_deep:{ bg:"mei_room", art:"mei_top", lines:[
+ {who:"mei",expr:"blush",bg:"mei_room",text:"— don't stop, don't you dare stop —"},
+ {art:"mei_top",text:"Every careful thing about her is gone."},
+ {choices:[{text:"Turn her over.",aff:{mei:8},goto:"mei_room_anal"},
+  {text:"Finish like this.",aff:{mei:10},goto:"mei_room_end"}]}
+]},
+mei_room_ride:{ bg:"mei_room", art:"mei_ride", lines:[
+ {text:"She takes over, because of course she does."},
+ {who:"mei",expr:"soft",bg:"mei_room",text:"Stay still. I've got it."},
+ {choices:[{text:"Let her.",aff:{mei:10},goto:"mei_room_end"},
+  {text:"Turn her over.",aff:{mei:8},goto:"mei_room_anal"}]}
+]},
+mei_room_anal:{ bg:"mei_room", art:"mei_anal", lines:[
+ {who:"mei",expr:"blush",bg:"mei_room",text:"...I said don't ask twice. I didn't say don't ask."},
+ {art:"mei_close_anal",text:"She's louder than she'd ever be at work, and she knows it, and she doesn't stop."},
+ {choices:[{text:"Finish.",aff:{mei:10},goto:"mei_room_end"}]}
+]},
+mei_room_end:{ bg:"mei_room", lines:[
+ {text:"Afterwards she gets up and puts the kettle on, because sitting still is not something she does."},
+ {who:"mei",expr:"soft",text:"You can stay. The first train's at five."},
+ {who:"mei",expr:"neutral",text:"I'm not going to be different at work tomorrow. Just so you know now."},
+ {choices:[{text:"\"I wasn't expecting you to be.\"",aff:{mei:8},flag:"mei_route_open"}]},
+ {who:"mei",expr:"soft",text:"Good."}
+]},
+mei_hang2:{ bg:"mei_room", art:"mei_room1", lines:[
+ {who:"mei",expr:"soft",bg:"mei_room",text:"You came back."},
+ {who:"mei",expr:"blush",text:"I had a whole thing prepared about how you wouldn't."},
+ {choices:[{text:"\"Save it.\"",aff:{mei:8},goto:"mei_room_b"},
+  {text:"\"Let me hear it.\"",aff:{mei:10}}]},
+ {who:"mei",expr:"soft",text:"...No. It was stupid. Come here."},
+ {choices:[{text:"Go to her.",aff:{mei:6},goto:"mei_room_b"}]}
+]},
+
+/* ---------------------------------------------------------------- Haruka route */
+haruka_hang0:{ bg:"locker", portRoom:"break", art:"har_locker", lines:[
+ {text:"She's changing out of the uniform and has not once considered closing the locker door."},
+ {who:"haruka",expr:"smile",bg:"break",text:"Oh — sorry, sorry. Not sorry. You've got eyes, it's fine."},
+ {choices:[{text:"\"I'll wait outside.\"",aff:{haruka:2}},
+  {text:"\"You're not sorry at all.\"",aff:{haruka:6}},
+  {text:"Don't look away.",hint:"+Haruka",aff:{haruka:8},flag:"har_looked"}]},
+ {who:"haruka",expr:"blush",text:"Huh. Okay. That's — okay."},
+ {art:"har_arcade",text:"You end up walking the long way to the station, which neither of you suggested out loud."},
+ {who:"haruka",expr:"smile",bg:"break",text:"Same time tomorrow, yeah? For the walking. Not the locker thing. Unless."}
+]},
+haruka_hang1:{ bg:"street", art:"har_arcade", lines:[
+ {who:"haruka",expr:"neutral",bg:"break",text:"So the thing I didn't tell you in the kitchen."},
+ {who:"haruka",expr:"neutral",text:"I'm not going to make it a big speech. I'm a futa. That's it, that's the whole reveal, it's very boring."},
+ {who:"haruka",expr:"blush",text:"People either get weird or they get weird in the other direction, so."},
+ {choices:[{text:"\"Okay.\"",hint:"just that",aff:{haruka:10},flag:"har_okay"},
+  {text:"\"Which direction is the bad one?\"",aff:{haruka:8}},
+  {text:"\"You practised that.\"",aff:{haruka:6}}]},
+ {who:"haruka",expr:"smile",text:"...Yeah. Like nine times. On the train."},
+ {who:"haruka",expr:"blush",text:"My place is the second one from the corner. If you're — yeah."},
+ {choices:[{prompt:"She's already got her keys out.",
+   text:"Go up with her.",hint:"commits to Haruka",aff:{haruka:12},commit:"haruka",lockWarn:true,goto:"har_room_a"},
+  {text:"\"Tomorrow.\"",aff:{haruka:2}}]}
+]},
+har_room_a:{ bg:"haruka_room", art:"har_room1", lines:[
+ {text:"Posters, a dead plant, laundry that has achieved furniture status."},
+ {who:"haruka",expr:"smile",bg:"haruka_room",text:"Don't judge the plant. The plant and I have an understanding."},
+ {who:"haruka",expr:"blush",text:"Okay so — I'm usually the one making this part into a joke, and I've run out of joke."},
+ {choices:[{text:"\"Then stop talking.\"",aff:{haruka:10},flag:"har_kiss"},
+  {text:"\"Take your time.\"",aff:{haruka:8}}]},
+ {art:"har_undress",text:"For someone so loud all shift, she goes quiet fast."},
+ {choices:[{text:"Keep going.",aff:{haruka:8},goto:"har_room_b"}]}
+]},
+har_room_b:{ bg:"haruka_room", art:"har_nude", lines:[
+ {who:"haruka",expr:"blush",bg:"haruka_room",text:"You can look. I'd rather you looked than did the polite thing."},
+ {choices:[{text:"Use your hands.",aff:{haruka:8},goto:"har_room_hand"},
+  {text:"Use your mouth.",aff:{haruka:8},goto:"har_room_oral"},
+  {text:"\"I want you to.\"",hint:"her turn",aff:{haruka:10},goto:"har_room_give"}]}
+]},
+har_room_hand:{ bg:"haruka_room", art:"har_hand", lines:[
+ {who:"haruka",expr:"blush",bg:"haruka_room",text:"Okay — okay, that's — yeah, like that."},
+ {text:"Every teasing thing she's said all month evaporates in about four seconds."},
+ {choices:[{text:"Keep going.",aff:{haruka:8},goto:"har_room_oral"},
+  {text:"\"Your turn to decide.\"",aff:{haruka:10},goto:"har_room_give"}]}
+]},
+har_room_oral:{ bg:"haruka_room", art:"har_oral", lines:[
+ {who:"haruka",expr:"blush",bg:"haruka_room",text:"Wait — wait, I'm not going to last if you — okay. Okay."},
+ {art:"har_oral_close",text:"She gets a hand into your hair and then immediately apologises for it."},
+ {choices:[{text:"Don't stop.",aff:{haruka:10},goto:"har_room_end"},
+  {text:"\"Then don't.\"",aff:{haruka:8},goto:"har_room_give"}]}
+]},
+har_room_give:{ bg:"haruka_room", art:"har_give", lines:[
+ {text:"She's careful in a way she'd never admit to being."},
+ {who:"haruka",expr:"soft",bg:"haruka_room",text:"Tell me if it's too much. I mean it, I'm not being polite, I'll actually stop."},
+ {art:"har_give_close",text:"You tell her not to. She stops being careful about four seconds later."},
+ {choices:[{text:"\"Don't stop.\"",aff:{haruka:12},goto:"har_room_end"},
+  {text:"Pull her down instead.",aff:{haruka:10},goto:"har_room_take"}]}
+]},
+har_room_take:{ bg:"haruka_room", art:"har_take", lines:[
+ {who:"haruka",expr:"blush",bg:"haruka_room",text:"Oh — that's not — okay that's a whole other thing, hi."},
+ {art:"har_take_close",text:"She laughs, and then she stops laughing."},
+ {choices:[{text:"Let her get on top.",aff:{haruka:10},goto:"har_room_ride"},
+  {text:"Finish.",aff:{haruka:10},goto:"har_room_end"}]}
+]},
+har_room_ride:{ bg:"haruka_room", art:"har_ride", lines:[
+ {who:"haruka",expr:"smile",bg:"haruka_room",text:"Okay this — yeah, I can work with this."},
+ {text:"The loud version of her comes back somewhere in the middle."},
+ {choices:[{text:"Finish.",aff:{haruka:12},goto:"har_room_end"}]}
+]},
+har_room_end:{ bg:"haruka_room", lines:[
+ {text:"She lies there staring at the ceiling with the expression of someone doing sums."},
+ {who:"haruka",expr:"soft",text:"I had this whole thing where I was going to be cool about it after."},
+ {who:"haruka",expr:"smile",text:"I'm not going to be cool about it. Just so we're both clear going in."},
+ {choices:[{text:"\"Good.\"",aff:{haruka:10},flag:"har_route_open"}]},
+ {who:"haruka",expr:"blush",text:"Cool. Cool cool cool. Shut up."}
+]},
+haruka_hang2:{ bg:"haruka_room", art:"har_room1", lines:[
+ {who:"haruka",expr:"smile",bg:"haruka_room",text:"The plant died. Fully. I want you to know I did try."},
+ {who:"haruka",expr:"blush",text:"Also I've been thinking about you at work and it's affecting my fryer times."},
+ {choices:[{text:"\"Show me.\"",aff:{haruka:8},goto:"har_room_b"},
+  {text:"\"Buy a new plant.\"",aff:{haruka:6},goto:"har_room_b"}]}
+]},
+
+/* ---------------------------------------------------------------- duo */
+duo_haruka_mei:{ bg:"break", art:"duo_break", lines:[
+ {text:"They're already in the break room when you get there, which has never once happened."},
+ {who:"haruka",expr:"smile",bg:"break",text:"Okay so we talked. Which was horrible, thanks for asking."},
+ {who:"mei",expr:"annoyed",text:"It was four sentences."},
+ {who:"haruka",expr:"smile",text:"Four horrible sentences."},
+ {who:"mei",expr:"soft",text:"Neither of us wants to be the reason the other one stops. That's the whole conversation."},
+ {who:"mei",expr:"neutral",text:"So it's your problem now. Congratulations."},
+ {choices:[{text:"\"I don't want either of you to stop.\"",hint:"duo",aff:{mei:10,haruka:10},flag:"duo_open",goto:"duo_room"},
+  {text:"\"That's not fair to put on me.\"",aff:{mei:4,haruka:4}},
+  {text:"\"Give me a day.\"",aff:{mei:2,haruka:2}}]},
+ {who:"haruka",expr:"neutral",text:"...Yeah. Fair."},
+ {who:"mei",expr:"soft",text:"We'll be here."}
+]},
+duo_room:{ bg:"haruka_room", art:"duo_bed", lines:[
+ {who:"haruka",expr:"blush",bg:"haruka_room",text:"For the record I have thought about this exact thing an unwell amount."},
+ {who:"mei",expr:"blush",text:"For the record, so has she, out loud, to me, at work."},
+ {who:"haruka",expr:"surprise",text:"That was in confidence!"},
+ {art:"duo_bed",text:"They stop arguing eventually. It takes a while."},
+ {choices:[{text:"Finish.",aff:{mei:10,haruka:10},flag:"duo_done"}]},
+ {who:"mei",expr:"soft",text:"Nobody at work hears about this."},
+ {who:"haruka",expr:"smile",text:"Reiko is going to know by Thursday."},
+ {who:"mei",expr:"annoyed",text:"Reiko is going to know by tonight."}
+]},
+
+/* ---------------------------------------------------------------- hidden */
+sana_shift0:{ bg:"counter", portRoom:"counter", lines:[
+ {text:"After eleven the shop stops being a shop and becomes a lit box that people pass."},
+ {text:"Someone is already behind the counter. You have never seen her on a roster."},
+ {text:"She looks at you the way you look at weather."},
+ {text:"\"You're the one who keeps taking the nights,\" she says, and doesn't give a name."},
+ {text:"[Sana's route is not written yet — she's in the next build.]"}
+]},
+reiko_hang0:{ bg:"break", portRoom:"break", lines:[
+ {text:"The office is a desk in the corner of the break room with a curtain that doesn't close."},
+ {text:"\"You covered a shift you weren't asked to cover,\" Reiko says, not looking up. \"Why.\""},
+ {text:"[Reiko's route is not written yet — she's in the next build.]"}
+]}
+
+};
+</script>
+</body>
+</html>
