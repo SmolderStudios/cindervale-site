@@ -108,25 +108,47 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 .rt.out{color:var(--faint);border:1px solid var(--faint)}
 
 /* ============================================================ [CSS-03b] map */
-#mapWrap{flex:1;position:relative;min-height:0;overflow:hidden;background:#0a0910}
-#cityMap{position:absolute;inset:0;width:100%;height:100%}
-.pin{cursor:pointer}
-.pin .dot{transition:r .18s,fill .18s}
-.pin:hover .dot{fill:var(--hot2)}
-.pin .ring{opacity:0;transition:opacity .2s}
-.pin:hover .ring,.pin.act .ring{opacity:1}
-.pin .lbl{
-  font:600 13px "Segoe UI",system-ui,sans-serif;fill:var(--ink);
-  paint-order:stroke;stroke:#07060b;stroke-width:4px;stroke-linejoin:round;
-  pointer-events:none;
+#mapWrap{flex:1;position:relative;min-height:0;overflow:hidden;background:#07060b}
+#cityBg{
+  position:absolute;inset:0;background-size:cover;background-position:center;
+  filter:saturate(.85) brightness(.62);
 }
-.pin .sub{font:11px "Segoe UI",system-ui,sans-serif;fill:var(--dim);
-  paint-order:stroke;stroke:#07060b;stroke-width:3.5px;pointer-events:none}
-.pin.closed{cursor:not-allowed}
-.pin.closed .dot{fill:#3a3444}
-.pin.closed .lbl{fill:var(--faint)}
-.pin .who{font:600 10.5px "Segoe UI",system-ui,sans-serif;
-  paint-order:stroke;stroke:#07060b;stroke-width:3.5px;pointer-events:none}
+#cityBg::after{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 45%,rgba(0,0,0,0) 35%,rgba(7,6,11,.82) 100%);
+}
+#pins{position:absolute;inset:0}
+
+/* Each location is a painted building card. SDXL will not give clean alpha, so
+   the card is radially masked instead of keyed — it fades into the backdrop
+   rather than ending on a rectangle. Same fix as the dialogue portraits. */
+.bld{
+  position:absolute;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  cursor:pointer;transition:transform .16s;
+}
+.bld:hover{transform:translate(-50%,-52%) scale(1.06)}
+.bld .art{
+  width:clamp(84px,11vw,132px);aspect-ratio:1;
+  background-size:cover;background-position:center;
+  -webkit-mask-image:radial-gradient(ellipse at 50% 46%,#000 46%,transparent 72%);
+  mask-image:radial-gradient(ellipse at 50% 46%,#000 46%,transparent 72%);
+  filter:drop-shadow(0 6px 16px rgba(0,0,0,.75));
+  transition:filter .16s;
+}
+.bld:hover .art{filter:drop-shadow(0 0 18px var(--hot)) brightness(1.15)}
+.bld.closed{cursor:not-allowed}
+.bld.closed .art{filter:grayscale(1) brightness(.4)}
+.bld.closed:hover{transform:translate(-50%,-50%)}
+.bld.closed:hover .art{filter:grayscale(1) brightness(.4)}
+.bld .nm{
+  font-size:13px;font-weight:700;letter-spacing:.02em;color:var(--ink);
+  paint-order:stroke;text-shadow:0 1px 4px #000,0 0 10px #000;pointer-events:none;
+}
+.bld.closed .nm{color:var(--faint)}
+.bld .who{font-size:11px;font-weight:600;text-shadow:0 1px 4px #000,0 0 8px #000;
+  pointer-events:none;line-height:1.35}
+.bld .shut{font-size:10px;color:var(--faint);letter-spacing:.14em;text-transform:uppercase}
 
 /* location drawer */
 #loc{
@@ -147,6 +169,43 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
   background-size:cover;background-position:center 16%;border:1px solid var(--line)}
 .here .n{font-size:13px;font-weight:600}
 .here .s{font-size:11px;color:var(--faint)}
+
+/* ============================================================ [CSS-03d] stats */
+#stats{
+  position:absolute;inset:0;background:rgba(0,0,0,.72);z-index:52;
+  display:flex;align-items:center;justify-content:center;
+}
+#statsBody{
+  width:520px;max-width:94vw;max-height:88vh;background:var(--panel);
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  display:flex;flex-direction:column;box-shadow:var(--shadow);
+}
+#statsTop{padding:15px 18px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:10px;flex:0 0 auto}
+#statsTop .t{flex:1;font-size:15px;font-weight:600}
+#statsScroll{overflow-y:auto;padding:16px 18px 22px}
+#statsScroll .sec{font-size:10px;letter-spacing:.2em;color:var(--faint);
+  text-transform:uppercase;margin:4px 0 10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px 16px;margin-bottom:20px}
+.kv{display:flex;justify-content:space-between;align-items:baseline;
+  padding:7px 11px;background:var(--panel2);border-radius:8px;border:1px solid var(--line)}
+.kv .k{font-size:11.5px;color:var(--dim)}
+.kv .v{font-size:14px;font-weight:600}
+.rel{padding:11px 0;border-bottom:1px solid var(--line)}
+.rel:last-child{border-bottom:0}
+.rel .top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.rel .av{width:36px;height:36px;border-radius:8px;flex:0 0 auto;background:var(--panel2);
+  background-size:cover;background-position:center 16%;border:1px solid var(--line)}
+.rel .nm{font-size:14px;font-weight:600;flex:1}
+.rel .pct{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.rel .bar{height:6px;border-radius:3px;background:#241f2c;overflow:hidden}
+.rel .bar i{display:block;height:100%;border-radius:3px;transition:width .4s}
+.rel .note{font-size:11.5px;color:var(--faint);margin-top:5px;line-height:1.5}
+.rel.locked{opacity:.45}
+.mile{display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:12.5px}
+.mile .tick{color:var(--ok);flex:0 0 auto}
+.mile .no{color:var(--faint);flex:0 0 auto}
+.mile.undone{color:var(--faint)}
 
 /* ============================================================ [CSS-03c] phone */
 #phoneBtn{position:relative}
@@ -300,14 +359,14 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
       <div class="stat"><span class="lbl">Yen</span><span class="val money" id="hMoney">0</span></div>
       <div class="stat"><span class="lbl">Time</span><span class="val" id="hPhase">Morning</span></div>
       <div class="spacer"></div>
+      <button class="tbtn" id="statsBtn">Stats</button>
       <button class="tbtn" id="phoneBtn">Phone<span id="badge" class="hide">0</span></button>
       <button class="tbtn" id="btnSave">Save</button>
       <button class="tbtn" id="btnQuit">Title</button>
     </div>
     <div id="mapWrap">
-      <!-- meet, not slice: the whole city has to stay visible or pins fall off the
-         edge on a narrow window and become unreachable. -->
-      <svg id="cityMap" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet"></svg>
+      <div id="cityBg"></div>
+      <div id="pins"></div>
       <div id="loc">
         <button id="locClose">&times;</button>
         <h3 id="locName"></h3>
@@ -318,6 +377,13 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
       </div>
     </div>
   </div>
+
+  <!-- ---------------------------------------------------------- stats -->
+  <div id="stats" class="hide"><div id="statsBody">
+    <div id="statsTop"><div class="t">Where you're at</div>
+      <button class="tbtn" id="stClose">Close</button></div>
+    <div id="statsScroll"></div>
+  </div></div>
 
   <!-- ---------------------------------------------------------- phone -->
   <div id="phone" class="hide"><div id="phoneBody">
@@ -491,25 +557,25 @@ function onNewDay(){
    to be there, and what you can do — so "where do I go tonight" is the actual
    decision, and catching someone somewhere is a thing you can plan for. */
 const LOCS = {
- home:    {name:"Your Place", x:150, y:455, r:26,
+ home:    {name:"Your Place", x:14, y:76,
            blurb:"One room, a futon, a window that faces a wall. Rent's cheap for a reason.",
            open:[0,1,2,3]},
- shop:    {name:"The Shop", x:470, y:300, r:30,
+ shop:    {name:"The Shop", x:47, y:50,
            blurb:"Four seats wide, wedged between a laundromat and a stairwell. Smells like fryer oil at all times.",
            open:[0,1,2,3]},
- station: {name:"Station", x:790, y:430, r:26,
+ station: {name:"Station", x:80, y:73,
            blurb:"Everyone passes through here eventually. Last train's at midnight.",
            open:[1,2,3]},
- arcade:  {name:"Arcade", x:700, y:180, r:24,
+ arcade:  {name:"Arcade", x:71, y:27,
            blurb:"Two floors, mostly broken machines, permanently too loud.",
            open:[2,3]},
- konbini: {name:"Konbini", x:290, y:180, r:24,
+ konbini: {name:"Konbini", x:26, y:25,
            blurb:"Open all night. The only other lit thing on this street after two.",
            open:[2,3]},
- park:    {name:"Backstreet Park", x:180, y:300, r:24,
+ park:    {name:"Backstreet Park", x:16, y:49,
            blurb:"Three benches and a vending machine. Quiet enough to read in.",
            open:[0,1,2]},
- bar:     {name:"Standing Bar", x:610, y:470, r:24,
+ bar:     {name:"Standing Bar", x:60, y:80,
            blurb:"Six people fit if nobody moves. The owner never asks anyone's name.",
            open:[2,3]},
 };
@@ -537,51 +603,30 @@ function whoIsAt(locId){
 }
 function locOpen(id){ return LOCS[id].open.indexOf(S.phase) >= 0; }
 
-/* ==================================================== [JS-05b] map render */
-const SVGNS = "http://www.w3.org/2000/svg";
-function el(tag, attrs, txt){
-  const n = document.createElementNS(SVGNS, tag);
-  for(const k in attrs) n.setAttribute(k, attrs[k]);
-  if(txt != null) n.textContent = txt;
-  return n;
-}
+/* ==================================================== [JS-05b] map render
+   Painted buildings, not SVG dots. Each location is a card image positioned by
+   percentage over the backdrop, radially masked in CSS so it melts into the
+   art. Percentages (not viewBox units) because the backdrop is a cover-fitted
+   photo now — a fixed coordinate space would drift off the building it labels
+   as soon as the window aspect changed. */
 function drawMap(){
-  const svg = $("cityMap");
-  svg.innerHTML = "";
-  // ground + a few blocks so it reads as a place rather than dots on black
-  svg.appendChild(el("rect",{x:0,y:0,width:1000,height:600,fill:"#0a0910"}));
-  const blocks = [[60,120,220,150],[330,90,240,120],[640,80,280,130],
-                  [60,340,200,190],[300,360,250,170],[600,330,150,120],
-                  [810,300,150,200],[380,230,180,110]];
-  blocks.forEach(([x,y,w,h],i)=>{
-    svg.appendChild(el("rect",{x,y,width:w,height:h,rx:6,
-      fill:i%2?"#131120":"#15121f",stroke:"#1e1a2b","stroke-width":1}));
-  });
-  // streets
-  [[0,270,1000,270],[0,320,1000,320],[300,0,300,600],[580,0,580,600],[780,0,780,600]]
-   .forEach(([x1,y1,x2,y2])=>svg.appendChild(el("line",
-     {x1,y1,x2,y2,stroke:"#1b1826","stroke-width":14,"stroke-linecap":"round"})));
-  // pins
+  $("cityBg").style.backgroundImage = "url("+ART+"city/backdrop.webp)";
+  const box = $("pins");
+  box.innerHTML = "";
   for(const [id,L] of Object.entries(LOCS)){
     const open = locOpen(id), here = open ? whoIsAt(id) : [];
-    const g = el("g",{class:"pin"+(open?"":" closed"), tabindex:0});
-    g.appendChild(el("circle",{class:"ring",cx:L.x,cy:L.y,r:L.r+9,fill:"none",
-      stroke:"var(--hot)","stroke-width":1.5,opacity:0}));
-    g.appendChild(el("circle",{class:"dot",cx:L.x,cy:L.y,r:L.r,
-      fill:open?"var(--hot)":"#3a3444",opacity:open?.9:1}));
-    g.appendChild(el("circle",{cx:L.x,cy:L.y,r:L.r-9,fill:"#0a0910",opacity:.55}));
-    const t = el("text",{class:"lbl",x:L.x,y:L.y+L.r+20,"text-anchor":"middle"}, L.name);
-    g.appendChild(t);
-    if(!open){
-      g.appendChild(el("text",{class:"sub",x:L.x,y:L.y+L.r+35,"text-anchor":"middle"},"closed"));
-    } else if(here.length){
-      here.slice(0,3).forEach((k,i)=>{
-        g.appendChild(el("text",{class:"who",x:L.x,y:L.y+L.r+35+i*14,
-          "text-anchor":"middle",fill:CHARS[k].color}, CHARS[k].name));
-      });
-    }
-    if(open) g.addEventListener("click", ()=>openLoc(id));
-    svg.appendChild(g);
+    const d = document.createElement("div");
+    d.className = "bld" + (open?"":" closed");
+    d.style.left = L.x+"%"; d.style.top = L.y+"%";
+    let inner = '<div class="art" style="background-image:url('+ART+'city/'+id+'.webp)"></div>'+
+                '<div class="nm">'+esc(L.name)+'</div>';
+    if(!open) inner += '<div class="shut">closed</div>';
+    else here.slice(0,3).forEach(k=>{
+      inner += '<div class="who" style="color:'+CHARS[k].color+'">'+esc(CHARS[k].name)+'</div>';
+    });
+    d.innerHTML = inner;
+    if(open) d.onclick = ()=>openLoc(id);
+    box.appendChild(d);
   }
 }
 
@@ -740,6 +785,71 @@ function doHang(who){
   for(let t=tier;t>=0;t--) if(SCENES[who+"_hang"+t]){ playScene(who+"_hang"+t, ()=>advancePhase()); return; }
   toast("Nothing to do with her yet.");
 }
+
+/* ==================================================== [JS-06c] stats panel
+   Everything the player can otherwise only infer: how far each relationship
+   has actually got, which ones are shut and WHY, and what the hidden unlocks
+   are waiting on. Descriptions are deliberately vague about numbers ("she's
+   started waiting for you") rather than printing a percentage as the headline,
+   because a bar you can game stops feeling like a person. */
+function relNote(k){
+  const a = S.aff[k], c = CHARS[k];
+  if(isLockedOut(k)) return "You chose someone else. She's polite about it.";
+  if(c.hidden && !S.flags["found_"+k]) return c.hint;
+  if(S.route === k) return "You're with her.";
+  if(a >= 70) return "She's stopped pretending this is about the shifts.";
+  if(a >= 40) return "She looks for you when you're not on.";
+  if(a >= 20) return "She's started waiting for you at close.";
+  if(a >= 5)  return "She knows your name and that's about it.";
+  return "You've barely spoken.";
+}
+const MILES = [
+ {t:"Worked your first shift",  ok:s=>s.shifts>=1},
+ {t:"Took a night shift",       ok:s=>s.nights>=1},
+ {t:"Covered a shift nobody asked you to", ok:s=>!!s.flags.covered_shift},
+ {t:"Found out who runs the rota", ok:s=>!!s.flags.found_reiko},
+ {t:"Found out who works nights",  ok:s=>!!s.flags.found_sana},
+ {t:"Committed to someone",     ok:s=>!!s.route},
+ {t:"Got someone to bring a friend", ok:s=>!!(s.flags.duo_done||s.flags.duo_rr_done||s.flags.duo_as_done)},
+];
+function openStats(){
+  const box = $("statsScroll");
+  const seen = Object.keys(S.seen).length;
+  const rows = [
+   ["Day", S.day], ["Time", PHASES[S.phase]],
+   ["Yen", "¥"+S.money.toLocaleString()], ["Shifts worked", S.shifts],
+   ["Nights worked", S.nights], ["Scenes seen", seen],
+  ];
+  let h = '<div class="sec">You</div><div class="grid2">';
+  rows.forEach(([k,v])=>{ h += '<div class="kv"><span class="k">'+esc(k)+
+    '</span><span class="v">'+esc(v)+'</span></div>'; });
+  h += '</div><div class="sec">Everyone</div>';
+  Object.keys(CHARS).forEach(k=>{
+    const c = CHARS[k], av = available(k), known = S.aff[k]>0 || av;
+    h += '<div class="rel'+(av?'':' locked')+'">'+
+      '<div class="top">'+
+        '<div class="av" style="background-image:url('+avatarUrl(k)+')"></div>'+
+        '<div class="nm" style="color:'+(av?c.color:'')+'">'+esc(known?c.name:"???")+
+          (S.route===k?' <span class="rt on">route</span>':'')+
+          (isLockedOut(k)?' <span class="rt out">closed</span>':'')+'</div>'+
+        '<div class="pct">'+(known?S.aff[k]+"%":"—")+'</div>'+
+      '</div>'+
+      '<div class="bar"><i style="width:'+(av?S.aff[k]:0)+'%;background:'+c.color+'"></i></div>'+
+      '<div class="note">'+esc(relNote(k))+'</div></div>';
+  });
+  h += '<div class="sec" style="margin-top:20px">Milestones</div>';
+  MILES.forEach(m=>{
+    const done = m.ok(S);
+    h += '<div class="mile'+(done?'':' undone')+'">'+
+      (done?'<span class="tick">&#10003;</span>':'<span class="no">&#9675;</span>')+
+      '<span>'+esc(m.t)+'</span></div>';
+  });
+  box.innerHTML = h;
+  $("stats").classList.remove("hide");
+}
+$("statsBtn").onclick = openStats;
+$("stClose").onclick = ()=>$("stats").classList.add("hide");
+$("stats").addEventListener("click", e=>{ if(e.target.id==="stats") $("stats").classList.add("hide"); });
 
 /* ==================================================== [JS-06b] phone */
 /* Texts unlock off affection and flags. `once` keeps a thread from re-firing.
@@ -972,7 +1082,14 @@ $("vn").addEventListener("click", e=>{
   if(e.target.closest(".ch")) return;        // choices handle themselves
   if(e.target.closest("#vnBack")) return;    // so does the skip button
   if(!VN) return;
-  if(VN.sc.lines[VN.i]?.choices) return;     // waiting on a decision
+  /* Gate on whether choice buttons are ON SCREEN, not on whether the current
+     line happens to be a choice line.
+     The old guard was `if(VN.sc.lines[VN.i]?.choices) return;` and it deadlocked
+     the game: step() is the only thing that renders choices, and after the last
+     dialogue line advanced the pointer onto a choice line, this guard refused to
+     call step() — so the buttons were never drawn, clicking did nothing, and
+     Skip Scene was the only way out. */
+  if($("vnChoices").children.length) return;  // decision already on screen
   step();
 });
 $("vnBack").onclick = ()=>{ if(VN){ const d=VN.done; VN=null; show("hub"); renderHub(); d&&d(); } };
