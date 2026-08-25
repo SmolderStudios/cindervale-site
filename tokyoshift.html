@@ -4156,6 +4156,145 @@ ayano_banter8:{ bg:"break", when:s=>s.flags.aya_no_sorry, lines:[
 ]}
 
 });
+
+/* ==================================================== [JS-17] all thirty
+
+   The <id>__<route> variants covered the three entangled pairs. That left
+   picking Mei feeling identical to Ayano and to Sana, which is most of the
+   grid. Writing thirty whole scenes for that would be absurd; what it actually
+   needs is one honest LINE per (who, whoever-you-chose) pair.
+
+   So each locked1 gets six conditional lines — one for each person you might
+   have picked, plus a fallback — and the rest of the scene is shared. Same
+   effect, a thirtieth of the writing, and every combination now has a line
+   that could only be about those two specific people. */
+Object.assign(SCENES, {
+
+mei_locked1:{ bg:"counter", lines:[
+ {text:"A week on. She's counting the drawer and doesn't stop when you come in, which is new, because she used to stop."},
+ {who:"mei",expr:"neutral",text:"I'm fine. Before you ask, which you were about to."},
+ {who:"mei",expr:"soft",when:s=>s.route==="haruka",text:"Haruka's been unbearable. Singing. Actual singing, in the kitchen, where I can hear it."},
+ {who:"mei",expr:"neutral",when:s=>s.route==="haruka",text:"...Let her sing. Four years I've known her and I've never heard that."},
+ {who:"mei",expr:"neutral",when:s=>s.route==="reiko",text:"Reiko changed the floor walk to four o'clock. Eleven years at two, and she moved it, and she thinks nobody noticed."},
+ {who:"mei",expr:"soft",when:s=>s.route==="reiko",text:"I've watched that woman work herself hollow since I was twenty-two. Whatever you're doing, keep doing it."},
+ {who:"mei",expr:"soft",when:s=>s.route==="rina",text:"Rina's stopped telling me things. Nine days. I've been keeping count and I don't know what to do with the quiet."},
+ {who:"mei",expr:"neutral",when:s=>s.route==="rina",text:"She's happy though. She does this thing with her shoulders when she's happy. It's very obvious and nobody's ever told her."},
+ {who:"mei",expr:"soft",when:s=>s.route==="ayano",text:"Ayano stopped apologising to a customer last Tuesday. Just — stopped, mid-word, and finished her sentence instead."},
+ {who:"mei",expr:"neutral",when:s=>s.route==="ayano",text:"I've been trying to get her to do that for seven months. You did it in six weeks. I'm not sulking about it. I'm slightly sulking about it."},
+ {who:"mei",expr:"soft",when:s=>s.route==="sana",text:"I've worked here four years and met Sana about nine times. She's a rumour with a rota line."},
+ {who:"mei",expr:"neutral",when:s=>s.route==="sana",text:"She came in on a day shift last week. Just walked in, in daylight, and had a coffee. Reiko nearly dropped the clipboard."},
+ {who:"mei",expr:"soft",when:s=>!s.route,text:"I had four years of locking up on my own. It's not a hard thing to go back to. It's just that I'd stopped."},
+ {choices:[{text:"\"I'm sorry.\"",aff:{mei:3}},
+  {text:"\"You're still the person I'd trust with the drawer.\"",aff:{mei:5}},
+  {text:"Say nothing. Help her count.",aff:{mei:6},flag:"mei_counted"}]},
+ {text:"You count it with her. She doesn't say thank you and she doesn't tell you to stop."},
+ {who:"mei",expr:"neutral",text:"...It's four short. Do it again."}
+]},
+
+haruka_locked1:{ bg:"kitchen", portRoom:"counter", lines:[
+ {text:"A fortnight. She's stopped doing the likeable voice, mostly. The kitchen's quieter but it isn't tense."},
+ {who:"haruka",expr:"neutral",when:s=>s.route==="mei",text:"Mei laughed. Out loud, with sound, at something you said. I heard it from back here and I dropped a basket."},
+ {who:"haruka",expr:"soft",when:s=>s.route==="mei",text:"Four years. I've been trying for four years. You got it in about six weeks and I'm going to be normal about that eventually."},
+ {who:"haruka",expr:"surprise",when:s=>s.route==="reiko",text:"REIKO. You went for Reiko. I have so many questions and I'm not allowed to ask any of them."},
+ {who:"haruka",expr:"soft",when:s=>s.route==="reiko",text:"...The extractor fan got fixed the week after. I'm not saying those are connected. I'm saying I noticed."},
+ {who:"haruka",expr:"smile",when:s=>s.route==="rina",text:"Rina's gone quiet. RINA. She's been in a good mood for nine days and told nobody why, which for her is basically a coma."},
+ {who:"haruka",expr:"soft",when:s=>s.route==="rina",text:"She deserves it. She talks like she's fine and she's been the loneliest person in this building for two years."},
+ {who:"haruka",expr:"soft",when:s=>s.route==="ayano",text:"Ayano's different. Standing different. Have you seen it? She used to come in like she was hoping nobody'd notice she'd arrived."},
+ {who:"haruka",expr:"smile",when:s=>s.route==="ayano",text:"Be careful with her, yeah? Not a warning. Just — she's nineteen and she's never had anyone be nice to her on purpose."},
+ {who:"haruka",expr:"neutral",when:s=>s.route==="sana",text:"The night one. I've worked here two years and I've had maybe four conversations with her."},
+ {who:"haruka",expr:"soft",when:s=>s.route==="sana",text:"She came in during the day last week. Nobody knew what to do. Rina offered her a chair like she was visiting royalty."},
+ {who:"haruka",expr:"neutral",when:s=>!s.route,text:"I've been thinking about the leaving plan again. Not because of you, before you get a face on."},
+ {choices:[{text:"\"Would you actually go?\"",aff:{haruka:4}},
+  {text:"\"I'd miss you.\"",aff:{haruka:5}},
+  {text:"\"You'd hate a place where nobody knew you.\"",aff:{haruka:6},flag:"har_stay"}]},
+ {who:"haruka",expr:"smile",text:"Yeah. Yeah, I would. That's the problem with being likeable, you get attached to being liked."},
+ {text:"She turns the fryer on with both hands, carefully, the way she does when she needs something ordinary to hold."}
+]},
+
+reiko_locked1:{ bg:"office", portRoom:"office", art:"rei_office", lines:[
+ {text:"You bring the food anyway. You've done it every night for weeks and stopping felt like a statement."},
+ {who:"reiko",expr:"surprise",bg:"office",text:"...You've still been doing that."},
+ {who:"reiko",expr:"neutral",when:s=>s.route==="mei",text:"Mei has asked me for the rota. Asked. In eleven years she has never asked me for anything."},
+ {who:"reiko",expr:"soft",when:s=>s.route==="mei",text:"I gave it to her. I should have given it to her three years ago and I have no defence for that."},
+ {who:"reiko",expr:"annoyed",when:s=>s.route==="haruka",text:"Your kitchen colleague has logged the extractor fan six times and written the sixth one in larger handwriting."},
+ {who:"reiko",expr:"soft",when:s=>s.route==="haruka",text:"I had it fixed. Don't tell her it was the handwriting. Tell her it was the sixth entry, she'd like that better."},
+ {who:"reiko",expr:"neutral",when:s=>s.route==="rina",text:"Rina."},
+ {who:"reiko",expr:"soft",when:s=>s.route==="rina",text:"I have kept that girl behind on a Friday for six years and called every one of them operational. You may draw your own conclusions; I've been avoiding mine."},
+ {who:"reiko",expr:"neutral",when:s=>s.route==="ayano",text:"Ayano put in a request to reduce her hours. In pen, on the rota, without apologising in the margin."},
+ {who:"reiko",expr:"soft",when:s=>s.route==="ayano",text:"She has worked here seven months and that is the first thing she has ever asked me for. I moved her off Saturdays as well. She hasn't noticed yet."},
+ {who:"reiko",expr:"neutral",when:s=>s.route==="sana",text:"Sana came in during daylight last week. I have employed that woman for four years and I did not know she owned a coat."},
+ {who:"reiko",expr:"soft",when:s=>s.route==="sana",text:"She sat down. In the break room. For eleven minutes. I put it in the book, which is not what the book is for."},
+ {choices:[{text:"\"Habit.\"",aff:{reiko:4}},
+  {text:"\"You still forget to eat.\"",aff:{reiko:6}},
+  {text:"\"Do you want me to stop?\"",aff:{reiko:5}}]},
+ {who:"reiko",expr:"soft",text:"No."},
+ {text:"She says it immediately. Too fast for her, and she knows it, and she moves the payroll two inches left as though that fixes it."},
+ {who:"reiko",expr:"neutral",text:"No. Don't stop. It isn't the same thing as the other thing. It can just be food."}
+]},
+
+rina_locked1:{ bg:"street", art:"rin_walk", lines:[
+ {text:"The walk to the station. She's talking, but at about sixty percent of the usual output."},
+ {who:"rina",expr:"smile",when:s=>s.route==="mei",text:"MEI. Okay. Okay! I have thoughts, I've had thoughts for about a week, I've been sitting on them like an egg."},
+ {who:"rina",expr:"soft",when:s=>s.route==="mei",text:"She's been different. Softer round the edges. Four years I've been trying to get a full sentence out of her that wasn't about a drawer."},
+ {who:"rina",expr:"smile",when:s=>s.route==="haruka",text:"Haruka told me herself. At volume. In the kitchen. She was so pleased with herself I thought she was going to combust."},
+ {who:"rina",expr:"soft",when:s=>s.route==="haruka",text:"She's been talking about leaving for two years, you know. She hasn't mentioned it once since."},
+ {who:"rina",expr:"neutral",when:s=>s.route==="reiko",text:"...Reiko. Yeah. I heard."},
+ {who:"rina",expr:"soft",when:s=>s.route==="reiko",text:"She's happy. She's doing the thing where she pretends the rota's taking longer so she can stay later, and she's doing it badly, and I've never seen her do it badly before."},
+ {who:"rina",expr:"smile",when:s=>s.route==="ayano",text:"Ayano CRIED when she told me. Happy crying! I had to give her the tissue I was pretending to need for my allergies!"},
+ {who:"rina",expr:"soft",when:s=>s.route==="ayano",text:"She's my favourite person here and I'd have hurt anyone who was careless with her, so. Good. Good job. Keep going."},
+ {who:"rina",expr:"neutral",when:s=>s.route==="sana",text:"The NIGHT one. I've been trying to get gossip out of that woman for three years and she has given me nothing. Nothing! Not one thing!"},
+ {who:"rina",expr:"soft",when:s=>s.route==="sana",text:"And then she came in during the day and said hello to me by name. I nearly sat down."},
+ {who:"rina",expr:"soft",when:s=>!s.route,text:"I've been doing the thing again. The knowing-everything thing. I did it to about four people this week."},
+ {choices:[{text:"\"You're allowed.\"",aff:{rina:4}},
+  {text:"\"You don't have to earn being here.\"",aff:{rina:7},flag:"rin_earn"},
+  {text:"\"I noticed.\"",aff:{rina:5}}]},
+ {who:"rina",expr:"blush",text:"Yeah. I know. It's just the tool I've got."},
+ {text:"At the barrier she stops and turns round."},
+ {who:"rina",expr:"soft",text:"Still walk me though. Twelve metres. Even now. Especially now, actually."}
+]},
+
+ayano_locked1:{ bg:"break", lines:[
+ {who:"ayano",expr:"blush",bg:"break",text:"Can I sit here? You can say—"},
+ {text:"She stops herself. Visibly. You watch her decide not to finish it."},
+ {who:"ayano",expr:"neutral",text:"I'm going to sit here."},
+ {who:"ayano",expr:"soft",when:s=>s.route==="mei",text:"Mei said good morning to me. By name. She's said good morning about four times in seven months and never with the name attached."},
+ {who:"ayano",expr:"blush",when:s=>s.route==="mei",text:"I've been thinking about it since Tuesday. That's probably not normal, but it's what I've been doing."},
+ {who:"ayano",expr:"smile",when:s=>s.route==="haruka",text:"Haruka brought a cake in for no reason and then wouldn't say what the reason was, and everyone knew what the reason was."},
+ {who:"ayano",expr:"soft",when:s=>s.route==="haruka",text:"She's kind to me in a way that isn't careful. Most people are careful with me. It's exhausting being handled."},
+ {who:"ayano",expr:"surprise",when:s=>s.route==="reiko",text:"Reiko moved me off Saturdays. I didn't ask. I'd never have asked."},
+ {who:"ayano",expr:"soft",when:s=>s.route==="reiko",text:"She's frightening and I'd walk into traffic for her. Both of those are true and I've stopped trying to reconcile them."},
+ {who:"ayano",expr:"blush",when:s=>s.route==="rina",text:"Rina told me. She cried, and then I cried, and then we had to go back on the counter with our faces like that."},
+ {who:"ayano",expr:"soft",when:s=>s.route==="rina",text:"She talks so much that people think she isn't saying anything. She's been saying things the whole time."},
+ {who:"ayano",expr:"soft",when:s=>s.route==="sana",text:"Sana asked me to walk her to the station. Two years after I asked her."},
+ {who:"ayano",expr:"neutral",when:s=>s.route==="sana",text:"I'd decided her no was permanent. It was just a Tuesday. I've been thinking about how many other things I've decided that about."},
+ {choices:[{text:"\"Good.\"",aff:{ayano:7}},
+  {text:"Move your bag off the chair.",aff:{ayano:6}},
+  {text:"\"That was different.\"",aff:{ayano:8},flag:"aya_different"}]},
+ {who:"ayano",expr:"soft",text:"I've been practising it. Not for you, actually — for the exams. For the room where they ask you things."},
+ {text:"She sits with the textbook shut for the whole break and doesn't say sorry once."}
+]},
+
+sana_locked1:{ bg:"konbini", portRoom:"konbini", lines:[
+ {text:"Ten past seven. She's in front of the sandwich case."},
+ {who:"sana",expr:"neutral",bg:"konbini",text:"I still come here. Four years of habit doesn't go because of six weeks of something else."},
+ {who:"sana",expr:"soft",when:s=>s.route==="mei",text:"Mei does nights sometimes when the rota breaks. We've stood next to each other for maybe forty hours across four years and said about nine sentences."},
+ {who:"sana",expr:"neutral",when:s=>s.route==="mei",text:"She's the only other person here who doesn't fill it. I'd assumed that was all we'd ever have in common."},
+ {who:"sana",expr:"neutral",when:s=>s.route==="haruka",text:"The loud one. I hear her from the kitchen at handover, still going at seven in the morning."},
+ {who:"sana",expr:"soft",when:s=>s.route==="haruka",text:"I used to find it hard to be near. Now I think somebody being that loud about being glad you exist is not the worst way to live."},
+ {who:"sana",expr:"neutral",when:s=>s.route==="reiko",text:"Reiko hired me at two in the morning and never once asked why I wanted nights."},
+ {who:"sana",expr:"soft",when:s=>s.route==="reiko",text:"Four years of that. I've never thanked her for it because thanking her would mean saying what she didn't ask about."},
+ {who:"sana",expr:"neutral",when:s=>s.route==="rina",text:"Rina has tried to get something out of me every handover for three years."},
+ {who:"sana",expr:"soft",when:s=>s.route==="rina",text:"I gave her nothing every single time and she kept trying anyway. That's not nosiness. I worked that out about a year too late."},
+ {who:"sana",expr:"soft",when:s=>s.route==="ayano",text:"She's happy. I walk her to the station now and she talks about you for the whole twelve minutes."},
+ {who:"sana",expr:"neutral",when:s=>s.route==="ayano",text:"I asked her two years late and she said yes before I finished. I've stopped being careful about most things since. It turns out careful was just slow."},
+ {choices:[{text:"\"Can I stand here?\"",aff:{sana:7},flag:"san_stand_again"},
+  {text:"\"I'll go.\"",aff:{sana:3}},
+  {text:"\"Buy the sandwich.\"",aff:{sana:5}}]},
+ {who:"sana",expr:"soft",text:"You can stand there. That was never the part that was complicated."},
+ {text:"You stand there. She picks up a sandwich, looks at it, buys it, and neither of you says anything about that either."}
+]}
+
+});
 </script>
 </body>
 </html>
