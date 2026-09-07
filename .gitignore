@@ -13,3 +13,6 @@ node_modules/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# site-preview.js renders the page to PNG strips just to look at it
+scripts/_preview/
