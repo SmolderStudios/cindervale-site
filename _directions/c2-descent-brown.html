@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cindervale Idle — Direction C, brown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400&family=Inter+Tight:wght@400;500;600&display=swap">
+<style>
+/* ============================================================================
+   DIRECTION C — DESCENT, in the site's own brown.
+   Same idea as c-descent: every section is a full-bleed painted scene with the
+   content in a narrow column over it, so scrolling walks you through the game's
+   places. What changes is the palette -- the tokens below are lifted straight
+   out of the live index.html rather than the near-black/violet the first pass
+   used, so this reads as the same game's site.
+
+   The scenes need work to live here. Four of the seven were painted cool (the
+   sea is teal, the night valley is violet, the forest edge is grey-green) and a
+   cool plate behind warm brown type makes the page look like two sites stitched
+   together. Each .bgimg therefore gets a warming filter AND a brown wash on top,
+   tuned per scene by how far from brown it started -- see --warm below.
+   ========================================================================== */
+:root{
+  /* straight from the live site */
+  --bg:#0d0906; --bg2:#120c07; --panel:#1c130a; --panel2:#251a10;
+  --raised:#322415; --line:#3a2c17; --line2:#4a3820;
+  --trim:#c79b4e; --trim-bright:#f0c772; --trim-dim:#6e552c;
+  --ember:#e0762f; --flame:#fbd24e;
+  --text:#ead9b5; --muted:#a08a64; --dim:#7a6647;
+  --maxw:1080px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter Tight',system-ui,sans-serif;
+  font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 30px}
+.narrow{max-width:680px}
+
+/* ---- nav floats over the art ---- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:60;
+  background:linear-gradient(180deg,rgba(13,9,6,.86),rgba(13,9,6,0))}
+.nav .wrap{display:flex;align-items:center;gap:28px;height:74px}
+.logo{font-family:'Cinzel',serif;font-weight:700;font-size:20px;letter-spacing:.05em;
+  margin-right:auto;text-shadow:0 2px 14px rgba(0,0,0,.95)}
+.logo span{color:var(--ember)}
+.nav a.l{color:var(--muted);text-decoration:none;font-size:14px;letter-spacing:.01em;
+  text-shadow:0 2px 10px rgba(0,0,0,.9)}
+.nav a.l:hover{color:var(--text)}
+.cta{background:linear-gradient(180deg,var(--trim-bright),var(--trim));color:#1d1206;
+  font-weight:600;font-size:14px;padding:10px 19px;border-radius:4px;text-decoration:none;
+  box-shadow:0 3px 16px rgba(224,118,47,.25)}
+
+/* ---- a scene section ---- */
+.scene{position:relative;min-height:560px;display:flex;align-items:center;
+  padding:110px 0;isolation:isolate}
+/* --warm 0 = already brown, leave it. 1 = fully cool, pull it all the way over. */
+.scene .bgimg{position:absolute;inset:0;z-index:-3;background-size:cover;
+  background-position:center;
+  filter:sepia(calc(var(--warm,.4) * .55)) saturate(calc(1 - var(--warm,.4) * .28))
+         hue-rotate(calc(var(--warm,.4) * -14deg)) brightness(.92)}
+/* The brown wash. Multiply keeps the painting's own darks instead of fogging them. */
+.scene .bgimg::after{content:'';position:absolute;inset:0;mix-blend-mode:multiply;
+  background:rgba(120,72,30,calc(var(--warm,.4) * .55))}
+/* Two scrims: the whole plate down so type reads, and heavier through the middle
+   column where the words actually are. */
+.scene::before{content:'';position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,var(--bg) 0%,rgba(13,9,6,.5) 24%,
+             rgba(13,9,6,.5) 76%,var(--bg) 100%),
+             radial-gradient(56% 76% at 50% 50%,rgba(13,9,6,.74),rgba(13,9,6,.12) 78%)}
+.scene.tall{min-height:88vh}
+/* One ember bloom per section, the same trick the live site uses on its body. */
+.scene::after{content:'';position:absolute;inset:0;z-index:-2;pointer-events:none;
+  background:radial-gradient(620px 380px at 18% 76%, rgba(224,118,47,.16), transparent 66%)}
+
+.eyeb{font-family:'Cinzel',serif;font-size:12.5px;font-weight:600;letter-spacing:.34em;
+  text-transform:uppercase;color:var(--trim);margin-bottom:20px;
+  text-shadow:0 2px 10px rgba(0,0,0,.9)}
+h1{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(44px,6vw,78px);line-height:1.0;
+  letter-spacing:-.02em;text-wrap:balance;text-shadow:0 4px 40px rgba(0,0,0,.9)}
+h1 em{font-style:italic;font-weight:400;color:var(--trim-bright)}
+h2{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(32px,4.2vw,50px);line-height:1.06;
+  letter-spacing:-.015em;text-wrap:balance;text-shadow:0 3px 26px rgba(0,0,0,.9)}
+h2 em{font-style:italic;color:var(--trim-bright)}
+p.lede{margin-top:22px;font-size:19px;color:#d8c8a4;text-shadow:0 2px 14px rgba(0,0,0,.85)}
+p.body{margin-top:18px;color:var(--muted);text-shadow:0 2px 12px rgba(0,0,0,.85)}
+
+.acts{display:flex;gap:13px;margin-top:34px;align-items:center;flex-wrap:wrap}
+.btn{font-size:15px;font-weight:600;text-decoration:none;padding:14px 27px;border-radius:4px;
+  display:inline-flex;align-items:center;gap:9px}
+.btn.p{background:linear-gradient(180deg,var(--ember),#b8541c);color:#1d0e03;
+  box-shadow:0 4px 22px rgba(224,118,47,.3)}
+.btn.g{border:1px solid var(--line2);color:var(--text);background:rgba(28,19,10,.55);
+  backdrop-filter:blur(6px)}
+.meta{margin-top:18px;font-size:14px;color:var(--dim);text-shadow:0 2px 10px rgba(0,0,0,.9)}
+.meta b{color:var(--text)}
+
+/* ---- the numbers, hairline over the art ---- */
+.figs{display:flex;margin-top:46px;border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line)}
+.figs div{flex:1;padding:19px 6px}
+.figs div+div{border-left:1px solid var(--line)}
+.figs .n{font-family:'Fraunces',serif;font-size:35px;line-height:1;color:var(--trim-bright)}
+.figs .l{font-size:11.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-top:7px}
+
+/* ---- a screenshot laid into a scene ---- */
+.split{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:52px;
+  align-items:center;width:100%}
+.split.flip{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)}
+.split img{border:1px solid var(--line2);border-radius:5px;
+  box-shadow:0 34px 80px rgba(0,0,0,.85), 0 0 0 1px rgba(240,199,114,.06)}
+.bullets{margin-top:24px;display:flex;flex-direction:column;gap:13px}
+.bullets li{list-style:none;padding-left:23px;position:relative;color:var(--muted);
+  font-size:16px;text-shadow:0 2px 12px rgba(0,0,0,.85)}
+.bullets li::before{content:'';position:absolute;left:0;top:.6em;width:7px;height:7px;
+  transform:rotate(45deg);background:var(--trim)}
+.bullets b{color:var(--text);font-weight:600}
+
+/* ---- closing ---- */
+.close{text-align:center}
+.close .figs{max-width:560px;margin-left:auto;margin-right:auto}
+.close .acts{justify-content:center}
+</style></head>
+<body>
+
+<div class="nav"><div class="wrap">
+  <div class="logo">Cinder<span>vale</span></div>
+  <a class="l" href="#">Skills</a><a class="l" href="#">Combat</a><a class="l" href="#">Guilds</a>
+  <a class="l" href="#">The Sea</a><a class="l" href="#">Discord</a>
+  <a class="cta" href="#">Steam &middot; $4.99</a>
+</div></div>
+
+<!-- 1. the town. already warm, barely touched. -->
+<section class="scene tall">
+  <div class="bgimg" style="--warm:.12;background-image:url('../scenes/welcome.png')"></div>
+  <div class="wrap narrow">
+    <div class="eyeb">Out now &middot; Early Access</div>
+    <h1>The forge does not<br>go out when you <em>leave</em>.</h1>
+    <p class="lede">A dark-fantasy idle RPG. Thirteen skills, twelve combat zones, ten guilds
+      and a sea with twenty-six islands on it. Set something running and shut the window.</p>
+    <div class="acts">
+      <a class="btn p" href="#">Buy on Steam</a>
+      <a class="btn g" href="#">Play the free demo</a>
+    </div>
+    <p class="meta"><b>$4.99</b> &middot; one purchase &middot; Windows &middot; no microtransactions</p>
+    <div class="figs">
+      <div><div class="n">13</div><div class="l">Skills</div></div>
+      <div><div class="n">12</div><div class="l">Zones</div></div>
+      <div><div class="n">10</div><div class="l">Guilds</div></div>
+      <div><div class="n">26</div><div class="l">Islands</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. the guild hall. warm already. -->
+<section class="scene">
+  <div class="bgimg" style="--warm:.18;background-image:url('../scenes/guilds.png')"></div>
+  <div class="wrap"><div class="split">
+    <div>
+      <div class="eyeb">Ten guilds</div>
+      <h2>Somebody always<br>wants <em>something</em> doing</h2>
+      <p class="body">One guild for every skill, plus the Nightmarket. Join and the board hands
+        you work: kill these, gather that, bring back this many.</p>
+      <ul class="bullets">
+        <li><b>Three jobs a day</b>, small to long, rerolled every morning.</li>
+        <li><b>Titles that do something.</b> Six ranks, each a real bonus in that guild's skill.</li>
+        <li><b>One skip</b>, for the day the board asks for something absurd.</li>
+      </ul>
+    </div>
+    <img src="../shots/guilds.png" alt="The Nightmarket guild panel">
+  </div></div>
+</section>
+
+<!-- 3. the forest edge. grey-green, needs pulling over. -->
+<section class="scene">
+  <div class="bgimg" style="--warm:.62;background-image:url('../scenes/skills.png')"></div>
+  <div class="wrap"><div class="split flip">
+    <img src="../shots/skilling.png" alt="The mining panel">
+    <div>
+      <div class="eyeb">Thirteen skills</div>
+      <h2>Everything feeds<br><em>something else</em></h2>
+      <p class="body">What you cut down becomes what you build. What you build decides how deep
+        you get. What you drag back out of the dark is what the best tools are made of.</p>
+      <ul class="bullets">
+        <li><b>A 98-point tree</b> behind every skill, and never enough points for all of it.</li>
+        <li><b>Tools in tiers</b>, with the top ones gated behind drops you have to fight for.</li>
+        <li><b>735 items</b>, all logged the first time you see one.</li>
+      </ul>
+    </div>
+  </div></div>
+</section>
+
+<!-- 4. the cave mouth. red, sits near enough to brown. -->
+<section class="scene">
+  <div class="bgimg" style="--warm:.3;background-image:url('../scenes/dark.png')"></div>
+  <div class="wrap"><div class="split">
+    <div>
+      <div class="eyeb">Twelve zones</div>
+      <h2>Down as far as the<br><em>Demon Sanctum</em></h2>
+      <p class="body">Each zone has its own monsters, a boss at the end of it, and one rare
+        spawn worth waiting for. Fifty-seven in all, every one logged with what it drops.</p>
+      <ul class="bullets">
+        <li><b>Four raids</b> with no retreat. Clear every stage or leave with nothing.</li>
+        <li><b>Gems and 52 enchants</b> to put into what you are wearing.</li>
+        <li><b>Slayer bounties</b> from three masters, and points to spend on perks.</li>
+      </ul>
+    </div>
+    <img src="../shots/raids.png" alt="A raid in progress">
+  </div></div>
+</section>
+
+<!-- 5. the sea. teal, the furthest from brown of the set. -->
+<section class="scene">
+  <div class="bgimg" style="--warm:.85;background-image:url('../scenes/sea.png')"></div>
+  <div class="wrap"><div class="split flip">
+    <img src="../shots/sailing.png" alt="The Admiralty chart">
+    <div>
+      <div class="eyeb">Twenty-six islands</div>
+      <h2>Send it out and<br>go do <em>something else</em></h2>
+      <p class="body">Build a ship, sign a crew, pick a heading. Voyages run on a real clock
+        and come home whether the game is open or not.</p>
+      <ul class="bullets">
+        <li><b>Seven hulls</b>, raft up to leviathan, with cannons and rudders to bolt on.</li>
+        <li><b>Four seas</b>, and a chart that fills in as you go.</li>
+      </ul>
+    </div>
+  </div></div>
+</section>
+
+<!-- 6. the night valley. violet, pulled hard. -->
+<section class="scene close">
+  <div class="bgimg" style="--warm:.9;background-image:url('../scenes/away.png')"></div>
+  <div class="wrap narrow">
+    <div class="eyeb">One purchase, no catches</div>
+    <h2>It is still running.<br>Go and <em>do something else</em>.</h2>
+    <p class="lede">No microtransactions, no battle pass, no ads, no energy bar. Buy it once
+      and every update after it is free.</p>
+    <div class="acts">
+      <a class="btn p" href="#">Buy on Steam &middot; $4.99</a>
+      <a class="btn g" href="#">Play the free demo</a>
+    </div>
+    <div class="figs">
+      <div><div class="n">735</div><div class="l">Items</div></div>
+      <div><div class="n">57</div><div class="l">Monsters</div></div>
+      <div><div class="n">33</div><div class="l">Achievements</div></div>
+    </div>
+  </div>
+</section>
+
+</body></html>

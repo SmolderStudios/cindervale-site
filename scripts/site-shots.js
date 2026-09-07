@@ -60,6 +60,55 @@ const SHOTS = {
     sel: '#centerPanel', vw: 1180, maxH: 490,
     before: () => { selectedSkill = 'thieving'; viewTab = 'tree'; renderAll(); },
   },
+
+  /* Combat and sailing live in their OWN panels, not #centerPanel. updateModePanels()
+     hides the skilling column when either mode is on, so entering the mode and then
+     shooting the panel is the whole trick -- there is no route through viewTab. */
+  combat: {
+    sel: '#combatPanel', vw: 1180, maxH: 540,
+    before: () => { state.cmbSubTab = 'mastery'; if (typeof enterCombat === 'function') enterCombat(); },
+  },
+  /* The arena, on the deepest zone with something worth fighting in it.
+     Driven by CLICKING, not by setting state. Rounds went into poking state.zone and
+     state.zoneMode directly and none of it survived to the shot: the panel re-renders
+     on the game's own tick and rewrites both from whatever is selected, and the
+     selected MONSTER is separate state again from the zone. Clicking goes through the
+     same handlers the game already keeps consistent. */
+  arena: {
+    sel: '#combatPanel', vw: 1180, maxH: 540,
+    before: () => { state.cmbSubTab = 'arena'; if (typeof enterCombat === 'function') enterCombat(); },
+    clicks: ['[data-zmode="dungeons"]', '[data-zone="demon_sanctum"]', '.cmb-mon.boss'],
+  },
+  /* NO RAIDS SHOT. The Raids tab would not switch under automation: its handler
+     bails on `if(state.zoneMode===m) return` and `if(combat.active) return`, and
+     clearing both still left the panel on the arena. Four rounds went into it. The
+     arena shot below carries the combat claim and the mastery shot carries the depth
+     one, so raids is described in copy without a screenshot rather than shipping a
+     picture of the arena captioned "raids". */
+  slayer: {
+    sel: '#combatPanel', vw: 1180, maxH: 540,
+    before: () => {
+      state.cmbSubTab = 'slayer';
+      if (typeof enterCombat === 'function') enterCombat();
+      renderCombat();
+    },
+  },
+  sailing: {
+    sel: '#sailPanel', vw: 1180, maxH: 540,
+    before: () => {
+      sailTab = 'voyage';
+      if (typeof enterSailing === 'function') enterSailing();
+      renderSail();
+    },
+  },
+  shipyard: {
+    sel: '#sailPanel', vw: 1180, maxH: 540,
+    before: () => {
+      sailTab = 'yard';
+      if (typeof enterSailing === 'function') enterSailing();
+      renderSail();
+    },
+  },
 };
 
 async function main() {
@@ -125,6 +174,49 @@ async function main() {
       });
     });
     if (typeof invalidateMasteryCache === 'function') invalidateMasteryCache();
+    /* Combat and sailing panels render a locked/empty state unless the account has
+       actually been there. devTrailerSetup covers most of it; these are the bits it
+       does not. */
+    state.combatXp = state.combatXp || {};
+    ['attack','strength','defence','hitpoints','magic','ranged'].forEach(k => {
+      state.combatXp[k] = XP_CUM[99];
+    });
+    state.monKills = state.monKills || {};
+    if (typeof MONSTERS !== 'undefined') MONSTERS.forEach(m => { state.monKills[m.id] = 25; });
+    if (typeof refreshCombatStats === 'function') refreshCombatStats();
+    /* state.zone is a zone ID STRING, not an index -- renderCombat validates it
+       against the CURRENT MODE's zone list and silently resets anything it does not
+       recognise back to 'rat_warrens'. Two ways to trip that, and this shot hit both:
+       a number instead of an id, and then ZONES[last] -- which is ashen_steppe, a
+       HUNT zone, and so not in zonesForMode('dungeons') either. demon_sanctum is the
+       last actual dungeon. */
+    state.zone = 'demon_sanctum';
+    state.zoneMode = 'dungeons';
+    /* And stock the food shelf, or the panel says "No food or potions yet". */
+    ['cooked_shark','cooked_swordfish','cooked_tuna'].forEach(i => {
+      if (ITEMS[i]) state.items[i] = 120;
+    });
+    /* devTrailerSetup covers skilling and combat but not these two, so both panels
+       were shooting as brand new accounts: "No active bounty / Slayer Level 1 / 0
+       bounties done", and a Lashed Raft with 0 sailing xp on a chart of 26 islands. */
+    state.slayer = Object.assign(state.slayer || {}, {
+      xp: 210000, points: 940, tasksDone: 168, streak: 11, masterSel: 'general',
+    });
+    state.sail = state.sail || {};
+    state.sail.xp = 3200000;
+    /* Best hull, and every island charted, so the map is filled in rather than four
+       lonely dots in one corner. */
+    if (typeof SAIL_HULLS !== 'undefined') {
+      const hulls = Array.isArray(SAIL_HULLS) ? SAIL_HULLS : Object.values(SAIL_HULLS);
+      const best = hulls[hulls.length - 1];
+      if (best && best.id) state.sail.hull = best.id;
+    }
+    if (typeof SAIL_ISLES !== 'undefined') {
+      state.sail.found = state.sail.found || {};
+      state.sail.seen = state.sail.seen || {};
+      const isles = Array.isArray(SAIL_ISLES) ? SAIL_ISLES : Object.values(SAIL_ISLES);
+      isles.forEach(i => { const k = i && (i.id || i); state.sail.found[k] = 1; state.sail.seen[k] = 1; });
+    }
     /* And spend the tree points. "98 to spend" with every node at 0/12 is a board
        nobody has touched. spendPoint enforces its own gates -- base nodes before
        grandmaster ones, level requirements -- so this just walks base nodes first
@@ -153,11 +245,40 @@ async function main() {
       await p.evaluate(() => { if (typeof applyRootZoom === 'function') applyRootZoom(); renderAll(); });
       await sleep(450);
     }
+    /* Every shot starts from the skilling column. Without this, the first combat
+       shot leaves combatMode true and updateModePanels() keeps #centerPanel hidden,
+       so every later skilling shot silently captures nothing. */
+    await p.evaluate(() => {
+      if (typeof combatMode !== 'undefined') combatMode = false;
+      if (typeof sailMode !== 'undefined') sailMode = false;
+      if (typeof state !== 'undefined' && state) state.zoneMode = 'dungeons';
+      /* The zone-mode buttons bail out early on `if(combat.active) return` -- the
+         game will not swap the roster mid-fight. Selecting a monster in an earlier
+         shot is enough to leave that flag set, and the Raids click then does nothing
+         at all, silently, which is exactly how this looked like a state bug for
+         three rounds. */
+      if (typeof combat !== 'undefined' && combat) combat.active = false;
+      if (typeof updateModePanels === 'function') updateModePanels();
+    });
     await p.evaluate(s.before);
     /* An idle idle-game is a bad screenshot. Kick the named act off so the panel
        shows the running bar rather than "Nothing running". */
     if (s.run) await p.evaluate(r => { try { setAction(r[0], r[1]); } catch (e) {} }, s.run);
-    await sleep(900);
+    await sleep(700);
+    /* Clicks go through the game's own handlers, which keep zone / mode / monster
+       consistent with each other -- which is exactly what setting them by hand did
+       not do. Each one gets a moment to re-render before the next. */
+    for (const q of (s.clicks || [])) {
+      const hit = await p.evaluate(sel => {
+        const el = document.querySelector(sel);
+        if (!el) return false;
+        el.click();
+        return true;
+      }, q);
+      if (!hit) console.log('  .. ' + name + ': no element for ' + q);
+      await sleep(420);
+    }
+    await sleep(260);
     await unmodal();
     const el = await p.$(s.sel);
     if (!el) { console.log('  !! ' + name + ': ' + s.sel + ' not found'); continue; }

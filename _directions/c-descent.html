@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cindervale Idle — Direction C</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400&family=Inter+Tight:wght@400;500;600&display=swap">
+<style>
+/* ============================================================================
+   DIRECTION C — DESCENT
+   Art-led. Every section is a full-bleed painted scene with the content sitting
+   in a narrow column over it, so scrolling the page is a walk through the game's
+   places: the town, the forest edge, the cave mouth, the guild hall, the sea,
+   the night. The screenshots stop being the only pictures on the page.
+   The scenes are generated locally in SwarmUI (Z-Image-Turbo, 1536x384, cfg 3.2)
+   and each one is composed with its interest at the edges and open haze down the
+   middle, because that middle is where the type goes.
+   ========================================================================== */
+:root{
+  --ink:#08070a;
+  --txt:#f0ebe1;
+  --dim:#a79e91;
+  --ember:#ef8236;
+  --gold:#e6bd76;
+  --line:rgba(240,235,225,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--ink);color:var(--txt);font-family:'Inter Tight',system-ui,sans-serif;
+  font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+.wrap{max-width:1080px;margin:0 auto;padding:0 30px}
+.narrow{max-width:660px}
+
+/* ---- nav floats over the art ---- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:60;transition:background .3s}
+.nav .wrap{display:flex;align-items:center;gap:28px;height:72px}
+.logo{font-family:'Cinzel',serif;font-weight:700;font-size:20px;letter-spacing:.04em;margin-right:auto;
+  text-shadow:0 2px 14px rgba(0,0,0,.9)}
+.logo span{color:var(--ember)}
+.nav a.l{color:rgba(240,235,225,.72);text-decoration:none;font-size:14px;letter-spacing:.02em;
+  text-shadow:0 2px 10px rgba(0,0,0,.8)}
+.nav a.l:hover{color:var(--txt)}
+.cta{background:var(--gold);color:#1d1206;font-weight:600;font-size:14px;padding:10px 19px;
+  border-radius:3px;text-decoration:none}
+
+/* ---- a scene section ---- */
+.scene{position:relative;min-height:560px;display:flex;align-items:center;
+  padding:104px 0;isolation:isolate}
+.scene .bgimg{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center}
+/* Two scrims: one darkening the whole plate so type reads, one heavier down the
+   centre column where the words actually sit. */
+.scene::before{content:'';position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(8,7,10,.9) 0%,rgba(8,7,10,.55) 26%,
+             rgba(8,7,10,.55) 74%,rgba(8,7,10,.95) 100%),
+             radial-gradient(58% 78% at 50% 50%,rgba(8,7,10,.72),rgba(8,7,10,.15) 78%)}
+.scene.tall{min-height:88vh}
+
+.eyeb{font-family:'Cinzel',serif;font-size:12.5px;font-weight:600;letter-spacing:.34em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:20px}
+h1{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(44px,6vw,80px);line-height:1.0;
+  letter-spacing:-.02em;text-wrap:balance;text-shadow:0 4px 40px rgba(0,0,0,.85)}
+h1 em{font-style:italic;font-weight:400;color:var(--gold)}
+h2{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(32px,4.2vw,50px);line-height:1.06;
+  letter-spacing:-.015em;text-wrap:balance;text-shadow:0 3px 26px rgba(0,0,0,.85)}
+h2 em{font-style:italic;color:var(--gold)}
+p.lede{margin-top:22px;font-size:19px;color:#d4cec3;text-shadow:0 2px 14px rgba(0,0,0,.8)}
+p.body{margin-top:18px;color:#c2bbae;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+
+.acts{display:flex;gap:13px;margin-top:34px;align-items:center;flex-wrap:wrap}
+.btn{font-size:15px;font-weight:600;text-decoration:none;padding:14px 26px;border-radius:3px;
+  display:inline-flex;align-items:center;gap:9px}
+.btn.p{background:var(--ember);color:#1a0c02}
+.btn.g{border:1px solid rgba(240,235,225,.3);color:var(--txt);backdrop-filter:blur(5px)}
+.meta{margin-top:18px;font-size:14px;color:var(--dim);letter-spacing:.01em;
+  text-shadow:0 2px 10px rgba(0,0,0,.9)}
+.meta b{color:var(--txt)}
+
+/* ---- the numbers, hairline over the art ---- */
+.figs{display:flex;gap:0;margin-top:44px;border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line)}
+.figs div{flex:1;padding:18px 6px}
+.figs div+div{border-left:1px solid var(--line)}
+.figs .n{font-family:'Fraunces',serif;font-size:34px;line-height:1;color:var(--gold)}
+.figs .l{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-top:7px}
+
+/* ---- a screenshot laid into a scene ---- */
+.split{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:52px;
+  align-items:center;width:100%}
+.split img{border:1px solid var(--line);border-radius:4px;box-shadow:0 34px 80px rgba(0,0,0,.8)}
+.bullets{margin-top:24px;display:flex;flex-direction:column;gap:13px}
+.bullets li{list-style:none;padding-left:22px;position:relative;color:#c2bbae;font-size:16px;
+  text-shadow:0 2px 12px rgba(0,0,0,.8)}
+.bullets li::before{content:'';position:absolute;left:0;top:.62em;width:7px;height:7px;
+  transform:rotate(45deg);background:var(--gold)}
+.bullets b{color:var(--txt);font-weight:600}
+</style></head>
+<body>
+
+<div class="nav"><div class="wrap">
+  <div class="logo">Cinder<span>vale</span></div>
+  <a class="l" href="#">Skills</a><a class="l" href="#">Combat</a><a class="l" href="#">Guilds</a>
+  <a class="l" href="#">The Sea</a><a class="l" href="#">Discord</a>
+  <a class="cta" href="#">Steam &middot; $4.99</a>
+</div></div>
+
+<!-- 1. the town -->
+<section class="scene tall">
+  <div class="bgimg" style="background-image:url('../scenes/welcome.png')"></div>
+  <div class="wrap narrow">
+    <div class="eyeb">Out now &middot; Early Access</div>
+    <h1>The forge does not<br>go out when you <em>leave</em>.</h1>
+    <p class="lede">A dark-fantasy idle RPG. Thirteen skills, twelve combat zones, ten guilds
+      and a sea with twenty-six islands on it. Set something running and shut the window.</p>
+    <div class="acts">
+      <a class="btn p" href="#">Buy on Steam</a>
+      <a class="btn g" href="#">Play the free demo</a>
+    </div>
+    <p class="meta"><b>$4.99</b> &middot; one purchase &middot; Windows &middot; no microtransactions</p>
+    <div class="figs">
+      <div><div class="n">13</div><div class="l">Skills</div></div>
+      <div><div class="n">12</div><div class="l">Zones</div></div>
+      <div><div class="n">10</div><div class="l">Guilds</div></div>
+      <div><div class="n">26</div><div class="l">Islands</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. the guild hall -->
+<section class="scene">
+  <div class="bgimg" style="background-image:url('../scenes/guilds.png')"></div>
+  <div class="wrap"><div class="split">
+    <div>
+      <div class="eyeb">Ten guilds</div>
+      <h2>Somebody always<br>wants <em>something</em> doing</h2>
+      <p class="body">One guild for every skill, plus the Nightmarket. Join and the board hands
+        you work: kill these, gather that, bring back this many.</p>
+      <ul class="bullets">
+        <li><b>Three jobs a day</b>, small to long, rerolled every morning.</li>
+        <li><b>Titles that do something.</b> Six ranks, each a real bonus in that guild's skill.</li>
+        <li><b>One skip</b>, for the day the board asks for something absurd.</li>
+      </ul>
+    </div>
+    <img src="../shots/guilds.png" alt="The Nightmarket guild panel">
+  </div></div>
+</section>
+
+<!-- 3. the forest edge -->
+<section class="scene">
+  <div class="bgimg" style="background-image:url('../scenes/skills.png')"></div>
+  <div class="wrap"><div class="split">
+    <img src="../shots/skilling.png" alt="The mining panel">
+    <div>
+      <div class="eyeb">Thirteen skills</div>
+      <h2>Everything feeds<br><em>something else</em></h2>
+      <p class="body">What you cut down becomes what you build. What you build decides how deep
+        you get. What you drag back out of the dark is what the best tools are made of.</p>
+      <ul class="bullets">
+        <li><b>A 98-point tree</b> behind every skill, and never enough points for all of it.</li>
+        <li><b>Tools in tiers</b>, with the top ones gated behind drops you have to fight for.</li>
+        <li><b>735 items</b>, all logged the first time you see one.</li>
+      </ul>
+    </div>
+  </div></div>
+</section>
+
+</body></html>

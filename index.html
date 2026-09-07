@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cindervale Idle — A Dark-Fantasy Idle RPG</title>
-<meta name="description" content="Cindervale Idle is a dark-fantasy idle RPG. Thirteen skills, twelve combat zones, ten guilds, 26 islands to sail, four raids and 26 pets to find — and it keeps running while the game is closed. Out now on Steam in Early Access.">
+<meta name="description" content="Cindervale Idle is a dark-fantasy idle RPG. Thirteen skills, twelve combat zones, ten guilds, twenty-six islands to sail and four raids. Set something running and close the game; it does not stop. Out now on Steam in Early Access.">
 <meta name="theme-color" content="#0d0906">
 <link rel="canonical" href="https://cindervaleidle.com/">
 
 <!-- Open Graph / social -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Cindervale Idle — A Dark-Fantasy Idle RPG">
-<meta property="og:description" content="Thirteen skills, twelve combat zones, ten guilds, 26 islands to sail and four raids. It keeps running while the game is closed. Out now on Steam in Early Access.">
+<meta property="og:description" content="Thirteen skills, twelve combat zones, ten guilds, twenty-six islands to sail and four raids. It keeps running while the game is closed. Out now on Steam in Early Access.">
 <meta property="og:url" content="https://cindervaleidle.com/">
 <meta property="og:site_name" content="Cindervale Idle">
 <meta name="twitter:card" content="summary_large_image">
@@ -22,157 +22,232 @@
 <meta name="twitter:image" content="https://cindervaleidle.com/shots/social-card.png">
 <meta name="twitter:image:alt" content="Cindervale Idle — a dark-fantasy idle RPG. The sea chart, with islands to discover.">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400&family=Inter+Tight:wght@400;500;600&display=swap">
+
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0' y2='0'%3E%3Cstop offset='0' stop-color='%237a1820'/%3E%3Cstop offset='.4' stop-color='%23e0762f'/%3E%3Cstop offset='.8' stop-color='%23fbd24e'/%3E%3Cstop offset='1' stop-color='%23fff8dc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M32 6 Q22 18 19 30 Q15 42 20 52 Q25 58 32 58 Q39 58 44 52 Q49 42 45 30 Q42 18 32 6 Z' fill='url(%23g)'/%3E%3C/svg%3E">
 
 <style>
+/* ============================================================================
+   cindervaleidle.com — rebuilt 2026-09-07 for v0.9.123.
+
+   The page is a descent. Every section is a full-bleed painted scene with its
+   content in a narrow column over it, so scrolling walks through the game's
+   places: the town, the guild hall, the forest edge, the cave mouth, the sea,
+   the night. The screenshots stop being the only pictures on the page.
+
+   Scenes are in scenes/, generated locally in SwarmUI (Z-Image-Turbo, 1536x384,
+   cfg 3.2) by "Cindervale Store Assets/store-page-2026-09/scenes.js". Each one
+   is composed with its interest at the LEFT AND RIGHT EDGES and open haze down
+   the middle, because the middle is where the type goes.
+
+   Palette is the same brown the site has always used. The scenes were not: four
+   of the seven were painted cool, and a cool plate behind warm brown type makes
+   a page look like two sites stitched together. So each .bgimg carries a --warm
+   value, 0 (already brown, leave it) to 1 (pull it all the way over), applied as
+   a filter plus a multiply wash. See the .scene rules.
+   ========================================================================== */
 :root{
   --bg:#0d0906; --bg2:#120c07; --panel:#1c130a; --panel2:#251a10;
   --raised:#322415; --line:#3a2c17; --line2:#4a3820;
   --trim:#c79b4e; --trim-bright:#f0c772; --trim-dim:#6e552c;
   --ember:#e0762f; --flame:#fbd24e; --red:#c4543a; --teal:#4a9a8a;
   --text:#ead9b5; --muted:#a08a64; --dim:#7a6647;
-  --serif:'Iowan Old Style','Palatino Linotype',Palatino,'Book Antiqua',Georgia,serif;
-  --sans:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-  --maxw:1160px;
+  --display:'Fraunces',Georgia,'Times New Roman',serif;
+  --brand:'Cinzel','Iowan Old Style',Georgia,serif;
+  --sans:'Inter Tight',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --maxw:1080px;
 }
-*{box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{
-  margin:0; background:var(--bg); color:var(--text);
-  font-family:var(--sans); font-size:17px; line-height:1.65;
-  -webkit-font-smoothing:antialiased; overflow-x:hidden;
-}
-body::before{ /* ambient vignette + ember glow */
-  content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
-  background:
-    radial-gradient(1200px 700px at 50% -10%, rgba(224,118,47,.16), transparent 60%),
-    radial-gradient(900px 900px at 90% 20%, rgba(122,24,32,.12), transparent 55%),
-    radial-gradient(700px 700px at 5% 80%, rgba(74,154,138,.07), transparent 60%),
-    linear-gradient(180deg,#0d0906,#0a0705 60%,#080604);
-}
-#embers{position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.7}
-a{color:var(--trim); text-decoration:none}
-h1,h2,h3{font-family:var(--serif); font-weight:600; line-height:1.12; margin:0}
-.wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
-.eyebrow{
-  font-family:var(--sans); text-transform:uppercase; letter-spacing:.28em;
-  font-size:12px; font-weight:600; color:var(--ember); margin:0 0 14px;
-}
-.flame{width:1em; height:1em; vertical-align:-.13em; display:inline-block}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);
+  font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 30px}
+.narrow{max-width:690px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* the ember canvas sits behind everything */
+#embers{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
 
 /* ---------- NAV ---------- */
-header.nav{
-  position:sticky; top:0; z-index:50;
-  backdrop-filter:blur(10px); background:rgba(13,9,6,.72);
-  border-bottom:1px solid transparent; transition:border-color .3s, background .3s;
-}
-header.nav.scrolled{border-bottom-color:var(--line); background:rgba(13,9,6,.9)}
-.nav-in{display:flex; align-items:center; justify-content:space-between; height:64px; gap:20px}
-.brand{display:flex; align-items:center; gap:9px; font-family:var(--serif); font-size:20px; letter-spacing:.02em; color:var(--text)}
-.brand .flame{width:22px;height:22px}
-.brand .bname{color:var(--muted)}
-.brand .bname b{color:var(--trim-bright); font-weight:600}
-.brand .bidle{font-size:13px; letter-spacing:.28em; text-transform:uppercase; color:var(--dim)}
-.nav-links{display:flex; align-items:center; gap:28px}
-.nav-links a{color:var(--muted); font-size:15px; font-weight:500; transition:color .2s}
-.nav-links a:hover{color:var(--trim-bright)}
-.nav-cta{
-  font-family:var(--sans); font-weight:600; font-size:14px;
-  padding:9px 18px; border-radius:8px; color:#1a1109;
-  background:linear-gradient(180deg,var(--trim-bright),var(--trim));
-  box-shadow:0 0 0 1px rgba(240,199,114,.35), 0 6px 18px rgba(224,118,47,.25);
-  transition:transform .15s, box-shadow .2s;
-}
-.nav-cta:hover{transform:translateY(-1px); box-shadow:0 0 0 1px rgba(240,199,114,.55), 0 8px 24px rgba(224,118,47,.4)}
-@media(max-width:760px){.nav-links a:not(.nav-cta){display:none}}
+.nav{position:fixed;top:0;left:0;right:0;z-index:60;
+  background:linear-gradient(180deg,rgba(13,9,6,.9),rgba(13,9,6,0));
+  transition:background .3s}
+.nav.scrolled{background:rgba(13,9,6,.93);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:26px;height:74px}
+.logo{font-family:var(--brand);font-weight:700;font-size:20px;letter-spacing:.05em;
+  margin-right:auto;text-decoration:none;text-shadow:0 2px 14px rgba(0,0,0,.95)}
+.logo span{color:var(--ember)}
+.nav a.l{color:var(--muted);text-decoration:none;font-size:14.5px;
+  text-shadow:0 2px 10px rgba(0,0,0,.9)}
+.nav a.l:hover{color:var(--text)}
+.cta{background:linear-gradient(180deg,var(--trim-bright),var(--trim));color:#1d1206;
+  font-weight:600;font-size:14px;padding:10px 19px;border-radius:4px;text-decoration:none;
+  box-shadow:0 3px 16px rgba(224,118,47,.25);white-space:nowrap}
+.cta:hover{filter:brightness(1.08)}
+@media(max-width:860px){ .nav a.l{display:none} }
+
+/* ---------- A SCENE SECTION ---------- */
+.scene{position:relative;min-height:560px;display:flex;align-items:center;
+  padding:112px 0;isolation:isolate;z-index:1}
+.scene .bgimg{position:absolute;inset:0;z-index:-3;background-size:cover;
+  background-position:center;
+  filter:sepia(calc(var(--warm,.4) * .55)) saturate(calc(1 - var(--warm,.4) * .28))
+         hue-rotate(calc(var(--warm,.4) * -14deg)) brightness(.92)}
+/* Multiply, not a flat overlay: it keeps the painting's own darks instead of
+   fogging the whole plate grey. */
+.scene .bgimg::after{content:'';position:absolute;inset:0;mix-blend-mode:multiply;
+  background:rgba(120,72,30,calc(var(--warm,.4) * .55))}
+/* Two scrims: the whole plate down so type reads at all, and heavier through the
+   middle where the words actually are. */
+.scene::before{content:'';position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,var(--bg) 0%,rgba(13,9,6,.52) 24%,
+             rgba(13,9,6,.52) 76%,var(--bg) 100%),
+             radial-gradient(56% 76% at 50% 50%,rgba(13,9,6,.74),rgba(13,9,6,.12) 78%)}
+.scene::after{content:'';position:absolute;inset:0;z-index:-2;pointer-events:none;
+  background:radial-gradient(620px 380px at 18% 76%, rgba(224,118,47,.16), transparent 66%)}
+.scene.tall{min-height:min(880px,92vh)}
+
+/* ---------- TYPE ---------- */
+.eyeb{font-family:var(--brand);font-size:12.5px;font-weight:600;letter-spacing:.34em;
+  text-transform:uppercase;color:var(--trim);margin-bottom:20px;
+  text-shadow:0 2px 10px rgba(0,0,0,.9)}
+h1{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,78px);
+  line-height:1.0;letter-spacing:-.02em;text-wrap:balance;
+  text-shadow:0 4px 40px rgba(0,0,0,.9)}
+h1 em{font-style:italic;font-weight:400;color:var(--trim-bright)}
+h2{font-family:var(--display);font-weight:300;font-size:clamp(30px,4.2vw,50px);
+  line-height:1.06;letter-spacing:-.015em;text-wrap:balance;
+  text-shadow:0 3px 26px rgba(0,0,0,.9)}
+h2 em{font-style:italic;color:var(--trim-bright)}
+h3{font-family:var(--display);font-weight:400;font-size:21px;line-height:1.2}
+p.lede{margin-top:22px;font-size:19px;color:#d8c8a4;text-shadow:0 2px 14px rgba(0,0,0,.85)}
+p.body{margin-top:18px;color:var(--muted);text-shadow:0 2px 12px rgba(0,0,0,.85)}
 
 /* ---------- BUTTONS ---------- */
-.btn{
-  display:inline-flex; align-items:center; gap:10px; cursor:pointer;
-  font-family:var(--sans); font-weight:600; font-size:16px;
-  padding:14px 26px; border-radius:10px; border:1px solid transparent;
-  transition:transform .15s, box-shadow .2s, border-color .2s, color .2s;
-}
-.btn-primary{
-  color:#1a1109; background:linear-gradient(180deg,var(--trim-bright),var(--trim));
-  box-shadow:0 0 0 1px rgba(240,199,114,.3), 0 10px 30px rgba(224,118,47,.3);
-}
-.btn-primary:hover{transform:translateY(-2px); box-shadow:0 0 0 1px rgba(240,199,114,.6), 0 14px 40px rgba(224,118,47,.5)}
-.btn-ghost{color:var(--text); border-color:var(--line2); background:rgba(50,36,21,.35)}
-.btn-ghost:hover{border-color:var(--trim); color:var(--trim-bright); transform:translateY(-2px)}
-.btn-disabled{color:var(--dim); border-color:var(--line); background:rgba(28,19,10,.5); cursor:default}
-.btn svg{width:20px;height:20px}
+.acts{display:flex;gap:13px;margin-top:34px;align-items:center;flex-wrap:wrap}
+.btn{font-size:15px;font-weight:600;text-decoration:none;padding:14px 27px;
+  border-radius:4px;display:inline-flex;align-items:center;gap:10px;
+  transition:transform .15s, filter .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn svg{width:18px;height:18px;flex:none}
+.btn.p{background:linear-gradient(180deg,var(--ember),#b8541c);color:#1d0e03;
+  box-shadow:0 4px 22px rgba(224,118,47,.3)}
+.btn.g{border:1px solid var(--line2);color:var(--text);background:rgba(28,19,10,.6);
+  backdrop-filter:blur(6px)}
+.btn.g:hover{border-color:var(--trim)}
+.meta{margin-top:18px;font-size:14px;color:var(--dim);text-shadow:0 2px 10px rgba(0,0,0,.9)}
+.meta b{color:var(--text)}
 
-/* ---------- HERO ---------- */
-.hero{position:relative; text-align:center; padding:96px 0 88px; overflow:hidden}
-.hero .presents{font-family:var(--serif); letter-spacing:.34em; text-transform:uppercase; font-size:12.5px; color:var(--trim-dim); margin-bottom:26px}
-.hero-flame{width:74px; height:74px; margin:0 auto 6px; filter:drop-shadow(0 6px 26px rgba(224,118,47,.55)); animation:flicker 3.4s ease-in-out infinite}
-@keyframes flicker{0%,100%{transform:translateY(0) scale(1);opacity:1}50%{transform:translateY(-4px) scale(1.04);opacity:.92}}
-.wordmark{font-size:clamp(52px,10vw,116px); letter-spacing:.01em; line-height:.98; margin:8px 0 4px}
-.wordmark .cinder{
-  background:linear-gradient(180deg,#fff3d6,var(--trim-bright) 45%,var(--trim) 80%,#9c7328);
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-}
-.wordmark .vale{
-  background:linear-gradient(180deg,#ffcaa0,var(--ember) 55%,#a83c1a);
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-}
-.idle{font-family:var(--serif); font-size:clamp(20px,3vw,30px); letter-spacing:.5em; text-transform:uppercase; color:var(--muted); margin:-2px 0 0 .5em}
-.tagline{max-width:660px; margin:28px auto 0; font-size:clamp(18px,2.4vw,21px); color:var(--text); line-height:1.6}
-.tagline b{color:var(--trim-bright); font-weight:600}
-.hero-btns{display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-top:38px}
-.hero-meta{display:flex; gap:22px; justify-content:center; flex-wrap:wrap; margin-top:30px; color:var(--dim); font-size:13.5px}
-.hero-meta .pill{display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border:1px solid var(--line); border-radius:999px; background:rgba(28,19,10,.5)}
-.hero-meta .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal)}
+/* ---------- FIGURES ---------- */
+.figs{display:flex;margin-top:46px;border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line)}
+.figs div{flex:1;padding:19px 6px}
+.figs div+div{border-left:1px solid var(--line)}
+.figs .n{font-family:var(--display);font-size:clamp(26px,3.4vw,35px);line-height:1;
+  color:var(--trim-bright)}
+.figs .l{font-size:11.5px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--dim);margin-top:7px}
 
-/* ---------- SECTION SHELL ---------- */
-section{padding:88px 0; position:relative}
-.sec-head{text-align:center; max-width:680px; margin:0 auto 54px}
-.sec-head h2{font-size:clamp(30px,4.4vw,46px); margin-bottom:16px}
-.sec-head h2 em{font-style:normal; color:var(--trim-bright)}
-.sec-head p{color:var(--muted); font-size:18px; margin:0}
-.divider{height:1px; background:linear-gradient(90deg,transparent,var(--line2),transparent); max-width:var(--maxw); margin:0 auto}
+/* ---------- SPLIT (text + screenshot) ---------- */
+.split{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:52px;
+  align-items:center;width:100%}
+.split.flip{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)}
+.split img{border:1px solid var(--line2);border-radius:5px;cursor:zoom-in;
+  box-shadow:0 34px 80px rgba(0,0,0,.85), 0 0 0 1px rgba(240,199,114,.06)}
+@media(max-width:900px){
+  .split,.split.flip{grid-template-columns:1fr;gap:32px}
+  .split.flip>img{order:2}
+}
+.bullets{margin-top:24px;display:flex;flex-direction:column;gap:13px}
+.bullets li{list-style:none;padding-left:23px;position:relative;color:var(--muted);
+  font-size:16px;text-shadow:0 2px 12px rgba(0,0,0,.85)}
+.bullets li::before{content:'';position:absolute;left:0;top:.6em;width:7px;height:7px;
+  transform:rotate(45deg);background:var(--trim)}
+.bullets b{color:var(--text);font-weight:600}
 
-/* ---------- SCREENSHOTS ---------- */
-.feature-slider{display:grid; grid-template-columns:0.82fr 1.18fr; gap:40px; align-items:center; max-width:1060px; margin:0 auto}
-@media(max-width:840px){.feature-slider{grid-template-columns:1fr; gap:26px}}
-.fs-text{min-width:0}
-.fs-index{font-family:var(--serif); color:var(--dim); font-size:15px; letter-spacing:.14em; margin-bottom:16px}
-.fs-index b{color:var(--trim-bright); font-weight:600; font-size:22px}
-.fs-title{font-family:var(--serif); font-size:clamp(26px,3.2vw,34px); color:var(--text); margin:0 0 12px}
-.fs-desc{color:var(--muted); font-size:17px; line-height:1.6; margin:0 0 28px}
-@media(min-width:841px){.fs-title{min-height:1.15em}.fs-desc{min-height:3.2em}}
-.fs-controls{display:flex; align-items:center; gap:16px}
-.fs-arrow{width:46px; height:46px; border-radius:50%; border:1px solid var(--line2); background:rgba(28,19,10,.55);
-  color:var(--text); font-size:24px; line-height:1; cursor:pointer; display:grid; place-items:center; padding:0;
-  transition:border-color .2s, color .2s, background .2s}
-.fs-arrow:hover{border-color:var(--trim); color:var(--trim-bright); background:rgba(37,26,16,.85)}
-.fs-dots{display:flex; gap:9px; margin-left:6px}
-.fs-dot{width:8px; height:8px; border-radius:50%; border:none; padding:0; cursor:pointer; background:var(--line2); transition:background .2s, transform .2s}
-.fs-dot.on{background:var(--trim-bright); transform:scale(1.35)}
-.fs-media{position:relative; min-width:0}
-.fs-stage{position:relative; aspect-ratio:16/10; border-radius:16px; overflow:hidden; border:1px solid var(--line2);
-  background:#0a0705; box-shadow:0 30px 70px rgba(0,0,0,.5)}
-.fs-img{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; padding:10px;
-  opacity:0; pointer-events:none; transition:opacity .55s ease; cursor:zoom-in}
-.fs-img.on{opacity:1; pointer-events:auto}
-.fs-fill{position:absolute; left:0; bottom:0; height:3px; width:100%; z-index:2; pointer-events:none;
-  transform:scaleX(0); transform-origin:left; background:linear-gradient(90deg, var(--ember), var(--trim-bright))}
-.fs-fill.run{animation:fsprog 5s linear forwards}
-.feature-slider:hover .fs-fill.run{animation-play-state:paused}
-@keyframes fsprog{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@media(max-width:840px){.fs-media{order:-1}}
-@media(prefers-reduced-motion:reduce){.fs-img{transition:none}.fs-fill{display:none}}
+/* ---------- CENTRED SECTIONS ---------- */
+.mid{text-align:center}
+.mid .figs{max-width:620px;margin-left:auto;margin-right:auto}
+.mid .acts{justify-content:center}
+.mid p.lede{margin-left:auto;margin-right:auto;max-width:36em}
+
+/* ---------- GALLERY STRIP ---------- */
+/* Explicitly five, because there are five thumbnails. auto-fit chose four at this
+   width and left the fifth alone on a row of its own with three empty columns
+   beside it. */
+.galwrap{max-width:1360px;margin:0 auto;padding:0 30px}
+.gal{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-top:38px}
+@media(max-width:1100px){ .gal{grid-template-columns:repeat(3,minmax(0,1fr))} }
+@media(max-width:700px){ .gal{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.gal figure{margin:0}
+.gal img{border:1px solid var(--line);border-radius:4px;cursor:zoom-in;
+  transition:border-color .2s, transform .2s;aspect-ratio:16/10;object-fit:cover;
+  object-position:top left}
+.gal img:hover{border-color:var(--trim);transform:translateY(-2px)}
+.gal figcaption{font-size:12.5px;color:var(--dim);margin-top:8px;letter-spacing:.02em}
+
+/* The gallery is deliberately NOT a painted scene. It sits between the sea and the
+   night, and a plain band there gives the eye somewhere to rest between six
+   full-bleed plates. */
+.gallery{position:relative;z-index:1;padding:96px 0;background:var(--bg2);
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+
+/* ---------- THE THREE WAYS IN ---------- */
+.ways{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px;
+  text-align:left}
+@media(max-width:860px){ .ways{grid-template-columns:1fr} }
+.way{background:linear-gradient(180deg,rgba(37,26,16,.88),rgba(20,13,7,.9));
+  border:1px solid var(--line);border-radius:10px;padding:26px;
+  backdrop-filter:blur(4px);display:flex;flex-direction:column}
+.way .badge{font-family:var(--brand);font-size:10.5px;font-weight:600;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--trim);margin-bottom:14px}
+.way h3{margin-bottom:9px}
+.way p{font-size:14.5px;color:var(--muted);line-height:1.6;flex:1}
+.way .btn{margin-top:20px;align-self:flex-start;font-size:14px;padding:11px 20px}
+.way .pricetag{font-family:var(--display);font-size:30px;color:var(--trim-bright);
+  margin:2px 0 10px}
+
+/* ---------- ABOUT ---------- */
+.about{padding:96px 0;position:relative;z-index:1;background:var(--bg2);
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.about .wrap{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:56px}
+@media(max-width:880px){ .about .wrap{grid-template-columns:1fr;gap:34px} }
+.about p{color:var(--muted);margin-top:16px}
+.about p b{color:var(--text);font-weight:600}
+.about h2{margin-bottom:4px}
+.facts{border:1px solid var(--line);border-radius:10px;background:var(--panel);
+  padding:6px 20px;align-self:start}
+.facts .row{display:flex;justify-content:space-between;gap:16px;padding:13px 0;
+  border-bottom:1px solid var(--line);font-size:14.5px}
+.facts .row:last-child{border-bottom:none}
+.facts .k{color:var(--dim)}
+.facts .v{color:var(--text);text-align:right}
+.facts .v.ok{color:var(--teal)}
+
+/* ---------- FOOTER ---------- */
+footer{padding:52px 0 60px;position:relative;z-index:1;text-align:center}
+.foot-brand{font-family:var(--brand);font-size:17px;letter-spacing:.04em;
+  margin-bottom:18px;color:var(--text)}
+.foot-links{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;
+  font-size:14px;margin-bottom:22px}
+.foot-links a{color:var(--muted);text-decoration:none}
+.foot-links a:hover{color:var(--trim-bright)}
+.foot-note{font-size:12.5px;color:var(--dim);max-width:640px;margin:0 auto}
+
+/* ---------- REVEAL ---------- */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
 .shot-lb{position:fixed; inset:0; z-index:1000; background:rgba(6,4,2,.93); display:flex; align-items:center; justify-content:center; padding:24px}
 .shot-lb[hidden]{display:none}
 .shot-lb img{max-width:96vw; max-height:92vh; border:1px solid var(--line2); border-radius:10px; box-shadow:0 30px 90px rgba(0,0,0,.7)}
 .shot-lb-x{position:absolute; top:16px; right:22px; background:none; border:none; color:var(--muted); font-size:34px; line-height:1; cursor:pointer}
 .shot-lb-x:hover{color:var(--trim-bright)}
 
-/* ---------- CONTACT MODAL ----------
-   Replaces the old footer mailto:. Firing the OS mail client off a single
-   click is jarring when most people would rather hop into Discord, so this
-   offers both and copies the address instead of launching anything. */
 .cmodal{position:fixed; inset:0; z-index:1100; background:rgba(6,4,2,.9); display:flex;
   align-items:center; justify-content:center; padding:24px}
 .cmodal[hidden]{display:none}
@@ -200,518 +275,254 @@ a.cm-opt .cm-t{color:#8b9cff}
 .cm-copy:hover{border-color:var(--trim); color:var(--trim-bright)}
 .cm-copy.ok{border-color:var(--teal); color:var(--teal)}
 .cmodal-note{font-size:12px; color:var(--dim); margin:16px 0 0}
-
-/* ---------- FEATURES ---------- */
-.feat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px}
-@media(max-width:900px){.feat-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.feat-grid{grid-template-columns:1fr}}
-.card{
-  position:relative; padding:28px 26px; border-radius:16px;
-  background:linear-gradient(180deg,rgba(37,26,16,.85),rgba(20,13,7,.85));
-  border:1px solid var(--line); overflow:hidden;
-  transition:transform .25s, border-color .25s, box-shadow .25s;
-}
-.card::before{content:""; position:absolute; inset:0; background:radial-gradient(400px 180px at 50% -40%, rgba(224,118,47,.12), transparent 70%); opacity:0; transition:opacity .3s}
-.card:hover{transform:translateY(-4px); border-color:var(--line2); box-shadow:0 18px 40px rgba(0,0,0,.4)}
-.card:hover::before{opacity:1}
-.card .ico{
-  width:52px; height:52px; display:grid; place-items:center; margin-bottom:18px;
-  border-radius:12px; background:linear-gradient(180deg,var(--raised),#231809);
-  border:1px solid var(--line2); color:var(--trim-bright);
-}
-.card .ico svg{width:28px;height:28px}
-.card h3{font-size:21px; margin-bottom:9px; color:var(--text)}
-.card p{margin:0; color:var(--muted); font-size:15.5px; line-height:1.6}
-
-/* ---------- STATS STRIP ---------- */
-.stats{display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-top:8px}
-@media(max-width:900px){.stats{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}}
-.stat{text-align:center; padding:26px 12px; border:1px solid var(--line); border-radius:14px; background:rgba(20,13,7,.6)}
-.stat .n{font-family:var(--serif); font-size:clamp(34px,5vw,46px); line-height:1; color:var(--trim-bright)}
-.stat .l{margin-top:8px; color:var(--muted); font-size:14px; letter-spacing:.03em}
-
-/* ---------- WORLD / ZONES ---------- */
-.zones{display:grid; grid-template-columns:repeat(4,1fr); gap:12px}
-@media(max-width:820px){.zones{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:460px){.zones{grid-template-columns:1fr}}
-.zone{
-  display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:12px;
-  border:1px solid var(--line); background:rgba(28,19,10,.55);
-  transition:border-color .2s, transform .2s, background .2s;
-}
-.zone:hover{border-color:var(--trim-dim); transform:translateX(3px); background:rgba(37,26,16,.7)}
-.zone .num{font-family:var(--serif); font-size:18px; color:var(--trim-dim); width:26px; flex:none; text-align:center}
-.zone .nm{font-size:15.5px; color:var(--text)}
-.raids-row{margin-top:26px}
-.zr-label{display:block; font-family:var(--sans); text-transform:uppercase; letter-spacing:.22em; font-size:11.5px; font-weight:600; color:var(--ember); margin:0 0 12px}
-.raids-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
-@media(max-width:560px){.raids-grid{grid-template-columns:1fr}}
-.zone.raid{border-color:rgba(199,155,78,.38); background:linear-gradient(180deg,rgba(50,36,21,.5),rgba(28,19,10,.55))}
-.zone.raid:hover{border-color:var(--trim)}
-.zone.raid .num{color:var(--trim-bright)}
-
-/* ---------- ABOUT ---------- */
-.about{display:grid; grid-template-columns:1.1fr .9fr; gap:48px; align-items:center}
-@media(max-width:820px){.about{grid-template-columns:1fr; gap:32px}}
-.about h2{font-size:clamp(30px,4.4vw,44px); margin-bottom:20px}
-.about p{color:var(--muted); margin:0 0 18px; font-size:17px}
-.about p b{color:var(--text); font-weight:600}
-.about-card{
-  padding:32px; border-radius:18px; border:1px solid var(--line);
-  background:linear-gradient(180deg,rgba(37,26,16,.7),rgba(15,10,6,.7));
-}
-.about-card .row{display:flex; justify-content:space-between; padding:13px 0; border-bottom:1px solid var(--line)}
-.about-card .row:last-child{border-bottom:0}
-.about-card .k{color:var(--dim); font-size:14.5px}
-.about-card .v{color:var(--text); font-size:14.5px; font-weight:600; text-align:right}
-.about-card .v.beta{color:var(--teal)}
-
-/* ---------- COMMUNITY ---------- */
-.comm-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px}
-@media(max-width:860px){.comm-grid{grid-template-columns:1fr}}
-.comm{
-  display:flex; flex-direction:column; padding:30px 28px; border-radius:16px;
-  border:1px solid var(--line); background:linear-gradient(180deg,rgba(37,26,16,.7),rgba(15,10,6,.75));
-}
-.comm .ico{width:48px;height:48px;margin-bottom:16px;color:var(--trim-bright)}
-.comm .ico svg{width:48px;height:48px}
-.comm h3{font-size:22px;margin-bottom:8px}
-.comm p{color:var(--muted); font-size:15px; margin:0 0 22px; flex:1}
-.comm .badge{align-self:flex-start; margin-bottom:14px; font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; padding:4px 10px; border-radius:999px; border:1px solid var(--line2); color:var(--dim)}
-.comm.discord{border-color:rgba(88,101,242,.4)}
-.comm.discord .ico{color:#8b9cff}
-.comm.discord .badge{color:#8b9cff; border-color:rgba(88,101,242,.4)}
-
-/* ---------- PLAYTEST ----------
-   One centred panel rather than a fourth .comm card: .comm-grid is a fixed
-   repeat(3,1fr), so a fourth would leave an orphan on its own row. */
-#playtest{padding:0 0 96px}
-.pt-panel{max-width:840px; margin:0 auto; text-align:center; border-radius:16px;
-  padding:46px 40px 40px; border:1px solid rgba(88,101,242,.38);
-  background:linear-gradient(180deg,rgba(88,101,242,.09),rgba(28,19,10,.55) 60%,var(--panel));
-  box-shadow:0 24px 70px rgba(0,0,0,.45)}
-.pt-panel .eyebrow{color:#8b9cff}
-.pt-panel h2{font-size:clamp(27px,3.6vw,38px); margin-bottom:14px}
-.pt-lead{color:var(--muted); font-size:17px; max-width:620px; margin:0 auto 26px}
-.pt-points{list-style:none; padding:0; margin:0 auto 28px; max-width:640px;
-  display:grid; gap:11px; text-align:left}
-.pt-points li{position:relative; padding-left:26px; color:var(--text); font-size:14.5px; line-height:1.55}
-.pt-points li::before{content:""; position:absolute; left:8px; top:.62em; width:6px; height:6px;
-  border-radius:50%; background:#8b9cff}
-.pt-points b{color:var(--trim-bright)}
-.pt-fine{margin:16px 0 0; font-size:12.5px; color:var(--dim)}
-@media(max-width:720px){
-  .pt-panel{padding:34px 22px 30px}
-  .pt-points{gap:13px}
-}
-
-/* ---------- FINAL CTA ---------- */
-.finalcta{text-align:center; padding:100px 0}
-.finalcta h2{font-size:clamp(34px,5.5vw,58px); margin-bottom:18px}
-.finalcta h2 .cinder{background:linear-gradient(180deg,#fff3d6,var(--trim-bright),var(--trim));-webkit-background-clip:text;background-clip:text;color:transparent}
-.finalcta p{color:var(--muted); font-size:19px; max-width:560px; margin:0 auto 36px}
-
-/* ---------- FOOTER ---------- */
-footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
-.foot-in{display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap}
-.foot-brand{display:flex;align-items:center;gap:9px;font-family:var(--serif);font-size:17px;color:var(--muted)}
-.foot-brand .flame{width:18px;height:18px}
-.foot-links{display:flex; gap:24px; flex-wrap:wrap}
-.foot-links a{color:var(--muted); font-size:14px}
-.foot-links a:hover{color:var(--trim-bright)}
-.foot-contact{margin-top:18px; font-size:14.5px; color:var(--muted)}
-.foot-contact a{color:var(--trim)}
-.foot-contact a:hover{color:var(--trim-bright)}
-.foot-note{margin-top:12px; font-size:12.5px; color:#8f7a55; max-width:720px}
-
-/* steam / pricing */
-.price-line{margin:20px 0 0; color:var(--muted); font-size:15px}
-.price-line s{color:var(--dim); text-decoration-color:var(--red); margin-right:2px}
-.price-line b{font-family:var(--serif); font-size:21px; color:var(--trim-bright)}
-.pct{display:inline-block; font-family:var(--sans); font-weight:800; font-size:13px; letter-spacing:.02em; color:#9fe86f; background:rgba(80,140,45,.2); border:1px solid rgba(159,232,111,.4); padding:4px 8px; border-radius:7px; line-height:1; vertical-align:2px}
-.price-line .pct{margin-left:8px}
-.price-line .disc{display:inline-block; margin-left:8px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#66c0f4; border:1px solid rgba(102,192,244,.45); padding:3px 9px; border-radius:999px; vertical-align:2px}
-.comm.steam{border-color:rgba(102,192,244,.45); background:linear-gradient(180deg,rgba(27,40,56,.55),rgba(15,10,6,.8))}
-.comm.steam .ico{color:#66c0f4}
-.comm.steam .badge{color:#66c0f4; border-color:rgba(102,192,244,.45)}
-.steam-price{display:flex; align-items:center; gap:10px; margin:0 0 14px !important}
-.steam-price .pct{font-size:14px; padding:5px 9px}
-.steam-price s{font-family:var(--serif); font-size:20px; font-weight:400; color:var(--dim); text-decoration-color:var(--red)}
-.steam-price b{font-family:var(--serif); font-size:30px; line-height:1; color:var(--trim-bright)}
-.steam-price em{font-style:normal; font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:#66c0f4; border:1px solid rgba(102,192,244,.45); padding:4px 9px; border-radius:999px}
-.about-card s{color:var(--dim); text-decoration-color:var(--red)}
-.price-line .freeplay{color:var(--dim); margin-left:2px}
-.comm.demo{border-color:rgba(125,163,63,.4); background:linear-gradient(180deg,rgba(35,45,20,.5),rgba(15,10,6,.8))}
-.comm.demo .ico{color:#a9d05f}
-.comm.demo .badge{color:#a9d05f; border-color:rgba(125,163,63,.4)}
-
-/* reveal */
-.reveal{opacity:0; transform:translateY(22px); transition:opacity .7s ease, transform .7s ease}
-.reveal.in{opacity:1; transform:none}
-@media(prefers-reduced-motion:reduce){
-  .reveal{opacity:1;transform:none;transition:none}
-  .hero-flame{animation:none}
-  html{scroll-behavior:auto}
-}
-</style>
-</head>
+</style></head>
 <body>
-<canvas id="embers"></canvas>
 
-<!-- reusable flame symbol -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <linearGradient id="fl" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0" stop-color="#7a1820"/><stop offset=".4" stop-color="#e0762f"/>
-      <stop offset=".8" stop-color="#fbd24e"/><stop offset="1" stop-color="#fff8dc"/>
-    </linearGradient>
-    <symbol id="flameSym" viewBox="0 0 64 64">
-      <path d="M32 6 Q22 18 19 30 Q15 42 20 52 Q25 58 32 58 Q39 58 44 52 Q49 42 45 30 Q42 18 32 6 Z" fill="url(#fl)"/>
-      <path d="M32 22 Q26 30 25 38 Q24 46 28 52 Q30 54 32 54 Q34 54 36 52 Q40 46 39 38 Q38 30 32 22 Z" fill="#fff8dc" opacity=".85"/>
-    </symbol>
-  </defs>
-</svg>
+<canvas id="embers" aria-hidden="true"></canvas>
 
-<header class="nav" id="nav">
-  <div class="wrap nav-in">
-    <a class="brand" href="#top"><svg class="flame"><use href="#flameSym"/></svg><span class="bname">Cinder<b>vale</b></span><span class="bidle">Idle</span></a>
-    <nav class="nav-links">
-      <a href="#features">Features</a>
-      <a href="#screens">Screenshots</a>
-      <a href="#world">The World</a>
-      <a href="#about">About</a>
-      <a href="#community">Community</a>
-      <a class="nav-cta" href="#community">Get it on Steam</a>
-    </nav>
-  </div>
-</header>
+<header class="nav" id="nav"><div class="wrap">
+  <a class="logo" href="#top">Cinder<span>vale</span></a>
+  <a class="l" href="#guilds">Guilds</a>
+  <a class="l" href="#skills">Skills</a>
+  <a class="l" href="#combat">Combat</a>
+  <a class="l" href="#sea">The Sea</a>
+  <a class="l" href="https://discord.gg/V9HeEwBGHE" target="_blank" rel="noopener">Discord</a>
+  <a class="cta" href="https://store.steampowered.com/app/4966660/Cindervale_Idle/?utm_source=website&amp;utm_medium=button&amp;utm_campaign=site&amp;utm_content=nav" target="_blank" rel="noopener">Steam &middot; $4.99</a>
+</div></header>
 
 <main id="top">
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="wrap">
-      <div class="presents">Smolder Studios Presents</div>
-      <svg class="hero-flame"><use href="#flameSym"/></svg>
-      <h1 class="wordmark"><span class="cinder">Cinder</span><span class="vale">vale</span></h1>
-      <div class="idle">Idle</div>
-      <p class="tagline">A <b>dark-fantasy idle RPG</b> with thirteen skills, twelve combat zones and a lot worth collecting. <b>It keeps running while the game is closed.</b></p>
-      <div class="hero-btns">
-        <a class="btn btn-primary" href="https://store.steampowered.com/app/4966660/Cindervale_Idle/?utm_source=website&amp;utm_medium=button&amp;utm_campaign=launch&amp;utm_content=hero" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.98 0C5.68 0 .5 4.86.02 11.04l6.43 2.66c.55-.37 1.2-.59 1.91-.59l.19.01 2.86-4.15v-.06a4.53 4.53 0 1 1 4.53 4.53h-.11l-4.08 2.91.01.16a3.4 3.4 0 0 1-6.73.67L.44 15.27A12 12 0 1 0 11.98 0zM7.54 18.21l-1.47-.61c.26.54.71 1 1.31 1.25a2.55 2.55 0 0 0 1.96-4.71l-1.52-.63a1.96 1.96 0 0 1 1.47 3.62l-1.76.69zm10.95-9.3a3.02 3.02 0 1 0-6.03 0 3.02 3.02 0 0 0 6.03 0zm-5.27-.01a2.27 2.27 0 1 1 4.53 0 2.27 2.27 0 0 1-4.53 0z"/></svg>
-          Buy now on Steam
-        </a>
-        <a class="btn btn-ghost" href="https://smolderstudios.github.io/cindervale/demo/cindervale.html" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-          Play free demo
-        </a>
-      </div>
-      <p class="price-line"><s>$4.99</s> <b>$3.99</b> <span class="pct">-20%</span> <span class="disc">launch discount</span> <span class="freeplay">· or try the free browser demo</span></p>
-      <div class="hero-meta">
-        <span class="pill"><span class="dot"></span> Out now on Steam</span>
-        <span class="pill">🖥️ Windows &middot; one-time purchase</span>
-        <span class="pill">🛠️ Early Access &middot; <span class="ver">v0.9.123</span></span>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- FEATURES -->
-  <section id="features">
-    <div class="wrap">
-      <div class="sec-head reveal">
-        <p class="eyebrow">What awaits you</p>
-        <h2>A world that <em>grows without you</em></h2>
-        <p>Pick what you want to train, close the game, come back to more than you left. Everything feeds something else — what you gather goes into what you craft, and what you craft goes into a fight.</p>
-      </div>
-      <div class="feat-grid">
-
-        <div class="card reveal">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 3l7 7-4 4-7-7 4-4z"/><path d="M10 7L3 14v7h7l7-7"/></svg></div>
-          <h3>13 Skilling Skills</h3>
-          <p>Woodcutting, mining, fishing, foraging, smithing, cooking, alchemy, firemaking, agility, thieving, jeweler, farming and crafting. Each one has its own materials, its own tools, and its own pace.</p>
-        </div>
-
-        <div class="card reveal">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3.5 12.5c1.6-2.4 4.6-4 8.5-4s6.9 1.6 8.5 4c-1.6 2.4-4.6 4-8.5 4"/><path d="M3.5 12.5h17"/><circle cx="9" cy="12.5" r="1.6" fill="currentColor" stroke="none"/><circle cx="15" cy="12.5" r="1.6" fill="currentColor" stroke="none"/></svg></div>
-          <h3>Thieving</h3>
-          <p>Fourteen jobs, from a bread stall up to a merchant's safe. The good ones can fail, and what you take is worth more to the Nightmarket than to any honest shopkeeper.</p>
-        </div>
-
-        <div class="card reveal">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14.5 3.5l6 6-9.5 9.5H5v-6z"/><path d="M4 20l3-3M14 6l4 4"/></svg></div>
-          <h3>Deep Melee Combat</h3>
-          <p>Six combat stats, weapon tiers, shields and two-handers, auto-eat and boss fights across a dozen escalating zones.</p>
-        </div>
-
-        <div class="card reveal">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="6" r="2.5"/><circle cx="5" cy="15" r="2.5"/><circle cx="19" cy="15" r="2.5"/><path d="M12 8.5v4M10 13l-3.5 1M14 13l3.5 1"/></svg></div>
-          <h3>98-Point Passive Trees</h3>
-          <p>Every skill has a 98-point passive tree behind it, and combat has a 37-node mastery tree on top of that. Where you spend the points changes how the skill plays.</p>
-        </div>
-
-        <div class="card reveal">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 11c0-3 2-5 5-5 2 0 3 1 3 1s1-1 3-1c3 0 5 2 5 5 0 4-8 9-8 9s-8-5-8-9z"/><circle cx="8.5" cy="10" r="1"/><circle cx="15.5" cy="10" r="1"/></svg></div>
-          <h3>Pets &amp; Familiars</h3>
-          <p>Twelve rare familiars, one hiding in each combat zone, plus a pet for every skill and one you have to go looking for. Twenty-six in all.</p>
-        </div>
-
-        <div class="card reveal">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l2.5 5 5.5.8-4 4 1 5.4L12 19l-5 2.6 1-5.4-4-4L9.5 7z"/></svg></div>
-          <h3>Raid Gauntlets</h3>
-          <p>Four raids, and none of them let you retreat. Clear every stage for the loot or leave with nothing. The rating you finish on decides what drops.</p>
-        </div>
-
-        <div class="card reveal">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3.5l6 3.2v5.1c0 3.6-2.5 6.7-6 7.7-3.5-1-6-4.1-6-7.7V6.7z"/><path d="M12 8.6l1.9 2-1.9 2-1.9-2z"/></svg></div>
-          <h3>Gear, Gems &amp; Enchants</h3>
-          <p>Weapons and armour by tier, shields and two-handers, gems you drill into a socket, and 52 enchants. Save a full loadout per skill and swap it in one click.</p>
-        </div>
-
-        <div class="card reveal">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
-          <h3>Idle by Design</h3>
-          <p>Whatever you set running keeps running with the game closed. Come back to more materials, more levels, and a voyage that finished without you.</p>
-        </div>
-
-        <div class="card reveal">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v14"/><path d="M12 17c-3.5 0-6-2.5-6-6l6-3 6 3c0 3.5-2.5 6-6 6z"/><path d="M4 20c1.5 1 2.5 1 4 0s2.5-1 4 0 2.5 1 4 0 2.5-1 4 0"/><circle cx="12" cy="4" r="1.6"/></svg></div>
-          <h3>Sailing &amp; Treasure Hunting</h3>
-          <p>Chart 26 islands across four archipelagos. Build seven ships, sign a crew, and send them out on real-time voyages that finish whether the game is open or not.</p>
-        </div>
-
-        <div class="card reveal">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l1.9 4.6 5 .4-3.8 3.3 1.2 4.9L12 13.7 7.7 16.2l1.2-4.9L5.1 8l5-.4z"/><path d="M8 19h8"/><path d="M12 16.5V21"/></svg></div>
-          <h3>Slayer Bounties</h3>
-          <p>Take contracts from three masters, bank Slayer Points on every streak, and spend them on perks — or on skipping the task you don't want.</p>
-        </div>
-
-        <div class="card reveal">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l7 3.5v5c0 4-3 7.4-7 8.5-4-1.1-7-4.5-7-8.5v-5z"/><path d="M9.3 11.7l1.9 1.9 3.6-3.6"/></svg></div>
-          <h3>Ten Guilds</h3>
-          <p>Join up and the board hands you work every day — one guild per skill, plus the Nightmarket, which buys what you steal. Reputation earns titles, and the titles pay off in that guild's own skill.</p>
-        </div>
-
-        <div class="card reveal">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 5.5v15"/><path d="M8.5 7.5h6M8.5 11h4"/></svg></div>
-          <h3>A Collection to Complete</h3>
-          <p>The Compendium logs every monster, drop, island and sea find the first time you see one — 735 items, and it tells you where each came from.</p>
-        </div>
-
-      </div>
-
-      <div class="stats" style="margin-top:44px">
-        <div class="stat reveal"><div class="n">13</div><div class="l">Skilling Skills</div></div>
-        <div class="stat reveal"><div class="n">12</div><div class="l">Combat Zones</div></div>
-        <div class="stat reveal"><div class="n">10</div><div class="l">Guilds to Join</div></div>
-        <div class="stat reveal"><div class="n">26</div><div class="l">Islands to Chart</div></div>
-        <div class="stat reveal"><div class="n">26</div><div class="l">Pets to Find</div></div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- SCREENSHOTS -->
-  <section id="screens">
-    <div class="wrap">
-      <div class="sec-head reveal">
-        <p class="eyebrow">A look inside</p>
-        <h2>See it in <em>action</em></h2>
-        <p>A peek inside the game.</p>
-      </div>
-      <div class="feature-slider reveal" data-fslider>
-        <div class="fs-text">
-          <div class="fs-index"><b class="fs-cur">01</b> / <span class="fs-tot">09</span></div>
-          <h3 class="fs-title">Thieving</h3>
-          <p class="fs-desc">Steal from stalls, pick pockets, crack safes. Fourteen jobs, and the good ones can go wrong.</p>
-          <div class="fs-controls">
-            <button class="fs-arrow fs-prev" type="button" aria-label="Previous">&#8249;</button>
-            <button class="fs-arrow fs-next" type="button" aria-label="Next">&#8250;</button>
-            <div class="fs-dots"></div>
-          </div>
-        </div>
-        <div class="fs-media">
-          <div class="fs-stage">
-            <img class="fs-img on" src="shots/thieving.png" alt="The Thieving panel — fourteen jobs from a bread stall to a merchant's safe" data-title="Thieving" data-desc="Steal from stalls, pick pockets, crack safes. Fourteen jobs, and the good ones can go wrong.">
-            <img class="fs-img" src="shots/guilds.png" alt="The Nightmarket guild — quests, titles and a counter that buys stolen goods" data-title="Guilds" data-desc="Ten guilds, each with a quest board, a shop and ranks. The Nightmarket buys what you steal.">
-            <img class="fs-img" src="shots/sailing.png" alt="The Admiralty chart — 26 islands across four archipelagos" data-title="Sailing" data-desc="Chart the sea, pick a heading, send the ship out. It comes back on its own clock.">
-            <img class="fs-img" src="shots/shipyard.png" alt="The Emberwatch shipyard — seven hulls from raft to leviathan" data-title="The Shipyard" data-desc="Seven ships, built from salvage you can only bring back by sailing.">
-            <img class="fs-img" src="shots/raids.png" alt="A raid in progress — The Sunken Barrow gauntlet" data-title="Raids" data-desc="No-retreat gauntlets — clear every stage, or walk away with nothing.">
-            <img class="fs-img" src="shots/combat.png" alt="The Combat Mastery tree" data-title="Combat" data-desc="A deep mastery tree that reshapes how you fight.">
-            <img class="fs-img" src="shots/skilling.png" alt="Mining — one of thirteen skills" data-title="Skilling" data-desc="Thirteen skills to level, each with its own loop.">
-            <img class="fs-img" src="shots/trees.png" alt="A 98-point passive skill tree" data-title="Passive trees" data-desc="A 98-point passive tree behind every skill, and 98 points is never enough for all of it.">
-            <img class="fs-img" src="shots/slayer.png" alt="Slayer bounties and rewards shop" data-title="Slayer" data-desc="Take bounties, bank points, cash them in for perks.">
-            <span class="fs-fill" aria-hidden="true"></span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- WORLD -->
-  <section id="world">
-    <div class="wrap">
-      <div class="sec-head reveal">
-        <p class="eyebrow">The descent</p>
-        <h2>Twelve zones, ever <em>darker</em></h2>
-        <p>Rat Warrens through to the Demon Sanctum. Each zone has its own monsters, a boss at the end of it, and one rare spawn worth waiting for.</p>
-      </div>
-      <div class="zones">
-        <div class="zone reveal"><span class="num">1</span><span class="nm">Rat Warrens</span></div>
-        <div class="zone reveal"><span class="num">2</span><span class="nm">Spider Hollow</span></div>
-        <div class="zone reveal"><span class="num">3</span><span class="nm">Goblin Cave</span></div>
-        <div class="zone reveal"><span class="num">4</span><span class="nm">Skeleton Crypt</span></div>
-        <div class="zone reveal"><span class="num">5</span><span class="nm">Wolf Den</span></div>
-        <div class="zone reveal"><span class="num">6</span><span class="nm">Ogre Stronghold</span></div>
-        <div class="zone reveal"><span class="num">7</span><span class="nm">Troll Caverns</span></div>
-        <div class="zone reveal"><span class="num">8</span><span class="nm">Wyvern Roost</span></div>
-        <div class="zone reveal"><span class="num">9</span><span class="nm">Demon Sanctum</span></div>
-        <div class="zone reveal"><span class="num">10</span><span class="nm">Thornwood Thicket</span></div>
-        <div class="zone reveal"><span class="num">11</span><span class="nm">Frostfang Tundra</span></div>
-        <div class="zone reveal"><span class="num">12</span><span class="nm">Ashen Steppe</span></div>
-      </div>
-      <div class="raids-row reveal">
-        <span class="zr-label">&#10022; Endgame raids</span>
-        <div class="raids-grid">
-          <div class="zone raid"><span class="num">&#10022;</span><span class="nm">The Sunken Barrow</span></div>
-          <div class="zone raid"><span class="num">&#10022;</span><span class="nm">The Emberforge Deep</span></div>
-          <div class="zone raid"><span class="num">&#10022;</span><span class="nm">The Abyssal Throne</span></div>
-          <div class="zone raid"><span class="num">&#10022;</span><span class="nm">The Empyrean Throne</span></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- ABOUT -->
-  <section id="about">
-    <div class="wrap about">
-      <div class="reveal">
-        <p class="eyebrow">About us</p>
-        <h2>Forged by <span style="color:var(--trim-bright)">Smolder Studios</span></h2>
-        <p>Cindervale Idle is the work of a <b>solo developer</b> with a love for the tick-tick-tick of a great incremental game and the brooding weight of dark fantasy.</p>
-        <p>One game, bought once. <b>No microtransactions and no pay-to-win</b> — the only thing that gets you further is playing. Every monster, item and zone has its own <b>hand-drawn icon</b>, and most of what ships each update came out of a conversation in Discord.</p>
-        <p>It's on <b>Steam as a one-time purchase</b>, and every update after it is free. Feedback goes straight to the developer. Still to come: magic and ranged combat, more zones, and plenty more besides.</p>
-        <a class="btn btn-ghost" href="https://discord.gg/V9HeEwBGHE" target="_blank" rel="noopener" style="margin-top:6px">Meet the community →</a>
-      </div>
-      <div class="about-card reveal">
-        <div class="row"><span class="k">Studio</span><span class="v">Smolder Studios</span></div>
-        <div class="row"><span class="k">Genre</span><span class="v">Dark-Fantasy Idle RPG</span></div>
-        <div class="row"><span class="k">Platform</span><span class="v">Windows &middot; Steam</span></div>
-        <div class="row"><span class="k">Price</span><span class="v"><s>$4.99</s> $3.99 &middot; 20% launch discount</span></div>
-        <div class="row"><span class="k">Status</span><span class="v beta">● Early Access &middot; <span class="ver">v0.9.123</span></span></div>
-        <div class="row"><span class="k">Steam</span><span class="v">Out now &middot; Early Access</span></div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- COMMUNITY -->
-  <section id="community">
-    <div class="wrap">
-      <div class="sec-head reveal">
-        <p class="eyebrow">Get the game</p>
-        <h2>Out now on <em>Steam</em></h2>
-        <p>Cindervale Idle is in Early Access — <b>20% off launch week</b>, and every future update is free.</p>
-      </div>
-      <div class="comm-grid">
-
-        <div class="comm steam reveal">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.98 0C5.68 0 .5 4.86.02 11.04l6.43 2.66c.55-.37 1.2-.59 1.91-.59l.19.01 2.86-4.15v-.06a4.53 4.53 0 1 1 4.53 4.53h-.11l-4.08 2.91.01.16a3.4 3.4 0 0 1-6.73.67L.44 15.27A12 12 0 1 0 11.98 0zM7.54 18.21l-1.47-.61c.26.54.71 1 1.31 1.25a2.55 2.55 0 0 0 1.96-4.71l-1.52-.63a1.96 1.96 0 0 1 1.47 3.62l-1.76.69zm10.95-9.3a3.02 3.02 0 1 0-6.03 0 3.02 3.02 0 0 0 6.03 0zm-5.27-.01a2.27 2.27 0 1 1 4.53 0 2.27 2.27 0 0 1-4.53 0z"/></svg></div>
-          <span class="badge">Out now</span>
-          <h3>Get it on Steam</h3>
-          <p class="steam-price"><span class="pct">-20%</span><s>$4.99</s><b>$3.99</b><em>launch discount</em></p>
-          <p>The full experience on Windows — every zone, skill, and system unlocked, with Steam achievements. One purchase, no microtransactions, and every future update included.</p>
-          <a class="btn btn-primary" href="https://store.steampowered.com/app/4966660/Cindervale_Idle/?utm_source=website&amp;utm_medium=button&amp;utm_campaign=launch&amp;utm_content=pricing" target="_blank" rel="noopener">Buy now on Steam</a>
-        </div>
-
-        <div class="comm discord reveal">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.5 5.3A17 17 0 0 0 15.3 4l-.2.4a12 12 0 0 1 3.7 1.9 15.6 15.6 0 0 0-13.6 0A12 12 0 0 1 9 4.4L8.7 4a17 17 0 0 0-4.2 1.3C1.8 9.3 1.1 13.2 1.5 17a17 17 0 0 0 5.1 2.6l.6-1a11 11 0 0 1-1.8-.9l.4-.3a12 12 0 0 0 10.4 0l.5.3c-.6.4-1.2.7-1.8 1l.6 1A17 17 0 0 0 22.5 17c.5-4.4-.7-8.2-3-11.7zM8.4 14.6c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm7.2 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/></svg></div>
-          <span class="badge">Community</span>
-          <h3>Join the Discord</h3>
-          <p>Chat with the developer, report bugs, suggest features, and be first to hear about the launch and every update.</p>
-          <a class="btn btn-ghost" href="https://discord.gg/V9HeEwBGHE" target="_blank" rel="noopener">Open Discord →</a>
-        </div>
-
-        <div class="comm demo reveal">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M10 8.5v4l3.5-2z" fill="currentColor" stroke="none"/></svg></div>
-          <span class="badge">Free &middot; no download</span>
-          <h3>Play the demo</h3>
-          <p>Try Cindervale free in your browser — no account, progress saved locally. A generous taste of the world; buy on Steam to unlock the full game.</p>
-          <a class="btn btn-ghost" href="https://smolderstudios.github.io/cindervale/demo/cindervale.html" target="_blank" rel="noopener">Launch the demo →</a>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- PLAYTEST -->
-  <!-- Deliberately does NOT link to /playtester. That page is code-gated and the
-       codes are handed out by hand in Discord, so pointing people straight at it
-       would just give them a form they cannot get past. Discord is the door.
-
-       The button uses a CHANNEL-TARGETED invite (made from #playtester-applications
-       via Invite People on that channel), not the general server invite and not a
-       discord.com/channels/... URL — the latter only resolves for people already in
-       the server and shows everyone else an error. -->
-  <section id="playtest">
-    <div class="wrap">
-      <div class="pt-panel reveal">
-        <div class="pt-body">
-          <p class="eyebrow">Before launch</p>
-          <h2>Want to <em>playtest</em>?</h2>
-          <p class="pt-lead">A small group is playing Cindervale ahead of the Steam release — testing new builds, breaking things, and shaping what gets fixed first.</p>
-          <ul class="pt-points">
-            <li><b>Play it before Steam.</b> Updates land in the playtest build days before they reach the store.</li>
-            <li><b>Your progress carries over.</b> Characters made now come with you to the Steam version.</li>
-            <li><b>Say what you actually think.</b> Bug reports and blunt feedback both go straight to the developer.</li>
-          </ul>
-          <a class="btn btn-primary" href="https://discord.gg/rrycnhTAdv" target="_blank" rel="noopener">Apply to playtest →</a>
-          <p class="pt-fine">Windows only &middot; limited spots &middot; four questions, takes a minute</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FINAL CTA -->
-  <section class="finalcta">
-    <div class="wrap">
-      <svg class="hero-flame" style="width:56px;height:56px"><use href="#flameSym"/></svg>
-      <h2>The embers are <span class="cinder">waiting</span></h2>
-      <p>Thirteen skills. Twelve zones. Ten guilds and a sea to chart. It's out now.</p>
-      <a class="btn btn-primary" href="https://store.steampowered.com/app/4966660/Cindervale_Idle/?utm_source=website&amp;utm_medium=button&amp;utm_campaign=launch&amp;utm_content=final-cta" target="_blank" rel="noopener" style="font-size:18px;padding:16px 34px">
+<!-- 1 ─ the town at dusk -->
+<section class="scene tall">
+  <div class="bgimg" style="--warm:.12;background-image:url('scenes/welcome.png')"></div>
+  <div class="wrap narrow">
+    <div class="eyeb reveal">Out now &middot; Early Access &middot; v0.9.123</div>
+    <h1 class="reveal">The forge does not<br>go out when you <em>leave</em>.</h1>
+    <p class="lede reveal">A dark-fantasy idle RPG. Thirteen skills, twelve combat zones,
+      ten guilds and a sea with twenty-six islands on it. Set something running and
+      shut the window.</p>
+    <div class="acts reveal">
+      <a class="btn p" href="https://store.steampowered.com/app/4966660/Cindervale_Idle/?utm_source=website&amp;utm_medium=button&amp;utm_campaign=site&amp;utm_content=hero" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.98 0C5.68 0 .5 4.86.02 11.04l6.43 2.66c.55-.37 1.2-.59 1.91-.59l.19.01 2.86-4.15v-.06a4.53 4.53 0 1 1 4.53 4.53h-.11l-4.08 2.91.01.16a3.4 3.4 0 0 1-6.73.67L.44 15.27A12 12 0 1 0 11.98 0zM7.54 18.21l-1.47-.61c.26.54.71 1 1.31 1.25a2.55 2.55 0 0 0 1.96-4.71l-1.52-.63a1.96 1.96 0 0 1 1.47 3.62l-1.76.69zm10.95-9.3a3.02 3.02 0 1 0-6.03 0 3.02 3.02 0 0 0 6.03 0zm-5.27-.01a2.27 2.27 0 1 1 4.53 0 2.27 2.27 0 0 1-4.53 0z"/></svg>
-        Buy now on Steam
+        Buy on Steam
+      </a>
+      <a class="btn g" href="https://smolderstudios.github.io/cindervale/demo/cindervale.html" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+        Play the free demo
       </a>
     </div>
-  </section>
+    <p class="meta reveal"><b>$4.99</b> &middot; one purchase &middot; Windows &middot; no microtransactions</p>
+    <div class="figs reveal">
+      <div><div class="n">13</div><div class="l">Skills</div></div>
+      <div><div class="n">12</div><div class="l">Zones</div></div>
+      <div><div class="n">10</div><div class="l">Guilds</div></div>
+      <div><div class="n">26</div><div class="l">Islands</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 ─ the guild hall -->
+<section class="scene" id="guilds">
+  <div class="bgimg" style="--warm:.18;background-image:url('scenes/guilds.png')"></div>
+  <div class="wrap"><div class="split">
+    <div class="reveal">
+      <div class="eyeb">Ten guilds</div>
+      <h2>Somebody always<br>wants <em>something</em> doing</h2>
+      <p class="body">One guild for every skill, plus the Nightmarket. Join and the board
+        hands you work: kill these, gather that, bring back this many.</p>
+      <ul class="bullets">
+        <li><b>Three jobs a day</b>, small to long, rerolled every morning.</li>
+        <li><b>Titles that do something.</b> Six ranks per guild, each a real bonus in that
+          guild's own skill. Speed, yield, gold, a shot at double output.</li>
+        <li><b>A shop each</b>, paid for in tokens off the board.</li>
+        <li><b>One skip</b>, for the day the board asks for something absurd.</li>
+      </ul>
+    </div>
+    <img class="reveal" src="shots/guilds.png" alt="The Nightmarket guild panel: quests, titles, shop and a counter buying stolen goods">
+  </div></div>
+</section>
+
+<!-- 3 ─ the forest edge -->
+<section class="scene" id="skills">
+  <div class="bgimg" style="--warm:.62;background-image:url('scenes/skills.png')"></div>
+  <div class="wrap"><div class="split flip">
+    <img class="reveal" src="shots/skilling.png" alt="The Mining panel, twelve rocks from copper up to starsteel">
+    <div class="reveal">
+      <div class="eyeb">Thirteen skills</div>
+      <h2>Everything feeds<br><em>something else</em></h2>
+      <p class="body">What you cut down becomes what you build. What you build decides how
+        deep you get. What you drag back out of the dark is what the best tools are made of.</p>
+      <ul class="bullets">
+        <li><b>A 98-point tree</b> behind every skill, and never enough points for all of it.
+          Respec whenever you want.</li>
+        <li><b>Tools in tiers</b>, with the top ones gated behind drops you have to go and
+          fight for.</li>
+        <li><b>735 items</b>, every one logged the first time you see it.</li>
+      </ul>
+    </div>
+  </div></div>
+</section>
+
+<!-- 4 ─ the cave mouth -->
+<section class="scene" id="combat">
+  <div class="bgimg" style="--warm:.3;background-image:url('scenes/dark.png')"></div>
+  <div class="wrap"><div class="split">
+    <div class="reveal">
+      <div class="eyeb">Twelve zones</div>
+      <h2>Down as far as the<br><em>Demon Sanctum</em></h2>
+      <p class="body">Every zone has its own monsters, a boss at the end of it, and one rare
+        spawn worth waiting for. Fifty-seven in all, each logged with what it drops and how
+        often.</p>
+      <ul class="bullets">
+        <li><b>Four raids</b> with no retreat. Clear every stage or leave with nothing.</li>
+        <li><b>Gems and 52 enchants</b> to put into what you are wearing.</li>
+        <li><b>A 37-node mastery tree</b> on top of everything else.</li>
+        <li><b>Slayer bounties</b> from three masters, and points to spend on perks.</li>
+      </ul>
+    </div>
+    <img class="reveal" src="shots/arena.png" alt="Fighting a Hellhound in the Demon Sanctum">
+  </div></div>
+</section>
+
+<!-- 5 ─ the open sea -->
+<section class="scene" id="sea">
+  <div class="bgimg" style="--warm:.85;background-image:url('scenes/sea.png')"></div>
+  <div class="wrap"><div class="split flip">
+    <img class="reveal" src="shots/sailing.png" alt="The Admiralty chart, twenty-six islands across four seas">
+    <div class="reveal">
+      <div class="eyeb">Twenty-six islands</div>
+      <h2>Send it out and<br>go do <em>something else</em></h2>
+      <p class="body">Build a ship, sign a crew, pick a heading. Voyages run on a real clock
+        and come home whether the game is open or not.</p>
+      <ul class="bullets">
+        <li><b>Seven hulls</b>, raft up to leviathan, with cannons, rudders and figureheads
+          to bolt onto them.</li>
+        <li><b>Four seas</b>, and a chart that fills itself in as you go.</li>
+        <li><b>A consort</b> who will sail with you once you are far enough out.</li>
+      </ul>
+    </div>
+  </div></div>
+</section>
+
+<!-- 6 ─ the gallery, so the rest of the game gets seen -->
+<section class="gallery mid" id="look">
+  <div class="galwrap">
+    <div class="eyeb reveal">A look inside</div>
+    <h2 class="reveal">The rest of it</h2>
+    <div class="gal">
+      <figure class="reveal"><img src="shots/trees.png" alt="A 98-point passive skill tree"><figcaption>A 98-point tree behind every skill</figcaption></figure>
+      <figure class="reveal"><img src="shots/thieving.png" alt="The Thieving panel"><figcaption>Thieving, fourteen jobs that can fail</figcaption></figure>
+      <figure class="reveal"><img src="shots/combat.png" alt="The Combat Mastery tree"><figcaption>Combat Mastery, 37 nodes</figcaption></figure>
+      <figure class="reveal"><img src="shots/slayer.png" alt="Slayer bounties and masters"><figcaption>Slayer, three masters and a shop</figcaption></figure>
+      <figure class="reveal"><img src="shots/shipyard.png" alt="The Emberwatch shipyard"><figcaption>The shipyard, seven hulls to build</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ─ the night valley -->
+<section class="scene mid">
+  <div class="bgimg" style="--warm:.9;background-image:url('scenes/away.png')"></div>
+  <div class="wrap narrow">
+    <div class="eyeb reveal">Close it and walk away</div>
+    <h2 class="reveal">It is still running.<br>Go and <em>do something else</em>.</h2>
+    <p class="lede reveal">Skills bank XP and materials. Voyages come home. Fights carry on.
+      There is no energy bar and nothing to sit and wait for. Play for ten minutes or for
+      three hours; the game is the same either way.</p>
+  </div>
+</section>
+
+<!-- 8 ─ the hoard -->
+<section class="scene mid" id="get">
+  <div class="bgimg" style="--warm:.25;background-image:url('scenes/price.png')"></div>
+  <div class="wrap">
+    <div class="eyeb reveal">One purchase, no catches</div>
+    <h2 class="reveal">Three ways in</h2>
+    <div class="ways">
+
+      <div class="way reveal">
+        <div class="badge">Out now on Steam</div>
+        <h3>The full game</h3>
+        <div class="pricetag">$4.99</div>
+        <p>Every zone, skill and system unlocked, with Steam achievements and cloud saves.
+          Three save slots. No microtransactions, no battle pass, no ads. Buy it once and
+          every update after it is free.</p>
+        <a class="btn p" href="https://store.steampowered.com/app/4966660/Cindervale_Idle/?utm_source=website&amp;utm_medium=button&amp;utm_campaign=site&amp;utm_content=ways" target="_blank" rel="noopener">Buy on Steam</a>
+      </div>
+
+      <div class="way reveal">
+        <div class="badge">Free &middot; no download</div>
+        <h3>The demo</h3>
+        <div class="pricetag">Free</div>
+        <p>Runs in your browser, no account needed, progress saved on your own machine.
+          A real slice of the game rather than a trailer you can click.</p>
+        <a class="btn g" href="https://smolderstudios.github.io/cindervale/demo/cindervale.html" target="_blank" rel="noopener">Launch the demo</a>
+      </div>
+
+      <div class="way reveal">
+        <div class="badge">Community</div>
+        <h3>The Discord</h3>
+        <div class="pricetag">Come in</div>
+        <p>Bug reports, questions and blunt feedback all land with the person making it.
+          Most of what ships each update started as something somebody said in there.</p>
+        <a class="btn g" href="https://discord.gg/V9HeEwBGHE" target="_blank" rel="noopener">Open Discord</a>
+      </div>
+
+    </div>
+    <div class="figs reveal">
+      <div><div class="n">735</div><div class="l">Items</div></div>
+      <div><div class="n">57</div><div class="l">Monsters</div></div>
+      <div><div class="n">26</div><div class="l">Pets</div></div>
+      <div><div class="n">33</div><div class="l">Achievements</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 ─ about -->
+<section class="about" id="about">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="eyeb">About</div>
+      <h2>Made by <em>one person</em></h2>
+      <p>Cindervale Idle is the work of a solo developer who likes the tick of a good
+        incremental game and the weight of dark fantasy, and wanted one that was both.</p>
+      <p>It is a single hand-built game, bought once. <b>No microtransactions and no
+        pay-to-win</b> &mdash; the only thing that gets you further is playing. Every monster,
+        item and zone has its own hand-drawn icon.</p>
+      <p>It is in Early Access and gets updated constantly. Still to come: magic and ranged
+        combat, more zones, and more of everything already here. Feedback goes straight to
+        the developer.</p>
+      <div class="acts">
+        <a class="btn g" href="https://discord.gg/V9HeEwBGHE" target="_blank" rel="noopener">Meet the community</a>
+      </div>
+    </div>
+    <div class="facts reveal">
+      <div class="row"><span class="k">Studio</span><span class="v">Smolder Studios</span></div>
+      <div class="row"><span class="k">Genre</span><span class="v">Dark-fantasy idle RPG</span></div>
+      <div class="row"><span class="k">Platform</span><span class="v">Windows &middot; Steam</span></div>
+      <div class="row"><span class="k">Price</span><span class="v">$4.99, one purchase</span></div>
+      <div class="row"><span class="k">Build</span><span class="v ok">Early Access &middot; v0.9.123</span></div>
+      <div class="row"><span class="k">Demo</span><span class="v">Free, in your browser</span></div>
+    </div>
+  </div>
+</section>
 
 </main>
 
 <footer>
   <div class="wrap">
-    <div class="foot-in">
-      <div class="foot-brand"><svg class="flame"><use href="#flameSym"/></svg> Cindervale Idle</div>
-      <div class="foot-links">
-        <a href="#community">Steam</a>
-        <a href="https://smolderstudios.github.io/cindervale/demo/cindervale.html" target="_blank" rel="noopener">Play demo</a>
-        <a href="#features">Features</a>
-        <a href="#about">About</a>
-        <a href="https://discord.gg/V9HeEwBGHE" target="_blank" rel="noopener">Discord</a>
-        <a href="#contact" data-contact>Contact</a>
-        <a href="privacy.html">Privacy</a>
-        <a href="terms.html">Terms</a>
-      </div>
+    <div class="foot-brand">Cindervale Idle</div>
+    <div class="foot-links">
+      <a href="#get">Get the game</a>
+      <a href="https://smolderstudios.github.io/cindervale/demo/cindervale.html" target="_blank" rel="noopener">Play demo</a>
+      <a href="#guilds">Features</a>
+      <a href="#about">About</a>
+      <a href="https://discord.gg/V9HeEwBGHE" target="_blank" rel="noopener">Discord</a>
+      <a href="#contact" data-contact>Contact</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
     </div>
-    <p class="foot-contact">Questions or feedback? <a href="#contact" data-contact>Get in touch</a></p>
-    <p class="foot-note">© Smolder Studios. Cindervale Idle is in active development — features and balance are subject to change. All rights reserved.</p>
+    <p class="foot-note">&copy; Smolder Studios. Cindervale Idle is in active development;
+      features and balance are subject to change. All rights reserved.</p>
   </div>
 </footer>
 
@@ -741,65 +552,76 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
   </div>
 </div>
 <script>
-// ---- feature slider ----
+// ---- sticky nav shadow + reveal on scroll ----
 (function(){
-  var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-  document.querySelectorAll('[data-fslider]').forEach(function(c){
-    var imgs=[].slice.call(c.querySelectorAll('.fs-img'));
-    var n=imgs.length, i=0;
-    var elCur=c.querySelector('.fs-cur'), elTitle=c.querySelector('.fs-title'), elDesc=c.querySelector('.fs-desc');
-    // The total used to be typed into the HTML beside a count that was already
-    // computed, so adding a slide silently left it reading "01 / 07" of nine.
-    var elTot=c.querySelector('.fs-tot');
-    if(elTot) elTot.textContent=('0'+n).slice(-2);
-    var dotsWrap=c.querySelector('.fs-dots'), fill=c.querySelector('.fs-fill');
-    imgs.forEach(function(_,k){
-      var b=document.createElement('button');
-      b.className='fs-dot'; b.type='button'; b.setAttribute('aria-label','Feature '+(k+1));
-      b.addEventListener('click',function(){ go(k); play(); });
-      dotsWrap.appendChild(b);
-    });
-    var dots=[].slice.call(dotsWrap.children);
-    function go(k){
-      i=(k+n)%n;
-      imgs.forEach(function(im,j){ im.classList.toggle('on',j===i); });
-      dots.forEach(function(d,j){ d.classList.toggle('on',j===i); });
-      var a=imgs[i];
-      if(elCur) elCur.textContent=('0'+(i+1)).slice(-2);
-      if(elTitle) elTitle.textContent=a.getAttribute('data-title')||'';
-      if(elDesc) elDesc.textContent=a.getAttribute('data-desc')||'';
-    }
-    function play(){ if(reduce||!fill) return; fill.classList.remove('run'); void fill.offsetWidth; fill.classList.add('run'); }
-    if(fill) fill.addEventListener('animationend',function(){ go(i+1); play(); });
-    c.querySelector('.fs-next').addEventListener('click',function(){ go(i+1); play(); });
-    c.querySelector('.fs-prev').addEventListener('click',function(){ go(i-1); play(); });
-    go(0); play();
-  });
+  var nav=document.getElementById('nav');
+  if(nav) addEventListener('scroll',function(){ nav.classList.toggle('scrolled',scrollY>12); },{passive:true});
+
+  var els=[].slice.call(document.querySelectorAll('.reveal'));
+  // No IntersectionObserver (or reduced motion): show everything rather than
+  // leaving the page parked at opacity 0, which is what a failed observer does.
+  if(!('IntersectionObserver' in window)){
+    els.forEach(function(e){ e.classList.add('in'); });
+    return;
+  }
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+  els.forEach(function(el,i){ el.style.transitionDelay=(i%5*50)+'ms'; io.observe(el); });
 })();
-// ---- lightbox (click a screenshot to enlarge) ----
+
+// ---- screenshot lightbox ----
 (function(){
   var lb=document.getElementById('shotLightbox'); if(!lb) return;
   var im=lb.querySelector('img');
-  document.querySelectorAll('.fs-img').forEach(function(img){
+  document.querySelectorAll('.split img, .gal img').forEach(function(img){
     img.addEventListener('click',function(){ im.src=img.currentSrc||img.src; im.alt=img.alt||''; lb.hidden=false; });
   });
   function close(){ lb.hidden=true; im.src=''; }
   lb.addEventListener('click',close);
   document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!lb.hidden) close(); });
 })();
+
+// ---- rising embers ----
+(function(){
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  var c=document.getElementById('embers'); if(!c||!c.getContext) return;
+  var x=c.getContext('2d'), w,h,parts=[];
+  var cols=['224,118,47','251,210,78','196,84,58','240,199,114'];
+  function spark(init){return{x:Math.random()*w,y:init?Math.random()*h:h+10,
+    r:Math.random()*1.8+.6,s:Math.random()*.5+.2,d:Math.random()*.6-.3,
+    a:Math.random()*.5+.25,t:Math.random()*6.28};}
+  function size(){ w=c.width=innerWidth; h=c.height=innerHeight;
+    var n=Math.round(w/26); parts=[]; for(var i=0;i<n;i++) parts.push(spark(true)); }
+  function tick(){
+    x.clearRect(0,0,w,h);
+    for(var i=0;i<parts.length;i++){
+      var p=parts[i];
+      p.y-=p.s; p.t+=.02; p.x+=Math.sin(p.t)*.3+p.d*.15;
+      if(p.y<-12) Object.assign(p,spark(false));
+      var col=cols[(p.r*10|0)%cols.length];
+      x.beginPath(); x.arc(p.x,p.y,p.r,0,6.283);
+      x.fillStyle='rgba('+col+','+(p.a*(.5+.5*Math.sin(p.t)))+')';
+      x.shadowBlur=8; x.shadowColor='rgba('+col+',.8)'; x.fill();
+    }
+    requestAnimationFrame(tick);
+  }
+  addEventListener('resize',size,{passive:true});
+  size(); tick();
+})();
 </script>
 
-<!-- Contact modal gets its OWN script block on purpose. The block above opens
-     with matchMedia and IntersectionObserver; if either is missing, an uncaught
-     throw there would take every later IIFE in the same block down with it —
-     and Contact is not something that should break because a slider did. -->
+<!-- The contact modal gets its OWN script block on purpose. The block above opens
+     with matchMedia and IntersectionObserver; if either throws, every later IIFE in
+     the same block goes down with it, and Contact is not something that should break
+     because an ember canvas did. -->
 <script>
 // ---- contact modal ----
 // Deliberately never fires a mailto:. The address is copied to the clipboard
-// instead, so nobody gets an empty mail window they didn't ask for.
+// instead, so nobody gets an empty mail window they did not ask for.
 (function(){
   var m=document.getElementById('contactModal'); if(!m) return;
-  var card=m.querySelector('.cmodal-card'), last=null;
+  var last=null;
 
   function open(){
     last=document.activeElement; m.hidden=false;
@@ -808,7 +630,6 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
   function close(){
     m.hidden=true;
     if(last&&last.focus) last.focus({preventScroll:true});
-    // drop #contact so a refresh doesn't reopen it
     if(location.hash==='#contact') history.replaceState(null,'',location.pathname+location.search);
   }
 
@@ -816,7 +637,6 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
     el.addEventListener('click',function(e){ e.preventDefault(); open(); });
   });
   m.querySelector('.cmodal-x').addEventListener('click',close);
-  // backdrop only — clicks inside the card must not close it
   m.addEventListener('click',function(e){ if(e.target===m) close(); });
   document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!m.hidden) close(); });
 
@@ -826,11 +646,11 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
       btn.textContent='Copied'; btn.classList.add('ok');
       clearTimeout(t); t=setTimeout(function(){ btn.textContent='Copy'; btn.classList.remove('ok'); },1800);
     };
-    // execCommand fallback covers non-secure contexts and older Safari
+    function select(){ input.select(); input.setSelectionRange(0,99);
+      try{ document.execCommand('copy'); done(); }catch(err){} }
     if(navigator.clipboard&&navigator.clipboard.writeText){
       navigator.clipboard.writeText(input.value).then(done,select);
     } else select();
-    function select(){ input.select(); input.setSelectionRange(0,99); try{ document.execCommand('copy'); done(); }catch(err){} }
   });
 
   // deep link: privacy.html / terms.html point their Contact link at index.html#contact
@@ -838,56 +658,5 @@ footer{border-top:1px solid var(--line); padding:44px 0 60px; color:var(--dim)}
 })();
 </script>
 
-<script>
-// ---- sticky nav shadow ----
-const nav=document.getElementById('nav');
-addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>12),{passive:true});
-
-// ---- reveal on scroll ----
-const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
-document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(i%6*40)+'ms';io.observe(el);});
-
-// ---- rising embers ----
-(function(){
-  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-  if(reduce) return;
-  const c=document.getElementById('embers'), x=c.getContext('2d');
-  let w,h,parts=[];
-  function size(){w=c.width=innerWidth;h=c.height=innerHeight;const n=Math.round(w/22);parts=[];for(let i=0;i<n;i++)parts.push(spark(true));}
-  function spark(init){return{x:Math.random()*w,y:init?Math.random()*h:h+10,r:Math.random()*1.8+.6,s:Math.random()*.5+.2,d:Math.random()*.6-.3,a:Math.random()*.5+.25,t:Math.random()*6.28};}
-  const cols=['224,118,47','251,210,78','196,84,58','240,199,114'];
-  function tick(){
-    x.clearRect(0,0,w,h);
-    for(const p of parts){
-      p.y-=p.s; p.t+=.02; p.x+=Math.sin(p.t)*.3+p.d*.15;
-      if(p.y< -12){Object.assign(p,spark(false));}
-      const col=cols[(p.r*10|0)%cols.length];
-      x.beginPath(); x.arc(p.x,p.y,p.r,0,6.283);
-      x.fillStyle='rgba('+col+','+(p.a*(.5+.5*Math.sin(p.t)))+')';
-      x.shadowBlur=8; x.shadowColor='rgba('+col+',.8)'; x.fill();
-    }
-    requestAnimationFrame(tick);
-  }
-  addEventListener('resize',size,{passive:true}); size(); tick();
-})();
-
-/* ---- live version stamp ----
-   The .ver spans are hardcoded to the version that shipped with this page, so
-   the site is correct with JS off or if the fetch fails. When it succeeds we
-   upgrade them to whatever the game is actually serving, which stops the
-   marketing page drifting behind the game the way it did at v0.9.40.
-   version.json lives in the game repo and GitHub Pages sends ACAO:* on it. */
-(function(){
-  var els=document.querySelectorAll('.ver');
-  if(!els.length||!window.fetch) return;
-  fetch('https://smolderstudios.github.io/cindervale/version.json',{cache:'no-cache'})
-    .then(function(r){ return r.ok?r.json():null; })
-    .then(function(j){
-      if(!j||!j.version||!/^\d+\.\d+\.\d+$/.test(j.version)) return;
-      els.forEach(function(el){ el.textContent='v'+j.version; });
-    })
-    .catch(function(){ /* offline or blocked — the hardcoded value stands */ });
-})();
-</script>
 </body>
 </html>

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cindervale Idle — Direction B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Cinzel:wght@600;700&display=swap">
+<style>
+/* ============================================================================
+   DIRECTION B — THE LOOP
+   The argument here is that an idle game should not have to DESCRIBE idle
+   progression on its landing page. The hero is a working simulation: the bars
+   fill, the numbers climb, drops land in the log. Leave the tab open for a
+   minute and it has made progress, which is the entire pitch delivered without
+   a sentence about it.
+   Everything below the hero is data-forward to match -- bars, counters and
+   monospaced figures rather than paragraphs of adjectives.
+   ========================================================================== */
+:root{
+  --bg:#0a0a0d;
+  --panel:#131318;
+  --panel2:#1a1a21;
+  --line:#26262f;
+  --line2:#33333f;
+  --txt:#e8e5df;
+  --dim:#8d8a83;
+  --ember:#ff7a2f;
+  --gold:#e8b95c;
+  --green:#7fd48b;
+  --violet:#a98bf0;
+  --blue:#6fb3e8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:'Familjen Grotesk',system-ui,sans-serif;
+  font-size:16.5px;line-height:1.58;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(900px 500px at 78% -8%, rgba(255,122,47,.10), transparent 62%),
+                   radial-gradient(700px 460px at 8% 32%, rgba(169,139,240,.07), transparent 64%)}
+img{max-width:100%;display:block}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+/* ---- nav ---- */
+.nav{position:sticky;top:0;z-index:60;background:rgba(10,10,13,.86);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:26px;height:62px}
+.logo{font-family:'Cinzel',serif;font-weight:700;font-size:19px;letter-spacing:.02em;margin-right:auto}
+.logo span{color:var(--ember)}
+.nav a.l{color:var(--dim);text-decoration:none;font-size:14px}
+.nav a.l:hover{color:var(--txt)}
+.cta{background:var(--ember);color:#1a0c02;font-weight:600;font-size:14px;padding:9px 17px;
+  border-radius:8px;text-decoration:none}
+
+/* ---- hero ---- */
+.hero{padding:64px 0 78px}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:52px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:9px;font-size:12.5px;font-weight:500;
+  border:1px solid var(--line2);border-radius:999px;padding:6px 14px;color:var(--dim);
+  margin-bottom:22px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 9px var(--green);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+h1{font-size:clamp(40px,5.4vw,62px);line-height:1.03;letter-spacing:-.025em;font-weight:600;
+  text-wrap:balance}
+h1 span{background:linear-gradient(96deg,var(--ember),var(--gold));-webkit-background-clip:text;
+  background-clip:text;color:transparent}
+.lede{margin-top:20px;font-size:18.5px;color:#b9b5ad;max-width:32em}
+.acts{display:flex;gap:12px;margin-top:30px;align-items:center;flex-wrap:wrap}
+.btn{font-size:15px;font-weight:600;text-decoration:none;padding:13px 24px;border-radius:9px;
+  display:inline-flex;align-items:center;gap:9px}
+.btn.p{background:var(--ember);color:#1a0c02}
+.btn.g{border:1px solid var(--line2);color:var(--txt)}
+.sub{margin-top:16px;font-size:13.5px;color:var(--dim)}
+.sub b{color:var(--txt)}
+
+/* ---- the live panel ---- */
+.sim{background:linear-gradient(180deg,var(--panel),#0f0f13);border:1px solid var(--line2);
+  border-radius:14px;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.6)}
+.sim-top{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line);
+  background:var(--panel2)}
+.sim-top .t{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dim);margin-right:auto}
+.sim-top .g{width:9px;height:9px;border-radius:50%;background:var(--line2)}
+.sim-body{padding:15px}
+.row{display:flex;align-items:center;gap:11px;padding:9px 0}
+.row+.row{border-top:1px solid var(--line)}
+.ic{width:30px;height:30px;border-radius:7px;flex:none;display:grid;place-items:center;
+  font-size:15px;background:var(--panel2);border:1px solid var(--line2)}
+.rn{flex:1;min-width:0}
+.rn .nm{font-size:13.5px;font-weight:500;display:flex;justify-content:space-between;gap:10px}
+.rn .nm i{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--dim)}
+/* The bars ARE the pitch, so they have to be visible in a thumbnail. A 5px track
+   at #000 inside an already-dark panel rendered as nothing at all. */
+.bar{height:8px;border-radius:4px;background:#000;border:1px solid var(--line2);
+  margin-top:7px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.8)}
+.bar i{display:block;height:100%;border-radius:3px;transition:width .4s linear;
+  box-shadow:0 0 10px currentColor}
+.sim-foot{border-top:1px solid var(--line);padding:11px 15px;background:#0d0d11;
+  display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11.5px}
+.sim-foot .k{color:var(--dim)}
+.sim-foot .v{color:var(--gold)}
+.log{border-top:1px solid var(--line);padding:10px 15px 13px;background:#0b0b0e;
+  font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--dim);height:78px;overflow:hidden}
+.log div{padding:2px 0;animation:slidein .35s ease}
+.log b{color:var(--green);font-weight:400}
+@keyframes slidein{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+
+/* ---- stat strip ---- */
+.strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#0c0c10}
+.strip .wrap{display:grid;grid-template-columns:repeat(6,1fr);gap:0}
+.strip div{padding:26px 14px;text-align:center}
+.strip div+div{border-left:1px solid var(--line)}
+.strip .n{font-family:'IBM Plex Mono',monospace;font-size:29px;font-weight:600;color:var(--txt)}
+.strip .l{font-size:12px;color:var(--dim);margin-top:5px}
+
+/* ---- features ---- */
+section{padding:88px 0}
+.shead{max-width:640px;margin-bottom:44px}
+.eyeb{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ember);margin-bottom:14px}
+h2{font-size:clamp(29px,3.6vw,40px);line-height:1.1;letter-spacing:-.02em;font-weight:600}
+.shead p{margin-top:14px;color:#a8a49c;font-size:17px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:22px;
+  position:relative;overflow:hidden}
+.card::after{content:'';position:absolute;left:22px;right:22px;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--acc,var(--ember)),transparent);opacity:.55}
+.card h3{font-size:18px;font-weight:600;margin-bottom:8px}
+.card p{font-size:14.5px;color:#9d998f;line-height:1.6}
+.card .badge{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--acc,var(--ember));
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:13px;display:block}
+.card.tall{grid-row:span 2}
+.card img{border-radius:9px;border:1px solid var(--line2);margin-top:16px}
+</style></head>
+<body>
+
+<div class="nav"><div class="wrap">
+  <div class="logo">Cinder<span>vale</span></div>
+  <a class="l" href="#">Skills</a><a class="l" href="#">Combat</a><a class="l" href="#">Guilds</a>
+  <a class="l" href="#">Sailing</a><a class="l" href="#">Discord</a>
+  <a class="cta" href="#">Get it &middot; $4.99</a>
+</div></div>
+
+<div class="hero"><div class="wrap">
+  <div>
+    <div class="pill"><span class="dot"></span> Out now on Steam &middot; Early Access v0.9.123</div>
+    <h1>It's still running <span>while you read this.</span></h1>
+    <p class="lede">A dark-fantasy idle RPG. Thirteen skills, twelve combat zones, ten guilds
+      and twenty-six islands. Set something going and close the window; it does not stop.</p>
+    <div class="acts">
+      <a class="btn p" href="#">Buy on Steam</a>
+      <a class="btn g" href="#">Play free in browser</a>
+    </div>
+    <p class="sub"><b>$4.99</b> once. No microtransactions, no ads, no energy bar. Every update free.</p>
+  </div>
+
+  <div class="sim">
+    <div class="sim-top"><span class="t">Cindervale &middot; running</span>
+      <span class="g"></span><span class="g"></span><span class="g"></span></div>
+    <div class="sim-body" id="rows"></div>
+    <div class="sim-foot"><span class="k">offline for</span><span class="v" id="clock">00:00:00</span></div>
+    <div class="log" id="log"></div>
+  </div>
+</div></div>
+
+<div class="strip"><div class="wrap">
+  <div><div class="n">13</div><div class="l">Skills</div></div>
+  <div><div class="n">12</div><div class="l">Zones</div></div>
+  <div><div class="n">10</div><div class="l">Guilds</div></div>
+  <div><div class="n">26</div><div class="l">Islands</div></div>
+  <div><div class="n">57</div><div class="l">Monsters</div></div>
+  <div><div class="n">735</div><div class="l">Items</div></div>
+</div></div>
+
+<section><div class="wrap">
+  <div class="shead">
+    <div class="eyeb">The systems</div>
+    <h2>Ten guilds, and a board that wants something today</h2>
+    <p>One guild for every skill, plus the Nightmarket. Join and the board hands you work.
+      Reputation earns titles, and the titles pay off in that guild's own skill.</p>
+  </div>
+  <div class="grid">
+    <div class="card" style="--acc:var(--gold)"><span class="badge">Daily</span>
+      <h3>Work worth doing</h3>
+      <p>Kill these, gather that, bring back this many. Three jobs a day, small to long,
+        and one skip when the board gives you a slog.</p></div>
+    <div class="card" style="--acc:var(--violet)"><span class="badge">Six ranks</span>
+      <h3>Titles that do something</h3>
+      <p>Every rank is a real bonus in that guild's own skill: speed, yield, gold, double
+        output. Not a cosmetic label.</p></div>
+    <div class="card" style="--acc:var(--blue)"><span class="badge">The Nightmarket</span>
+      <h3>Somewhere to sell it</h3>
+      <p>An honest shop pays a third for something it can see is not yours. The Nightmarket
+        pays properly, and pays better the higher you climb.</p></div>
+    <div class="card" style="--acc:var(--green);grid-column:span 2">
+      <span class="badge">On the board right now</span>
+      <h3>The Nightmarket</h3>
+      <img src="../shots/guilds.png" alt="The Nightmarket guild panel"></div>
+    <div class="card" style="--acc:var(--ember)"><span class="badge">Off the board</span>
+      <h3>Slayer bounties</h3>
+      <p>Three masters, streak points, and a shop to spend them in. Or spend them skipping
+        the task you did not want.</p></div>
+  </div>
+</div></section>
+
+<script>
+/* The panel is the pitch. Four skills tick at their own rates, XP accrues, levels land,
+   and the log fills with what dropped -- so a visitor who reads the headline and looks
+   right has watched idle progression happen instead of being told about it.
+   Rates are the game's real relative pace, compressed so something happens every
+   few seconds rather than every few minutes. */
+const SKILLS = [
+  { n:'Mining',    ic:'⛏️', c:'#8fa6c4', lv:71, xp:.28, rate:1.9,
+    drops:['Iron ore','Coal','Mithril ore','Adamant ore'] },
+  { n:'Thieving',  ic:'🎭', c:'#a98bf0', lv:64, xp:.61, rate:2.6,
+    drops:['Cut purse','Silver plate','Signet ring','Pocket watch'] },
+  { n:'Fishing',   ic:'🐟', c:'#6fb3e8', lv:83, xp:.44, rate:1.4,
+    drops:['Raw shark','Raw tuna','Raw swordfish'] },
+  { n:'Smithing',  ic:'🔨', c:'#ff7a2f', lv:59, xp:.77, rate:1.1,
+    drops:['Steel bar','Mithril bar','Steel platebody'] },
+];
+
+const rows = document.getElementById('rows');
+SKILLS.forEach((s, i) => {
+  const el = document.createElement('div');
+  el.className = 'row';
+  el.innerHTML = '<span class="ic">' + s.ic + '</span><span class="rn">'
+    + '<span class="nm"><span>' + s.n + '</span><i data-lv>Lv ' + s.lv + '</i></span>'
+    + '<span class="bar"><i data-bar style="width:' + (s.xp*100).toFixed(1) + '%;background:' + s.c + '"></i></span>'
+    + '</span>';
+  rows.appendChild(el);
+  s.el = el;
+});
+
+const log = document.getElementById('log');
+const push = (skill, what) => {
+  const d = document.createElement('div');
+  d.innerHTML = '+1 <b>' + what + '</b> <span style="opacity:.5">&middot; ' + skill + '</span>';
+  log.prepend(d);
+  while (log.children.length > 5) log.lastChild.remove();
+};
+
+let t = 0;
+setInterval(() => {
+  SKILLS.forEach(s => {
+    s.xp += s.rate / 100;
+    if (s.xp >= 1) {
+      s.xp = 0; s.lv++;
+      s.el.querySelector('[data-lv]').textContent = 'Lv ' + s.lv;
+      push(s.n, 'Level ' + s.lv);
+    } else if (Math.random() < .07) {
+      push(s.n, s.drops[Math.floor(Math.random() * s.drops.length)]);
+    }
+    s.el.querySelector('[data-bar]').style.width = Math.max(2, s.xp * 100).toFixed(1) + '%';
+  });
+  t += 1;
+  const h = String(Math.floor(t/3600)).padStart(2,'0'),
+        m = String(Math.floor(t/60)%60).padStart(2,'0'),
+        sec = String(t%60).padStart(2,'0');
+  document.getElementById('clock').textContent = h+':'+m+':'+sec;
+}, 400);
+
+['Iron ore','Cut purse','Raw shark'].forEach((d,i) => setTimeout(() => push(['Mining','Thieving','Fishing'][i], d), i*180));
+</script>
+</body></html>

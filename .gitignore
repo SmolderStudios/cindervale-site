@@ -16,3 +16,8 @@ desktop.ini
 
 # site-preview.js renders the page to PNG strips just to look at it
 scripts/_preview/
+
+# Direction mockups keep their HTML as a record of the options; their renders
+# and the scene copies are regenerated, not source.
+_directions/_shots/
+_directions/scenes/

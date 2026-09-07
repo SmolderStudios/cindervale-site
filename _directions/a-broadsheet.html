@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cindervale Idle — Direction A</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+/* ============================================================================
+   DIRECTION A — BROADSHEET
+   Editorial. The page is laid out like a print feature about the game rather
+   than a product page: one enormous headline, a screenshot that runs off the
+   edge of the paper, and the numbers set as a data rail instead of five
+   identical stat tiles.
+   Display face is Instrument Serif (high stroke contrast, modern) rather than
+   Cinzel, so the page reads 2026 and the Cinzel stays where it belongs, on the
+   wordmark and in the game itself.
+   ========================================================================== */
+:root{
+  --ink:#07060a;         /* near-black with a violet bias, not a flat #000 */
+  --ink2:#0d0b12;
+  --paper:#efe9dc;       /* warm bone */
+  --paper-dim:#a49a89;
+  --ember:#e2762c;
+  --gold:#d9ab5c;
+  --rule:#241f2b;
+  --maxw:1240px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--paper);font-family:'Archivo',system-ui,sans-serif;
+  font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+/* ---- top bar ---- */
+.bar{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
+  background:rgba(7,6,10,.82);border-bottom:1px solid var(--rule)}
+.bar .wrap{display:flex;align-items:center;gap:28px;height:66px}
+.mark{font-family:'Instrument Serif',serif;font-size:25px;letter-spacing:.01em;margin-right:auto}
+.mark b{font-weight:400;color:var(--paper)}
+.mark i{font-style:normal;color:var(--ember)}
+.bar nav{display:flex;gap:26px;font-size:13.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--paper-dim)}
+.bar nav a{color:inherit;text-decoration:none}
+.bar nav a:hover{color:var(--paper)}
+.buy{font-size:13.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--ink);background:var(--gold);padding:10px 20px;border-radius:2px;text-decoration:none}
+
+/* ---- hero: asymmetric, art runs off the right edge ---- */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--rule)}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.92fr);
+  gap:56px;align-items:center;padding-top:86px;padding-bottom:86px}
+.kicker{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--ember);margin-bottom:26px;
+  display:flex;align-items:center;gap:12px}
+.kicker::after{content:'';flex:1;height:1px;background:var(--rule)}
+h1{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(46px,6.4vw,86px);
+  line-height:.95;letter-spacing:-.015em;text-wrap:balance}
+h1 em{font-style:italic;color:var(--gold)}
+.lede{margin-top:26px;font-size:19px;color:#cfc6b6;max-width:34em}
+.acts{display:flex;align-items:center;gap:14px;margin-top:34px;flex-wrap:wrap}
+.btn{font-size:14.5px;font-weight:600;letter-spacing:.04em;text-decoration:none;
+  padding:14px 26px;border-radius:2px;display:inline-flex;align-items:center;gap:10px}
+.btn.p{background:var(--ember);color:#160c04}
+.btn.g{border:1px solid var(--rule);color:var(--paper)}
+.price{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--paper-dim)}
+.price b{color:var(--paper);font-weight:700}
+.shotwrap{position:relative;margin-right:-190px}
+.shotwrap img{border:1px solid var(--rule);box-shadow:-30px 40px 90px rgba(0,0,0,.75)}
+.shotcap{position:absolute;left:-14px;bottom:-13px;font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper-dim);
+  background:var(--ink);padding:5px 11px;border:1px solid var(--rule)}
+
+/* ---- data rail: the numbers as one line of type, not five boxes ---- */
+.rail{border-bottom:1px solid var(--rule);background:var(--ink2)}
+.rail .wrap{display:flex;flex-wrap:wrap;gap:0}
+.rail div{flex:1 1 0;min-width:150px;padding:30px 8px 30px 0}
+.rail div+div{padding-left:28px;border-left:1px solid var(--rule)}
+.rail .n{font-family:'Instrument Serif',serif;font-size:44px;line-height:1;color:var(--gold)}
+.rail .l{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--paper-dim);margin-top:9px}
+
+/* ---- feature spread ---- */
+section{padding:104px 0;border-bottom:1px solid var(--rule)}
+.head{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:end;margin-bottom:58px}
+.num{font-family:'Instrument Serif',serif;font-size:78px;line-height:.8;color:var(--rule)}
+h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(34px,4.4vw,54px);
+  line-height:1.02;letter-spacing:-.01em}
+h2 em{font-style:italic;color:var(--ember)}
+.head p{grid-column:2;margin-top:14px;color:#bdb3a3;max-width:44em}
+
+.spread{display:grid;grid-template-columns:repeat(12,1fr);gap:30px}
+.item{grid-column:span 4}
+.item h3{font-family:'Instrument Serif',serif;font-weight:400;font-size:25px;margin-bottom:9px}
+.item p{font-size:15.5px;color:#a89e8e;line-height:1.62}
+.item .tag{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--ember);display:block;margin-bottom:12px}
+.item.wide{grid-column:span 6}
+.item.big{grid-column:span 12;display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr);
+  gap:44px;align-items:center;padding:34px 0;border-top:1px solid var(--rule);margin-top:14px}
+.item.big img{border:1px solid var(--rule)}
+.item.big h3{font-size:38px;margin-bottom:14px}
+.item.big p{font-size:17px;color:#bdb3a3}
+</style></head>
+<body>
+
+<header class="bar"><div class="wrap">
+  <div class="mark"><b>Cinder</b><i>vale</i></div>
+  <nav><a href="#">The Game</a><a href="#">Skills</a><a href="#">Guilds</a><a href="#">The Sea</a><a href="#">Discord</a></nav>
+  <a class="buy" href="#">Steam &middot; $4.99</a>
+</div></header>
+
+<div class="hero"><div class="wrap">
+  <div>
+    <div class="kicker">Out now &middot; Early Access &middot; v0.9.123</div>
+    <h1>Set it running.<br>Close the game.<br><em>Come back richer.</em></h1>
+    <p class="lede">A dark-fantasy idle RPG with thirteen skills, twelve combat zones, ten guilds
+      and a sea to chart. It keeps going with the window shut.</p>
+    <div class="acts">
+      <a class="btn p" href="#">Buy on Steam</a>
+      <a class="btn g" href="#">Play the free demo</a>
+      <span class="price"><b>$4.99</b> &middot; one purchase &middot; Windows</span>
+    </div>
+  </div>
+  <div class="shotwrap">
+    <img src="../shots/guilds.png" alt="The Nightmarket guild panel">
+    <span class="shotcap">The Nightmarket &middot; one of ten guilds</span>
+  </div>
+</div></div>
+
+<div class="rail"><div class="wrap">
+  <div><div class="n">13</div><div class="l">Skills</div></div>
+  <div><div class="n">12</div><div class="l">Combat zones</div></div>
+  <div><div class="n">10</div><div class="l">Guilds</div></div>
+  <div><div class="n">26</div><div class="l">Islands</div></div>
+  <div><div class="n">735</div><div class="l">Items</div></div>
+</div></div>
+
+<section><div class="wrap">
+  <div class="head">
+    <div class="num">01</div>
+    <div><h2>Everything feeds <em>something else</em></h2></div>
+    <p>What you cut down becomes what you build. What you build decides how deep you get.
+      What you drag back out of the dark is what the best tools are made of.</p>
+  </div>
+
+  <div class="spread">
+    <div class="item"><span class="tag">Gather &middot; Make</span>
+      <h3>Thirteen skills</h3>
+      <p>Woodcutting, mining, fishing, foraging and farming feed smithing, cooking, alchemy,
+        firemaking, jeweler and crafting. Agility and thieving sit off to one side doing
+        their own thing.</p></div>
+    <div class="item"><span class="tag">98 points each</span>
+      <h3>Trees you can't finish</h3>
+      <p>Every skill has a 98-point passive tree and none of them have 98 points' worth of
+        room. Where you spend them is the build. Respec whenever.</p></div>
+    <div class="item"><span class="tag">Tiered</span>
+      <h3>Tools worth chasing</h3>
+      <p>Better tools mean faster actions and more from each one. The top tiers need drops
+        you can only get by going and fighting for them.</p></div>
+
+    <div class="item big">
+      <div>
+        <span class="tag">02 &middot; Guilds</span>
+        <h3>Ten guilds, and a board that wants something today</h3>
+        <p>One guild for every skill, plus the Nightmarket. Join and the board hands you work:
+          kill these, gather that, bring back this many. Reputation earns titles, and the titles
+          pay off in that guild's own skill.</p>
+        <p style="margin-top:14px">The board rerolls daily. If a job is a slog you get one skip.</p>
+      </div>
+      <img src="../shots/guilds.png" alt="A guild quest board">
+    </div>
+  </div>
+</div></section>
+
+</body></html>
