@@ -1,0 +1,22 @@
+name = "octane-api"
+main = "worker.js"
+compatibility_date = "2026-07-01"
+
+# Reads numbers off pump / receipt / odometer photos.
+[ai]
+binding = "AI"
+
+# Cloud backup rows + the daily scan counter. Tables are created on first use.
+[[d1_databases]]
+binding = "DB"
+database_name = "octane"
+database_id = "cd693f73-c3e1-4209-a0bb-c53c5ba2530d"
+
+# Per-IP limit so nobody can hammer the AI from a script.
+[[ratelimits]]
+name = "LIMIT"
+namespace_id = "7301"
+
+  [ratelimits.simple]
+  limit = 30
+  period = 60
